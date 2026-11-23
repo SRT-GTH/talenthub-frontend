@@ -43,10 +43,14 @@ const AnchoredPopover = ({
   const buttonRef = useRef(null);
   const timer = useRef(null);
   const pinned = useRef(false); // opened by click or focus: pointer leave does not close it
+  // Opened by a click: a second click closes it. With a mouse, hover and focus open the card before the click lands, so the click must not
+  // toggle it shut again (it used to: clicking the freshness pill showed nothing).
+  const clickOpened = useRef(false);
 
   const setOpen = useCallback(
     (next) => {
       log('open', next);
+      if (!next) clickOpened.current = false;
       setInnerOpen(next);
       onOpenChange?.(next);
     },
@@ -113,7 +117,12 @@ const AnchoredPopover = ({
         }}
         onClick={() => {
           pinned.current = true;
-          setOpen(!open);
+          if (clickOpened.current) {
+            setOpen(false);
+          } else {
+            clickOpened.current = true;
+            if (!open) setOpen(true);
+          }
         }}
         className={classNames(
           'inline-flex cursor-pointer items-center rounded-full border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',

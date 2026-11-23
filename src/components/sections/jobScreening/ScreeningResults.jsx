@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { CANDIDATES } from '../talentCandidateProfile/talentCandidateProfileData.js';
 import Button from '../../ui/Button.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -82,17 +84,21 @@ const StatCard = ({ stat, value, tone }) => (
 
 const STAT_TONES = { screened: '#111111', meet: '#2a5730', close: '#463409', dont: '#575755' };
 
-const ViewProfile = () => (
-  <a
-    href="#view-profile"
-    onClick={(event) => {
-      event.preventDefault();
-      log('branch', { action: 'view-profile', wired: false });
-    }}
+/* "View profile": the applicant's profile where one is drawn (TS-19 Ama Boateng, TS-11 Kofi Amankwah), otherwise the applicant's
+   pipeline drawer (the same applicants are on the Senior UX Designer board). ⚠️ ASSUMPTION: Figma links neither. */
+const profileTo = (id) =>
+  CANDIDATES[id]
+    ? `/recruiter/talent-search/${id}`
+    : `/recruiter/application-pipeline?drawer=${id}`;
+
+const ViewProfile = ({ id }) => (
+  <Link
+    to={profileTo(id)}
+    onClick={() => log('branch', { action: 'view-profile', id, to: profileTo(id) })}
     className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] whitespace-nowrap text-[#387440] no-underline hover:underline"
   >
     {RESULTS_TEXT.viewProfile}
-  </a>
+  </Link>
 );
 
 const ScreeningResults = ({
@@ -441,7 +447,7 @@ const ScreeningResults = ({
                     </span>
                   )}
                   <div className="ml-auto flex items-center justify-end gap-[8px] lg:ml-0">
-                    <ViewProfile />
+                    <ViewProfile id={row.id} />
                     {tab === 'close' ? (
                       <Button
                         variant="tertiary"

@@ -1,6 +1,9 @@
 import gdpaCheck from '../../../assets/talent-onboarding/panel-gdpa-check.svg';
 import watchTutorialCircle from '../../../assets/talent-onboarding/watch-tutorial-circle.png';
 import { debug } from '../../../utils/debug.js';
+import ghanaFlag from '../../../assets/entry/login-ghana-flag.svg';
+import { GenzDoodleStar } from '../../shared/assets.jsx';
+import { useOpenTalentTutorial } from './talentTutorialContext.js';
 
 const log = debug('TalentPanelParts');
 
@@ -89,20 +92,31 @@ export const StageCard = ({
   ellipseImg = 223,
   ellipseLeft = -75.84,
   ellipseTop = -85.44,
+  // Focused look ("Focused ·" frames): its own centre / size, drawn flat unless focused.rotate is given.
+  focused,
   children,
 }) => (
   <div
-    className="absolute"
+    // Position + tilt come from CSS variables so the focused: variant can swap them (inline styles can't be overridden).
+    className="gth-mode-move absolute [--sc-r:var(--sc-r-p)] [--sc-w:var(--sc-w-p)] [--sc-x:var(--sc-x-p)] [--sc-y:var(--sc-y-p)] focused:[--sc-r:var(--sc-r-f)] focused:[--sc-w:var(--sc-w-f)] focused:[--sc-x:var(--sc-x-f)] focused:[--sc-y:var(--sc-y-f)]"
     style={{
-      left: `${cx}%`,
-      top: `${cy}%`,
-      width: `${size}%`,
+      '--sc-x-p': `${cx}%`,
+      '--sc-y-p': `${cy}%`,
+      '--sc-w-p': `${size}%`,
+      '--sc-r-p': `${rotate}deg`,
+      '--sc-x-f': `${focused?.cx ?? cx}%`,
+      '--sc-y-f': `${focused?.cy ?? cy}%`,
+      '--sc-w-f': `${focused?.size ?? size}%`,
+      '--sc-r-f': `${focused?.rotate ?? 0}deg`,
+      left: 'var(--sc-x)',
+      top: 'var(--sc-y)',
+      width: 'var(--sc-w)',
       aspectRatio: aspect,
-      transform: `translate(-50%, -50%) rotate(${rotate}deg)`,
+      transform: 'translate(-50%, -50%) rotate(var(--sc-r))',
     }}
   >
     <div
-      className="absolute inset-0 overflow-hidden"
+      className="gth-mode-move absolute inset-0 overflow-hidden focused:shadow-[0_2px_2px_-1px_rgba(27,36,44,0.04),0_10px_17px_-6px_rgba(27,36,44,0.08)]!"
       style={{
         border: `${cq(border)} solid ${borderColor}`,
         borderRadius: cq(radius),
@@ -153,7 +167,7 @@ export const StageCard = ({
 /* Data Protected chip - Figma 8027:203092 (267.6 x 64). left/top = % of stage. */
 export const DataProtectedChip = ({ left, top }) => (
   <div
-    className="absolute flex items-center border border-[#fffefc] bg-[#ebf1ec]"
+    className="gth-mode-move absolute flex items-center border border-[#fffefc] bg-[#ebf1ec] playful:rotate-[3deg] playful:border-[1.2px]! playful:border-[#1c2a21]! playful:shadow-[3px_3px_0_#1c2a21]!"
     style={{
       left: `${left}%`,
       top: `${top}%`,
@@ -185,7 +199,7 @@ export const DataProtectedChip = ({ left, top }) => (
 /* Ghana Data Protection Act badge - Figma 8027:203105 (287.6 x 40). */
 export const GdpaBadge = ({ left, top }) => (
   <div
-    className="absolute flex items-center border border-[rgba(28,42,33,0.06)] bg-white"
+    className="gth-mode-move absolute flex items-center border border-[rgba(28,42,33,0.06)] bg-white playful:-rotate-[3deg] playful:border-[1.2px]! playful:border-[#1c2a21]! playful:bg-[#ffd86b]! playful:shadow-[3px_3px_0_#1c2a21]!"
     style={{
       left: `${left}%`,
       top: `${top}%`,
@@ -204,7 +218,7 @@ export const GdpaBadge = ({ left, top }) => (
       style={{ width: cq(13.6), height: cq(13.6), transform: 'rotate(8deg)' }}
     />
     <p
-      className="whitespace-nowrap font-semibold text-[#387440]"
+      className="whitespace-nowrap font-semibold text-[#387440] playful:text-[#525252]"
       style={{ fontSize: fs(14), lineHeight: cq(24), letterSpacing: '0.1px' }}
     >
       Ghana Data Protection Act compliant
@@ -215,7 +229,7 @@ export const GdpaBadge = ({ left, top }) => (
 /* Adult / Youth experience card - Figma 8027:203112 (235.1 x 102). */
 export const AdultYouthCard = ({ left, top }) => (
   <div
-    className="absolute flex flex-col border border-[#e6e6e6]"
+    className="gth-mode-move absolute flex flex-col border border-[#e6e6e6] playful:rotate-[3deg] playful:border-[1.2px]! playful:border-[#1c2a21]! playful:bg-[rgba(255,255,255,0.92)]! playful:shadow-[3px_3px_0_#1c2a21]!"
     style={{
       left: `${left}%`,
       top: `${top}%`,
@@ -267,29 +281,32 @@ export const AdultYouthCard = ({ left, top }) => (
  * circle (label pill is opacity 0 in the frames) at left 610 / top 804 of the
  * 739-wide panel. Scaled with the stage via container units.
  */
-export const StageWatchTutorial = ({ label = 'Watch onboarding tutorial', refH, onClick }) => (
-  <div
-    className="pointer-events-auto absolute z-10"
-    style={{
-      left: `${((610 / REF_W) * 100).toFixed(2)}%`,
-      top: `${((804 / refH) * 100).toFixed(2)}%`,
-    }}
-  >
-    <button
-      type="button"
-      aria-label={label}
-      onClick={() => {
-        log('watch tutorial clicked');
-        onClick?.();
+export const StageWatchTutorial = ({ label = 'Watch onboarding tutorial', refH, onClick }) => {
+  const openTutorial = useOpenTalentTutorial();
+  return (
+    <div
+      className="pointer-events-auto absolute z-10"
+      style={{
+        left: `${((610 / REF_W) * 100).toFixed(2)}%`,
+        top: `${((804 / refH) * 100).toFixed(2)}%`,
       }}
-      className="block cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green"
-      style={{ width: 'max(36px, 9.74cqw)', aspectRatio: '1' }}
     >
-      {/* Figma 8027:203121 'Frame 145' (glass 72px circle) exported as PNG @3x */}
-      <img src={watchTutorialCircle} alt="" draggable={false} className="block size-full" />
-    </button>
-  </div>
-);
+      <button
+        type="button"
+        aria-label={label}
+        onClick={() => {
+          log('watch tutorial clicked');
+          (onClick ?? openTutorial)?.();
+        }}
+        className="block cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green"
+        style={{ width: 'max(36px, 9.74cqw)', aspectRatio: '1' }}
+      >
+        {/* Figma 8027:203121 'Frame 145' (glass 72px circle) exported as PNG @3x */}
+        <img src={watchTutorialCircle} alt="" draggable={false} className="block size-full" />
+      </button>
+    </div>
+  );
+};
 
 /* Sparkle-26 doodle (Figma 'spark, sparkle, 26' 76.7 x 73.9 before rotation). */
 export const StageSparkle = ({ src, cx, cy, rotate }) => (
@@ -297,7 +314,7 @@ export const StageSparkle = ({ src, cx, cy, rotate }) => (
     src={src}
     alt=""
     draggable={false}
-    className="absolute block max-w-none"
+    className="absolute block max-w-none focused:hidden"
     style={{
       left: `${cx}%`,
       top: `${cy}%`,
@@ -306,4 +323,37 @@ export const StageSparkle = ({ src, cx, cy, rotate }) => (
       transform: `translate(-50%, -50%) rotate(${rotate}deg)`,
     }}
   />
+);
+
+/*
+ * Playful-only stage touches: doodle stars and the "Built for Ghana's next gen" brand sticker (the washi-tape strips drawn in Figma
+ * are left out, product owner 2026-11-15). Hidden in the Focused look (the "Focused ·" frames have none).
+ * Positions are % of the aspect-locked stage; sizes are container units of it.
+ */
+export const StageStar = ({ x, y, size }) => (
+  <GenzDoodleStar
+    className="absolute hidden playful:block"
+    style={{ left: `${x}%`, top: `${y}%`, width: cq(size), height: cq(size) }}
+  />
+);
+
+export const StageBrandSticker = ({ x, y, rotate = -4 }) => (
+  <div
+    aria-hidden="true"
+    className="absolute hidden items-center whitespace-nowrap border-[1.2px] border-[#1c2a21] bg-[#fbf6ea] playful:flex"
+    style={{
+      left: `${x}%`,
+      top: `${y}%`,
+      transform: `translate(-50%, -50%) rotate(${rotate}deg)`,
+      gap: cq(8),
+      padding: `${cq(8)} ${cq(14)}`,
+      borderRadius: cq(10),
+      boxShadow: `${cq(3)} ${cq(3)} 0 #1c2a21`,
+    }}
+  >
+    <img src={ghanaFlag} alt="" draggable={false} style={{ width: cq(18), height: cq(18) }} />
+    <p className="font-bold leading-none text-[#1c2a21]" style={{ fontSize: fs(15) }}>
+      Built for Ghana&apos;s next gen
+    </p>
+  </div>
 );

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import AvatarPreview from '../../engagement/avatar/AvatarPreview.jsx';
+import SkeletonBlock from '../../../ui/SkeletonBlock.jsx';
 import { useAvatarSelection } from '../../../../hooks/useAvatarSelection.js';
 import hexA from '../../../../assets/engagement-v2/avatar/hex-a.svg';
 import hexB from '../../../../assets/engagement-v2/avatar/hex-b.svg';
@@ -19,7 +20,8 @@ const log = debug('AvatarHero');
  * top-left): ring 123,90 · sparkles 19,24 / 893,35 / 84,<sparkleBottom> · showcase 176,129 · controls 190,793 · tag 60,40 · heading 60,80.
  * The showcase's own dashed "Border" ring and three 8px dots sit OUTSIDE its clipped frame in Figma, so they are not visible and not drawn.
  * Playful: Bricolage heading + username, hard shadows, the rotated yellow sticker. Below lg: tag + heading, then the avatar disc and
- * the controls, centred. Props: meta (STEP_META entry).
+ * the controls, centred. Props: meta (STEP_META entry), loading (signed in, saved avatar still loading: the showcase and the
+ * name tag show skeletons instead of the provider's demo seed, and undo / shuffle are inert ⚠️ ASSUMPTION, no loading frame).
  */
 const HERO_BG = [
   'radial-gradient(ellipse 131% 112% at 15% 15%, rgba(56,116,64,0.8) 0%, rgba(56,116,64,0) 87.5%)',
@@ -46,11 +48,14 @@ const ControlButton = ({ onClick, label, children }) => (
   </button>
 );
 
-const AvatarHero = ({ meta }) => {
+const AvatarHero = ({ meta, loading = false }) => {
   const { selection, undo, setField } = useAvatarSelection();
   useEffect(() => {
     log('mount', { tag: meta.tag });
   }, [meta.tag]);
+  useEffect(() => {
+    log('showcase', loading ? 'loading skeleton' : 'avatar');
+  }, [loading]);
 
   const shuffle = () => {
     log('shuffle');
@@ -165,11 +170,21 @@ const AvatarHero = ({ meta }) => {
             'radial-gradient(circle at 50% 50%, #387440 0%, rgba(255,255,255,0.15) 65%, rgba(255,255,255,0) 80%)',
         }}
       >
-        <AvatarPreview className="!max-w-none [&_.aspect-square]:!bg-transparent [&_div[aria-hidden='true']]:!hidden" />
+        {loading ? (
+          <SkeletonBlock className="absolute inset-[12%] rounded-full opacity-70" />
+        ) : (
+          <AvatarPreview className="!max-w-none [&_.aspect-square]:!bg-transparent [&_div[aria-hidden='true']]:!hidden" />
+        )}
       </div>
 
       {/* controls: undo · username · shuffle */}
-      <div className="relative z-10 flex items-center justify-center gap-[12px] lg:absolute lg:left-[calc(190*var(--u))] lg:top-[calc(793*var(--u))] lg:w-[calc(612*var(--u))]">
+      <div
+        className={classNames(
+          'relative z-10 flex items-center justify-center gap-[12px] lg:absolute lg:left-[calc(190*var(--u))] lg:top-[calc(793*var(--u))] lg:w-[calc(612*var(--u))]',
+          loading && 'pointer-events-none'
+        )}
+        inert={loading || undefined}
+      >
         <ControlButton
           label="Undo last change"
           onClick={() => {
@@ -186,9 +201,13 @@ const AvatarHero = ({ meta }) => {
             SHADOW_HARD
           )}
         >
-          <span className="font-sans text-[15px] font-semibold leading-[19px] text-[#387440] playful:font-heading">
-            {selection.username || 'KofiA_23'}
-          </span>
+          {loading ? (
+            <SkeletonBlock className="h-[19px] w-[88px] rounded-[6px]" />
+          ) : (
+            <span className="font-sans text-[15px] font-semibold leading-[19px] text-[#387440] playful:font-heading">
+              {selection.username || 'KofiA_23'}
+            </span>
+          )}
           <button
             type="button"
             aria-label="Edit name"

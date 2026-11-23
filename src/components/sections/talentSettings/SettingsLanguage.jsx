@@ -155,7 +155,15 @@ const SettingsLanguage = ({ settings }) => {
         <SettingRow
           top={false}
           title={copy.formats.dateFormat.title}
-          description={copy.formats.dateFormat.description}
+          description={
+            // Live: the example is today's real date (the drawn copy says 15/10/2026).
+            live
+              ? copy.formats.dateFormat.description.replace(
+                  /\d{2}\/\d{2}\/\d{4}/,
+                  new Date().toLocaleDateString('en-GB')
+                )
+              : copy.formats.dateFormat.description
+          }
           control={<Chip>{copy.formats.dateFormat.value}</Chip>}
         />
       </GroupCard>

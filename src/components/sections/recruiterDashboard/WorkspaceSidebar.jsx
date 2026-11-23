@@ -83,7 +83,7 @@ const WorkspaceSidebar = ({
     <aside
       aria-label="Recruiter navigation"
       className={classNames(
-        'relative hidden h-full w-[clamp(280px,17.5vw,303px)] shrink-0 flex-col gap-[8px] overflow-y-auto border-r-2 border-white bg-white pt-[56px] pb-[22px] [scrollbar-width:none] lg:flex [&::-webkit-scrollbar]:hidden',
+        'slim-scrollbar relative hidden h-full w-[clamp(280px,17.5vw,303px)] shrink-0 flex-col gap-[8px] overflow-y-auto border-r-2 border-white bg-white pt-[56px] pb-[22px] [scrollbar-width:none] lg:flex [&::-webkit-scrollbar]:hidden',
         className
       )}
     >

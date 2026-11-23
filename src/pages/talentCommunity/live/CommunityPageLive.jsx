@@ -39,6 +39,7 @@ import {
 import {
   AboutPanel,
   MembersPanel,
+  EventsPanel,
 } from '../../../components/sections/talentCommunity/CommunityTabPanels.jsx';
 import {
   COMMUNITY_PAGE_COPY,
@@ -53,6 +54,7 @@ import {
 import { useLiveCommunityPage } from '../../../components/sections/talentCommunity/useLiveCommunity.js';
 import { LiveError, LiveLoading } from './LiveStates.jsx';
 import { shareLink } from './shareLink.js';
+import ClubsSwitchRow from '../../../components/sections/talentCommunity/ClubsSwitchRow.jsx';
 
 const log = debug('CommunityPageLive');
 
@@ -97,7 +99,7 @@ const CommunityPageLive = ({ community }) => {
     const ok = await page.join();
     if (ok) {
       update({ welcome: true });
-      setToast(`You’re in! Say hi to ${detail?.name.replace(/^#/, '') ?? 'the community'}`);
+      setToast(`You’re in! Say hi to ${detail?.name.replace(/^#/, '') ?? 'the club'}`);
     } else setToast('Couldn’t join right now. Try again.');
   };
 
@@ -179,7 +181,7 @@ const CommunityPageLive = ({ community }) => {
 
   let main;
   if (status === 'loading' || !detail) {
-    main = status === 'error' ? null : <LiveLoading label="Loading community…" />;
+    main = status === 'error' ? null : <LiveLoading label="Loading club…" />;
   } else if (tab === 'about') {
     main = (
       <div className="flex min-w-0 flex-col gap-[16px]">
@@ -196,6 +198,8 @@ const CommunityPageLive = ({ community }) => {
     );
   } else if (tab === 'members') {
     main = <MembersPanel detail={detail} />;
+  } else if (tab === 'events') {
+    main = <EventsPanel onFeed={() => update({ tab: null })} />;
   } else {
     // US-5.2.2-02: the feed is filtered by purpose on the server; the filter resets on every visit.
     const posts = detail.posts;
@@ -220,7 +224,7 @@ const CommunityPageLive = ({ community }) => {
         {joined && welcome ? (
           <Guidelines
             rules={detail.about.rules.slice(0, 3).map((r) => `${r.title}. ${r.text}`)}
-            note="Posts that are off-topic for this community are flagged for a moderator."
+            note="Posts that are off-topic for this club are flagged for a moderator."
             onGotIt={() => update({ welcome: null })}
             onReadAll={() => update({ tab: 'about', welcome: null })}
           />
@@ -286,16 +290,17 @@ const CommunityPageLive = ({ community }) => {
           count: detail.info.members,
           tone: tab === 'members' ? 'gold' : undefined,
         },
-        { id: 'events', label: COMMUNITY_PAGE_COPY.tabs.events, inert: true },
+        { id: 'events', label: COMMUNITY_PAGE_COPY.tabs.events },
       ]
     : [];
 
   return (
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1602px] flex-col gap-[20px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.39vw,24px)]">
+        <ClubsSwitchRow rail={community.rail} />
         {status === 'error' ? (
           <LiveError
-            message="Couldn’t load this community. Check your connection and try again."
+            message="Couldn’t load this club. Check your connection and try again."
             onRetry={page.reload}
           />
         ) : null}
@@ -334,7 +339,7 @@ const CommunityPageLive = ({ community }) => {
             </div>
           </>
         ) : status === 'loading' ? (
-          <LiveLoading label="Loading community…" />
+          <LiveLoading label="Loading club…" />
         ) : null}
       </div>
       {toast ? <PostedToast text={toast} onDone={hideToast} /> : null}
@@ -384,7 +389,7 @@ const CommunityPageLive = ({ community }) => {
           onMute={() => {
             toggleMute(communityId);
             update({ modal: null });
-            setToast('Muted. You won’t get notifications from this community');
+            setToast('Muted. You won’t get notifications from this club');
           }}
           onLeave={onLeave}
         />

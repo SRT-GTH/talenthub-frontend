@@ -23,6 +23,7 @@ import {
   SEL_BORDER,
   SEL_SHADOW,
   buildGameResult,
+  displayOrder,
   formatClock,
   topicRowsFor,
   useCountdown,
@@ -391,16 +392,22 @@ const ChessBlitz = ({ frame }) => {
               aria-label="Your first move"
               className="flex flex-col gap-[12px]"
             >
-              {puzzle.options.map((o, i) => (
-                <Move
-                  key={o.san}
-                  option={o}
-                  selected={state.picked === i}
-                  tone={feedback && i !== puzzle.answer ? 'wrong' : 'ok'}
-                  locked={feedback}
-                  onPick={() => dispatch({ type: 'pick', index: i })}
-                />
-              ))}
+              {displayOrder(
+                puzzle.options.length,
+                `chess-${state.runKey}-${state.index}`,
+                Boolean(frame)
+              )
+                .map((i) => [puzzle.options[i], i])
+                .map(([o, i]) => (
+                  <Move
+                    key={o.san}
+                    option={o}
+                    selected={state.picked === i}
+                    tone={feedback && i !== puzzle.answer ? 'wrong' : 'ok'}
+                    locked={feedback}
+                    onPick={() => dispatch({ type: 'pick', index: i })}
+                  />
+                ))}
             </div>
             <div className="flex items-center gap-[10px] rounded-[14px] bg-[#faf4e8] px-[16px] py-[12px]">
               <GameBulbIcon className="size-[18px] shrink-0 text-[#463409]" />

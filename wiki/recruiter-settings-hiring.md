@@ -5,17 +5,17 @@
 
 ## Frame → URL (diff % = `framecmp.mjs`, Focused, 1728 wide, 2026-11-07; ✅ VERIFIED by reading both images side by side)
 
-| Frame                                       | Figma id      | URL (`/recruiter/settings` + …)                                                    | Diff %     |
-| ------------------------------------------- | ------------- | ---------------------------------------------------------------------------------- | ---------- |
-| SR-08 Settings · Hiring preferences         | `10161:79955` | `?tab=hiring`                                                                      | 3.6        |
-| SR-09 Edit automatic message · when applies | `10161:80292` | `?tab=hiring&modal=auto-message` (+ `&message=applied\|forward\|declined\|closed`) | 6.0 (1)    |
-| SR-15 Hiring preferences · saved (toast)    | `10161:82009` | `?tab=hiring&toast=saved`                                                          | 4.0        |
-| SR-19 Hiring paused for the organisation    | `10161:83628` | `?tab=language&hiring=paused&toast=hiring-paused` (2)                              | 3.8 to 5.2 |
-| SR-10 Settings · Notifications              | `10161:80671` | `?tab=notifications`                                                               | 3.4        |
-| SR-21 Notifications · paused for 24 hours   | `10161:84249` | `?tab=notifications&state=paused`                                                  | 3.5        |
-| SR-11 Settings · Plan and billing           | `10161:81038` | `?tab=billing`                                                                     | 3.4        |
-| SR-12 Settings · Accessibility              | `10161:81376` | `?tab=accessibility`                                                               | 3.1        |
-| SR-22 Accessibility · unsaved changes       | `10161:84623` | `?tab=accessibility&state=unsaved`                                                 | 3.4        |
+| Frame                                       | Figma id      | URL (`/recruiter/settings` + …)                                                    | Diff % (2026-11-22) |
+| ------------------------------------------- | ------------- | ---------------------------------------------------------------------------------- | ------------------- |
+| SR-08 Settings · Hiring preferences         | `10161:79955` | `?tab=hiring`                                                                      | 3.6                 |
+| SR-09 Edit automatic message · when applies | `10161:80292` | `?tab=hiring&modal=auto-message` (+ `&message=applied\|forward\|declined\|closed`) | 6.0 (1)             |
+| SR-15 Hiring preferences · saved (toast)    | `10161:82009` | `?tab=hiring&toast=saved`                                                          | 4.1                 |
+| SR-19 Hiring paused for the organisation    | `10161:83628` | `?tab=language&hiring=paused&toast=hiring-paused` (2)                              | 3.9                 |
+| SR-10 Settings · Notifications              | `10161:80671` | `?tab=notifications`                                                               | 3.4                 |
+| SR-21 Notifications · paused for 24 hours   | `10161:84249` | `?tab=notifications&state=paused`                                                  | 3.5                 |
+| SR-11 Settings · Plan and billing           | `10161:81038` | `?tab=billing`                                                                     | 3.5                 |
+| SR-12 Settings · Accessibility              | `10161:81376` | `?tab=accessibility`                                                               | 3.2                 |
+| SR-22 Accessibility · unsaved changes       | `10161:84623` | `?tab=accessibility&state=unsaved`                                                 | 3.4                 |
 
 (1) The Figma modal is centred in the 1443px frame, ours in the 1391px viewport, so the dialog sits about 190px lower; the dialog itself matches. (2) SR-19 is drawn over the **Language and data** tab (another builder's), not over Hiring: the banner and the toast are this builder's, the page below is the Language tab. `?tab=hiring&hiring=paused` shows the same banner over Hiring. Diff numbers of SR-08 and SR-11 were measured before two small tweaks (track width cap, `md:` min-height); the dev server crashed under the shared load when re-measuring. ❓ re-run `framecmp` once the server is quiet.
 

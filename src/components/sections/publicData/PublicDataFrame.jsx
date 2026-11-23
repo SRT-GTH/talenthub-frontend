@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import PublicFooter from './PublicFooter.jsx';
@@ -10,6 +10,7 @@ import OfflineBanner from './status/OfflineBanner.jsx';
 import { offlineFreshness } from './status/publicDataCache.js';
 import useOnlineStatus from './status/useOnlineStatus.js';
 import { activeNavId } from './publicDataNav.js';
+import { searchDestination } from './publicDataSearch.js';
 
 const log = debug('PublicDataFrame');
 
@@ -40,6 +41,7 @@ const PublicDataFrame = ({
   className,
 }) => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const activeId = active ?? activeNavId(pathname);
   const { rail, drawer, update } = data;
   const online = useOnlineStatus();
@@ -107,6 +109,13 @@ const PublicDataFrame = ({
           freshness={online ? freshness : offlineFreshness()}
           q={data.q}
           onSearch={(q) => update({ q: q || null }, { replace: true })}
+          onSubmitSearch={(q) => {
+            // The directories filter as you type, so Enter there stays on the page; elsewhere it leads to the matching screen.
+            if (/^\/data\/(partners|opportunities)\/?$/.test(pathname)) return;
+            const to = searchDestination(q);
+            log('search →', to.split('?')[0]);
+            navigate(to);
+          }}
           onShare={onShare || (() => update({ modal: 'share' }))}
           onDownload={hideDownload ? undefined : () => update({ modal: 'download' })}
           onMenu={() => update({ drawer: true })}

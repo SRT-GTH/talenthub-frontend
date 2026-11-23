@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import BannerToast from '../../ui/BannerToast.jsx';
@@ -24,6 +25,7 @@ import SearchPanel from './SearchPanel.jsx';
 import { LanguageMenu, RecruiterNotificationsPanel } from './TopBarPanels.jsx';
 import { FeedbackDialog, MyFeedbackPanel } from './FeedbackParts.jsx';
 import { dashIcons } from './recruiterDashboardIcons.js';
+import { RECRUITER_NOTIFICATION_TARGETS } from '../recruiterSettings/help/useRecruiterTopBarPanels.jsx';
 import {
   HERO,
   JOBS,
@@ -57,12 +59,32 @@ const log = debug('RecruiterDashboard');
  */
 const SWITCH_DELAY_MS = 900;
 
+/* Where the hero chips, the no-affiliation card and the jobs states lead. Figma links none of them (the hero chips only swap to their hover
+   variant), so these are the app's own screens: ⚠️ ASSUMPTION for "Edit profile" (Settings > Account, "how you appear to candidates"),
+   the affiliation hand-offs (the onboarding organisation and type steps) and "Contact support" (Help and support). */
+const QUICK_ACTION_TARGETS = {
+  search: '/recruiter/talent-search',
+  post: '/recruiter/job-postings/new',
+  edit: '/recruiter/settings?tab=account',
+};
+const AFFILIATION_TARGETS = {
+  request: '/onboarding/recruiter/organisation',
+  create: '/onboarding/recruiter/organisation/create',
+  freelancer: '/onboarding/recruiter/type',
+};
+const JOBS_STATE_TARGETS = { empty: '/recruiter/job-postings/new', suspended: '/recruiter/help' };
+
 const RecruiterDashboardSection = () => {
   // Figma draws the dashboard in SF Pro Rounded (bundled as `GTH Parent Rounded`); scoped to this screen.
   useScopedRoundedFont('data-recruiter-ui');
   const state = useRecruiterDashboardState();
   const { org, single, pending, noOrg, loading, panel, toast, set, get } = state;
   const switchTimer = useRef(null);
+  const navigate = useNavigate();
+  const go = (what, to) => {
+    log('navigate', { what, to });
+    navigate(to);
+  };
 
   useEffect(() => {
     log('mount', { org: org.id, single, pending, noOrg, loading, panel, toast });
@@ -87,10 +109,7 @@ const RecruiterDashboardSection = () => {
       open={panel === key}
       onOpenChange={(open) => set({ panel: open ? key : '' })}
       onSelect={handleSelectOrg}
-      onRequest={() => {
-        log('request affiliation (no screen drawn in this canvas)');
-        set({ panel: '' });
-      }}
+      onRequest={() => go('request affiliation', AFFILIATION_TARGETS.request)}
     />
   );
   const orgSwitcher = renderOrgSwitcher('org');
@@ -106,6 +125,9 @@ const RecruiterDashboardSection = () => {
     log('branch: job row action', { action, jobId });
     if (action === 'pause' || action === 'close') {
       set({ jobMenu: '', dialog: action, job: jobId });
+    } else if (action === 'view' || action === 'edit') {
+      // The posting detail / edit pages (Job Postings canvas JM-01 / JM-03); mock data shows one posting for every id.
+      go(`job ${action}`, `/recruiter/job-postings/${jobId}${action === 'edit' ? '/edit' : ''}`);
     } else {
       set({ jobMenu: '' });
     }
@@ -201,7 +223,11 @@ const RecruiterDashboardSection = () => {
         },
         search:
           panel === 'search' ? (
-            <SearchPanel query={get('q')} onClose={() => set({ panel: '', q: '' })} />
+            <SearchPanel
+              query={get('q')}
+              onClose={() => set({ panel: '', q: '' })}
+              onNavigate={(to) => go('search result', to)}
+            />
           ) : null,
         onNotifications: () =>
           set({
@@ -214,8 +240,12 @@ const RecruiterDashboardSection = () => {
               empty={panel === 'notifications-empty'}
               onClose={() => set({ panel: '' })}
               onNavigate={(action) => {
-                log('notifications panel action (no destination in this canvas):', action);
-                if (action === 'search-talents') set({ panel: '' });
+                const to = RECRUITER_NOTIFICATION_TARGETS[action];
+                if (to) go(`notification ${action}`, to);
+                else {
+                  log('notifications panel action (no screen for it):', action);
+                  if (action === 'expand') set({ panel: '' });
+                }
               }}
             />
           ) : null,
@@ -264,15 +294,15 @@ const RecruiterDashboardSection = () => {
 
             <DashHero
               summary={noOrg ? HERO.noOrg : HERO.summary(org.name)}
-              onQuickAction={(id) => log('quick action (no destination in this canvas):', id)}
+              onQuickAction={(id) => go(`quick action ${id}`, QUICK_ACTION_TARGETS[id])}
               onCustomize={() => log('customize (no screen drawn in this canvas)')}
             />
 
             {noOrg ? (
               <OrgLinkCard
-                onRequest={() => log('request affiliation (no screen drawn in this canvas)')}
-                onCreate={() => log('create organisation (no screen drawn in this canvas)')}
-                onFreelancer={() => log('continue as freelancer (no screen drawn in this canvas)')}
+                onRequest={() => go('request affiliation', AFFILIATION_TARGETS.request)}
+                onCreate={() => go('create organisation', AFFILIATION_TARGETS.create)}
+                onFreelancer={() => go('continue as freelancer', AFFILIATION_TARGETS.freelancer)}
               />
             ) : (
               <>
@@ -292,8 +322,10 @@ const RecruiterDashboardSection = () => {
                     pausedIds={pausedIds}
                     jobsState={jobsState}
                     onStateAction={(kind) => {
-                      log('state action (no destination in this canvas):', kind);
+                      log('branch: jobs state action', kind);
                       if (kind === 'error') set({ jobs: '' });
+                      else if (JOBS_STATE_TARGETS[kind])
+                        go(`jobs ${kind}`, JOBS_STATE_TARGETS[kind]);
                     }}
                   />
                   <VerificationWidget
@@ -331,9 +363,12 @@ const RecruiterDashboardSection = () => {
                       />
                     }
                     onStage={(id) => set({ stage: get('stage') === id ? '' : id })}
-                    onInvite={() =>
-                      log('invite recommended talents (scrolls to the talents widget)')
-                    }
+                    onInvite={() => {
+                      log('invite recommended talents: scroll to the talents widget');
+                      document
+                        .getElementById('dash-talents')
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
                   />
                   <FeedbackWidget
                     readOnly={pending}
@@ -369,8 +404,15 @@ const RecruiterDashboardSection = () => {
                   }
                   onInvite={(id) => set({ dialog: 'invite', talent: id })}
                   onSave={handleSave}
-                  onView={(id) => log('view talent (profile screen is not in this canvas):', id)}
-                  onRefine={() => log('edit job descriptions (no screen drawn in this canvas)')}
+                  onView={(id) => {
+                    // ⚠️ ASSUMPTION: the dashboard's talents have no profile page of their own; talent search for their name (as the top-bar search's people rows).
+                    const name = TALENTS.cards.find((card) => card.id === id)?.name ?? '';
+                    go(
+                      `view talent ${id}`,
+                      `/recruiter/talent-search?q=${encodeURIComponent(name)}`
+                    );
+                  }}
+                  onRefine={() => go('edit job descriptions', '/recruiter/job-postings')}
                 />
 
                 <SkillsWidget

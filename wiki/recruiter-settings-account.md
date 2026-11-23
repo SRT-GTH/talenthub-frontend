@@ -5,16 +5,16 @@
 
 ## Frame → URL (framecmp, 0.5x export; ⚠️ the dev server was overloaded, so several runs returned the cold-loader screenshot)
 
-| Frame                            | Figma id      | URL (`/recruiter/settings` + …)                                 | Diff %                                   |
-| -------------------------------- | ------------- | --------------------------------------------------------------- | ---------------------------------------- |
-| SR-01 Account                    | `10161:77483` | (none) or `?tab=account`                                        | 3.2 ✅                                   |
-| SR-20 Account · work email error | `10161:83955` | `?tab=account&state=email-error`                                | 4.4 (loader frame, not a real result) 🔶 |
-| SR-02 Organisation               | `10161:77780` | `?tab=organisation`                                             | 3.0 (loader frame, not a real result) 🔶 |
-| SR-03 Team and roles             | `10161:78103` | `?tab=team`                                                     | 2.8 ✅                                   |
-| SR-04 Invite teammate            | `10161:78453` | `?tab=team&modal=invite-teammate&email=ama.k%40silverrock.tech` | 5.5 ✅                                   |
-| SR-05 Invite · role menu open    | `10161:78832` | same + `&role=open`                                             | not measured (loader) ❓                 |
-| SR-06 Invite sent toast          | `10161:79229` | `?tab=team&toast=invite-sent`                                   | 4.4 ✅                                   |
-| SR-07 Remove teammate confirm    | `10161:79590` | `?tab=team&modal=remove-teammate&member=efua`                   | 5.3 ✅                                   |
+| Frame                            | Figma id      | URL (`/recruiter/settings` + …)                                 | Diff % (2026-11-22) |
+| -------------------------------- | ------------- | --------------------------------------------------------------- | ------------------- |
+| SR-01 Account                    | `10161:77483` | (none) or `?tab=account`                                        | 3.2                 |
+| SR-20 Account · work email error | `10161:83955` | `?tab=account&state=email-error`                                | 3.1                 |
+| SR-02 Organisation               | `10161:77780` | `?tab=organisation`                                             | 2.8                 |
+| SR-03 Team and roles             | `10161:78103` | `?tab=team`                                                     | 3.0                 |
+| SR-04 Invite teammate            | `10161:78453` | `?tab=team&modal=invite-teammate&email=ama.k%40silverrock.tech` | 5.6                 |
+| SR-05 Invite · role menu open    | `10161:78832` | same + `&role=open`                                             | 5.4                 |
+| SR-06 Invite sent toast          | `10161:79229` | `?tab=team&toast=invite-sent`                                   | 4.4                 |
+| SR-07 Remove teammate confirm    | `10161:79590` | `?tab=team&modal=remove-teammate&member=efua`                   | 5.3                 |
 
 ## URL keys (also at the top of `account/accountData.js`)
 

@@ -243,7 +243,8 @@ const GATE_ACTIONS = (second, fourth, third = 'Add registrars and teachers') => 
     icon: 'map',
     tint: '#ebf1ec',
     ink: '#244a9f',
-    to: '/institution/students',
+    // the public region dashboard (resolved by the page; /institution/students is closed before approval and bounced back here)
+    to: '{regionData}',
   },
   {
     id: 'students',
@@ -306,7 +307,10 @@ export const GATES = {
       title: 'We’re checking your documents',
       subtitle:
         'A reviewer picked up your application this morning. You’ll hear from us by Tuesday 20 October.',
-      action: { label: 'Contact support', href: 'mailto:institutions@ghanatalenthub.example' },
+      action: {
+        label: 'Contact support',
+        href: 'mailto:info@ghanatalenthub.com?subject=Accreditation',
+      },
     },
     actions: GATE_ACTIONS('Opens after approval', 'Publish after approval'),
     checklist: {

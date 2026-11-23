@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
+import useScopedRoundedFont from '../../hooks/useScopedRoundedFont.js';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import {
   AgencyGate,
@@ -52,7 +53,13 @@ const Fallback = () => <PageLoader look="focused" />;
 
 const SignedIn = ({ children }) => <AgencyGate>{children}</AgencyGate>;
 
-const AgencyApp = () => (
+const AgencyApp = () => {
+  // Every agency frame is drawn in SF Pro Rounded: turn on the bundled face (styles/parent.css) for the whole portal.
+  useScopedRoundedFont('data-agency-ui');
+  return <AgencyRoutes />;
+};
+
+const AgencyRoutes = () => (
   <AgencySessionProvider>
     <Suspense fallback={<Fallback />}>
       <Routes>

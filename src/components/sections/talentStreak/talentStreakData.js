@@ -178,10 +178,12 @@ export const STREAK_PAGE_COPY = {
   counts: {
     title: 'Any one of these keeps your flame alive',
     items: [
-      { id: 'lesson', label: 'Finish a lesson', icon: 'book' },
-      { id: 'check', label: 'Pass a quick check', icon: 'quiz' },
-      { id: 'game', label: 'Play a Skills Lab game', icon: 'game' },
-      { id: 'assessment', label: 'Complete an assessment', icon: 'clip' },
+      // `to`: where the action is done (not linked in Figma; the pages that award it). Quick checks live
+      // inside My Learning lessons; games on the Skills Lab Games tab.
+      { id: 'lesson', label: 'Finish a lesson', icon: 'book', to: '/learning' },
+      { id: 'check', label: 'Pass a quick check', icon: 'quiz', to: '/learning' },
+      { id: 'game', label: 'Play a Skills Lab game', icon: 'game', to: '/skills-lab?tab=games' },
+      { id: 'assessment', label: 'Complete an assessment', icon: 'clip', to: '/my-assessment' },
     ],
   },
   milestonesTitle: 'Milestones',

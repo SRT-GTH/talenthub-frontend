@@ -60,7 +60,8 @@ const AgencyDetailsForm = ({ onSubmitted, onDuplicate }) => {
     const keys = Object.keys(found);
     if (keys.length) {
       log('invalid', { keys });
-      formRef.current?.querySelector('[aria-invalid="true"]')?.focus();
+      // the error marks render after this handler: focus the first invalid field on the next frame
+      requestAnimationFrame(() => formRef.current?.querySelector('[aria-invalid="true"]')?.focus());
       return;
     }
     setBusy(true);
@@ -224,7 +225,7 @@ const AgencyDetailsForm = ({ onSubmitted, onDuplicate }) => {
         <p className="m-0 flex items-center gap-[4px] font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#737373]">
           Already have an account?
           <Link
-            to="/agency"
+            to="/login"
             className="inline-flex min-h-[24px] items-center font-semibold tracking-[0.1px] text-[#387440] no-underline"
           >
             Log in instead

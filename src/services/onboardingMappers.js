@@ -70,6 +70,18 @@ export const toIsoDate = (raw) => {
 };
 
 /** 9 local digits (after the +233 prefix shown in the UI) -> "+233XXXXXXXXX" */
+/**
+ * The 9 local digits of a Ghana number however it was typed: "0503177216", "503177216", "+233 50 317 7216" and
+ * "233503177216" all give "503177216". The +233 prefix sits beside the field, so the trunk 0 (or a pasted country
+ * code) is dropped rather than counted.
+ */
+export const ghanaLocalDigits = (raw) => {
+  let digits = String(raw || '').replace(/\D/g, '');
+  if (digits.startsWith('233') && digits.length > 9) digits = digits.slice(3);
+  if (digits.startsWith('0')) digits = digits.slice(1);
+  return digits;
+};
+
 export const toGhanaE164 = (raw) => {
   const digits = String(raw || '').replace(/\D/g, '');
   if (!digits) return undefined;

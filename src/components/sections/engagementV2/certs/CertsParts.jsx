@@ -117,7 +117,7 @@ const TILE_ICON = { verified: CertsFileCheckIcon, pending: CertsFileIcon, self: 
 const LINK_CLS =
   'inline-flex min-h-[24px] cursor-pointer items-center gap-[5px] border-0 bg-transparent p-0 font-sans text-[13px] leading-[16px] font-semibold text-[#387440] max-lg:text-[12px]';
 
-/* "Credential link" / "Badge link": opens the cert's link in a new tab; without one (the drawn example) it only logs. */
+/* "Credential link" / "Badge link": opens the cert's link in a new tab; without one (the drawn example) it is plain text. */
 const LinkButton = ({ label, url }) => {
   if (url) {
     const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
@@ -137,11 +137,13 @@ const LinkButton = ({ label, url }) => {
       </a>
     );
   }
+  // No URL stored (the drawn example card, a demo cert without one): same look as drawn, but plain text, not a dead
+  // control. Figma links nothing from it.
   return (
-    <button type="button" onClick={() => log('link (no destination)', label)} className={LINK_CLS}>
+    <span className={classNames(LINK_CLS, 'cursor-default')}>
       <CertsLinkIcon className="size-[14px]" />
       {label}
-    </button>
+    </span>
   );
 };
 

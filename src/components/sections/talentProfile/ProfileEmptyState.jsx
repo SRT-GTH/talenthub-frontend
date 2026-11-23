@@ -1,14 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
 import {
-  ProfileCameraIcon,
   ProfileCheckWhiteIcon,
-  ProfileDoodleSparkleLargeIcon,
-  ProfileDoodleSparkleMediumIcon,
-  ProfileDoodleSparkleSmallIcon,
-  ProfileDoodleSquiggleIcon,
   ProfileEmptyAddProjectIcon,
   ProfileEmptyDiscoverEyeIcon,
   ProfileEmptyHeadlinePencilIcon,
@@ -20,12 +16,33 @@ import {
   ProfileSpotPortfolioIllustration,
   ProfileSpotSkillsIllustration,
   ProfileStrengthRingTrackIcon,
-  TalentSidebarProfileAvatarIllustration,
 } from '../../shared/assets.jsx';
-import ringDoodle from '../../../assets/talent-profile/tabs/profile-cover-doodle-ring.png';
 import { DISPLAY } from '../talentHome/TabsParts.jsx';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
+import { CoverDoodles, ProfileAvatar } from './ProfileHeader.jsx';
+import { Tag } from './ProfileTabsUi.jsx';
+import { SHELF } from './profileTabsStyles.js';
 
 const log = debug('ProfileEmptyState');
+
+/*
+ * Where the empty profile's prompts lead (2026-11-21). Figma links none of them (P-10 only links Preview as recruiter and
+ * the Overview tab); each goes to the stage that fills it in. The headline and "What roles are you open to?" come from the
+ * career goal (talentProfileLive.js builds "Aspiring <goal>"), so both open the Goals stage. ⚠️ ASSUMPTION.
+ */
+const ROUTES = {
+  pitch: '/profile/filling/pitch',
+  goals: '/profile/filling/goals',
+  skillsLab: '/skills-lab',
+  cv: '/profile/filling/cv',
+};
+const useGo = () => {
+  const navigate = useNavigate();
+  return (to, why) => {
+    log('navigate', { to, why });
+    navigate(withDemoFlag(to));
+  };
+};
 
 /*
  * ProfileEmptyState — P-10 "New profile (mostly empty)". Figma Focused 8110:373025 / Playful 7574:1412.
@@ -38,23 +55,6 @@ const FOCUS =
 
 // Local copies of the shared surface tokens (kept local so this file does not depend on the Tabs kit).
 const CARD_PLAIN = 'rounded-[20px] border border-[#e6e6e6] bg-white';
-const SHELF =
-  'border border-[rgba(28,42,33,0.1)] shadow-[0_2px_8px_rgba(28,42,33,0.04),0_1px_2px_rgba(28,42,33,0.04)] playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[0_10px_24px_rgba(28,42,33,0.06),4px_4px_0_rgba(28,42,33,0.45)]';
-
-// Pill sticker: Focused = soft green pill; Playful = yellow ink-bordered sticker with a 2px shelf.
-const Tag = ({ size = 11, className, children }) => (
-  <span
-    className={classNames(
-      'inline-flex items-center gap-[6px] rounded-full bg-[#ebf1ec] px-[10px] py-[5px] leading-[normal] font-bold whitespace-nowrap text-[#1f4d26]',
-      'playful:border-[1.2px] playful:border-[#1c2a21] playful:bg-[#ffd86b] playful:text-[#1c2a21] playful:shadow-[2px_2px_0_#1c2a21]',
-      size === 12 ? 'text-[12px]' : 'text-[11px] max-lg:text-[12px]',
-      className
-    )}
-  >
-    {children}
-  </span>
-);
-
 const EMPTY_PROFILE = {
   name: 'Kofi Agyekum',
   badge: 'New here',
@@ -95,7 +95,7 @@ const SECTIONS = [
     body: 'Then prove one in Skills Lab to get the green tick.',
     actions: [
       { label: 'Add skills', variant: 'primary', to: { tab: 'skills', empty: null } },
-      { label: 'Try a Skills Lab', variant: 'tertiary', to: null },
+      { label: 'Try a Skills Lab', variant: 'tertiary', route: ROUTES.skillsLab },
     ],
   },
   {
@@ -106,7 +106,7 @@ const SECTIONS = [
     body: 'Add school projects, NSS, volunteering, church or club roles, a side hustle.',
     actions: [
       { label: 'Add experience', variant: 'primary', to: { modal: 'experience' } },
-      { label: 'Upload CV instead', variant: 'tertiary', to: null },
+      { label: 'Upload CV instead', variant: 'tertiary', route: ROUTES.cv },
     ],
   },
   {
@@ -123,56 +123,53 @@ const SECTIONS = [
 
 const STEPS = [
   { label: 'Pick your avatar', done: true },
-  { label: 'Add a headline', gain: '+15%' },
+  { label: 'Add a headline', gain: '+15%', route: ROUTES.goals },
   { label: 'Add 3 skills', gain: '+20%' },
   { label: 'Write your About', gain: '+15%' },
   { label: 'Add a project or experience', gain: '+20%' },
 ];
 
-/* Playful-only cover doodles (Figma cover/doodle/*), positioned as % of the cover so they scale. */
-const CoverDoodles = () => (
-  <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden playful:block">
-    <img
-      src={ringDoodle}
-      alt=""
-      draggable="false"
-      className="absolute top-[-40%] left-[73.7%] aspect-square h-[146.7%] max-w-none"
-    />
-    <ProfileDoodleSquiggleIcon className="absolute top-[26.7%] left-[31.6%] h-auto w-[9.03%]" />
-    <ProfileDoodleSparkleLargeIcon className="absolute top-[60%] left-[48.2%] aspect-square h-[14.7%] w-auto" />
-    <ProfileDoodleSparkleSmallIcon className="absolute top-[18.7%] left-[19.6%] aspect-square h-[9.3%] w-auto" />
-    <ProfileDoodleSparkleMediumIcon className="absolute top-[69.3%] left-[90.3%] aspect-square h-[12%] w-auto" />
-  </div>
-);
-
-const Avatar = () => (
-  <div
-    className={classNames(
-      'relative -mt-[calc(var(--av)/2)] size-[var(--av)] shrink-0 rounded-full bg-white',
-      SHELF
-    )}
-  >
-    <span className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
-      <span className="relative block size-[89.4%] overflow-hidden rounded-full bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.6%,#7aa870_85.3%)]">
-        <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.65%] block h-auto w-[111.3%] max-w-none" />
-      </span>
-    </span>
-    <button
-      type="button"
-      aria-label="Change photo"
-      onClick={() => log('change photo clicked (no backend)')}
-      className={classNames(
-        'absolute right-0 bottom-[2px] flex size-[34px] cursor-pointer items-center justify-center rounded-full border border-[rgba(28,42,33,0.12)] bg-[#ffd86b] playful:border-[1.5px] playful:border-[#1c2a21]',
-        FOCUS
-      )}
-    >
-      <ProfileCameraIcon className="size-[15px]" />
-    </button>
-  </div>
-);
+/* Change photo: picks an image and previews it in this tab only (the empty profile is the demo: nothing is uploaded). */
+const Avatar = () => {
+  const fileRef = useRef(null);
+  const [src, setSrc] = useState(null);
+  useEffect(() => () => src && URL.revokeObjectURL(src), [src]);
+  const onFile = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !file.type.startsWith('image/')) {
+      log('change photo: no image picked', file?.type);
+      return;
+    }
+    log('change photo: demo preview', { type: file.type });
+    setSrc(URL.createObjectURL(file));
+  };
+  return (
+    <>
+      <ProfileAvatar
+        photo={false}
+        src={src}
+        onPick={() => {
+          log('change photo -> file picker');
+          fileRef.current?.click();
+        }}
+      />
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        aria-hidden="true"
+        tabIndex={-1}
+        onChange={onFile}
+      />
+    </>
+  );
+};
 
 const EmptyHero = ({ profile }) => {
   const p = EMPTY_PROFILE;
+  const go = useGo();
   return (
     <div className="@container">
       <section
@@ -184,7 +181,7 @@ const EmptyHero = ({ profile }) => {
           <CoverDoodles />
           <button
             type="button"
-            onClick={() => log('pitch chip clicked (no backend)')}
+            onClick={() => go(ROUTES.pitch, 'pitch chip')}
             className={classNames(
               'absolute right-[12px] bottom-[10px] flex cursor-pointer items-center gap-[10px] rounded-full border-[1.5px] border-dashed border-[#1c2a21] bg-white py-[8px] pr-[14px] pl-[8px] text-left @5xl:top-[24px] @5xl:right-[3.9%] @5xl:bottom-auto',
               FOCUS
@@ -216,7 +213,7 @@ const EmptyHero = ({ profile }) => {
               <p className="text-[13px] leading-[normal] text-[#737373]">{p.handle}</p>
               <button
                 type="button"
-                onClick={() => log('headline clicked (no backend)')}
+                onClick={() => go(ROUTES.goals, 'headline')}
                 className={classNames(
                   'flex w-fit max-w-full cursor-pointer items-center gap-[6px] text-left text-[16px] leading-[normal] font-medium text-[#387440]',
                   FOCUS
@@ -228,7 +225,7 @@ const EmptyHero = ({ profile }) => {
               <div className="flex flex-wrap gap-[8px] pt-[6px]">
                 <button
                   type="button"
-                  onClick={() => log('roles chip clicked (no backend)')}
+                  onClick={() => go(ROUTES.goals, 'roles chip')}
                   className={classNames(
                     'inline-flex h-[32px] cursor-pointer items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] leading-[normal] font-semibold whitespace-nowrap text-[#595959]',
                     FOCUS
@@ -310,9 +307,11 @@ const EmptyTabs = ({ profile }) => {
 
 const SectionCard = ({ section, profile }) => {
   const { Spot } = section;
+  const goRoute = useGo();
   const go = (action) => {
     log('empty card action', { section: section.key, action: action.label });
     if (action.to) profile.update(action.to);
+    else if (action.route) goRoute(action.route, action.label);
   };
   return (
     <section
@@ -363,85 +362,89 @@ const SectionCard = ({ section, profile }) => {
   );
 };
 
-const StrengthCard = () => (
-  <section
-    aria-label="Profile strength"
-    className={classNames(
-      'flex min-w-0 flex-col gap-[14px] overflow-hidden rounded-[20px] bg-white p-[clamp(16px,1.39vw,24px)]',
-      SHELF
-    )}
-  >
-    <div className="flex items-center gap-[16px]">
-      <div className="relative size-[84px] shrink-0 overflow-hidden">
-        <ProfileStrengthRingTrackIcon className="absolute top-0 left-0 size-[84px]" />
-        <ProfileEmptyRingArcIcon className="absolute top-0 right-[2.45%] bottom-[62.36%] left-1/2 block h-auto w-auto" />
-        <span
-          className={classNames(
-            DISPLAY,
-            'absolute top-[26.5px] left-[24.5px] text-[22px] leading-[1.25] font-semibold whitespace-nowrap text-[#1c2a21]'
-          )}
-        >
-          20%
-        </span>
-      </div>
-      <div className="flex min-w-0 flex-col gap-[4px]">
-        <h2
-          className={classNames(
-            DISPLAY,
-            'text-[clamp(18px,1.22vw,21px)] leading-[1.25] font-semibold text-[#1c2a21]'
-          )}
-        >
-          Profile strength
-        </h2>
-        <p className="flex items-center gap-[5px] text-[13px] leading-[normal] font-medium text-[#2d5d33]">
-          You’re 5 steps from Discoverable
-          <ProfileEmptyDiscoverEyeIcon className="size-[15px] shrink-0" />
-        </p>
-      </div>
-    </div>
-    <ul className="flex flex-col gap-[14px]">
-      {STEPS.map((s) => (
-        <li key={s.label} className="flex items-center gap-[10px]">
-          {s.done ? (
-            <span
-              aria-hidden="true"
-              className="flex size-[20px] shrink-0 items-center justify-center overflow-hidden rounded-[6px] border border-[#387440] bg-[#387440] playful:border-[1.5px]"
-            >
-              <ProfileCheckWhiteIcon className="size-[13px]" />
-            </span>
-          ) : (
-            <span
-              aria-hidden="true"
-              className="size-[20px] shrink-0 rounded-[6px] border-[1.5px] border-[#bfbfbf] bg-white"
-            />
-          )}
+const StrengthCard = () => {
+  const go = useGo();
+  const next = STEPS.find((s) => !s.done);
+  return (
+    <section
+      aria-label="Profile strength"
+      className={classNames(
+        'flex min-w-0 flex-col gap-[14px] overflow-hidden rounded-[20px] bg-white p-[clamp(16px,1.39vw,24px)]',
+        SHELF
+      )}
+    >
+      <div className="flex items-center gap-[16px]">
+        <div className="relative size-[84px] shrink-0 overflow-hidden">
+          <ProfileStrengthRingTrackIcon className="absolute top-0 left-0 size-[84px]" />
+          <ProfileEmptyRingArcIcon className="absolute top-0 right-[2.45%] bottom-[62.36%] left-1/2 block h-auto w-auto" />
           <span
             className={classNames(
-              'text-[14px] leading-[normal] whitespace-nowrap',
-              s.done ? 'text-[#737373] line-through' : 'font-medium text-[#1c2a21]'
+              DISPLAY,
+              'absolute top-[26.5px] left-[24.5px] text-[22px] leading-[1.25] font-semibold whitespace-nowrap text-[#1c2a21]'
             )}
           >
-            {s.label}
+            20%
           </span>
-          <span className="h-px min-w-px flex-1" aria-hidden="true" />
-          {s.gain ? (
-            <span className="inline-flex h-[32px] shrink-0 items-center rounded-full border border-[#c1d4c4] bg-[#ebf1ec] px-[14px] text-[13px] leading-[normal] font-semibold whitespace-nowrap text-[#387440]">
-              {s.gain}
+        </div>
+        <div className="flex min-w-0 flex-col gap-[4px]">
+          <h2
+            className={classNames(
+              DISPLAY,
+              'text-[clamp(18px,1.22vw,21px)] leading-[1.25] font-semibold text-[#1c2a21]'
+            )}
+          >
+            Profile strength
+          </h2>
+          <p className="flex items-center gap-[5px] text-[13px] leading-[normal] font-medium text-[#2d5d33]">
+            You’re 5 steps from Discoverable
+            <ProfileEmptyDiscoverEyeIcon className="size-[15px] shrink-0" />
+          </p>
+        </div>
+      </div>
+      <ul className="flex flex-col gap-[14px]">
+        {STEPS.map((s) => (
+          <li key={s.label} className="flex items-center gap-[10px]">
+            {s.done ? (
+              <span
+                aria-hidden="true"
+                className="flex size-[20px] shrink-0 items-center justify-center overflow-hidden rounded-[6px] border border-[#387440] bg-[#387440] playful:border-[1.5px]"
+              >
+                <ProfileCheckWhiteIcon className="size-[13px]" />
+              </span>
+            ) : (
+              <span
+                aria-hidden="true"
+                className="size-[20px] shrink-0 rounded-[6px] border-[1.5px] border-[#bfbfbf] bg-white"
+              />
+            )}
+            <span
+              className={classNames(
+                'text-[14px] leading-[normal] whitespace-nowrap',
+                s.done ? 'text-[#737373] line-through' : 'font-medium text-[#1c2a21]'
+              )}
+            >
+              {s.label}
             </span>
-          ) : null}
-        </li>
-      ))}
-    </ul>
-    <Button
-      variant="primary"
-      size="sm"
-      onClick={() => log('Do the next step (no backend)')}
-      className="w-full"
-    >
-      Do the next step
-    </Button>
-  </section>
-);
+            <span className="h-px min-w-px flex-1" aria-hidden="true" />
+            {s.gain ? (
+              <span className="inline-flex h-[32px] shrink-0 items-center rounded-full border border-[#c1d4c4] bg-[#ebf1ec] px-[14px] text-[13px] leading-[normal] font-semibold whitespace-nowrap text-[#387440]">
+                {s.gain}
+              </span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+      <Button
+        variant="primary"
+        size="sm"
+        onClick={() => go(next?.route ?? ROUTES.goals, `next step: ${next?.label}`)}
+        className="w-full"
+      >
+        Do the next step
+      </Button>
+    </section>
+  );
+};
 
 const WhyCard = () => (
   <section

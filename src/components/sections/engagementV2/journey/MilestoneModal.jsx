@@ -57,8 +57,8 @@ const Stat = ({ value, label, gold, playful }) => (
 );
 
 /*
- * MilestoneModal — the celebration dialog (Figma J-04 / J-06 / J-07). Props: n (1|2|3), copy, onClose, onShare (inert: Figma draws
- * no share flow), onPrimary. Confetti positions are the Figma ones (journeyConfetti.js); Playful swaps "pts" for "XP" and the
+ * MilestoneModal — the celebration dialog (Figma J-04 / J-06 / J-07). Props: n (1|2|3), copy, onClose, onShare (Figma draws
+ * no share flow: the hub opens the share-card builder), onPrimary. Confetti positions are the Figma ones (journeyConfetti.js); Playful swaps "pts" for "XP" and the
  * heading font.
  */
 const MilestoneModal = ({ n, copy, onClose, onShare, onPrimary }) => {
@@ -179,7 +179,7 @@ const MilestoneModal = ({ n, copy, onClose, onShare, onPrimary }) => {
           <button
             type="button"
             onClick={() => {
-              log('share (no flow drawn)', n);
+              log('share ->', n);
               onShare?.();
             }}
             className="flex h-[56px] flex-1 cursor-pointer items-center justify-center rounded-[14px] border-2 border-[#c1d4c4] bg-[#e1eae2] font-sans text-[16px] font-bold leading-[24px] tracking-[0.1px] text-[#165d3a] shadow-[0_1px_2px_rgba(0,0,0,0.05)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#387440]"

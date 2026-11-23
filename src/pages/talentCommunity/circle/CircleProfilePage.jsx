@@ -53,23 +53,23 @@ const log = debug('CircleProfilePage');
  */
 /*
  * Live profile (signed-in talent): GET /circle/people/:id — the person, what the two share, and the action for their
- * status: Link up · Link-up sent (Withdraw) · Accept / Ignore · In your circle. Skills & endorsements and Recommendations
+ * status: Link up · Link-up sent (Withdraw) · Accept / Ignore · In your crew. Skills & endorsements and Recommendations
  * (US-5.3.1-05): GET /circle/people/:id/skills and /recommendations; a connection can endorse (POST /circle/endorsements, no XP
  * sticker: ADR-04) and write one recommendation, which the person shows or keeps hidden first. Follow and Message are not shown.
  */
 // The dialog chips / options in drawn order → the API's values (circle.endorse.mixin ENDORSE_WAYS / RECOMMEND_WAYS).
 const ENDORSE_WAYS = [
-  ['Same community project', 'community_project'],
+  ['Same club project', 'community_project'],
   ['Studied together', 'studied'],
   ['Worked together', 'worked'],
   ['They mentored me', 'mentored'],
   ['Other', 'other'],
 ];
 const RECOMMEND_WAYS = [
-  ['We worked on a community project together', 'community_project'],
+  ['We worked on a club project together', 'community_project'],
   ['We studied together', 'studied'],
   ['I mentored them', 'mentored'],
-  ['We are in the same community', 'same_community'],
+  ['We are in the same club', 'same_community'],
   ['Other (say how)', 'other'],
 ];
 // No silent fallback: an unknown label sends nothing the server would accept (it answers 422) rather than a wrong value.
@@ -133,7 +133,7 @@ const LiveCircleProfile = ({ personId, circle }) => {
     ? {
         ...buildGenericProfile({ ...person, town: person.town || 'Ghana' }),
         location: person.town ? `${person.town}, Ghana` : 'Ghana',
-        mutualLine: person.mutual > 0 ? `${person.mutual} in your circle know them` : null,
+        mutualLine: person.mutual > 0 ? `${person.mutual} in your crew know them` : null,
         inCommon: (person.shares ?? []).map((sh) => ({
           kind: sh.kind,
           label: sh.label,
@@ -144,7 +144,7 @@ const LiveCircleProfile = ({ personId, circle }) => {
   if (profile) {
     profile.skills = extra.skills?.skills ?? [];
     profile.lockedNote = extra.skills?.lockedNote ?? null;
-    if (person.status === 'self') profile.endorsePrompt = 'What your circle has endorsed';
+    if (person.status === 'self') profile.endorsePrompt = 'What your crew has endorsed';
     profile.endorseDialog = { ...profile.endorseDialog, ways: ENDORSE_WAYS.map(([l]) => l) };
     profile.recommendDialog = {
       ...profile.recommendDialog,
@@ -407,7 +407,8 @@ const MockCircleProfile = ({ personId, circle }) => {
   return (
     <CircleFrame circle={circle}>
       <CirclePageWrap>
-        {isRecruiter && <CircleSwitch active="circle" count={pendingCount} rail={circle.rail} />}
+        {/* Talent NW-06 … NW-08 and recruiter RC-NW06 … draw the "Clubs | My crew" switch above the profile. */}
+        <CircleSwitch active="circle" count={pendingCount} rail={circle.rail} />
         <CircleProfileHero
           person={person}
           profile={profile}
@@ -418,9 +419,14 @@ const MockCircleProfile = ({ personId, circle }) => {
           onLinkUp={() => circle.update({ modal: 'connect' })}
           onMessage={() => navigate(links.messagesHref)}
           onFollow={() => circleActions.toggleFollow(personId)}
-          // Recruiter (RC-NW06): a connected talent shows Message · "In your network" · "…" (no Follow).
-          showFollowWhenConnected={!isRecruiter}
-          showMore={isRecruiter}
+          // Connected (talent NW-06, recruiter RC-NW06): Message · "In your crew" · "…" — no Learn from / Follow.
+          showFollowWhenConnected={false}
+          showMore
+          // ⚠️ ASSUMPTION (no prototype link): "…" opens this person's menu in the crew list (View profile, Mute, Remove, Report).
+          onMore={() => {
+            log('more -> crew menu', personId);
+            navigate(withRail(`${links.circleHref}&tab=circle&menu=${personId}`, circle.rail));
+          }}
         />
         <div className={splitGrid}>
           <div className="flex min-w-0 flex-col gap-[28px]">
@@ -442,10 +448,20 @@ const MockCircleProfile = ({ personId, circle }) => {
           </div>
           <div className="flex min-w-0 flex-col gap-[18px]">
             <CircleInCommonCard items={profile.inCommon} />
-            {isRecruiter && profile.youBothKnow && (
+            {/* "You both know · 8" (talent NW-06 … NW-08, recruiter RC-NW06). Demo only: the live profile API has no mutual list. */}
+            {profile.youBothKnow && (
               <NetworkYouBothKnowCard
                 block={profile.youBothKnow}
-                onSeeAll={() => navigate(links.circleHref)}
+                // ⚠️ ASSUMPTION: "See all 8" opens your crew list (talent) / My network (recruiter); no mutual-people screen is drawn.
+                onSeeAll={() => {
+                  log('you both know: see all');
+                  navigate(
+                    withRail(
+                      isRecruiter ? links.circleHref : `${links.circleHref}&tab=circle`,
+                      circle.rail
+                    )
+                  );
+                }}
               />
             )}
           </div>

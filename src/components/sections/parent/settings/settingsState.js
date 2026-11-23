@@ -4,7 +4,7 @@ import { TAB_IDS } from './data/settingsData.js';
 
 /*
  * useSettingsState — URL state of /parent/settings (every Figma frame is a URL, and a frame reproduces from a fresh load). Keys:
- *   tab=account|roles|notifications|security|data    PS-01 … PS-05 (default account)
+ *   tab=account|roles|notifications|security|data    PS-01 … PS-05 (default account); accessibility|language reuse the talent sections (no parent frame)
  *   modal=logout|close-account                       PS-06 (over the Account page) / PS-07 (over Data and account, drawn behind it)
  *   confirm=<text>                                   what is typed in the close-account box (PS-07 draws "CLO")
  *   state=logged-out|closed                          PS-06b / PS-07b (the full-page result screens)
@@ -26,6 +26,8 @@ export const useSettingsState = () => {
       modal: MODALS.includes(modal) ? modal : '',
       confirm: params.get('confirm') ?? '',
       result: STATES.includes(result) ? result : '',
+      // The talent Accessibility section keeps its own ?state=unsaved|saved (its save bar / toast).
+      sectionState: STATES.includes(result) ? '' : (result ?? ''),
     };
   }, [params]);
 

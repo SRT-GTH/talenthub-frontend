@@ -18,6 +18,7 @@ import {
   SEL_BORDER,
   SEL_SHADOW,
   buildGameResult,
+  displayOrder,
   formatClock,
   useCountdown,
 } from '../skillGames/gameKitUtils.js';
@@ -376,16 +377,22 @@ const CrisisRoom = ({ frame }) => {
           <div className="flex min-w-0 flex-col gap-[20px]">
             <SectionLabel>YOUR FIRST MESSAGE TO THE TEAM</SectionLabel>
             <div role="radiogroup" aria-label="First message" className="flex flex-col gap-[20px]">
-              {alarm.messages.map((text, i) => (
-                <Message
-                  key={text}
-                  letter={OPTION_LETTERS[i]}
-                  text={text}
-                  selected={state.message === i}
-                  locked={feedback}
-                  onPick={() => dispatch({ type: 'message', index: i })}
-                />
-              ))}
+              {displayOrder(
+                alarm.messages.length,
+                `crisis-${state.runKey}-${state.alarm}`,
+                Boolean(frame)
+              )
+                .map((i, at) => [alarm.messages[i], i, at])
+                .map(([text, i, at]) => (
+                  <Message
+                    key={text}
+                    letter={OPTION_LETTERS[at]}
+                    text={text}
+                    selected={state.message === i}
+                    locked={feedback}
+                    onPick={() => dispatch({ type: 'message', index: i })}
+                  />
+                ))}
             </div>
           </div>
         </div>

@@ -261,9 +261,13 @@ test('section nav switches the tab and keeps the URL in step', async ({ page }) 
     await expect(page).toHaveURL(new RegExp(`tab=${tab}`));
     await expect(page.getByRole('heading', { name: heading })).toBeVisible();
   }
-  // Accessibility / Language and data have no parent frame: the page stays where it is.
+  // Accessibility / Language and data have no parent frame: they open the talent Settings sections.
   await nav.getByRole('link', { name: 'Accessibility' }).click();
-  await expect(page.getByRole('heading', { name: 'Personal details' })).toBeVisible();
+  await expect(page).toHaveURL(/tab=accessibility/);
+  await expect(page.locator('[data-settings-section="accessibility"]')).toBeVisible();
+  await nav.getByRole('link', { name: 'Language and data' }).click();
+  await expect(page).toHaveURL(/tab=language/);
+  await expect(page.locator('[data-settings-section="language"]')).toBeVisible();
 });
 
 test('the "Your roles" link and "Manage" go where their labels say', async ({ page }) => {

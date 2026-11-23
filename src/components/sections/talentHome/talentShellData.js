@@ -37,13 +37,14 @@ export const TALENT_NAV_MAIN = [
   },
   {
     id: 'opportunities',
-    label: 'Job Postings',
+    // Current Figma (Home, Job Postings, Messages … frames, re-read 2026-11-21) labels these "Opportunities" and "Clubs".
+    label: 'Opportunities',
     icon: TalentSidebarOpportunitiesNavIcon,
     route: '/job-postings',
   },
   {
     id: 'community',
-    label: 'Community',
+    label: 'Clubs',
     icon: TalentSidebarCommunityNavIcon,
     route: '/community',
   },
@@ -86,7 +87,14 @@ export const TALENT_NAV_SECONDARY = [
 const DAY1 = {
   chip: 'New',
   status: '1 of 9 stages complete',
-  journey: { label: 'Profile journey', count: '1 of 9', done: 1, caption: 'Continue: Interests →' },
+  journey: {
+    label: 'Profile journey',
+    count: '1 of 9',
+    done: 1,
+    caption: 'Continue: Interests →',
+    // The caption names the next stage, so it opens that stage (as the live caption does).
+    to: STAGE_BY_ID.interests.route,
+  },
   stats: [
     { id: 'views', value: '0', label: 'Views' },
     { id: 'matches', value: '–', label: 'Matches' },
@@ -100,7 +108,13 @@ const DAY1 = {
 const DISCOVERABLE = {
   chip: 'Discoverable',
   status: '5 of 9 · recruiters can find you',
-  journey: { label: 'Profile journey', count: '5 of 9', done: 5, caption: 'Continue: Portfolio →' },
+  journey: {
+    label: 'Profile journey',
+    count: '5 of 9',
+    done: 5,
+    caption: 'Continue: Portfolio →',
+    to: STAGE_BY_ID.portfolio.route,
+  },
   stats: [
     { id: 'views', value: '2', label: 'Views' },
     { id: 'matches', value: '18', label: 'Matches' },
@@ -125,6 +139,8 @@ const TOP = {
     caption: '260 pts to Level 6 →',
     captionPlayful: '260 XP to Level 6 →',
     xp: true,
+    // Same destination as the live XP caption (xpJourney below): the games that earn XP.
+    to: '/skills-lab?tab=games',
   },
   stats: [
     { id: 'views', value: '47', label: 'Views' },
@@ -199,7 +215,6 @@ const MESSAGES_PAGE = {
   ...LEARNING_PAGE,
   softBadges: undefined,
   wallet: true,
-  labels: { opportunities: 'Opportunities' }, // the Messages frames say "Opportunities", not "Job Postings"
   badges: { assessment: '142', opportunities: '142', messages: '4' },
 };
 
@@ -213,7 +228,8 @@ const JOBS_PAGE = {
   status: '1 of 5 steps complete',
   journey: { label: 'Getting started', count: '1 of 5', percent: 20, caption: 'Continue setup →' },
   stats: PROFILE_PAGE.stats,
-  badges: { assessment: '142', opportunities: '2', messages: '6' },
+  // Current J-01 Focused frame: Opportunities 2 · Clubs 3 · Messages 4 (was Messages 6).
+  badges: { assessment: '142', opportunities: '2', messages: '4' },
   streak: '12',
 };
 
@@ -356,7 +372,15 @@ const xpJourney = (xp) => {
  * `xp` (optional): the talent's XP summary (GET /xp, useLiveXp). With a complete profile journey the live block switches to the
  * XP level variant, as the Figma "Top" frames draw it; before that it shows the journey.
  */
-export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav, xp = null) => {
+/* Every current Figma sidebar (Home and the page frames) draws "Clubs 3" (pending My circle invitations): demo data only. */
+const withClubsBadge = (data) => ({ ...data, badges: { community: '3', ...data.badges } });
+
+export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav, xp = null) =>
+  live
+    ? sidebarData(stateKey, live, activeNav, xp)
+    : withClubsBadge(sidebarData(stateKey, live, activeNav, xp));
+
+const sidebarData = (stateKey = 'day1', live = null, activeNav, xp = null) => {
   // `activeNav` ('profile' on /profile) swaps in the profile-page rail card; omitted = home data.
   // The page-specific Figma cards are demo data; with live data every page draws the talent's own card.
   if (activeNav === 'profile' && !live) return PROFILE_PAGE;
@@ -433,7 +457,15 @@ export const getTalentProfile = (live = null, persona = null) => {
 };
 
 /* Top nav counts (Nav 8315:461634: bell 5, messages 5; streak per state). */
-export const getTalentNavData = (stateKey = 'day1', live = null, persona = null) =>
+// Talent top-bar search placeholder (current Figma talent frames); recruiter pages keep TOP_NAV's.
+const TALENT_SEARCH_PLACEHOLDER = 'Search opportunities, skills, clubs...';
+
+export const getTalentNavData = (stateKey = 'day1', live = null, persona = null) => ({
+  searchPlaceholder: TALENT_SEARCH_PLACEHOLDER,
+  ...talentNavCounts(stateKey, live, persona),
+});
+
+const talentNavCounts = (stateKey, live, persona) =>
   persona
     ? {
         streakCount: persona.nav.streakCount,
@@ -467,4 +499,15 @@ export const homeTabRoute = (tab, pathname, search = '') => {
   else next.set('tab', tab);
   const q = next.toString();
   return q ? `/home?${q}` : '/home';
+};
+
+/**
+ * Design QA: while the current page is a `?demo=1` design frame, chrome navigation keeps `demo=1` on the destination
+ * so the next page also shows its drawn data (real users never carry the flag, so their links are unchanged).
+ */
+export const withDemoFlag = (to) => {
+  if (typeof window === 'undefined') return to;
+  if (new URLSearchParams(window.location.search).get('demo') !== '1') return to;
+  if (/[?&]demo=/.test(to)) return to;
+  return `${to}${to.includes('?') ? '&' : '?'}demo=1`;
 };

@@ -18,7 +18,7 @@ import { HEADER } from './talentLearningHubData.js';
 const LearningHubArt = ({ inbox = HEADER.art.inbox, xp = HEADER.art.xp }) => (
   <div
     aria-hidden="true"
-    className="relative -mt-[2px] hidden h-[84px] w-[600px] shrink-0 select-none xl:playful:block"
+    className="relative -mt-[2px] -mb-[13px] hidden h-[84px] w-[600px] shrink-0 select-none xl:playful:block"
   >
     <span className="absolute top-[30px] left-0 flex">
       {HEADER.art.faces.map((src, i) => (

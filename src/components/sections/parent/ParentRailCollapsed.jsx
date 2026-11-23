@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
-import { NAV_MAIN, NAV_SECONDARY } from './data/parentCoreData.js';
+import { NAV_MAIN, NAV_SECONDARY, careerHome } from './data/parentCoreData.js';
 import useParentChrome from './live/useParentChrome.js';
 import homeIcon from '../../../assets/parent/frame-1.svg';
 import navWards from '../../../assets/parent/icon-1.svg';
@@ -11,7 +11,7 @@ import navNotifications from '../../../assets/parent/icon-4.svg';
 import navSettings from '../../../assets/parent/icon-5.svg';
 import navHelp from '../../../assets/parent/icon-6.svg';
 import navCareer from '../../../assets/parent/icon-7.svg';
-import toggleIcon from '../../../assets/parent/ep-d-arrow-left.svg';
+import ParentSidebarToggle from './ParentSidebarToggle.jsx';
 
 /*
  * ParentRailCollapsed — "Sidebar · parent · collapsed" (Figma PR-01c 10047:19112, 126 wide, white): the expand toggle (the « mirrored), the 74px round avatar (3px #e6e6e6 ring), the nav as 80 x 54 icon
@@ -60,18 +60,11 @@ const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, clas
     <aside
       aria-label="Parent navigation (collapsed)"
       className={classNames(
-        'relative flex w-[126px] shrink-0 flex-col items-center gap-[28px] overflow-y-auto border-r-2 border-solid border-white bg-white pt-[60px] pb-[40px]',
+        'slim-scrollbar relative flex w-[126px] shrink-0 flex-col items-center gap-[28px] overflow-y-auto border-r-2 border-solid border-white bg-white pt-[60px] pb-[40px]',
         className
       )}
     >
-      <button
-        type="button"
-        aria-label="Expand sidebar"
-        onClick={onExpand}
-        className="absolute top-[16px] left-[49px] flex size-[28px] cursor-pointer items-center justify-center rounded-[8px] border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-      >
-        <img src={toggleIcon} alt="" className="h-[20px] w-[23px] -scale-x-100" />
-      </button>
+      <ParentSidebarToggle expand className="top-[16px] left-[49px]" onClick={onExpand} />
 
       <span className="flex size-[74px] shrink-0 items-center justify-center rounded-full border-[3px] border-solid border-[#e6e6e6] bg-white">
         <img
@@ -87,7 +80,7 @@ const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, clas
           {NAV_MAIN.map((item) => (
             <Tile
               key={item.id}
-              item={item}
+              item={item.id === 'career' ? { ...item, to: careerHome(chrome.live) } : item}
               active={item.id === active}
               dot={Boolean(badges[item.id])}
             />
@@ -101,7 +94,7 @@ const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, clas
           {NAV_SECONDARY.map((item) => (
             <Tile
               key={item.id}
-              item={item}
+              item={item.id === 'career' ? { ...item, to: careerHome(chrome.live) } : item}
               active={item.id === active}
               tall={item.id !== 'career'}
             />
@@ -110,7 +103,7 @@ const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, clas
       </nav>
 
       <Link
-        to="/home"
+        to={careerHome(chrome.live)}
         aria-label="Switch to My career"
         className="mt-auto flex h-[60px] w-[64px] shrink-0 items-center justify-center rounded-[12px] border border-solid border-neutral bg-white no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
       >

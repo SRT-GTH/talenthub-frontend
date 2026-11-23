@@ -104,7 +104,18 @@ const CredentialVerifyView = ({ credentialId }) => {
   const submit = (e) => {
     e.preventDefault();
     const value = text.trim();
-    if (value) navigate(`/institution/verify/${encodeURIComponent(value)}`);
+    if (!value) return;
+    // the same ID again: navigate() would do nothing, so check it again in place
+    if (value === credentialId) {
+      log('re-check', value);
+      setResult(null);
+      setError('');
+      verifyCredential(value)
+        .then(setResult)
+        .catch((err) => setError(apiMessage(err)));
+      return;
+    }
+    navigate(`/institution/verify/${encodeURIComponent(value)}`);
   };
 
   return (

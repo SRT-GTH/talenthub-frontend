@@ -3,6 +3,7 @@ import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import { PublicIconCheckcircle, PublicIconDownload } from '../directory/directoryIcons.jsx';
 import LinkButton from '../directory/LinkButton.jsx';
+import { PUBLIC_DATA_QUESTIONS_HREF } from '../publicDataNav.js';
 import {
   METHODOLOGY_DEFINITIONS,
   METHODOLOGY_META,
@@ -19,19 +20,17 @@ const log = debug('MethodologyArticle');
  * the "Privacy protections" box (#ebf1ec r20), the definitions table (white card r24, term 15/18 600 | text 15/22), the questions card.
  * The contents list highlights the section being read (Figma draws "Privacy protections" highlighted: that is the initial state until the
  * reader scrolls). ⚠️ ASSUMPTION: "Changes to this page" has no drawn section; it scrolls to the "Last reviewed … Version" line.
- * ⚠️ ASSUMPTION: "Ask the data team" has no drawn destination (the footer "Contact" is inert too): the button logs and does nothing yet.
+ * "Ask the data team" has no drawn destination: it opens an email to GTH (the address the agency and institution portals already use for
+ * contact, ⚠️ ASSUMPTION: no data-team address is given); the footer "Contact" uses the same address (publicDataNav.js FOOTER_LINKS).
  * Props: embedded (opt-in, agency portal 11.4.2r: stacked layout — the TOC is a full-width list above the article, the title is an <h2>, no own padding),
- * questionsTo (target of "Ask the data team", default /data/methodology#changes), onDownload() ("Download as PDF" opens the shared Download dialog).
+ * questionsTo (an in-app route for "Ask the data team"; when left out the button is the email link above), onDownload() ("Download as PDF"
+ * opens the shared Download dialog).
  */
 
 const SECTION_FONT = 'm-0 font-sans text-[24px] leading-[29px] font-semibold text-[#1c2a21]';
 const BODY = 'm-0 font-sans text-[16px] leading-[26px] text-[#1c2a21]';
 
-const MethodologyArticle = ({
-  onDownload,
-  embedded = false,
-  questionsTo = '/data/methodology#changes',
-}) => {
+const MethodologyArticle = ({ onDownload, embedded = false, questionsTo }) => {
   const [active, setActive] = useState('privacy');
 
   useEffect(() => {
@@ -212,8 +211,9 @@ const MethodologyArticle = ({
           </div>
           <LinkButton
             to={questionsTo}
+            href={questionsTo ? undefined : PUBLIC_DATA_QUESTIONS_HREF}
             variant="outline"
-            onClick={() => log('ask the data team (no destination drawn)')}
+            onClick={() => log('ask the data team', questionsTo ? 'route' : 'email')}
           >
             {METHODOLOGY_QUESTIONS.action}
           </LinkButton>

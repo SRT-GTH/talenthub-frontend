@@ -3,13 +3,28 @@ import { classNames } from '../../../utils/classNames.js';
 import Chip from '../../ui/Chip.jsx';
 import { dashIcons } from './recruiterDashboardIcons.js';
 import { SEARCH_PANEL as S } from './recruiterDashboardData.js';
+import { RECRUITER_ASSISTANT_ROUTE } from '../recruiterSettings/help/recruiterHelpData.js';
+
+/* Where each row leads (Figma draws the panel but links no row). App patterns: candidates -> talent search with the name as the query,
+   applications -> the pipeline, jobs -> Job Postings, "Saved Talents" -> talent search (as the profile menu's "Saved talents"),
+   "Ask Hiring Assistant" -> the recruiter AI chat (as the Help pop-over's). ⚠️ ASSUMPTION for the exact targets. */
+const SUB_TARGET = {
+  Jobs: '/recruiter/job-postings',
+  Applications: '/recruiter/application-pipeline',
+};
+const QUICK_TARGET = {
+  pipeline: '/recruiter/application-pipeline',
+  saved: '/recruiter/talent-search',
+  deadlines: '/recruiter/job-postings',
+};
+const talentQuery = (name) => `/recruiter/talent-search?q=${encodeURIComponent(name)}`;
 
 /*
  * SearchPanel — the top-bar global search for a recruiter (Figma D13 10078:62351 focused with recent searches and quick filters, D14 10078:63760 results for "Akua",
  * D15 10083:66139 no results for "Zxqy"). A 760px card under the search field: category filters with counts, then RECENT SEARCHES + QUICK FILTERS (empty query) or an
  * "Ask Hiring Assistant" row + PEOPLE / APPLICATIONS / JOBS groups (query), a key legend and the scope note.
- * Props: query, onClose. The first recent / person row is highlighted as the keyboard cursor ("Enter to open").
- * ⚠️ ASSUMPTION: the results are mock data for "Akua" (any other text shows the D15 "No results" card); nothing opens (no destination is drawn).
+ * Props: query, onClose, onNavigate(to) (a row was chosen; the page navigates). The first recent / person row is highlighted as the keyboard cursor ("Enter to open").
+ * ⚠️ ASSUMPTION: the results are mock data for "Akua" (any other text shows the D15 "No results" card); rows open the targets above.
  */
 const KEY_CLASS =
   'inline-flex h-[32px] items-center rounded-[8px] border border-solid border-[#e5e7eb] bg-white px-[10px] font-sans text-[13px] leading-[16px] font-semibold text-[#595959] shadow-[0_1px_2px_rgba(0,0,0,0.06)]';
@@ -55,7 +70,7 @@ const Row = ({ icon, avatar, title, sub, hint, active, accent, trailing, onClick
   </button>
 );
 
-const SearchPanel = ({ query = '', onClose }) => {
+const SearchPanel = ({ query = '', onClose, onNavigate }) => {
   const ref = useRef(null);
   useEffect(() => {
     const onKey = (event) => {
@@ -137,6 +152,7 @@ const SearchPanel = ({ query = '', onClose }) => {
                 title={S.assistant.title('Akua Mensah')}
                 sub={S.assistant.sub}
                 active
+                onClick={() => onNavigate?.(RECRUITER_ASSISTANT_ROUTE)}
                 trailing={<span className={KEY_CLASS}>{S.assistant.key}</span>}
               />
               <GroupLabel>{S.peopleLabel}</GroupLabel>
@@ -148,6 +164,7 @@ const SearchPanel = ({ query = '', onClose }) => {
                   sub={p.sub}
                   hint={i === 0 ? p.hint : undefined}
                   active={i === 0}
+                  onClick={() => onNavigate?.(talentQuery(p.name))}
                 />
               ))}
               <GroupLabel>{S.applicationsLabel}</GroupLabel>
@@ -155,6 +172,7 @@ const SearchPanel = ({ query = '', onClose }) => {
                 icon={dashIcons.searchResultApplicationTile}
                 title={S.application.title}
                 sub={S.application.sub}
+                onClick={() => onNavigate?.('/recruiter/application-pipeline')}
                 trailing={<Chip tone="mint">{S.application.status}</Chip>}
               />
               <GroupLabel>{S.jobsLabel}</GroupLabel>
@@ -163,6 +181,7 @@ const SearchPanel = ({ query = '', onClose }) => {
                 title={S.noJobs.title}
                 sub={S.noJobs.sub(query.trim())}
                 accent
+                onClick={() => onNavigate?.('/recruiter/job-postings')}
               />
             </>
           ) : (
@@ -176,12 +195,20 @@ const SearchPanel = ({ query = '', onClose }) => {
                   sub={r.sub}
                   hint={r.hint}
                   active={i === 0}
+                  onClick={() => onNavigate?.(SUB_TARGET[r.sub] ?? talentQuery(r.title))}
                 />
               ))}
               <GroupLabel>{S.quickLabel}</GroupLabel>
               <div className="grid grid-cols-2 gap-x-[8px] max-sm:grid-cols-1">
                 {S.quick.map((q) => (
-                  <Row key={q.id} icon={dashIcons[q.icon]} title={q.title} sub={q.sub} accent />
+                  <Row
+                    key={q.id}
+                    icon={dashIcons[q.icon]}
+                    title={q.title}
+                    sub={q.sub}
+                    accent
+                    onClick={() => onNavigate?.(QUICK_TARGET[q.id] ?? '/recruiter/talent-search')}
+                  />
                 ))}
               </div>
             </>

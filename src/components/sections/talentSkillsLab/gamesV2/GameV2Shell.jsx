@@ -102,7 +102,17 @@ const GameV2Shell = ({
           {modal === 'offline' ? <GameV2OfflineBanner onRetry={g.closeModal} /> : null}
           {children}
           {modal === 'timeup' ? (
-            <GameV2TimeUpCard summary={timeUp?.summary} onSeeResult={onSeeResult} />
+            <GameV2TimeUpCard
+              summary={timeUp?.summary}
+              onSeeResult={
+                onSeeResult ??
+                (() => {
+                  // a game without its own handler (no clock, e.g. Makola Haggle) still opens the result card
+                  log('see result → result view (no game handler)');
+                  g.update({ view: 'result', modal: null, f: null });
+                })
+              }
+            />
           ) : null}
         </div>
       </main>

@@ -1,6 +1,7 @@
 import {
   CIRCLE_COPY,
   CIRCLE_PEOPLE,
+  CONNECTIONS_RESPONSE,
   DISCOVER_RESPONSE,
   FEED_RESPONSE,
   PROFILE_RESPONSE,
@@ -119,13 +120,8 @@ export const NETWORK_INVITATIONS = {
 /* ---- BLOCK: CONNECTIONS ------------------------------------------------------------------------------------------- */
 export const NETWORK_CONNECTIONS = {
   total: 128,
-  items: [
-    { id: 'yaw-darko', connected: 'Linked up 2 days ago', region: 'Eastern Region' },
-    { id: 'esi-quaye', connected: 'Linked up 5 days ago', region: 'Greater Accra' },
-    { id: 'efua-asante', connected: 'Linked up 2 weeks ago', region: 'Central Region' },
-    { id: 'akosua-mensah', connected: 'Linked up 3 weeks ago', region: 'Western Region' },
-    { id: 'kojo-annan', connected: 'Linked up 1 month ago', region: 'Northern Region' },
-  ],
+  // Same rows as the talent crew ("Linked up 2 days ago" …).
+  items: CONNECTIONS_RESPONSE.items,
   sorts: ['Recently added', 'Region', 'Skills', 'Clubs'],
   menu: ['View profile', 'Mute their posts', 'Remove from network', 'Report'],
 };
@@ -144,15 +140,7 @@ export const NETWORK_PROFILE = {
       { kind: 'school', label: 'Design track', note: 'Skills Lab' },
       { kind: 'interest', label: 'Product design', note: 'Shared interest' },
     ],
-    youBothKnow: {
-      title: 'You both know · 8',
-      seeAll: 'See all 8',
-      items: [
-        { id: 'abena-owusu', note: 'Data Science Ghana' },
-        { id: 'efua-asante', note: 'Accra Designers' },
-        { id: 'kwame-boateng', note: 'Verified mentor · Hubtel' },
-      ],
-    },
+    // youBothKnow ("You both know · 8") comes from the talent profile: same card, same copy.
     recommendations: [
       {
         id: 'kwame-boateng',

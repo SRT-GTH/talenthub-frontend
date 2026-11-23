@@ -29,6 +29,16 @@ Every frame renders at its URL in Playful and Focused, no runtime errors, and wa
 | C-06 · Community · Feed (joined)                      | `7626:6896`  | `8110:466316` | `/community/frontend-devs-ghana?joined=1&rail=collapsed`                   | 3.6%   | 3.2%   | ✅                                                                                           |
 | HP · Help pop-over (Community)                        | —            | —             | `?help=1`                                                                  | —      | —      | ⚠️ the Figma frames `8376:504261` / `8376:504381` no longer exist; default Help copy is used |
 
+## Clubs rename + inspection pass (2026-11-21)
+
+✅ VERIFIED (Figma REST, section texts re-read 2026-11-21): the designer renamed the talent Community to **Clubs** and My circle to **My crew** in every frame (sections now "Clubs v2 · Playful mode" / "Focused · Clubs v2 · Talent"). Routes stay `/community…`.
+
+- Copy changed to the Figma text: browse ("10 clubs", "Search clubs…", "Your clubs", "All clubs", "Closest clubs", "Showing N clubs in", "Open club" / "Leave club", "No club for “…” yet", "Start it yourself" + "Request this club", no "Clear search"), C-03 tile = "Start your own club" + "Create a club" + "or request one: 25 asks opens it" (the recruiter tile, `RequestTile` delegates to `HostClubTile` when the copy has `tiles.hostTitle`), page ("All clubs", "Join club", "You’re previewing this club", "About this club", "Related clubs", "What this club is for", "GTH Club Team", "Real employers post on Opportunities…", Members "Link up" / "In your crew"), dialogs ("Not safe for a career club", "Leave club", "A club"), C-14 "You + 23 others". Live pages use the same words.
+- Layout: "Create a club" moved out of the switch row — Focused: right of the title row; Playful: right of the first section heading (C-01 "Picked for you", C-03 "Your clubs"); phones: on the section heading in both looks. The "Clubs | My crew" switch now sits above the hero on every club screen (demo + live page / post, owner page), as C-04…C-17 draw it.
+- Fixed controls: demo post page Share / Invite friends / card Share now share the link (were log-only); its Feed / About / Members tabs and filters keep `?joined=1` (they used to drop into the live page); leaving from the post page lands on the demo preview. Members tab "Message" opens the inbox (`/messages`, `/recruiter/messages` for recruiters).
+- 🔶 LIKELY: headless checks need `/api/**` stubbed with a non-401 error, otherwise the shell's home call redirects to `/login` (also for `?demo=1`).
+- Not done: sidebar "Community" → "Clubs", "Job Postings" → "Opportunities", top-bar search "…clubs..." (shared chrome, other owner).
+
 ## Live data (2026-10-19)
 
 `/community`, `/community/:communityId` and `/community/:communityId/post/:postId` run on the API by default (`src/services/community.api.js` → gateway `/api/community`, backend `community.service.js` + `mixins/community/community.talent.mixin.js`, srt-backend PR "community talent API"). **`?demo=1` shows GubliAS's drawn mock**, and so does any demo-only state key (`?state=`, `?joined=1`, `?pending=1`), so every frame URL in the table above still renders the drawing.
@@ -39,6 +49,7 @@ Every frame renders at its URL in Playful and Focused, no runtime errors, and wa
 - Data: the catalogue is seeded by `srt-backend scripts/seedScripts/seed-communities.js` (the 11 Figma communities + PRESEC Legon and Central University for school matching). No people or posts are seeded.
 
 ⚠️ ASSUMPTIONS / not on the backend yet:
+
 - Posts go live at once; the drawn "pending review" card needs a moderation queue the backend doesn't expose. An off-purpose post is flagged for moderators and the toast says so.
 - Mute, Follow, Events, "Request a community", photo upload, "Help me write it" and comment likes have no backend: mute stays in the tab, the others are hidden or local.
 - Card "activity" = "New community" under 25 members, else "Public" (no activity metric). Covers / collages are the bundled Figma images by slug.
@@ -60,3 +71,11 @@ Every frame renders at its URL in Playful and Focused, no runtime errors, and wa
 - **Not verified by eye:** Playful C-13 beyond the diff %, hover / focus states (none drawn), Join / Mute / Leave / Request buttons only through the agents' scripted checks, the post page's left / right columns.
 - **Shell vs Figma (not fixed):** top nav 91px vs 88px (everything 3px low); Ask Buddy FAB overlays the bottom-right of the feed.
 - Old community images in `src/assets/community/` are kept (other pages use some of them); unused ones were not pruned.
+
+## Control destinations (2026-11-21)
+
+Prototype links read over REST on C-07 `7628:5877`, C-08 `7628:6479`, C-12 `7629:7423`: none on Members "Message", "Help me write it", "View 4 replies" or "View 10 more comments" (C-07's comment count links to the feed).
+
+- ✅ VERIFIED Members "Message": a member who already has a drawn conversation opens it (`/messages?c=<key>`, matched by name against `MESSAGE_CONVERSATIONS`: Abigail Mensah → `c=abigail`, Akosua Quansah → `c=interview`); anyone else lands on `/messages`. Backend gap: no "start a conversation with <person>" endpoint / deep link.
+- ✅ VERIFIED "Help me write it" (demo create-post dialog) opens Career Buddy with the prompt "Help me write a post for <club>." plus the draft, the router-state hand-off used by Home "Start mock interview". Recruiter chrome keeps a log. ⚠️ ASSUMPTION. Only the live (signed-in) Career Buddy sends the handed-off prompt; signed out it opens the scripted chat (same as every other prompt hand-off).
+- "View 4 replies" / "View 10 more comments" stay log-only in the demo: the live post page already expands replies in place (`LivePostComments.jsx`), and Figma draws no reply / extra comment text, so the demo has nothing to show without inventing copy. ❓ NEEDS-CLARIFICATION (designer copy for the expanded thread).

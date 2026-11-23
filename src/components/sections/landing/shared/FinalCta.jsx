@@ -37,7 +37,9 @@ const FinalCta = ({ photo = false }) => {
         <div className="absolute left-[6px] top-[200px] size-[500px] rounded-full bg-[#84cc16]/25 blur-[80px] md:left-[35%] xl:-bottom-[150px] xl:left-auto xl:right-[8%] xl:top-auto" />
 
         <span
-          className={`${STICKER} left-4 top-[13px] -rotate-[5deg] bg-[#84cc16] md:left-[84.6%] md:top-[70px] xl:left-auto xl:right-[8%] xl:top-7`}
+          // tablet: anchored to the right edge (Figma 834 frame has it ~3px from the edge). It was left 84.6%, which pushed the
+          // ~120px sticker past the card's clipped edge on cards narrower than ~780px.
+          className={`${STICKER} left-4 top-[13px] -rotate-[5deg] bg-[#84cc16] md:left-auto md:right-3 md:top-[70px] xl:right-[8%] xl:top-7`}
         >
           NO CV NEEDED
         </span>

@@ -24,6 +24,9 @@ export const NAV_MAIN = [
   { id: 'notifications', label: 'Notifications', to: '/parent/notifications' },
 ];
 
+// "My career": a signed-in parent goes to their own talent home; the demo goes to Emma's talent home (`?as=emma`), as the switch-space menu does.
+export const careerHome = (live) => (live ? '/home' : '/home?as=emma');
+
 export const NAV_SECONDARY = [
   { id: 'settings', label: 'Settings', to: '/parent/settings' },
   { id: 'help', label: 'Help and guides', to: '/parent/help' },

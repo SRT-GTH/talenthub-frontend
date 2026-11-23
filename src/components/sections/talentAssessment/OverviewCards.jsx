@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { HEADING, HubButton } from '../talentSkillsLab/HubParts.jsx';
@@ -407,8 +408,8 @@ export const SkillsLabCard = ({ data }) => (
       {data.games.map((game) => (
         <li key={game.id} className="m-0 p-0">
           <Link
-            to={resolveRoute('skillsLab')}
-            onClick={() => log('game ->', game.id)}
+            to={game.to ? withDemoFlag(game.to) : resolveRoute('skillsLab')}
+            onClick={() => log('game ->', game.id, game.to ?? 'skillsLab')}
             className={classNames(
               'flex items-center gap-[10px] border-0 border-b border-solid border-[#e7e7e7] py-[10px] no-underline',
               OV_FOCUS

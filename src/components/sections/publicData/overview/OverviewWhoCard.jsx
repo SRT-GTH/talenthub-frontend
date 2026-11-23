@@ -55,7 +55,7 @@ const OverviewWhoCard = ({ education, ages, count, medianAge }) => {
       </div>
       <CardSubhead
         label="Age distribution"
-        aside={`Median age ${medianAge}`}
+        aside={medianAge == null ? undefined : `Median age ${medianAge}`}
         className="max-md:hidden"
       />
       <ColumnBars

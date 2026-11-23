@@ -232,27 +232,39 @@ export const Guidelines = ({ onGotIt, onReadAll, rules, note }) => {
 
 const IDEA_ICONS = { help: CmHelpIcon, star: CmStarIcon, users: CmUsersIcon };
 
+/* The club page's dashed empty card (drawn for the empty feed, C-14); shared by every empty club tab. */
+export const DashedEmptyCard = ({ className, children }) => (
+  <section
+    className={classNames(
+      'relative flex flex-col items-center gap-[14px] rounded-[20px] bg-white px-[32px] py-[40px] text-center max-sm:px-[16px] max-sm:py-[28px]',
+      className
+    )}
+  >
+    <svg
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 size-full overflow-visible"
+    >
+      <rect
+        x="0.75"
+        y="0.75"
+        rx="19.25"
+        fill="none"
+        stroke="#bfbfbf"
+        strokeWidth="1.5"
+        strokeDasharray="6 5"
+        style={{ width: 'calc(100% - 1.5px)', height: 'calc(100% - 1.5px)' }}
+      />
+    </svg>
+    {children}
+  </section>
+);
+
 /* `body` (optional) replaces the drawn line (live pages drop the "Founding Voice badge" promise: no badge backend yet). */
 export const EmptyFeed = ({ onWrite, body }) => {
   const { pageCopy: COMMUNITY_PAGE_COPY } = useCommunityContent();
   const copy = COMMUNITY_PAGE_COPY.empty;
   return (
-    <section className="relative flex flex-col items-center gap-[14px] rounded-[20px] bg-white px-[32px] py-[40px] text-center max-sm:px-[16px] max-sm:py-[28px]">
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 size-full overflow-visible"
-      >
-        <rect
-          x="0.75"
-          y="0.75"
-          rx="19.25"
-          fill="none"
-          stroke="#bfbfbf"
-          strokeWidth="1.5"
-          strokeDasharray="6 5"
-          style={{ width: 'calc(100% - 1.5px)', height: 'calc(100% - 1.5px)' }}
-        />
-      </svg>
+    <DashedEmptyCard>
       <img src={copy.art} alt="" className="size-[104px]" />
       <h2
         className={classNames(
@@ -290,7 +302,7 @@ export const EmptyFeed = ({ onWrite, body }) => {
       <PageButton className="mt-[2px]" onClick={onWrite}>
         {copy.cta}
       </PageButton>
-    </section>
+    </DashedEmptyCard>
   );
 };
 

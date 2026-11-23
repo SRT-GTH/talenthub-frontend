@@ -4,18 +4,18 @@
 
 ## Frame → URL (diff % = framecmp / own run vs the 0.5x export, 1728 wide; ✅ VERIFIED 2026-11-07)
 
-| Frame                           | Figma id      | URL (`/recruiter/settings` + …)                       | Diff %                                                                    |
-| ------------------------------- | ------------- | ----------------------------------------------------- | ------------------------------------------------------------------------- |
-| SR-13 Security and sign-in      | `10161:81691` | `?tab=security`                                       | 3.4–4.3                                                                   |
-| SR-23 Change password           | `10161:84939` | `?tab=security&modal=change-password`                 | 5.8–6.3                                                                   |
-| SR-24 Two-step code             | `10161:85278` | `?tab=security&modal=two-step`                        | 5.1–5.7                                                                   |
-| SR-25 Device logged out (toast) | `10161:85618` | `?tab=security&toast=device-logged-out`               | 3.9–4.8                                                                   |
-| SR-26 Delete recruiter account  | `10161:85946` | `?tab=security&modal=delete-account[&confirm=DELETE]` | 6.1–6.6                                                                   |
-| SR-17 Language and data         | `10161:83001` | `?tab=language`                                       | 3.1–4.1                                                                   |
-| SR-18 Export requested (toast)  | `10161:83309` | `?tab=language&toast=export-requested`                | 3.8                                                                       |
-| SR-14 Profile menu              | `10161:82623` | `?menu=open` (any tab; frame draws the Account tab)   | 2.9–3.8                                                                   |
-| SR-16 Log out · confirm         | `10161:82353` | `?modal=logout`                                       | 3.1 (behind = Account tab built by another builder; Figma draws it empty) |
-| SR-27 Logged out                | `10161:86281` | `?state=logged-out`                                   | 1.2                                                                       |
+| Frame                           | Figma id      | URL (`/recruiter/settings` + …)                       | Diff % (2026-11-22) |
+| ------------------------------- | ------------- | ----------------------------------------------------- | ------------------- |
+| SR-13 Security and sign-in      | `10161:81691` | `?tab=security`                                       | 3.4                 |
+| SR-23 Change password           | `10161:84939` | `?tab=security&modal=change-password`                 | 5.8                 |
+| SR-24 Two-step code             | `10161:85278` | `?tab=security&modal=two-step`                        | 5.2                 |
+| SR-25 Device logged out (toast) | `10161:85618` | `?tab=security&toast=device-logged-out`               | 3.9                 |
+| SR-26 Delete recruiter account  | `10161:85946` | `?tab=security&modal=delete-account[&confirm=DELETE]` | 6.1                 |
+| SR-17 Language and data         | `10161:83001` | `?tab=language`                                       | 3.3                 |
+| SR-18 Export requested (toast)  | `10161:83309` | `?tab=language&toast=export-requested`                | 3.7                 |
+| SR-14 Profile menu              | `10161:82623` | `?menu=open` (any tab; frame draws the Account tab)   | 2.9                 |
+| SR-16 Log out · confirm         | `10161:82353` | `?modal=logout`                                       | 2.6                 |
+| SR-27 Logged out                | `10161:86281` | `?state=logged-out`                                   | 0.3                 |
 
 Where the number is a range: framecmp and the own run (`ours` screenshot at viewport = frame height − 52) differ by font load timing. The dev-only bottom bar ("Onboarding / Profile Filling …") is part of every diff. The dialogs differ mainly by position: Figma centres SR-23/24/26 over the main column (x centre 994–1008) and vertically in the 1132 frame incl. the 52px toolbar; we centre in the viewport (✅ crops of the dialog interiors were compared side by side and match).
 

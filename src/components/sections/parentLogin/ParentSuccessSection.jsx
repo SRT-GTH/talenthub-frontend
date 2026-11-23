@@ -169,13 +169,17 @@ const ParentSuccessSection = () => {
 
   const handleDashboard = () => {
     log('primary CTA clicked', { needsLogin });
-    navigate(needsLogin ? '/login' : '/');
+    // A parent account's home is the parent dashboard (services/auth.api.js sends parents to /parent).
+    navigate(needsLogin ? '/login' : '/parent');
   };
 
   const handleOptOut = (e) => {
     e.preventDefault();
-    log('opt-out instead clicked');
+    log('opt-out instead clicked', { invited });
     if (invited) setOptOutOpen(true);
+    // Self-serve flow: the account now exists, so opting a ward out happens from My wards
+    // (each ward page has Opt out). ⚠️ ASSUMPTION: no screen is drawn for this hand-off.
+    else navigate('/parent/wards');
   };
 
   return (

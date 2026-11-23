@@ -25,6 +25,13 @@ const FooterLink = ({ link, label, onModal }) => {
       </button>
     );
   }
+  if (link.href) {
+    return (
+      <a href={link.href} className={LINK}>
+        {text}
+      </a>
+    );
+  }
   if (!link.to) {
     return <span className={LINK}>{text}</span>;
   }

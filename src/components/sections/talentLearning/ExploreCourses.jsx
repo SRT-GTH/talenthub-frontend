@@ -393,44 +393,59 @@ const SearchResults = ({ query, results, onRelated, onOpen }) => (
 
 /* ---------- EX-04 ---------- */
 
-const NoResults = ({ onClosest }) => (
-  <div className="flex flex-col items-center gap-[20px] rounded-[28px] border border-solid border-[#e1eae2] bg-white px-[16px] py-[34px] text-center sm:px-[40px]">
-    <ExploreNoResultsSpot className="size-[130px]" />
-    <h2
-      className={classNames(headingClass, 'text-[clamp(24px,1.85vw,32px)] leading-[1.2]')}
-      aria-live="polite"
-    >
-      {NO_RESULTS.title}
-    </h2>
-    <p className="m-0 max-w-[640px] font-sans text-[15px] leading-[17.9px] text-[#737373] playful:text-[#595959]">
-      {NO_RESULTS.body}
-    </p>
-    <div className="flex flex-wrap items-center justify-center gap-[10px] py-[4px]">
-      <ShelfButton size="lg">{NO_RESULTS.request}</ShelfButton>
-      <ShelfButton size="lg" tone="secondary">
-        {NO_RESULTS.askBuddy}
-      </ShelfButton>
-    </div>
-    <div className="flex flex-wrap items-center justify-center gap-[8px]">
-      <span className="font-sans text-[13px] font-semibold leading-[15.5px] text-[#737373]">
-        {NO_RESULTS.closestLabel}
-      </span>
-      {NO_RESULTS.closest.map((c) => (
-        <button
-          key={c}
-          type="button"
-          onClick={() => onClosest(c)}
-          className={classNames(
-            'cursor-pointer whitespace-nowrap rounded-full border-0 bg-[#ebf1ec] px-[12px] py-[6px] font-sans text-[12.5px] font-semibold leading-[14.9px] text-[#2d5d33] playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)]',
-            FOCUS_RING
-          )}
+// "Request this course" has no prototype link and no course-request endpoint; it follows the club
+// "Request this club" pattern (CommunityBrowseParts NoResults): the button turns into a disabled
+// "Request sent" for this visit. ⚠️ ASSUMPTION (no backend: nothing is stored).
+const NoResults = ({ onClosest, onAskBuddy }) => {
+  const [requested, setRequested] = useState(false);
+  return (
+    <div className="flex flex-col items-center gap-[20px] rounded-[28px] border border-solid border-[#e1eae2] bg-white px-[16px] py-[34px] text-center sm:px-[40px]">
+      <ExploreNoResultsSpot className="size-[130px]" />
+      <h2
+        className={classNames(headingClass, 'text-[clamp(24px,1.85vw,32px)] leading-[1.2]')}
+        aria-live="polite"
+      >
+        {NO_RESULTS.title}
+      </h2>
+      <p className="m-0 max-w-[640px] font-sans text-[15px] leading-[17.9px] text-[#737373] playful:text-[#595959]">
+        {NO_RESULTS.body}
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-[10px] py-[4px]">
+        <ShelfButton
+          size="lg"
+          disabled={requested}
+          onClick={() => {
+            log('request this course (local only, no endpoint)');
+            setRequested(true);
+          }}
         >
-          {c}
-        </button>
-      ))}
+          {requested ? NO_RESULTS.requested : NO_RESULTS.request}
+        </ShelfButton>
+        <ShelfButton size="lg" tone="secondary" onClick={onAskBuddy}>
+          {NO_RESULTS.askBuddy}
+        </ShelfButton>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-[8px]">
+        <span className="font-sans text-[13px] font-semibold leading-[15.5px] text-[#737373]">
+          {NO_RESULTS.closestLabel}
+        </span>
+        {NO_RESULTS.closest.map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => onClosest(c)}
+            className={classNames(
+              'cursor-pointer whitespace-nowrap rounded-full border-0 bg-[#ebf1ec] px-[12px] py-[6px] font-sans text-[12.5px] font-semibold leading-[14.9px] text-[#2d5d33] playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)]',
+              FOCUS_RING
+            )}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /* ---------- screen ---------- */
 
@@ -607,7 +622,15 @@ const MockExplore = ({ learning }) => {
               onOpen={openCourse}
             />
           )}
-          {mode === 'none' && <NoResults onClosest={applyQuery} />}
+          {mode === 'none' && (
+            <NoResults
+              onClosest={applyQuery}
+              onAskBuddy={() => {
+                log('ask career buddy: open chat');
+                learning.update({ new: 'chat' });
+              }}
+            />
+          )}
         </div>
       )}
     </div>

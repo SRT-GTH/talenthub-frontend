@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { debug } from '../../utils/debug.js';
 import { classNames } from '../../utils/classNames.js';
+import { GenzDoodleStar } from './assets.jsx';
 import pillIcon from '../../assets/legal/legal-pill.svg';
 import closeIcon from '../../assets/legal/legal-close.svg';
 import bannerDocIcon from '../../assets/legal/legal-banner-doc.svg';
@@ -93,6 +95,10 @@ const CALLOUT_VARIANT_STYLES = {
 const FOCUSABLE =
   'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
 
+// Sign-up review step: Focused says the formal label, Playful a friendlier one.
+const DEFAULT_CTA_LABEL = 'I understand and Accept';
+const PLAYFUL_CTA_LABEL = 'Got it, I accept';
+
 const LegalModalShell = ({
   title,
   introTitle,
@@ -101,7 +107,7 @@ const LegalModalShell = ({
   callouts = [],
   footerHelper,
   readFullHref,
-  ctaLabel = 'I understand and Accept',
+  ctaLabel = DEFAULT_CTA_LABEL,
   onAccept,
   onClose,
   bannerIcon = 'shield',
@@ -155,12 +161,13 @@ const LegalModalShell = ({
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  return (
+  // Portaled to <body> so page stacking contexts (e.g. the sign-up layout) never put the nav above the scrim.
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 z-50 flex items-end justify-center"
+      className="fixed inset-0 z-[60] flex items-end justify-center"
       style={{ background: 'rgba(28,42,33,0.7)' }}
       onClick={onClose}
     >
@@ -176,6 +183,14 @@ const LegalModalShell = ({
         }}
         onClick={(event) => event.stopPropagation()}
       >
+        {/* Playful only: gold "Quick read" sticker hanging off the top-left corner. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-[-10px] z-10 hidden -rotate-[4deg] rounded-[6px] border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-[9px] py-[3px] font-ui text-[11px] font-bold uppercase leading-[14px] tracking-[0.4px] text-[#1c2a21] shadow-[2px_2px_0_#1c2a21] playful:block"
+        >
+          Quick read
+        </span>
+
         {/* Drag pip — Figma 36x4 #C6C6C3 r2, 16px from top. */}
         <span
           aria-hidden="true"
@@ -227,14 +242,14 @@ const LegalModalShell = ({
 
           {/* Intro banner — Figma 632x68, bg #EBF1EC @ .6, bottom border #C1D4C4. */}
           <div
-            className="flex items-center gap-4 py-[15px] pl-[14px] max-md:pl-0"
+            className="relative flex items-center gap-4 py-[15px] pl-[14px] max-md:pl-0"
             style={{
               background: 'rgba(235,241,236,0.6)',
               borderBottom: '1px solid #C1D4C4',
             }}
           >
             <span
-              className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px] bg-brand-green"
+              className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px] bg-brand-green playful:border-[1.2px] playful:border-[#1c2a21] playful:shadow-[2px_2px_0_#1c2a21]!"
               style={{ boxShadow: '0 3px 0 #2A5730' }}
               aria-hidden="true"
             >
@@ -245,6 +260,24 @@ const LegalModalShell = ({
                 height={20}
               />
             </span>
+            <GenzDoodleStar
+              size={9}
+              color="#387440"
+              className="absolute hidden playful:block"
+              style={{ left: 2, top: 4 }}
+            />
+            <GenzDoodleStar
+              size={13}
+              color="#C8951A"
+              className="absolute hidden playful:block max-md:hidden!"
+              style={{ right: 16, top: 8 }}
+            />
+            <GenzDoodleStar
+              size={8}
+              color="#C8951A"
+              className="absolute hidden playful:block max-md:hidden!"
+              style={{ right: 32, bottom: 8 }}
+            />
             <div className="flex flex-col gap-1 pr-3">
               <p className="text-[14px] font-bold leading-[17px] text-[#2A5730]">{introTitle}</p>
               <p className="text-[12px] font-medium leading-[17px] text-[#2A5730]">
@@ -381,13 +414,21 @@ const LegalModalShell = ({
                 className="text-[16px] font-bold leading-6 max-md:text-[14px]"
                 style={{ letterSpacing: '0.1px', color: '#FEF1E7' }}
               >
-                {ctaLabel}
+                {ctaLabel === DEFAULT_CTA_LABEL ? (
+                  <>
+                    <span className="playful:hidden">{DEFAULT_CTA_LABEL}</span>
+                    <span className="hidden playful:inline">{PLAYFUL_CTA_LABEL}</span>
+                  </>
+                ) : (
+                  ctaLabel
+                )}
               </span>
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

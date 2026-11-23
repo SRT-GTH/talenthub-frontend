@@ -104,6 +104,25 @@ const NavItem = ({ item, active, variant, onModal, onNavigate }) => {
   );
 };
 
+/** The one collapse / expand control of the desktop sidebar (desktop only: tablet always draws the rail). collapsed = the rail's expand button. */
+const SidebarToggle = ({ collapsed = false, onToggle, className }) => (
+  <button
+    type="button"
+    onClick={() => {
+      log('toggle', collapsed ? 'expand' : 'collapse');
+      onToggle();
+    }}
+    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+    className={classNames(
+      'hidden size-[28px] items-center justify-center rounded-[8px] text-[#999999] hover:bg-[#ebf1ec] xl:flex',
+      FOCUS,
+      className
+    )}
+  >
+    <PublicIconToggle className={classNames('h-[20px] w-[23px]', collapsed && 'rotate-180')} />
+  </button>
+);
+
 const SectionLabel = ({ children }) => (
   <p className="m-0 font-sans text-[11px] font-semibold leading-[13px] tracking-[0.88px] text-[#595959] uppercase">
     {children}
@@ -160,19 +179,7 @@ const PublicSidebar = ({
           >
             <img src={gthLogo} alt="" width="42" height="39" className="h-[39px] w-[42px]" />
           </Link>
-          {onToggle ? (
-            <button
-              type="button"
-              onClick={onToggle}
-              aria-label="Expand sidebar"
-              className={classNames(
-                'hidden size-[28px] items-center justify-center rounded-[8px] text-[#999999] hover:bg-[#ebf1ec] xl:flex',
-                FOCUS
-              )}
-            >
-              <PublicIconToggle className="h-[20px] w-[23px] rotate-180" />
-            </button>
-          ) : null}
+          {onToggle ? <SidebarToggle collapsed onToggle={onToggle} /> : null}
           <div className="flex flex-col gap-[4px]">
             {PRIMARY_NAV.map((item) => (
               <NavItem
@@ -239,17 +246,7 @@ const PublicSidebar = ({
           </span>
         </Link>
         {onToggle ? (
-          <button
-            type="button"
-            onClick={onToggle}
-            aria-label="Collapse sidebar"
-            className={classNames(
-              'absolute top-[10px] right-0 hidden size-[28px] items-center justify-center rounded-[8px] text-[#999999] hover:bg-[#ebf1ec] xl:flex',
-              FOCUS
-            )}
-          >
-            <PublicIconToggle className="h-[20px] w-[23px]" />
-          </button>
+          <SidebarToggle onToggle={onToggle} className="absolute top-[10px] right-0" />
         ) : null}
         <div className="flex flex-col gap-[4px]">
           <SectionLabel>Explore</SectionLabel>

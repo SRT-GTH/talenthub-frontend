@@ -169,3 +169,23 @@ export const topicRowsFor = (rounds, results, roundWord = 'Round') => {
   }));
   return [...rows.filter((r) => r.strong), ...rows.filter((r) => !r.strong)];
 };
+
+/* ---------- choice order ----------
+ * The local rounds keep the right choice at index 0 (`answer: 0` in most data files), so a fresh run would always show the
+ * answer first. displayOrder(n, seed, drawn) → the indices 0…n-1 in a stable shuffled order for that round (same seed → same
+ * order, so a re-render does not move the chips); `drawn` (a Figma `?f=` frame) keeps the drawn order 0…n-1.
+ * Answers stay indices into the ORIGINAL list; only the order on screen changes.
+ */
+export const displayOrder = (n, seed, drawn = false) => {
+  const idx = Array.from({ length: n }, (_, i) => i);
+  if (drawn || n < 2) return idx;
+  let h = 2166136261;
+  for (const ch of String(seed)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+  for (let i = n - 1; i > 0; i--) {
+    h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0;
+    const j = h % (i + 1);
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  log('display order', { n, seed, idx: idx.join('') });
+  return idx;
+};

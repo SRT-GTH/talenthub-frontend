@@ -24,15 +24,15 @@ const log = debug('circleState');
  *   &state=sent                                     NW-03 Abena's link-up was just sent (toast + "Link-up sent" card)
  *   &tab=invitations[&sub=received|sent]            NW-04 Invitations   (&state=accepted = Nana Yaw just accepted, toast)
  *   &tab=circle[&menu=<personId>]                   NW-05 Connections   (&menu=yaw-darko = the "…" menu open)
- *   &tab=following                                  ⚠️ ASSUMPTION: opens the NW-09 feed "From your circle" (Figma draws no tab for it)
+ *   &tab=following                                  ⚠️ ASSUMPTION: opens the NW-09 feed "From your crew" (Figma draws no tab for it)
  *   &tab=feed                                       NW-09 Feed · From your network
  *   &state=minor                                    NW-10 under 18 (Ama, 15): classmates + verified mentors only
- *   &state=empty                                    NW-11 new talent: "Start your circle"
+ *   &state=empty                                    NW-11 new talent: "Start your crew"
  *   &q=<text>                                       the "Search people by name, skill or school" field
  *   &rail=collapsed | &help=1                       icon rail / Help pop-over (default Help copy)
  *
  * TALENT PROFILE  (/community/people/:personId — another talent's profile; the frames draw Yaw Darko)
- *   /community/people/yaw-darko                     NW-06  connected (1st): Message · In your circle · Follow · endorse, recommend
+ *   /community/people/yaw-darko                     NW-06  connected (1st): Message · In your crew · Follow · endorse, recommend
  *   /community/people/yaw-darko?state=not-connected NW-06b not connected (2nd): Link up · Follow · Message, endorse locked
  *   &modal=endorse[&skills=figma,user-research]     NW-07  "Endorse Yaw’s skills" (skills = ticked skill ids)
  *   &modal=recommend[&draft=1]                      NW-08  "Recommend Yaw" (draft=1 = the drawn recommendation typed in)

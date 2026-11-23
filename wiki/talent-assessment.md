@@ -41,7 +41,16 @@ URL scheme: overview / details / library sit in the talent shell (`AssessmentFra
 
 - **Invented content (tagged ⚠️ ASSUMPTION in `assessmentData.js`):** the TypeScript question bank (only Question 12 / 25 is drawn — the rest are 12 invented short questions cycled), scoring rules (score = correct/25 × 100, pass at 70, "Strong" ≥ 70%, retake = today + 30 days), hint behaviour, 20:00 clock / 30-minute resume window / 5-second time-up bar, library tabs "Passed" and "All assessments" contents, destinations of buttons (everything "Start/Take/Retake" → `/my-assessment/full/typescript`; "Manage skills" → `/profile`; Skills Lab rows → `/skills-lab…`; "Message" / "Remind me" / "Ask Buddy" only log or close), "Try again" re-runs the loading skeleton for 1.2s, unknown skill id page copy.
 - **Figma inconsistencies kept as drawn:** "72th" / "41th" percentile ordinals (MA-01, MA-07; MA-02 is correct); overview trait bars drawn at half scale; MA-02 trait bars all drawn at 88% (we drive the fill from the percentile — set `percent` to 88 in `PersonalityDetail.jsx` to match literally); MA-08's sidebar is the recruiter variant; MA-12 dialog says 22 of 25 while the page says 11 answered; MA-06 82 / "20 correct" vs MA-10 58 / "14 correct" follow no single scoring rule; Focused active "My Assessment" label is drawn dark grey on green in the frames — NOT followed (2026-10-19, owner request): it uses the same light label (#ebf1ec) as every other talent page; empty icon instances render as white boxes in Figma (archetype compass, Data Analytics chart): drawn with the glyph instead.
-- **Nothing links to `/my-assessment/library`** — no entry point is drawn.
+- ~~**Nothing links to `/my-assessment/library`**~~ 🪦 STALE: the live overview's "Aptitude assessments" step and the next-test card open it (`liveOverview.js`, `LIBRARY`). ✅ VERIFIED 2026-11-21 (source). The demo overview still has no entry point (none drawn).
+
+### Inspection fixes (2026-11-21) ✅ VERIFIED in the browser (Playful + Focused)
+
+- **Demo / Figma URLs no longer bounce to `/login` when signed out.** `useAssessmentHome` passes `enabled` to `useTalentHomeState`, and the full flow (`?f=`) and library (`?demo=1`) pages do the same, so `?demo=1`, `?state=…`, `?view=recruiter` and `?f=MA-…` render the drawn mock without calling the talent API (a 401 used to redirect them).
+- **Exit preview** (MA-07) returns to the demo overview (`?demo=1`) instead of the live one.
+- **Retake in 72 days** (demo MA-02) keeps `demo=1` when it opens the MA-08 pop-up.
+- **Prefer games? Play 3 to update** (MA-02) opens the Games tab (`/skills-lab?tab=games`) instead of the hub. ⚠️ ASSUMPTION (not drawn).
+- Demo rows that name a real lab open that lab: overview Skills Lab "Python Lab" → `/skills-lab/lab/python`; History "Skills Lab · JavaScript" / "· SQL" → `/skills-lab/lab/javascript` / `/sql` (they went to the hub).
+- Demo skill evidence: the "Chat with Career Buddy" attempt row (Python) and "Chat with Buddy" (Firebase, no attempts) open `/profile/filling/career-buddy`, as the live page and the overview History row already did.
 - **Shell vs Figma (not fixed):** top nav 91px tall vs 88px; Playful sidebar profile card lacks the hard shadow; "Preview as recruiter" / "Preview as talent" wording and URL follow the data block per state.
 - **Not verified by eye:** Playful MA-07, MA-08 beyond the diff %, Focused Firebase illustration (reused from Playful), the Help pop-over copy (not compared), the sidebar badge/label changes on the other pages that use the shared sidebar (spot-check Home, Job Postings, Skills Lab).
 - The responsive audit does not catch a crashing page; every assessment URL was scanned for page errors (clean). First load after a dev-server edit can render blank for a moment — reload.
@@ -64,3 +73,11 @@ Owner decision: My Assessment runs on the six assessments the backend already sc
 Routes fixed: `OVERVIEW_ROUTES.personalityQuiz` now opens the Big Five test (it pointed at the results page).
 
 Backend PR SRT-ELYSIUMTOURS/srt-backend#164 is required: it fixes the 403 every talent got on `/assessments/score` (engagement owner = user id vs guard = entity id) and stops `/assessments/templates` sending `correctAnswer` / `scoring` to talents.
+
+## Control destinations (2026-11-21)
+
+Prototype links read over REST: MA-01 `7963:9352` links only Preview recruiter view, Personality, Full assessment, Python / Firebase skills; MA-07 `7970:10098` links Exit preview and "Open Skills Lab" (→ REF Skills Lab hub); MA-09 `7984:10325` links Back and Start assessment. "React Speedrun", "Design Thinking Sprint", "Leadership Chess", "Message" and "Remind me" carry no link.
+
+- ✅ VERIFIED Skills Lab rows open the closest real lab (`to` in `assessmentData.js`, demo flag kept): React Speedrun → `/skills-lab/lab/javascript` (React has no lab, `lab: false`), Design Thinking Sprint → `/skills-lab/lab/ui-ux-design`, Leadership Chess → `/skills-lab/lab/strategic-thinking` (the lab played on a chess board). 🔶 LIKELY (no game or lab has these names; games v2 checked: Chess Tactics / Chess Match are strategy games but not "leadership").
+- ✅ VERIFIED Library React card "Remind me" turns into a disabled "Reminder set for 2 Nov" (same idea as the Skills Lab SL-T3 "Reminder set" toast). ⚠️ ASSUMPTION; backend gap: no reminder endpoint, nothing is stored.
+- ✅ VERIFIED Recruiter view "Message" → `/messages` (where a recruiter's message reaches the talent). ⚠️ ASSUMPTION.

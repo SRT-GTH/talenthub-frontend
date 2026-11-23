@@ -93,3 +93,15 @@ two PIN digits typed, as W-11 draws; the withdraw confirm closes the dialog, as 
 `AlmostThereDialog`, `ReceiptDrawer`, `WalletActivated` (modal), `WalletToasts`, `WalletDialogs` (host); shared: `WalletFrame`, `WalletHeader`/`WalletTabs`, `walletHeaders.js` (screen resolver,
 header and tabs per screen), `WalletPanels`, `WalletDialogParts`, `walletUi`; data: `walletData`, `walletKycData`, `walletCyclesData`, `walletFinancingData`, `walletCreditData`, `walletMoney`.
 Page `src/pages/talentWallet/TalentWalletPage.jsx`. Assets `src/assets/talent-wallet/` (spot illustrations, receipt logo / torn edge / dashed rule, selfie photo + ring); icons `Wallet*Icon` at the end of `assets.jsx`.
+
+## Inspection pass (2026-11-21)
+
+- Home "Redeem Cycles" opens the Cycles tab with the redeem dialog (`?tab=cycles&modal=redeem-short`, the 340-Cycles variant Home shows); Home "View your score →" and the Financing credit mini card's "View your score →" open `?tab=credit`. These were log-only ("built in a later phase"). ✅ VERIFIED
+- 🪦 STALE ~~Home "See payouts →" is still log-only~~ — see "Control destinations" below.
+- All 33 URL states load in both looks with no console errors (signed out). ✅ VERIFIED
+
+## Control destinations (2026-11-21)
+
+- ✅ VERIFIED Home "See payouts →" opens W-26 Payout · Gig in escrow (`?view=escrow`). Source: Figma prototype link on W-06 `8817:1435` → `8825:2137`.
+- ✅ VERIFIED Under 18 "Redeem Cycles" opens the Redeem Cycles dialog over the Starter wallet (`?state=under18&modal=redeem`). W-17's button has no prototype link; the same button on W-06 is linked to the Redeem dialog family (`8817:1404` → W-15b `8822:3258`). 🔶 LIKELY (the under-18 Cycles balance is not drawn, so the 620-Cycles W-15 variant is used).
+- ✅ VERIFIED Financing declined "Fund a smaller course" goes back to W-20 "Fund your training" (`?tab=financing`, `stage` cleared), whose "Courses you could fund" list is where a cheaper course is picked. ⚠️ ASSUMPTION: no prototype link on W-23b.

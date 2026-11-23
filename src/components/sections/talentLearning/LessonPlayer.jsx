@@ -149,7 +149,7 @@ const ModuleList = ({ progress = LESSON.progress }) => {
           {progress.summary}
         </span>
       </div>
-      <ol className="flex flex-col gap-[0px]">
+      <ol className="flex flex-col gap-[clamp(8px,0.926vw,16px)]">
         {progress.modules.map((m) => (
           <li
             key={m.title}
@@ -193,8 +193,15 @@ const ModuleList = ({ progress = LESSON.progress }) => {
   );
 };
 
-const AskBuddy = ({ placeholder = LESSON.buddy.placeholder }) => (
-  <section
+// "Stuck? Ask Career Buddy": sending (button or Enter) opens the Career Buddy chat on this page
+// (`?new=chat`, rendered by AskBuddyFab), the same chat the Ask Buddy button opens.
+const AskBuddy = ({ placeholder = LESSON.buddy.placeholder, onAsk }) => (
+  <form
+    onSubmit={(e) => {
+      e.preventDefault();
+      log('ask career buddy: open chat');
+      onAsk?.();
+    }}
     className={classNames(
       'flex flex-col gap-[10px] rounded-[22px] bg-[#387440] p-[16px]',
       CARD_INK
@@ -221,7 +228,7 @@ const AskBuddy = ({ placeholder = LESSON.buddy.placeholder }) => (
         className="min-w-0 flex-1 bg-transparent text-[13px] leading-[15.5px] text-[#1c2a21] outline-none placeholder:text-[#737373]"
       />
       <button
-        type="button"
+        type="submit"
         aria-label={LESSON.buddy.title}
         className={classNames(
           'flex size-[30px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#ffd86b] text-[#1c2a21]',
@@ -231,7 +238,7 @@ const AskBuddy = ({ placeholder = LESSON.buddy.placeholder }) => (
         <CourseSendPlaneIcon className="size-[14px]" />
       </button>
     </div>
-  </section>
+  </form>
 );
 
 /*
@@ -342,7 +349,10 @@ const LiveLesson = ({ learning, data }) => {
         </div>
         <aside className="flex min-w-0 flex-col gap-[16px] lg:w-[clamp(300px,20.83vw,360px)] lg:shrink-0">
           <ModuleList progress={progress} />
-          <AskBuddy placeholder={`“Explain module ${current} of ${card.title} simply”`} />
+          <AskBuddy
+            placeholder={`“Explain module ${current} of ${card.title} simply”`}
+            onAsk={() => learning.update({ new: 'chat' })}
+          />
         </aside>
       </div>
     </section>
@@ -426,7 +436,7 @@ const LessonPlayer = ({ learning }) => {
         </div>
         <aside className="flex min-w-0 flex-col gap-[16px] lg:w-[clamp(300px,20.83vw,360px)] lg:shrink-0">
           <ModuleList />
-          <AskBuddy />
+          <AskBuddy onAsk={() => learning.update({ new: 'chat' })} />
         </aside>
       </div>
     </section>

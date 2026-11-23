@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import DashboardTopNav from './DashboardTopNav.jsx';
@@ -7,6 +8,7 @@ import DashboardMobileTabBar from './DashboardMobileTabBar.jsx';
 import DashboardPageBackground from './DashboardPageBackground.jsx';
 import CareerBuddyFloatingButton from '../community/CareerBuddyFloatingButton.jsx';
 import TalentDashboardShell from '../talentHome/TalentDashboardShell.jsx';
+import { useRecruiterTopBarPanels } from '../recruiterSettings/help/useRecruiterTopBarPanels.jsx';
 
 const log = debug('DashboardShell');
 
@@ -74,6 +76,12 @@ const DashboardShell = ({
   renderSidebar,
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
+  // Every recruiter page gets the recruiter top-bar defaults (Help pop-over, Profile menu, messages icon -> inbox) under its own `panels`.
+  const { pathname } = useLocation();
+  const recruiterPanels = useRecruiterTopBarPanels({
+    enabled: role !== 'talent' && pathname.startsWith('/recruiter'),
+  });
+  const topNavPanels = recruiterPanels ? { ...recruiterPanels, ...panels } : panels;
 
   useEffect(() => {
     log('mount', { role: 'recruiter', defaultSidebarCollapsed });
@@ -106,7 +114,7 @@ const DashboardShell = ({
       <DashboardPageBackground className="z-0" variant="recruiter" />
 
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col">
-        <DashboardTopNav className="shrink-0" orgSlot={orgSlot} panels={panels} />
+        <DashboardTopNav className="shrink-0" orgSlot={orgSlot} panels={topNavPanels} />
 
         <div className={classNames('flex min-h-0 w-full flex-1', contentClassName)}>
           {renderSidebar?.({

@@ -6,8 +6,9 @@ test('landing page renders hero headline', async ({ page }) => {
   // contains the expected words.
   const heading = page.getByRole('heading', { level: 1 });
   await expect(heading).toBeVisible();
-  await expect(heading).toContainText('Know');
-  await expect(heading).toContainText('Future.');
+  // LP-01 v2 hero copy (landing rebuild, wiki/log.md 2026-10-22; HERO_HEADING in landing/home/HeroData.js).
+  await expect(heading).toContainText('Stop being overlooked.');
+  await expect(heading).toContainText('Start getting found.');
 });
 
 test('design-system playground is reachable at /components', async ({ page }) => {

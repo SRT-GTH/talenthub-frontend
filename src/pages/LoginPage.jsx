@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { resolveNext } from '../utils/authNext.js';
 import Button from '../components/ui/Button.jsx';
 import {
   COMPACT_PRIMARY_BUTTON,
@@ -22,6 +23,7 @@ import {
   LoadingSpinner,
   CloseIcon,
   MailIcon,
+  GenzDoodleStar,
 } from '../components/shared/assets.jsx';
 import { classNames } from '../utils/classNames.js';
 import { debug } from '../utils/debug.js';
@@ -37,6 +39,7 @@ import {
   LoginOverlayCards,
 } from '../components/sections/talentAuth/TalentLoginPanelContent.jsx';
 import LoginTutorialModal from '../components/sections/talentAuth/LoginTutorialModal.jsx';
+import { useUiStyle } from '../hooks/useUiStyle.js';
 
 const log = debug('LoginPage');
 
@@ -143,7 +146,7 @@ const AuthErrorToast = ({
 const PHONE_WRAPPER_BASE =
   'flex h-[51px] max-md:h-11 w-full items-center gap-2 rounded-md pr-4 max-md:pr-3 max-md:shadow-none! transition-colors';
 const PHONE_WRAPPER_DEFAULT =
-  'bg-white border border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] ' +
+  'bg-white border border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] focused:shadow-[0_2px_8px_rgba(28,42,33,0.04),0_1px_2px_rgba(28,42,33,0.04)] ' +
   'focus-within:border-brand-green-light-active focus-within:bg-yellow-light focus-within:shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]';
 const PHONE_WRAPPER_ERROR =
   'bg-white border-[1.5px] border-danger-light-active shadow-[0_2.5px_0_0_rgba(146,43,33,0.8)]';
@@ -200,6 +203,7 @@ const FieldError = ({ id, message }) => (
 // Step 2: the 6-digit code emailed after a correct password.
 const LoginOtpStep = ({ identity, maskedEmail, onBack }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [code, setCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
@@ -214,8 +218,10 @@ const LoginOtpStep = ({ identity, maskedEmail, onBack }) => {
       const { accessToken, user } = await verifyLoginOtp({ identity, otp: value });
       if (!accessToken) throw new Error('No token returned');
       const home = await resolveHomePath(user);
-      log('logged in; going to', home);
-      navigate(home, { replace: true });
+      // `?next=` from a public page ("log in, then carry on"): followed only when it fits this account (utils/authNext.js)
+      const dest = resolveNext(searchParams.get('next'), home);
+      log('logged in; going to', dest, dest === home ? '(home)' : '(next)');
+      navigate(dest, { replace: true });
     } catch (err) {
       log.error('verify failed:', getApiErrorCode(err));
       const apiCode = getApiErrorCode(err);
@@ -248,7 +254,7 @@ const LoginOtpStep = ({ identity, maskedEmail, onBack }) => {
     <div className="flex w-full max-w-[700px] flex-col gap-6 max-md:gap-3">
       <header className="flex flex-col items-center gap-3 text-center max-md:gap-1.5">
         <h1
-          className="font-heading font-semibold tracking-[-0.01em] max-md:text-[24px]! max-md:leading-tight!"
+          className="font-heading font-semibold focused:font-sans tracking-[-0.01em] max-md:text-[24px]! max-md:leading-tight!"
           style={{ fontSize: 'clamp(2rem, 4vw, 4rem)', lineHeight: 1.1 }}
         >
           <span className="block text-black">Check your</span>
@@ -313,6 +319,7 @@ const LoginOtpStep = ({ identity, maskedEmail, onBack }) => {
 };
 
 const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
+  const { uiStyle } = useUiStyle();
   const [method, setMethod] = useState(LOGIN_MODE === 'email' ? 'email' : 'phone');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -408,18 +415,40 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
     >
       {/* eyebrow + heading + sub-copy */}
       <header className="flex flex-col items-center gap-3 text-center max-md:gap-1.5">
-        <span className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-1.5 rounded-[10px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5">
-          <span
-            aria-hidden="true"
-            className="size-2 rounded-full bg-brand-green shadow-[inset_0_0_3px_#19341d]"
-          />
-          <span className="text-[12px] font-medium leading-[18px] tracking-[0.2px] text-brand-green">
-            WELCOME BACK
+        {/* Playful: gold sticker tilted 4deg, ink border + hard 2px shadow, three doodle stars around it.
+            Focused: flat cream pill, pale green edge, green text, no stars. */}
+        <span className="relative inline-flex">
+          <span className="inline-flex rotate-[4deg] items-center gap-1.5 rounded-[8px] border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-4 py-1 shadow-[2px_2px_0_#1c2a21] max-md:px-3 max-md:py-0.5 focused:rotate-0 focused:border focused:border-[#c1d4c4] focused:bg-[#fffefc] focused:shadow-none">
+            <span
+              aria-hidden="true"
+              className="size-2 rounded-full border-[1.5px] border-[#1d7c4d] bg-[#e1eae2] shadow-[0_0_4px_#006b3f]"
+            />
+            <span className="text-[12px] leading-[18px] tracking-[0.2px] text-[#1c2a21] focused:text-brand-green">
+              WELCOME BACK
+            </span>
           </span>
+          <GenzDoodleStar
+            size={16}
+            color="#C8951A"
+            className="absolute focused:hidden"
+            style={{ left: 'calc(50% + 82.6px)', top: 'calc(50% - 25.8px)' }}
+          />
+          <GenzDoodleStar
+            size={10}
+            color="#C8951A"
+            className="absolute focused:hidden"
+            style={{ left: 'calc(50% + 104.6px)', top: 'calc(50% - 7.8px)' }}
+          />
+          <GenzDoodleStar
+            size={9}
+            color="#387440"
+            className="absolute focused:hidden"
+            style={{ left: 'calc(50% - 94.4px)', top: 'calc(50% - 3.8px)' }}
+          />
         </span>
 
         <h1
-          className="font-heading font-semibold tracking-[-0.01em] max-md:text-[24px]! max-md:leading-tight!"
+          className="font-heading font-semibold focused:font-sans tracking-[-0.01em] max-md:text-[24px]! max-md:leading-tight!"
           style={{ fontSize: 'clamp(2rem, 4vw, 4rem)', lineHeight: 1.1 }}
         >
           <span className="block text-black">Log in to</span>
@@ -455,15 +484,17 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
                 identifierError ? PHONE_WRAPPER_ERROR : PHONE_WRAPPER_DEFAULT
               )}
             >
-              <button
-                type="button"
+              {/* Login only accepts Ghana numbers (toGhanaE164), so the +233 prefix is fixed: drawn as in Figma, but not a
+                  control (it was a button that opened nothing). */}
+              <span
                 className="flex h-full shrink-0 items-center gap-2 whitespace-nowrap border-r border-[#e7e7e7] pl-4 max-md:pl-3 pr-3 text-[14px] tracking-[0.2px] text-content-primary"
-                aria-label="Select country code"
+                aria-label="Country code +233, Ghana"
+                role="img"
               >
                 <GhanaFlagIcon />
                 <span className="font-medium">+233</span>
                 <FigmaIcon src={chevronSvg} w={8} h={8} />
-              </button>
+              </span>
               <input
                 id="login-phone"
                 type="tel"
@@ -538,7 +569,26 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
                 aria-pressed={showPassword}
                 className="text-content-tertiary"
               >
-                <FigmaIcon src={password ? eyeFilledSvg : eyeEmptySvg} w={20} h={19} />
+                {/* Figma draws only the masked state (open eye: grey when empty, dark when typed). Revealed = the same eye
+                    crossed out, like PasswordInput's Eye / EyeOff pair, so the icon always shows what a click will do next. */}
+                <span className="relative block">
+                  <FigmaIcon src={password ? eyeFilledSvg : eyeEmptySvg} w={20} h={19} />
+                  {showPassword ? (
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 20 19"
+                      className="pointer-events-none absolute inset-0 size-full"
+                      fill="none"
+                    >
+                      <path
+                        d="M3.5 16.5 16.5 3.5"
+                        stroke={password ? '#272E35' : '#BABAB7'}
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  ) : null}
+                </span>
               </button>
             }
             rightIconInteractive
@@ -546,6 +596,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
         </div>
 
         <Checkbox
+          look={uiStyle === 'focused' ? 'default' : 'sticker'}
           label="Keep me logged in"
           checked={keepLoggedIn}
           onChange={(e) => setKeepLoggedIn(e.target.checked)}
@@ -580,8 +631,10 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
       </div>
 
       {/* Create-account callout */}
-      <div className="flex flex-col items-center gap-3 max-md:gap-2 rounded-[14px] border border-[#e7e7e7] bg-yellow-light p-4 max-md:p-3 text-center">
-        <p className="text-[14px] max-md:text-[13px] leading-5 tracking-[0.2px] text-[#737373]">
+      {/* Figma 2968:49912 "Register CTA": #fefefd card, 1.5px ink @55% border, radius 16, soft drop; button = tertiary
+          38px tall, 23px sides, SF Pro Rounded Bold 14, person icon only (no arrow). */}
+      <div className="flex flex-col items-center gap-3 max-md:gap-2 rounded-[16px] border-[1.5px] border-[rgba(28,42,33,0.55)] bg-[#fefefd] p-4 max-md:p-3 text-center shadow-[0_10px_12px_rgba(28,42,33,0.06)] focused:border focused:border-[rgba(28,42,33,0.1)] focused:shadow-[0_2px_4px_rgba(28,42,33,0.04),0_1px_1px_rgba(28,42,33,0.04)]">
+        <p className="text-[12px] leading-[18px] tracking-[0.2px] text-[#70706e]">
           Create your free talent profile in under 5 minutes.
         </p>
         <Link to={'/get-started'}>
@@ -589,8 +642,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
             variant="tertiary"
             size="md"
             leftIcon={<FigmaIcon src={userSvg} w={20} h={20} />}
-            rightIcon={<ArrowRightIcon />}
-            className={COMPACT_SECONDARY_BUTTON}
+            className={`h-[38px]! min-h-[38px]! gap-0.5! rounded-[14px]! px-[23px]! py-0! text-[14px]! leading-6! ${COMPACT_SECONDARY_BUTTON}`}
           >
             <span className="max-sm:hidden">Create an account — it&apos;s free</span>
             <span className="sm:hidden">Create an account</span>
@@ -616,8 +668,8 @@ const LoginPage = () => {
     // instead of stretching across the viewport.
     <section className="relative flex w-full flex-1 min-h-0 overflow-hidden">
       {/* Left column scrolls while the right panel stays fixed at screen height. */}
-      <div className="relative flex flex-1 items-center max-md:items-start justify-center max-lg:z-10 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
-        <div className="relative z-10 flex w-full flex-col items-center justify-center gap-3">
+      <div className="relative flex flex-1 items-start justify-center max-lg:z-10 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+        <div className="relative z-10 my-auto flex w-full flex-col items-center justify-center gap-3">
           {authError && (
             <div className="w-full max-w-[700px] lg:sr-only">
               <AuthErrorToast inline title={toastTitle} onClose={() => setAuthError(null)} />
@@ -631,6 +683,7 @@ const LoginPage = () => {
       </div>
       <TalentOnboardingPanel
         photoCards={LOGIN_PHOTO_CARDS}
+        tutorialShowLabel={false}
         overlayContent={
           <>
             <LoginOverlayCards />

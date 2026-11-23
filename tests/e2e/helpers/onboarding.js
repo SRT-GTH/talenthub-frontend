@@ -60,6 +60,15 @@ export const fillDob = async (page, dob) => {
     .getByRole('button', { name: /continue/i })
     .last()
     .click();
+  // Under-18s get the "Almost There" pop-up, which stays open until they act (wiki/log.md
+  // 2026-11-17 "Talent auth: under-18 pop-up"). Its label differs per look.
+  const almostThere = page.getByRole('button', {
+    name: /continue to personal info|next up: personal info/i,
+  });
+  await Promise.race([
+    page.waitForURL('**/onboarding/talent/personal-info', { timeout: 90_000 }),
+    almostThere.waitFor({ state: 'visible', timeout: 90_000 }).then(() => almostThere.click()),
+  ]);
   await page.waitForURL('**/onboarding/talent/personal-info', { timeout: 90_000 });
 };
 
@@ -77,12 +86,12 @@ export const fillPersonal = async (page, p) => {
   const card = page.getByPlaceholder(/GHA-/);
   await card.click();
   await card.pressSequentially(p.ghanaCard, { delay: 40 });
-  const pw = page.getByPlaceholder('Create a password');
-  await pw.nth(0).fill(p.password);
-  await pw.nth(1).fill(p.password);
+  await page.getByPlaceholder('Create a password').fill(p.password);
+  await page.getByPlaceholder('Type your password again').fill(p.password);
   await page.getByRole('button', { name: /save & continue/i }).click();
   await page
-    .getByRole('button', { name: /continue to contact details/i })
+    // Focused / Playful labels of the "Identity captured" pop-up (StepDialogParts LookLabel).
+    .getByRole('button', { name: /continue to contact details|next up: contact/i })
     .click({ timeout: 60_000 });
   await page.waitForURL('**/onboarding/talent/contact');
 };
@@ -95,7 +104,7 @@ export const fillContact = async (page, c) => {
   await expect(firstDigit).toBeVisible({ timeout: 60_000 });
   await firstDigit.click();
   await page.keyboard.type(OTP_BYPASS, { delay: 150 });
-  const continueBtn = page.getByRole('button', { name: /continue to address/i });
+  const continueBtn = page.getByRole('button', { name: /continue to address|next up: address/i });
   await page.waitForTimeout(800);
   if (!(await continueBtn.isVisible().catch(() => false))) {
     const verify = page.getByRole('button', { name: /verify/i }).last();
@@ -108,19 +117,21 @@ export const fillContact = async (page, c) => {
 export const fillAddress = async (page) => {
   await pickOption(page, 'Select Region', 'Greater Accra Region');
   await pickOption(page, 'Select District');
-  await pickOption(page, 'Select town/city');
-  const digital = page.getByPlaceholder('eg:GH-123-4567');
+  // Town/City is free text with suggestions (OnboardingAddressPage.jsx); the fields are
+  // matched by label since the placeholders changed with the redesign.
+  await page.getByRole('combobox', { name: 'Town/City' }).fill('Accra');
+  await page.keyboard.press('Escape');
+  const digital = page.getByRole('textbox', { name: 'Digital Address' });
   await digital.click();
   await digital.fill('GA-123-4567');
   // The field can drop a keystroke under slowMo; make sure the full code landed.
   await expect(digital).toHaveValue('GA-123-4567');
-  // Figma gives Community and Landmark the same placeholder; Community only renders for some
-  // regions, and Landmark is always the last of the two.
-  const nearFields = page.getByPlaceholder('Eg. Near amasaman');
-  if ((await nearFields.count()) > 1) await nearFields.first().fill('Miotso');
-  await nearFields.last().fill('Near Central University');
+  await page.getByRole('textbox', { name: 'Community / Area' }).fill('Miotso');
+  await page.getByRole('textbox', { name: 'Nearby Landmark' }).fill('Near Central University');
   await page.getByRole('button', { name: /confirm address/i }).click();
-  await page.getByRole('button', { name: /continue to education/i }).click({ timeout: 60_000 });
+  await page
+    .getByRole('button', { name: /continue to education|next up: education/i })
+    .click({ timeout: 60_000 });
   await page.waitForURL('**/onboarding/talent/education');
 };
 
@@ -139,7 +150,10 @@ export const fillEducation = async (page, e) => {
 
 export const fillParent = async (page, g) => {
   await page.waitForURL('**/onboarding/talent/parent-info');
-  await page.getByPlaceholder('Enter their full name').fill(g.name);
+  // The step asks for first and last name separately (wiki/log.md 2026-11-15 "Parent info rebuilt").
+  const [first, ...rest] = g.name.split(' ');
+  await page.locator('#parent-first-name').fill(first);
+  await page.locator('#parent-last-name').fill(rest.join(' '));
   await pickOption(page, 'Select Relationship', g.relationship);
   if (g.phone) await page.locator('#parent-phone').pressSequentially(g.phone, { delay: 40 });
   if (g.email) await page.locator('#parent-email').fill(g.email);
@@ -163,7 +177,10 @@ export const acceptConsentsAndActivate = async (page) => {
       await input.evaluate((el) => el.click());
       // The legal modal is taller than the viewport and the floating DemoNavigator
       // overlaps its CTA, so scroll it in and force the click.
-      const accept = page.getByRole('button', { name: /i understand and accept/i });
+      // Focused / Playful CTA of LegalModalShell.
+      const accept = page.getByRole('button', {
+        name: /i understand and accept|got it, i accept/i,
+      });
       await accept.waitFor({ state: 'attached', timeout: 10_000 });
       await accept.scrollIntoViewIfNeeded();
       await accept.evaluate((el) => el.click()); // DOM click: the DemoNavigator overlaps a coordinate click

@@ -91,7 +91,7 @@ const CommunityJoinedMenu = ({ to, muted, onMute, onLeave, onClose }) => {
     <div
       ref={rootRef}
       role="menu"
-      aria-label={browseCopy.cardMenuAriaLabel ?? 'Community options'}
+      aria-label={browseCopy.cardMenuAriaLabel ?? 'Club options'}
       onKeyDown={onKeyDown}
       className={classNames(
         'absolute right-0 top-[calc(100%+16px)] z-30 flex w-[240px] max-w-[calc(100vw-24px)] flex-col gap-[8px] rounded-[14px] border-[1.5px] border-solid border-[#959592] bg-white p-[6px]',

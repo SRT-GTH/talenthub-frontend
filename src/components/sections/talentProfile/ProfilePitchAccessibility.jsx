@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -158,8 +159,17 @@ const TranscriptCard = ({ active, onSeek }) => {
  * The player is a mock (no video file): a setInterval timeline drives time, captions and the active
  * transcript line. Props: none. Transcript stacks under the player at every width (own layout, narrow).
  */
+// Re-record / Edit pitch: Figma links nothing; the Pitch stage records (PI-02) and edits the pitch. ⚠️ ASSUMPTION.
+const PITCH_RECORD_ROUTE = '/profile/filling/pitch?mode=record&step=camera';
+const PITCH_ROUTE = '/profile/filling/pitch';
+
 const ProfilePitchAccessibility = () => {
   const p = PITCH_AX;
+  const navigate = useNavigate();
+  const go = (to) => {
+    log('pitch ->', to);
+    navigate(to);
+  };
   const [t, setT] = useState(p.startAt);
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState(0);
@@ -271,8 +281,8 @@ const ProfilePitchAccessibility = () => {
         <header className="flex items-center gap-[10px]">
           <h2 className={classNames(TITLE, 'min-w-0 truncate')}>{p.title}</h2>
           <span aria-hidden="true" className="h-px min-w-px flex-1" />
-          <HeadLink onClick={() => log('re-record pitch (no backend)')}>{p.link}</HeadLink>
-          <EditButton label="Edit pitch" onClick={() => log('edit pitch (no backend)')} />
+          <HeadLink onClick={() => go(PITCH_RECORD_ROUTE)}>{p.link}</HeadLink>
+          <EditButton label="Edit pitch" onClick={() => go(PITCH_ROUTE)} />
         </header>
 
         <div

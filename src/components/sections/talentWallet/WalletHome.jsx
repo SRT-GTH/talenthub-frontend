@@ -103,7 +103,11 @@ const WalletHome = ({ wallet }) => {
                 {WALLET.actions.withdraw}
               </WalletButton>
               <WalletButton
-                onClick={() => log('redeem cycles (dialog is built in a later phase, W-15)')}
+                onClick={() => {
+                  // Same dialog the Cycles tab opens: Home shows 340 Cycles, so it is the "Almost there" variant.
+                  log('open redeem cycles from home');
+                  wallet.update({ tab: 'cycles', modal: 'redeem-short' });
+                }}
               >
                 {WALLET.actions.redeem}
               </WalletButton>
@@ -138,7 +142,11 @@ const WalletHome = ({ wallet }) => {
           title={COMING_IN.title}
           sticker={payday ? PAYDAY_HOME.sticker : COMING_IN.sticker}
           link={COMING_IN.link}
-          onLink={() => log('see payouts (payout screens are a later phase)')}
+          onLink={() => {
+            // Figma prototype: Home "See payouts →" opens W-26 Payout · Gig in escrow.
+            log('see payouts -> escrow payout');
+            wallet.update({ view: 'escrow' });
+          }}
         />
         <div className="grid gap-[16px] sm:grid-cols-2">
           {comingIn.map((p) => (
@@ -262,7 +270,12 @@ const WalletHome = ({ wallet }) => {
           <p className="m-0 font-sans text-[13px] leading-[1.2] text-[#575755]">
             {CREDIT_CARD.note}
           </p>
-          <GreenLink onClick={() => log('view your score (no destination in the prototype)')}>
+          <GreenLink
+            onClick={() => {
+              log('view your score: credit score tab');
+              wallet.update({ tab: 'credit' });
+            }}
+          >
             {CREDIT_CARD.link}
           </GreenLink>
         </section>

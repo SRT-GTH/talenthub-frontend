@@ -33,7 +33,8 @@ const EvaluateEmpty = () => (
         </ParentButton>
         <ParentButton
           variant="secondary"
-          onClick={() => log('how evaluations work (no screen drawn)')}
+          to="/parent/help"
+          onClick={() => log('how evaluations work -> Help and guides (no article drawn)')}
         >
           {EMPTY.secondary}
         </ParentButton>

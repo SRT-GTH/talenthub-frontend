@@ -5,6 +5,7 @@ import { debug } from '../../../../../utils/debug.js';
 import Button from '../../../../ui/Button.jsx';
 import { LabTopBar } from '../../LabPlayChrome.jsx';
 import { useLabText } from '../../labFormat.js';
+import { gamesTabPath } from '../../skillsLabState.js';
 import { DOODLE_STAR_PATH, FOCUS_RING } from '../../labPlayStyles.js';
 import {
   PgArrowRightIcon,
@@ -196,7 +197,7 @@ const GameShell = ({
   progress,
   footer,
   overlay,
-  exitTo = GAMES_TAB_PATH,
+  exitTo,
   contentClassName,
   children,
 }) => {
@@ -206,8 +207,9 @@ const GameShell = ({
     log('mount', { title });
   }, [title]);
   const exit = () => {
-    log('exit', exitTo);
-    navigate(exitTo);
+    const to = exitTo ?? gamesTabPath();
+    log('exit', to);
+    navigate(to);
   };
   const openHelp = () => {
     const next = new URLSearchParams(params);

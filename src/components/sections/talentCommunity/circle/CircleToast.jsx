@@ -9,7 +9,7 @@ const log = debug('CircleToast');
 const TOAST_MS = 6000;
 
 /*
- * CircleToast — Figma `Toast` (Link-up sent to Abena · Undo / Nana Yaw is now in your circle · Message): dark #1c2a21 pill,
+ * CircleToast — Figma `Toast` (Link-up sent to Abena · Undo / Nana Yaw is now in your crew · Message): dark #1c2a21 pill,
  * 16px check, 14/500 white label and a 14/600 yellow action, centred near the bottom of the viewport; a variant of `ui/StatusToast`.
  * Props: text, actionLabel, onAction (called, then the toast closes), onDone (called when it closes by itself).
  */

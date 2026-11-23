@@ -49,24 +49,35 @@ const FilterBar = ({ active, onSelect, onAdd }) => (
   </div>
 );
 
+const PILL_CLS =
+  'flex items-center gap-[6px] rounded-[8px] border border-[rgba(28,42,33,0.35)] bg-[#ebf1ec] px-[10px] py-[6px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33] no-underline';
+
+/* A project link: opens the stored URL in a new tab (live). The demo projects carry no URL, so their pills are plain
+   labels, not dead controls. */
 const LinkPill = ({ link, project }) => {
   const Icon = LINK_ICONS[link.icon];
-  return (
-    <button
-      type="button"
-      onClick={() => log('open link', project, link.label)}
-      className={classNames(
-        'flex cursor-pointer items-center gap-[6px] rounded-[8px] border border-[rgba(28,42,33,0.35)] bg-[#ebf1ec] px-[10px] py-[6px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33]',
-        FOCUS
-      )}
-    >
+  const body = (
+    <>
       <Icon className="size-[14px] shrink-0" />
       {link.label}
-    </button>
+    </>
+  );
+  if (!link.href) return <span className={PILL_CLS}>{body}</span>;
+  const href = /^https?:\/\//i.test(link.href) ? link.href : `https://${link.href}`;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      onClick={() => log('open link', project, href)}
+      className={classNames(PILL_CLS, 'cursor-pointer', FOCUS)}
+    >
+      {body}
+    </a>
   );
 };
 
-const ProjectCard = ({ project, alt }) => (
+const ProjectCard = ({ project, alt, onEdit }) => (
   <li
     className={classNames(
       'flex min-w-0 flex-col gap-[12px] overflow-hidden rounded-[20px] bg-white pb-[20px]',
@@ -100,10 +111,7 @@ const ProjectCard = ({ project, alt }) => (
         <h3 className="min-w-0 flex-1 text-[18px] leading-[normal] font-semibold text-[#1c2a21]">
           {project.title}
         </h3>
-        <EditButton
-          label={`Edit ${project.title}`}
-          onClick={() => log('edit project', project.key)}
-        />
+        <EditButton label={`Edit ${project.title}`} onClick={() => onEdit(project)} />
       </div>
       <p className="text-[14px] leading-[1.5] text-[#595959]">{project.text}</p>
       <div className="flex flex-wrap gap-[6px]">
@@ -156,6 +164,8 @@ const AddProjectCard = ({ onAdd }) => (
  * ProfilePortfolioTab — P-04 (Figma Focused 8110:369743 / Playful 7572:359). Filter chips narrow the
  * project cards locally (pinned first, as the sort label says). Add opens the Portfolio stage (/profile/filling/portfolio).
  */
+const EDIT_ROUTE = '/profile/filling/portfolio?state=list';
+
 const ProfilePortfolioTab = ({ profile }) => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
@@ -170,6 +180,11 @@ const ProfilePortfolioTab = ({ profile }) => {
   log('filter', filter, 'projects', projects.length);
   // No add frame of its own: the Portfolio stage adds and saves projects.
   const onAdd = () => navigate('/profile/filling/portfolio');
+  // No edit frame on the profile: the Portfolio stage's list edits projects (edit dialog per project). ⚠️ ASSUMPTION.
+  const onEdit = (project) => {
+    log('edit project ->', EDIT_ROUTE, project.key);
+    navigate(EDIT_ROUTE);
+  };
 
   return (
     <TabPanel tab="portfolio">
@@ -180,6 +195,7 @@ const ProfilePortfolioTab = ({ profile }) => {
           <ProjectCard
             key={p.key}
             project={p}
+            onEdit={onEdit}
             alt={
               altMode
                 ? {

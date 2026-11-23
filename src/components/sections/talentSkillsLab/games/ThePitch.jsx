@@ -4,6 +4,7 @@ import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import GameCompleteDialog from './personality/PersonalityDialog.jsx';
 import GameShell from './personality/PersonalityChrome.jsx';
+import { demoSearch, gamesTabPath } from '../skillsLabState.js';
 import {
   PgChatIcon,
   PgCheckCircleIcon,
@@ -75,9 +76,9 @@ const ThePitch = ({ frame }) => {
   };
   const next = () =>
     navigate(
-      `/skills-lab/games/${PLAY_ORDER[(PLAY_ORDER.indexOf(PITCH.gameId) + 1) % PLAY_ORDER.length]}`
+      `/skills-lab/games/${PLAY_ORDER[(PLAY_ORDER.indexOf(PITCH.gameId) + 1) % PLAY_ORDER.length]}${demoSearch()}`
     );
-  const arcade = () => navigate('/skills-lab?tab=games');
+  const arcade = () => navigate(gamesTabPath());
   const done = finished;
 
   return (

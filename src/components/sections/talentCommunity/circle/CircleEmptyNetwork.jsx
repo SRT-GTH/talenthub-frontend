@@ -11,9 +11,9 @@ const WAY_ICONS = {
 };
 
 /*
- * CircleEmptyNetwork — Figma `Empty network` (NW-11, new talent): the 140px "Start your circle" spot illustration (Playful: the
+ * CircleEmptyNetwork — Figma `Empty network` (NW-11, new talent): the 140px "Start your crew" spot illustration (Playful: the
  * yellow "DAY 1 OF YOUR NETWORK" sticker under it), title 26/31, the 15px explainer and three "ways in" tiles (Find classmates ·
- * Join a community · Invite a friend). Props: onWay(id) (called with 'classmates' | 'community' | 'friend').
+ * Join a club · Invite a friend). Props: onWay(id) (called with 'classmates' | 'community' | 'friend').
  */
 const CircleEmptyNetwork = ({ onWay }) => {
   const { empty } = useCircleVariantData();

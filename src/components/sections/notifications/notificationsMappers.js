@@ -54,14 +54,19 @@ export const uiTypeOf = (doc) => {
 const DAY_MS = 24 * 60 * 60 * 1000;
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
-/** Figma group for a timestamp: today / yesterday / earlier (the full screen labels earlier "This week"). */
+/**
+ * Figma group for a timestamp: today / yesterday / earlier (the full screen labels earlier "This week") / older
+ * (more than 7 days back: the full screen labels it "Earlier", so a month-old row never sits under "This week").
+ * The bell pop-up puts everything that isn't today under EARLIER.
+ */
 export const groupOf = (createdAt, now = new Date()) => {
   const t = new Date(createdAt).getTime();
   if (Number.isNaN(t)) return 'earlier';
   const today = startOfDay(now);
   if (t >= today) return 'today';
   if (t >= today - DAY_MS) return 'yesterday';
-  return 'earlier';
+  if (t >= today - 6 * DAY_MS) return 'earlier';
+  return 'older';
 };
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

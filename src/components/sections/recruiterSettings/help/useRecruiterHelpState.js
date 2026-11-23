@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
  * useRecruiterHelpState - the Help set's URL state on ANY recruiter page (it only touches its own keys: help, q, modal, ref).
  *   help   page | searching | none | shortcuts | article | report | contact | sent   (see recruiterHelpData.js for the frame of each)
  *   q      the search text of the pop-over (help=searching|none)
- *   modal  feedback | invite   (dialogs; other `modal` values belong to the page and are ignored here)
+ *   modal  feedback | invite | invite-friend   (dialogs; `invite` is ignored on pages that own it; other `modal` values belong to the page and are ignored here)
  * `update(patch, { replace })` merges into the live query string (null / '' removes a key) - the same contract as `useRecruiterSettingsState().update`,
  * so the talent Help components (which call `home.update({ help, q })`) take this object as is.
  */

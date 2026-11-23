@@ -122,7 +122,22 @@ export const BrowseHeader = ({ total, xp = true }) => {
           {COPY.hostButton}
         </CommunityButton>
       ) : (
-        <HeaderDecor xp={xp} />
+        <>
+          {/* Focused C-01: "Create a club" (Figma 133x48, r10) at the right of the title row. Playful draws it on the
+              first section heading instead (BrowseSectionHead `create`), and the sticker art here. */}
+          {COPY.createButton ? (
+            <span className="flex shrink-0 self-center playful:hidden max-sm:hidden">
+              <CommunityButton
+                tone="primary"
+                to={communityHref(base, '/create')}
+                className="h-[48px] rounded-[10px] px-[18px]"
+              >
+                {COPY.createButton}
+              </CommunityButton>
+            </span>
+          ) : null}
+          <HeaderDecor xp={xp} />
+        </>
       )}
     </div>
   );
@@ -195,8 +210,12 @@ export const BrowseToolbar = ({ cat, onCat, q, onQ }) => {
 };
 
 /* "Picked for you" / "Your communities" / "All communities" row heading: 18px icon + Bricolage 21px (+ note or sticker). */
-export const BrowseSectionHead = ({ icon, title, note, sticker }) => {
+export const BrowseSectionHead = ({ icon, title, note, sticker, create = false }) => {
   const Glyph = icon;
+  const { browseCopy: COPY, base, isRecruiter } = useCommunityContent();
+  // Playful C-01 / C-03 draw "Create a club" at the right of this heading row (Focused draws it in the page header).
+  // On phones the header button is hidden, so this one shows in both looks.
+  const showCreate = create && !isRecruiter && Boolean(COPY.createButton);
   return (
     <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[2px]">
       <span className="flex items-center gap-[8px]">
@@ -209,6 +228,17 @@ export const BrowseSectionHead = ({ icon, title, note, sticker }) => {
       {note ? (
         <span className="font-sans text-[13px] font-medium leading-[16px] text-[#737373] max-lg:text-[12px]">
           {note}
+        </span>
+      ) : null}
+      {showCreate ? (
+        <span className="ml-auto hidden shrink-0 playful:flex max-sm:flex">
+          <CommunityButton
+            tone="primary"
+            to={communityHref(base, '/create')}
+            className="h-[48px] rounded-[10px] px-[18px]"
+          >
+            {COPY.createButton}
+          </CommunityButton>
         </span>
       ) : null}
     </div>
@@ -289,6 +319,8 @@ export const CommunityCardSkeleton = () => (
  */
 export const RequestTile = ({ requested, onRequest }) => {
   const { browseCopy: COPY } = useCommunityContent();
+  // C-03 (Clubs update): the tile is now "Start your own club" + "Create a club" (same tile as the recruiter one).
+  if (COPY.tiles.hostTitle) return <HostClubTile />;
   return (
     <div className="relative flex min-h-[334px] w-full flex-col items-center justify-center gap-[10px] rounded-[20px] bg-white px-[16px] text-center">
       <svg
@@ -355,7 +387,7 @@ export const HostClubTile = () => {
           style={{ width: 'calc(100% - 1.5px)', height: 'calc(100% - 1.5px)' }}
         />
       </svg>
-      <span className="flex size-[52px] items-center justify-center rounded-full border-[1.5px] border-solid border-[rgba(28,42,33,0.1)] bg-[#ffd86b] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_2px_8px_rgba(28,42,33,0.04)]">
+      <span className="flex size-[52px] items-center justify-center rounded-full border-[1.5px] border-solid border-[rgba(28,42,33,0.1)] bg-[#ffd86b] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_2px_8px_rgba(28,42,33,0.04)] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)]">
         <CommunityPlusIcon className="size-[22px]" />
       </span>
       <h3 className={classNames(HEADING, 'text-[17px] leading-[21px]')}>{copy.hostTitle}</h3>
@@ -385,7 +417,7 @@ export const HostClubTile = () => {
  *    "Request sent" (no other copy invented).
  */
 export const NoResults = ({ term, asked, needed, requested, onRequest, onClear }) => {
-  const { browseCopy: COPY, isRecruiter, base } = useCommunityContent();
+  const { browseCopy: COPY, base } = useCommunityContent();
   const count = requested ? asked + 1 : asked;
   return (
     <section
@@ -414,7 +446,7 @@ export const NoResults = ({ term, asked, needed, requested, onRequest, onClear }
       <div className="flex w-full max-w-[360px] flex-col items-center gap-[6px]">
         <div
           role="progressbar"
-          aria-label="People who have asked for this community"
+          aria-label={COPY.noResults.progressAriaLabel ?? 'People who have asked for this club'}
           aria-valuemin={0}
           aria-valuemax={needed}
           aria-valuenow={count}
@@ -430,8 +462,8 @@ export const NoResults = ({ term, asked, needed, requested, onRequest, onClear }
         </span>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-[10px] pt-[2px]">
-        {isRecruiter ? (
-          // RC-C16: "Start it yourself" (primary, opens the host flow) + "Request this club" (secondary); no "Clear search".
+        {COPY.noResults.start ? (
+          // C-16 / RC-C16: "Start it yourself" (primary, opens the create flow) + "Request this club" (secondary); no "Clear search".
           <>
             <CommunityButton tone="primary" to={communityHref(base, '/create')}>
               {COPY.noResults.start}

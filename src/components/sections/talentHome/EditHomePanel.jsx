@@ -5,6 +5,7 @@ import Button from '../../ui/Button.jsx';
 import { LIFT, DISPLAY, Sticker } from './TabsParts.jsx';
 import { useHomeLayout } from './TabsHomeLayoutStore.js';
 import { EDIT_BANNER, ADD_CARD_TRAY, EDIT_CHROME } from './talentHomeTabsData.js';
+import { smoothLayout } from '../../../utils/smoothLayout.js';
 import {
   EditBannerDragHandleIcon,
   EditCardDragHandleIcon,
@@ -65,7 +66,7 @@ export const EditHomeBanner = ({ home }) => {
         size="md"
         onClick={() => {
           log('done');
-          home.update({ edit: false });
+          smoothLayout(() => home.update({ edit: false }), 'edit off');
         }}
       >
         {EDIT_BANNER.done}
@@ -111,7 +112,20 @@ export const HomeCardChrome = ({ id, editing, className, children }) => {
   const card = layout.cards.find((c) => c.id === id);
   if (!card || card.state === 'available') return null;
   const hidden = card.state === 'hidden';
-  if (!editing) return hidden ? null : children;
+  if (!editing && hidden) return null;
+  // Same element tree in and out of edit mode (no remount, images don't reload). The card carries a stable
+  // view-transition-name so it glides when the layout changes (smoothLayout); the dashed frame is an outline, which
+  // takes no space, so entering edit mode doesn't grow every card.
+  const vtName = `home-card-${id}`;
+  if (!editing) {
+    return (
+      <div className="contents">
+        <div className="contents [&>*]:[view-transition-name:var(--vt)]" style={{ '--vt': vtName }}>
+          {children}
+        </div>
+      </div>
+    );
+  }
   const onDragKey = (e) => {
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault();
@@ -132,13 +146,18 @@ export const HomeCardChrome = ({ id, editing, className, children }) => {
         e.preventDefault();
         layout.move(e.dataTransfer.getData('text/plain'), id);
       }}
+      style={{ viewTransitionName: vtName }}
       className={classNames(
-        'relative rounded-[26px] border border-dashed border-[#387440] p-[3px]',
+        'relative rounded-[26px] outline outline-1 outline-dashed outline-offset-[3px] outline-[#387440] transition-opacity duration-200',
         hidden ? 'opacity-60' : null,
+        moving ? 'opacity-70' : null,
         className
       )}
     >
-      <div className={hidden ? 'pointer-events-none select-none' : undefined} aria-hidden={hidden}>
+      <div
+        className={hidden ? 'pointer-events-none select-none' : undefined}
+        aria-hidden={hidden || undefined}
+      >
         {children}
       </div>
       <EditControls id={id} hidden={hidden} layout={layout} onDragKey={onDragKey} />

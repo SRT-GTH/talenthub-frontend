@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   PHOTO_TYPES,
   photoFileProblem,
@@ -29,6 +30,8 @@ import { ProfileChip, StreakMark, Tag } from './ProfileTabsUi.jsx';
 import { SHELF } from './profileTabsStyles.js';
 import { DISPLAY } from '../talentHome/TabsParts.jsx';
 import FallbackImage from '../../shared/FallbackImage.jsx';
+import { copyText } from './ShareProfileFile.js';
+import { PROFILE_URL } from './talentProfileShareData.js';
 
 const log = debug('ProfileHeader');
 
@@ -39,7 +42,7 @@ const FOCUS =
 /* `stripes`: the flag-colour bars on the cover's right edge (Figma `doodle/stripes` — visible in the Playful
    PR-02 and PR-04 frames only, 70x150 = 7 bars of 10px). */
 const COVER_STRIPES = ['#ffd86b', '#1c2a21', '#84cc16', '#c0392b', '#ffd86b', '#1c2a21', '#84cc16'];
-const CoverDoodles = ({ stripes = false }) => (
+export const CoverDoodles = ({ stripes = false }) => (
   <div
     aria-hidden="true"
     data-doodle=""
@@ -88,7 +91,11 @@ const PitchChip = ({ onClick }) => (
   </button>
 );
 
-const Avatar = ({ editable = true, onPick, busy = false }) => (
+/*
+ * ProfileAvatar — the hero avatar with the yellow "Change photo" button. Shared by the profile header and the empty
+ * profile (P-10). `src` overrides the profile photo; `photo={false}` shows only the illustration (no stored photo).
+ */
+export const ProfileAvatar = ({ editable = true, onPick, busy = false, src, photo = true }) => (
   <div
     className={classNames(
       'relative -mt-[calc(var(--av)/2)] shrink-0 rounded-full bg-white',
@@ -100,7 +107,7 @@ const Avatar = ({ editable = true, onPick, busy = false }) => (
       <span className="relative block size-[89.4%] overflow-hidden rounded-full bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.6%,#7aa870_85.3%)]">
         {/* Live profile photo (2026-10-18); the illustration stays for the demo / no photo / a photo that won't load. */}
         <FallbackImage
-          src={PROFILE_HERO.photo}
+          src={src || (photo ? PROFILE_HERO.photo : null)}
           className="absolute inset-0 size-full object-cover"
           fallback={
             <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.65%] block h-auto w-[111.3%] max-w-none" />
@@ -169,7 +176,13 @@ const ProfileHeader = ({ profile, mode = 'owner', live = false, onSaved }) => {
   // Live: the camera button uploads a photo (talentProfile.api uploadProfilePhoto) and saves profile.profilePhoto.
   const fileRef = useRef(null);
   const [photo, setPhoto] = useState({ busy: false, error: '' });
-  const pickPhoto = () => fileRef.current?.click();
+  // Demo (signed out): the picked photo only previews in this tab (object URL), nothing is uploaded.
+  const [demoPhoto, setDemoPhoto] = useState(null);
+  useEffect(() => () => demoPhoto && URL.revokeObjectURL(demoPhoto), [demoPhoto]);
+  const pickPhoto = () => {
+    log('change photo ->', live ? 'upload' : 'demo preview');
+    fileRef.current?.click();
+  };
   const onPhoto = async (e) => {
     const file = e.target.files?.[0];
     e.target.value = '';
@@ -177,6 +190,12 @@ const ProfileHeader = ({ profile, mode = 'owner', live = false, onSaved }) => {
     const problem = photoFileProblem(file);
     if (problem) {
       setPhoto({ busy: false, error: problem });
+      return;
+    }
+    if (!live) {
+      log('demo photo preview', { type: file.type, kb: Math.round(file.size / 1024) });
+      setPhoto({ busy: false, error: '' });
+      setDemoPhoto(URL.createObjectURL(file));
       return;
     }
     setPhoto({ busy: true, error: '' });
@@ -248,6 +267,20 @@ const ProfileHeader = ({ profile, mode = 'owner', live = false, onSaved }) => {
     log('mount', { tab: profile?.tab, view: profile?.view, mode });
   }, [profile?.tab, profile?.view, mode]);
 
+  const navigate = useNavigate();
+  // Preview buttons. Public link (PR-02): Copy link copies the profile URL and shows the share modal's "Link copied"
+  // state (SH-02); Join GTH opens sign-up. Recruiter preview (P-07): Shortlist / Download CV / Message are the
+  // recruiter's own actions, shown for preview only (nothing to act on as the owner), so they only log.
+  const previewAction = async (key) => {
+    log('preview action', key);
+    if (key === 'copy') {
+      const ok = await copyText(PROFILE_URL);
+      log('copy link', { ok });
+      profile?.update?.({ share: 'copied' });
+    } else if (key === 'join') {
+      navigate('/get-started');
+    }
+  };
   const openPreview = () => {
     log('preview as recruiter ->', 'view=recruiter');
     profile?.update?.({ view: 'recruiter' });
@@ -328,8 +361,8 @@ const ProfileHeader = ({ profile, mode = 'owner', live = false, onSaved }) => {
 
         <div className="flex flex-col px-[clamp(12px,1.85vw,32px)] pb-[clamp(16px,1.56vw,27px)] @5xl:flex-row @5xl:items-start">
           <div className="flex min-w-0 flex-col gap-x-[clamp(12px,1.4vw,24px)] @2xl:flex-row @5xl:flex-1">
-            <Avatar editable={owner} onPick={live ? pickPhoto : undefined} busy={photo.busy} />
-            {owner && live ? (
+            <ProfileAvatar editable={owner} onPick={pickPhoto} busy={photo.busy} src={demoPhoto} />
+            {owner ? (
               <input
                 ref={fileRef}
                 type="file"
@@ -393,7 +426,7 @@ const ProfileHeader = ({ profile, mode = 'owner', live = false, onSaved }) => {
                     key={a.key}
                     variant={a.tone}
                     size="sm"
-                    onClick={() => log('preview action (no backend):', a.key)}
+                    onClick={() => previewAction(a.key)}
                   >
                     {a.label}
                   </Button>

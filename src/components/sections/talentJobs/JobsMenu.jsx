@@ -3,10 +3,10 @@ import { classNames } from '../../../utils/classNames.js';
 import { JobChevronIcon } from '../../shared/assets.jsx';
 
 /*
- * JobsMenu — a chip-shaped button that opens a single-choice list (job filters and sort on /job-postings).
- * Props: label (shown on the chip), value, options [{ id, label, note? }], onChange(id), active (filled look when a filter
- * is applied), shape 'chip' | 'sort', hint (text under the options), align 'left' | 'right'.
- * Closes on choice, Escape or a click outside; arrow keys move between options.
+ * JobsMenu — the Figma "GTH · Select" pill (Default / Open / Active) that opens a single-choice list: the Browse all filters
+ * and every sort on /job-postings. Props: label (shown on the pill), value, options [{ id, label, note? }], onChange(id),
+ * active (filter applied: pale green fill, green ring + text), dim (faded, as in the empty Matched frame), hint (text under
+ * the options), align 'left' | 'right'. Closes on choice, Escape or a click outside; arrow keys move between options.
  */
 
 const JobsMenu = ({
@@ -15,7 +15,7 @@ const JobsMenu = ({
   options,
   onChange,
   active = false,
-  shape = 'chip',
+  dim = false,
   hint,
   align = 'left',
 }) => {
@@ -49,7 +49,7 @@ const JobsMenu = ({
   };
 
   return (
-    <div ref={ref} className="relative shrink-0">
+    <div ref={ref} className={classNames('relative shrink-0', dim && 'opacity-45')}>
       <button
         type="button"
         aria-haspopup="menu"
@@ -57,12 +57,16 @@ const JobsMenu = ({
         aria-controls={open ? listId : undefined}
         onClick={() => setOpen((v) => !v)}
         className={classNames(
-          'inline-flex shrink-0 cursor-pointer items-center gap-[4px] rounded-full border border-solid font-sans whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
-          shape === 'sort'
-            ? 'h-[34px] border-[rgba(28,42,33,0.12)] bg-white pr-[10px] pl-[14px] text-[12.5px] font-medium text-[#595959] max-lg:text-[12px]'
+          'inline-flex h-[34px] shrink-0 cursor-pointer items-center gap-[6px] rounded-full border border-solid pr-[12px] pl-[14px] font-sans text-[13px] leading-[normal] font-semibold whitespace-nowrap max-lg:text-[12px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
+          // Default: grey-green hairline, grey text + arrowhead. Open: 1.5px green ring, green arrowhead.
+          // Active (a filter is applied): pale green fill, green ring, text and arrowhead.
+          active ? 'bg-[#ebf1ec] text-[#387440]' : 'bg-white text-[#595959]',
+          open
+            ? 'border-[1.5px] border-[#387440]'
             : active
-              ? 'h-[28px] border-[#1c2a21] bg-[#1c2a21] pr-[8px] pl-[12px] text-[12.5px] font-semibold text-white max-lg:text-[12px]'
-              : 'h-[28px] border-[rgba(28,42,33,0.2)] bg-white pr-[8px] pl-[12px] text-[12.5px] font-semibold text-[#1c2a21] max-lg:text-[12px]'
+              ? 'border-[#387440]'
+              : 'border-[#e1eae2]',
+          (open || active) && '[&_path]:fill-[#387440]'
         )}
       >
         {label}

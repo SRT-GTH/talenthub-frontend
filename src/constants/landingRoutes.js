@@ -14,6 +14,17 @@ export const LANDING_ROUTES = {
   comingSoon: '/coming-soon',
   login: '/login',
   getStarted: '/get-started',
+  // Sign-up entry per role for the landing CTAs. Figma draws no targets for them; the product owner chose these (2026-11-12),
+  // ⚠️ ASSUMPTION until Figma links them. Talent / parent / recruiter open the role picker with that role already selected
+  // (GetStartedPage reads ?role=, Figma R00 7374:904 for the recruiter); schools go to the institution sign-up (Figma 11.1.1a).
+  getStartedTalent: '/get-started?role=talent',
+  getStartedRecruiter: '/get-started?role=recruiter',
+  institutionSignUp: '/institution/sign-up',
+  institutionPortal: '/institution', // "Bring GTH to my school" for signed-in school staff (landing/shared/schoolSignUpPath.js)
+  // "Invite my parent" for a signed-in talent (see components/sections/landing/shared/inviteParentPath.js)
+  talentInviteParent: '/settings/guardian?state=invite',
+  // A parent signing up on their own (flow A, ⚠️ still simulated: wiki/backend-integration-gaps.md)
+  parentSignUp: '/get-started?role=parent',
 };
 
 /* Nav link labels are verbatim from Figma Nav 7797:9049. */

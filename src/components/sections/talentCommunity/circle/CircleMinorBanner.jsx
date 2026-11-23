@@ -3,7 +3,7 @@ import { CircleShieldIcon } from './circleIcons.jsx';
 import { FOCUS_RING } from './circleStyles.js';
 
 /*
- * CircleMinorBanner — Figma `Under-18 banner` (NW-10): #e8f0fe r16 with a 1px ink@.35 outline, shield tile, "Your circle is for
+ * CircleMinorBanner — Figma `Under-18 banner` (NW-10): #e8f0fe r16 with a 1px ink@.35 outline, shield tile, "Your crew is for
  * classmates and verified mentors", the 13px rules line and "Learn more" (#1e4fd8). ⚠️ Figma draws it in the Playful frame only
  * (the Focused frame has the layer hidden), so it is `hidden` in Focused. Props: onLearnMore().
  */

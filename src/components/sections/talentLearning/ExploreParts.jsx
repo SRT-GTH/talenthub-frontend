@@ -193,14 +193,16 @@ export const ShelfButton = ({
   tone = 'primary',
   size = 'md',
   onClick,
+  disabled = false,
   children,
   className = '',
 }) => (
   <button
     type="button"
     onClick={onClick}
+    disabled={disabled}
     className={classNames(
-      'inline-flex shrink-0 cursor-pointer items-center justify-center whitespace-nowrap border-2 border-solid font-sans text-[16px] font-bold leading-[24px] tracking-[0.1px] transition-[transform,box-shadow] active:translate-y-[3px] active:shadow-[0_1px_0_#224626]',
+      'inline-flex shrink-0 cursor-pointer disabled:cursor-default disabled:opacity-60 disabled:active:translate-y-0 items-center justify-center whitespace-nowrap border-2 border-solid font-sans text-[16px] font-bold leading-[24px] tracking-[0.1px] transition-[transform,box-shadow] active:translate-y-[3px] active:shadow-[0_1px_0_#224626]',
       size === 'md' ? 'rounded-[10px] px-[18px] py-[12px]' : 'rounded-[14px] px-[34px] py-[16px]',
       tone === 'primary'
         ? 'border-[#2a5730] bg-[#387440] shadow-[0_4px_0_#224626]'

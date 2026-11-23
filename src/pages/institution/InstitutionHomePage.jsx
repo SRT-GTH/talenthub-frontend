@@ -8,6 +8,10 @@ import InstitutionFrame from '../../components/sections/institution/InstitutionF
 import InstitutionPageHero from '../../components/sections/institution/InstitutionPageHero.jsx';
 import { useInstitutionState } from '../../components/sections/institution/institutionState.js';
 import { useInstitutionSession } from '../../components/sections/institution/useInstitutionSession.js';
+import {
+  REGION_DATA_TO,
+  regionDataPath,
+} from '../../components/sections/institution/institutionNav.js';
 import InstitutionHomeMobile from '../../components/sections/institution/home/InstitutionHomeMobile.jsx';
 import InstitutionNextStepCard from '../../components/sections/institution/home/InstitutionNextStepCard.jsx';
 import InstitutionReadinessCard from '../../components/sections/institution/home/InstitutionReadinessCard.jsx';
@@ -145,7 +149,11 @@ const InstitutionHomePage = () => {
     : firstLogin
       ? QUICK_ACTIONS.firstLogin
       : QUICK_ACTIONS.default;
-  const actions = actionSet.map((a) => ({ ...a, meta: fill(a.meta, vars) }));
+  const actions = actionSet.map((a) => ({
+    ...a,
+    meta: fill(a.meta, vars),
+    to: a.to === REGION_DATA_TO ? regionDataPath(institution.region) : a.to,
+  }));
   const setup = overlay ? FIRST_LOGIN_OVERLAY : FIRST_LOGIN;
   const checklist = liveChecklist(setup.checklist, home?.total ?? 0);
 

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import PreApplyDialog from './PreApplyDialog.jsx';
 import MessagesA11yPanel from './MessagesA11yPanel.jsx';
@@ -7,6 +8,7 @@ import LanguageToast from './LanguageToast.jsx';
 import { PRE_APPLY_PREVIEW } from './cards/messageCardsData.js';
 import { setMessagesCardState } from './messagesStore.js';
 import { useLiveMessagesContext } from './useLiveMessages.js';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
 
 const log = debug('MessagesOverlays');
 
@@ -22,6 +24,7 @@ const COMING_SOON_LANGS = ['twi', 'ga', 'ewe', 'dagbani', 'hausa'];
 const MessagesOverlays = ({ messages }) => {
   const { modal, a11yParam, lang, update } = messages;
   const live = useLiveMessagesContext();
+  const navigate = useNavigate();
   log('render', { modal, a11yParam, lang });
   // Live: the open conversation's job (Before you apply shows its company, role and match).
   const liveId = live?.activeId ?? null;
@@ -50,6 +53,13 @@ const MessagesOverlays = ({ messages }) => {
         open={modal === 'pre-apply'}
         data={preApply}
         onClose={() => update({ modal: null })}
+        onEditVisibility={() => {
+          // Same place the empty inbox's "Check my visibility" opens: Settings › Profile and privacy.
+          // Same target as the job page's "Edit visibility": the profile's Manage-what's-visible drawer (demo), which
+          // forwards signed-in talents to Settings › Privacy until the drawer has a backend.
+          log('pre-apply edit visibility -> /profile?manage=1');
+          navigate(withDemoFlag('/profile?manage=1'));
+        }}
         onSubmit={() => {
           log('pre-apply continue -> applied', { live: Boolean(live), liveId });
           if (live && liveId) {

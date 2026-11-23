@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { withDemoFlag } from './talentShellData.js';
 import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
 import {
@@ -116,6 +117,12 @@ const BADGE_TILE =
   'flex size-[36px] items-center justify-center rounded-full border border-[rgba(28,42,33,0.12)] playful:border-[1.5px] playful:border-[#1c2a21]';
 
 // live: { learning, saved, community } from useLiveMoreForYou (null = no data); demo cards are dropped when live.
+// Demo cards open the same pages as their live twins (useLiveMoreForYou.js). Badges open the profile's Badges card,
+// Verified skills the skills stage (same as MyAssessment "Manage skills"). None of these links is drawn in the
+// Figma prototype. Evaluations "Review" opens My Assessment: the design system's Evaluations card
+// defines evaluations as test and interview results ("Take a skills test or complete an interview to see
+// your results here" / "Take a test"), which is what My Assessment lists.
+// ⚠️ The demo rows name people (a team lead, a peer) — no person-to-person evaluation screen exists.
 const MoreForYou = ({ more, editing, live = null }) => {
   const layout = useHomeLayout();
   const demoCards = {
@@ -124,6 +131,7 @@ const MoreForYou = ({ more, editing, live = null }) => {
         icon={<TalentHomeLearningMortarboardIcon className="size-[17px]" />}
         title={more.learning.title}
         link={more.learning.link}
+        to="/learning"
       >
         <Bar pct={more.learning.pct} height={8} to="playful:to-[#84cc16]" />
         <Row a={more.learning.row[0]} b={more.learning.row[1]} />
@@ -134,6 +142,7 @@ const MoreForYou = ({ more, editing, live = null }) => {
         icon={<TalentHomeSavedRolesHeartIcon className="size-[17px]" />}
         title={more.saved.title}
         link={more.saved.link}
+        to="/job-postings?tab=saved"
       >
         <Chip className="w-fit">{more.saved.chip}</Chip>
         <Row a={more.saved.row[0]} b={more.saved.row[1]} />
@@ -144,6 +153,7 @@ const MoreForYou = ({ more, editing, live = null }) => {
         icon={<TalentHomeEvaluationsUsersIcon className="size-[17px]" />}
         title={more.evaluations.title}
         link={more.evaluations.link}
+        to={withDemoFlag('/my-assessment')}
       >
         {more.evaluations.rows.map((r) => (
           <Row key={r[0]} a={r[0]} b={r[1]} />
@@ -155,6 +165,7 @@ const MoreForYou = ({ more, editing, live = null }) => {
         icon={<TalentHomeCommunityChatIcon className="size-[17px]" />}
         title={more.community.title}
         link={more.community.link}
+        to="/community"
       >
         <span aria-hidden="true" className="flex">
           {more.community.photos.map((src, i) => (
@@ -172,6 +183,7 @@ const MoreForYou = ({ more, editing, live = null }) => {
         icon={<AddCardVerifiedSkillsShieldIcon className="size-[17px]" />}
         title={HERO.complete.stats[3].label}
         link={SKILLS_EVIDENCE.manage}
+        to={withDemoFlag('/profile/filling/skills')}
       >
         <Row a={SKILLS_EVIDENCE.count} b={HERO.complete.stats[3].note} />
       </MoreCard>
@@ -204,6 +216,7 @@ const MoreForYou = ({ more, editing, live = null }) => {
         icon={<TalentHomeBadgeTrophyAltIcon className="size-[17px]" />}
         title={more.badges.title}
         link={more.badges.link}
+        to={`${withDemoFlag('/profile')}#badges`}
       >
         <span aria-hidden="true" className="flex gap-[6px]">
           <span className={classNames(BADGE_TILE, 'bg-[#ffd86b]')}>

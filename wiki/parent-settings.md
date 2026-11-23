@@ -41,8 +41,8 @@ Diff % = whole-frame pixel difference vs the Figma 0.5x export (SF Pro Rounded, 
 
 - ✅ VERIFIED 2026-10-28: `errscan.mjs` on all 9 URLs (both styles, 1728 and 390 wide) printed "scan clean": no crash, blank page, redirect or console error.
 
-- ⚠️ ASSUMPTION: **Accessibility** and **Language and data** have no parent frame in this canvas, so those two nav items only log (the page stays where it is).
-- ⚠️ ASSUMPTION: Save changes, Change photo, Change password, Disconnect, Request download, Download PDF and "Turn everything off for 24 hours" only log — no screen is drawn for them (the talent Settings draw a paused state, ST-03b; the parent canvas does not).
+- ⚠️ ASSUMPTION: **Accessibility** and **Language and data** have no parent frame in this canvas, so `?tab=accessibility|language` render the talent sections (`SettingsAccessibility`, `SettingsLanguage`) inside the parent layout (2026-11-22, ✅ VERIFIED in browser).
+- ⚠️ ASSUMPTION: Save changes, Change photo, Disconnect, Request download, Download PDF and "Turn everything off for 24 hours" only log — no screen is drawn for them (the talent Settings draw a paused state, ST-03b; the parent canvas does not).
 - ⚠️ ASSUMPTION: the enabled "Close parent account" button is the standard green primary (Figma draws only the grey disabled one) and the CLOSE match is exact and upper case.
 - ⚠️ ASSUMPTION: "Log in again" → `/login`, "Go to My career" → `/home`, "Undo within 30 days" → back to Data and account (no restored state is drawn).
 - Figma inconsistencies kept as drawn: the PS-07b body has a double space ("change your mind log in"; kept with `white-space: pre-wrap`); the PS-02 "Now" chip layer is named "Recommended"; the "Your roles" nav icon layer is named shield but draws the users glyph (we use users); layer names across the canvas are copied from the talent Settings frames (no effect on the build).
@@ -55,3 +55,5 @@ Diff % = whole-frame pixel difference vs the Figma 0.5x export (SF Pro Rounded, 
 3. `TimePill` ≈ the one inside `SettingsNotifications` (not exported) → export and share.
 4. `SettingsResult` card ≈ `link/LinkWardSent` card (white r24, hairline, soft shadow, spot, title, body, buttons) → one `ParentCard`.
 5. `LogoutDialog` / `CloseAccountDialog` ≈ `talentSettings/LogoutConfirm` / the delete dialog (same anatomy, parent copy) and `DialogCard` users in `flags` / `link`.
+
+- ⚠️ ASSUMPTION (2026-11-22): **Change password** opens the talent `ChangePasswordDialog`; demo only (no API call), submitting closes it and, when "log out other devices" is ticked, removes the other device rows.

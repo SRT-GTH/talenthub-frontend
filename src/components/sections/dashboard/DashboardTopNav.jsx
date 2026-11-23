@@ -103,7 +103,7 @@ const StreakPillTag = (props) => {
  * mark, per-state streak/counts, accessibility toggle (`a11y` param), talent avatar.
  * `orgSlot` (recruiter dashboard): a node rendered before the profile chip — the org switcher.
  * `panels` (recruiter dashboard, add-only): { notifications, onNotifications, language, onLanguage, a11yOpen, onA11y, search, searchQuery, onSearchInput, onSearchFocus } — pop-up nodes anchored under the bell / language button and the
- * state of the shared accessibility menu. Recruiter Settings & Account (add-only, inert unless passed): `onHelp` / `helpOpen` / `help` (the ? button and its pop-over node) and `onProfile` / `profileOpen` / `profileMenu` (the profile chip and its menu node). Pages that do not pass it render exactly as before.
+ * state of the shared accessibility menu. Recruiter Settings & Account (add-only, inert unless passed): `onHelp` / `helpOpen` / `help` (the ? button and its pop-over node) and `onProfile` / `profileOpen` / `profileMenu` (the profile chip and its menu node); `onMessages` (the messages icon; recruiter pages get these from DashboardShell's recruiter defaults). Pages that do not pass it render exactly as before.
  */
 const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
   const isTalent = Boolean(talentHome);
@@ -237,7 +237,8 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
     }
     // Talent profile chip: toggles the Profile menu (`?menu=open`, PM-01) — read by the talent shell on any page.
     if (isTalent && action === 'profile-menu') {
-      const menuOpen = Boolean(streakParams.get('menu'));
+      // Only `open` / `language` are this menu (`menu=switch` is Emma's switch-space menu on the sidebar card).
+      const menuOpen = ['open', 'language'].includes(streakParams.get('menu'));
       log('toggle profile menu ->', menuOpen ? 'closed' : 'open');
       const next = new URLSearchParams(streakParams);
       if (menuOpen) next.delete('menu');
@@ -260,6 +261,10 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
         'px-[clamp(16px,3.24vw,56px)] py-[12px] max-md:py-[8px]',
         // Recruiter V2.0 nav is 87px tall (Figma 7249:76192: logo 66px at y=10), i.e. 10px vertical padding. Talent keeps 12.
         !isTalent && 'md:py-[10px]',
+        // Recruiter: the top-bar pop-overs (help, bell, profile menu) must paint over page content that sets its own z-30 (talent search header).
+        !isTalent && 'z-40',
+        // Talent Figma "Nav" is 90px including its bottom hairline: 12 top + 66 logo + 11 bottom + 1px border.
+        isTalent && 'md:pb-[11px]',
         className
       )}
     >
@@ -276,14 +281,14 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
 
         {panels?.search !== undefined ? (
           <div className="relative hidden min-w-0 max-w-[553px] flex-1 md:block">
-            <label className="relative hidden min-w-0 w-full items-center gap-[12px] overflow-hidden rounded-[8px] border border-[#dfdfdc] bg-white py-[10px] pl-[14px] pr-[12px] shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.08)] md:flex">
-              <span className="sr-only">{TOP_NAV.searchPlaceholder}</span>
+            <label className="relative hidden min-w-0 w-full items-center gap-[12px] overflow-hidden rounded-[8px] border border-[#dfdfdc] bg-white py-[10px] pl-[14px] pr-[12px] shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.08)] transition-colors focus-within:border-[#387440] md:flex">
+              <span className="sr-only">{nav.searchPlaceholder}</span>
               <span className="flex size-[28px] shrink-0 items-center justify-center rounded-[14px]">
                 <CommunityIcon src={icons.navSearch} size={20} />
               </span>
               <input
                 type="search"
-                placeholder={TOP_NAV.searchPlaceholder}
+                placeholder={nav.searchPlaceholder}
                 readOnly={isTalent}
                 onClick={isTalent ? () => talentHome.update({ search: true }) : undefined}
                 {...(panels?.onSearchInput
@@ -305,14 +310,14 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
             {panels.search}
           </div>
         ) : (
-          <label className="relative hidden min-w-0 max-w-[553px] flex-1 items-center gap-[12px] overflow-hidden rounded-[8px] border border-[#dfdfdc] bg-white py-[10px] pl-[14px] pr-[12px] shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.08)] md:flex">
-            <span className="sr-only">{TOP_NAV.searchPlaceholder}</span>
+          <label className="relative hidden min-w-0 max-w-[553px] flex-1 items-center gap-[12px] overflow-hidden rounded-[8px] border border-[#dfdfdc] bg-white py-[10px] pl-[14px] pr-[12px] shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.08)] transition-colors focus-within:border-[#387440] md:flex">
+            <span className="sr-only">{nav.searchPlaceholder}</span>
             <span className="flex size-[28px] shrink-0 items-center justify-center rounded-[14px]">
               <CommunityIcon src={icons.navSearch} size={20} />
             </span>
             <input
               type="search"
-              placeholder={TOP_NAV.searchPlaceholder}
+              placeholder={nav.searchPlaceholder}
               readOnly={isTalent}
               onClick={isTalent ? () => talentHome.update({ search: true }) : undefined}
               {...(panels?.onSearchInput
@@ -439,7 +444,7 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
               src={icons.navMessage}
               label={`Messages, ${nav.messageCount} unread`}
               badge={nav.messageCount}
-              onClick={() => handleAction('messages')}
+              onClick={() => (panels?.onMessages ? panels.onMessages() : handleAction('messages'))}
             />
 
             <span
@@ -498,7 +503,7 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
             panels?.onProfile
               ? Boolean(panels.profileOpen)
               : isTalent
-                ? Boolean(streakParams.get('menu'))
+                ? ['open', 'language'].includes(streakParams.get('menu'))
                 : undefined
           }
           /* Phones: collapse to a 44px avatar-only button (the name + caret

@@ -25,6 +25,7 @@ import {
   AlertDiamondIcon,
 } from '../../components/sections/talentAuth/talentIcons.jsx';
 import { debug } from '../../utils/debug.js';
+import StepEyebrow from '../../components/sections/talentAuth/StepEyebrow.jsx';
 
 const log = debug('OnboardingAddressPage');
 
@@ -81,130 +82,144 @@ const maskDigitalAddress = (raw) => {
 
 // Mirrors the IdentityCapturedModal pattern from OnboardingPersonalInfoPage
 // but renders 4 saved-address rows + a "Continue To Education" CTA.
+import {
+  DialogHero,
+  DialogPortal,
+  DialogSticker,
+  LookLabel,
+  PLAYFUL_STEP_DIALOG,
+} from '../../components/sections/talentAuth/StepDialogParts.jsx';
+import spotLearning from '../../assets/talent-onboarding/step-dialog-spot-learning.svg';
+
 const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
   log('AddressConfirmedModal mount; rows=', summary.length);
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="address-confirmed-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
-    >
+    <DialogPortal>
       <div
-        className="relative w-full max-w-[440px] rounded-[24px] bg-white px-10 py-10 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
-        style={{ border: '3px solid #C1D4C4' }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="address-confirmed-title"
+        className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
+        style={{ background: 'rgba(28, 42, 33, 0.7)' }}
       >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full bg-brand-green-light text-[#575755] transition-colors hover:bg-brand-green-light-active"
+        <div
+          className={`relative w-full max-w-[440px] rounded-[24px] bg-white px-10 py-10 ${PLAYFUL_STEP_DIALOG} max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]`}
+          style={{ border: '3px solid #C1D4C4' }}
         >
-          <CloseIcon />
-        </button>
+          <DialogSticker>Saved!</DialogSticker>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full bg-brand-green-light text-[#575755] transition-colors hover:bg-brand-green-light-active"
+          >
+            <CloseIcon />
+          </button>
 
-        <div className="flex flex-col items-center gap-3 text-center">
-          <span
-            className="flex size-16 items-center justify-center rounded-[10px] bg-brand-green-light-active"
-            style={{ boxShadow: '0px 1px 1px rgba(27,36,44,0.12)' }}
-          >
-            <SuccessCheckIcon />
-          </span>
-          <span
-            className="inline-flex items-center gap-1.5 rounded-[6px] border border-brand-green-light-active px-3 py-1.5"
-            style={{ background: 'rgba(235, 241, 236, 0.5)' }}
-          >
+          <div className="flex flex-col items-center gap-3 text-center">
+            <DialogHero spot={spotLearning} spotTop={67} padTop={40}>
+              <span
+                className="flex size-16 items-center justify-center rounded-[10px] bg-brand-green-light-active"
+                style={{ boxShadow: '0px 1px 1px rgba(27,36,44,0.12)' }}
+              >
+                <SuccessCheckIcon />
+              </span>
+            </DialogHero>
             <span
-              aria-hidden="true"
-              className="size-2 rounded-full bg-brand-green-light-active"
-              style={{
-                border: '1.5px solid #1D7C4D',
-                boxShadow: '0 0 4px #387440',
-              }}
-            />
-            <span
-              className="text-[12px] leading-[18px] text-[#999999]"
+              className="inline-flex items-center gap-1.5 rounded-[6px] border border-brand-green-light-active px-3 py-1.5"
+              style={{ background: 'rgba(235, 241, 236, 0.5)' }}
+            >
+              <span
+                aria-hidden="true"
+                className="size-2 rounded-full bg-brand-green-light-active"
+                style={{
+                  border: '1.5px solid #1D7C4D',
+                  boxShadow: '0 0 4px #387440',
+                }}
+              />
+              <span
+                className="text-[12px] leading-[18px] text-[#999999]"
+                style={{ letterSpacing: '0.2px' }}
+              >
+                Address section complete
+              </span>
+            </span>
+            <h2
+              id="address-confirmed-title"
+              className="font-heading font-semibold text-[#1C2A21] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
+              style={{ fontSize: 29, lineHeight: '34.8px', letterSpacing: '-0.64px' }}
+            >
+              Address <span className="text-brand-green">confirmed</span>
+            </h2>
+            <p
+              className="text-[12px] leading-[18px] text-[#959592]"
               style={{ letterSpacing: '0.2px' }}
             >
-              Address section complete
-            </span>
-          </span>
-          <h2
-            id="address-confirmed-title"
-            className="font-heading font-semibold text-[#1C2A21] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
-            style={{ fontSize: 29, lineHeight: '34.8px', letterSpacing: '-0.64px' }}
+              Your location is saved. Here&apos;s what we recorded.
+            </p>
+          </div>
+
+          <ul
+            className="mt-5 flex flex-col rounded-[16px] border p-3"
+            style={{
+              background: 'rgba(235, 241, 236, 0.3)',
+              borderColor: '#E1EAE2',
+            }}
           >
-            Address <span className="text-brand-green">confirmed</span>
-          </h2>
+            {summary.map((row, idx) => (
+              <li
+                key={row.label}
+                className="flex items-center justify-between py-2 text-[12px]"
+                style={idx < summary.length - 1 ? { borderBottom: '1px solid #E1EAE2' } : undefined}
+              >
+                <span className="flex items-center gap-2 text-[#575755]">
+                  <span className="text-[#575755]">{row.icon}</span>
+                  {row.label}
+                </span>
+                {row.verified ? (
+                  <span className="inline-flex items-center gap-1 font-semibold text-brand-green">
+                    <img
+                      src={addrCheck}
+                      alt=""
+                      aria-hidden="true"
+                      width="12"
+                      height="12"
+                      draggable={false}
+                    />
+                    {row.value}
+                  </span>
+                ) : (
+                  <span className="font-semibold text-brand-green">{row.value}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-brand-green-light">
+            <div className="h-full rounded-full bg-brand-green" style={{ width: '78%' }} />
+          </div>
+
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            onClick={onContinue}
+            rightIcon={<ArrowRightIcon />}
+            className="mt-5 w-full"
+          >
+            <LookLabel focused="Continue To Education" playful="Next up: Education" />
+          </Button>
+
           <p
-            className="text-[12px] leading-[18px] text-[#959592]"
+            className="mt-3 flex items-center justify-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
             style={{ letterSpacing: '0.2px' }}
           >
-            Your location is saved. Here&apos;s what we recorded.
+            <ShieldCheckIcon className="text-[#959592]" />
+            Data encrypted at rest · Ghana Data Protection Act compliant
           </p>
         </div>
-
-        <ul
-          className="mt-5 flex flex-col rounded-[16px] border p-3"
-          style={{
-            background: 'rgba(235, 241, 236, 0.3)',
-            borderColor: '#E1EAE2',
-          }}
-        >
-          {summary.map((row, idx) => (
-            <li
-              key={row.label}
-              className="flex items-center justify-between py-2 text-[12px]"
-              style={idx < summary.length - 1 ? { borderBottom: '1px solid #E1EAE2' } : undefined}
-            >
-              <span className="flex items-center gap-2 text-[#575755]">
-                <span className="text-[#575755]">{row.icon}</span>
-                {row.label}
-              </span>
-              {row.verified ? (
-                <span className="inline-flex items-center gap-1 font-semibold text-brand-green">
-                  <img
-                    src={addrCheck}
-                    alt=""
-                    aria-hidden="true"
-                    width="12"
-                    height="12"
-                    draggable={false}
-                  />
-                  {row.value}
-                </span>
-              ) : (
-                <span className="font-semibold text-brand-green">{row.value}</span>
-              )}
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-brand-green-light">
-          <div className="h-full rounded-full bg-brand-green" style={{ width: '78%' }} />
-        </div>
-
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          onClick={onContinue}
-          rightIcon={<ArrowRightIcon />}
-          className="mt-5 w-full"
-        >
-          Continue To Education
-        </Button>
-
-        <p
-          className="mt-3 flex items-center justify-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
-          style={{ letterSpacing: '0.2px' }}
-        >
-          <ShieldCheckIcon className="text-[#959592]" />
-          Data encrypted at rest · Ghana Data Protection Act compliant
-        </p>
       </div>
-    </div>
+    </DialogPortal>
   );
 };
 
@@ -219,6 +234,18 @@ const OnboardingAddressPage = () => {
   const [townCity, setTownCity] = useState('');
   const [digitalAddress, setDigitalAddress] = useState('');
   const [digitalTouched, setDigitalTouched] = useState(false);
+  // Fields the user has left (same rule as the parent step: a required field shows its error once left empty).
+  const [touched, setTouched] = useState({ region: false, district: false, townCity: false });
+  const markTouched = (key) => () => {
+    log('field left', key);
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
+  };
+  // Dropdowns: closing the list counts (onClose), and so does tabbing past the closed trigger; focus moving into the
+  // open list does not.
+  const markSelectTouched = (key) => (e) => {
+    if (e.currentTarget.getAttribute('aria-expanded') === 'true') return;
+    markTouched(key)();
+  };
   const [community, setCommunity] = useState('');
   const [landmark, setLandmark] = useState('');
   const [regionOptions, setRegionOptions] = useState([]);
@@ -272,7 +299,16 @@ const OnboardingAddressPage = () => {
   const digitalAddressInvalid =
     digitalAddress.length > 0 && !DIGITAL_ADDRESS_PATTERN.test(digitalAddress);
 
-  const districtError = hasSubmittedOnce && !district ? 'District is required' : undefined;
+  const regionError =
+    (hasSubmittedOnce || touched.region) && !region ? 'Please select your region' : undefined;
+  const districtError =
+    region && (hasSubmittedOnce || touched.district) && !district
+      ? 'Please select your district'
+      : undefined;
+  const townCityError =
+    district && (hasSubmittedOnce || touched.townCity) && townCity.trim().length < 2
+      ? 'Town/City is required'
+      : undefined;
   // Confirm stays disabled until the form is valid, so a bad code must show once the field is left, not only
   // after a submit (which can't happen while the button is disabled).
   const digitalAddressError =
@@ -348,7 +384,7 @@ const OnboardingAddressPage = () => {
   ];
 
   return (
-    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
+    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden">
       <OnboardingHeader currentKey="address" />
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
@@ -361,39 +397,11 @@ const OnboardingAddressPage = () => {
               noValidate
               aria-busy={isSubmitting}
             >
-              {/* Eyebrow — "04 Your Address" — leading dot, italic numeral. */}
-              <span
-                className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-2 rounded-[8px] border px-4 py-1"
-                style={{
-                  background: '#FFFEFC',
-                  borderColor: '#C1D4C4',
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  className="size-2 rounded-full"
-                  style={{
-                    background: '#E1EAE2',
-                    border: '1.5px solid #1D7C4D',
-                    boxShadow: '0 0 4px #006B3F',
-                  }}
-                />
-                <span
-                  className="font-heading font-semibold text-[#B5B5B5]"
-                  style={{ fontSize: 15, lineHeight: 'normal' }}
-                >
-                  04
-                </span>
-                <span
-                  className="text-[12px] leading-[18px] text-brand-green"
-                  style={{ letterSpacing: '0.2px' }}
-                >
-                  Your Address
-                </span>
-              </span>
+              {/* Eyebrow: Focused pill / Playful gold sticker with stars */}
+              <StepEyebrow number="04" label="Your Address" />
 
               <h1
-                className="max-w-[554px] font-heading font-semibold text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
+                className="max-w-[554px] font-heading font-semibold focused:font-sans text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
                 style={{ fontSize: 'clamp(2.25rem, 5vw, 3.375rem)', lineHeight: 1.1 }}
               >
                 Where are you <span className="text-brand-green">located?</span>
@@ -422,6 +430,9 @@ const OnboardingAddressPage = () => {
                   onChange={handleRegionChange}
                   leftIcon={<MapPinIcon />}
                   helperText="Pick the region you live in"
+                  error={regionError}
+                  onBlur={markSelectTouched('region')}
+                  onClose={markTouched('region')}
                   searchable
                 />
                 <Select
@@ -437,6 +448,8 @@ const OnboardingAddressPage = () => {
                   disabled={!region}
                   helperText={region ? 'Pick your district' : 'Select a region first'}
                   error={districtError}
+                  onBlur={markSelectTouched('district')}
+                  onClose={markTouched('district')}
                   searchable
                 />
                 <TextInput
@@ -453,11 +466,8 @@ const OnboardingAddressPage = () => {
                   autoComplete="off"
                   maxLength={80}
                   helperText={district ? 'Type it or pick a suggestion' : 'Select a district first'}
-                  error={
-                    hasSubmittedOnce && district && townCity.trim().length < 2
-                      ? 'Town/City is required'
-                      : undefined
-                  }
+                  error={townCityError}
+                  onBlur={markTouched('townCity')}
                 />
                 <datalist id="onboarding-town-suggestions">
                   {availableTowns.map((t) => (

@@ -2,6 +2,8 @@ import HomeLogoLink from '../../shared/HomeLogoLink.jsx';
 import { cloneElement, isValidElement, useEffect, useRef, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+import { isLiveProfile } from '../../../services/profileStages.api.js';
+import { currentUserLabel } from '../../../services/careerBuddy.api.js';
 import navHelp from '../../../assets/playful/nav-help.svg';
 import gthLogo from '../../../assets/engagement/GTHLogo 1.svg';
 
@@ -210,8 +212,8 @@ const MoreMenu = ({
 };
 
 const EngagementTopNav = ({
-  userName = 'Kofi A.',
-  userInitials = 'KA',
+  userName: userNameProp,
+  userInitials: userInitialsProp,
   onSaveExit,
   onHelp,
   styleSwitch = null,
@@ -222,7 +224,12 @@ const EngagementTopNav = ({
   bgClass = 'bg-white',
   className,
 }) => {
-  log('render', { playfulSwitch: Boolean(styleSwitch), showSwitchModes });
+  // Signed in: the stored user's name ("Ama G.") unless the page passes one; signed out: the demo talent (Figma).
+  const live = !userNameProp && isLiveProfile();
+  const me = live ? currentUserLabel() : null;
+  const userName = userNameProp ?? (me ? me.name : 'Kofi A.');
+  const userInitials = userInitialsProp ?? (me ? me.initials : 'KA');
+  log('render', { playfulSwitch: Boolean(styleSwitch), showSwitchModes, live });
   return (
     <header
       className={classNames(

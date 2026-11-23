@@ -56,3 +56,16 @@ URL slugs are ⚠️ ASSUMPTION (not drawn in Figma); constants in `src/constant
 - `PageHero`: h1 is Bricolage 600 at 67/50/34px (desktop/tablet/mobile), tracking −0.02em, last phrase gold (`accent` prop); no kente strip at the bottom of any hero (home hero included).
 - Section titles on P-01..P-06 use `shared/AccentText` (green `#387440` on light sections, gold `#ffd86b` on dark) with the sizes read from the Figma character overrides (P-01/03/04/05/06: 47/35/32; P-02 deep-dives 40/30/32; P-01 Free-and-fair 37/34/30).
 - P-01 icons are the exact Figma paste (`howItWorks/HowItWorksFigmaIcons.jsx`): chip map-pin, stages 5/7/8 (Work, Certificates, Goals), colour trophy (Top Talent), After-profile card 4. Other inner-page icons are still hand-drawn 🔶.
+
+## Inspection pass (2026-11-21) — phase 1
+
+Figma prototype links: the landing frames' nav/CTA reactions all have `destinationId: null`, and the footer / job-card / phone-mock controls have none — every target below is an app pattern or ⚠️ ASSUMPTION. ✅ VERIFIED (REST node JSON of LP-01).
+
+- **Footer (S11)** now links: For students → `/get-started?role=talent`, For parents / For schools / Child safety → `/for-parents-schools#parents|#schools|#child-safety`, For recruiters → `/get-started?role=recruiter`, Skills Lab → `/skills-lab` (signed-in talent) else `/features#skills-lab`, Opportunities → `/opportunities`, About us → `/how-it-works`, Blog → `/stories`, Careers / Press / Contact → mailto `info@ghanatalenthub.com` (subject filled), bottom-row address is a mailto. Cookie policy and Accessibility statement stay inert (no copy exists). ⚠️ ASSUMPTION for all.
+- **`#hash` scrolling** on landing pages: `shared/useLandingHash.js` (mounted by `LandingShell`) scrolls to the id once the lazy page renders, below the fixed nav. ✅ VERIFIED (target lands 120px from the top at 1440).
+- **Home S5 job cards**: View role / Quick apply use the `/opportunities` card target (`opportunities/jobDestinations.js`): `/job-postings?tab=browse&job=<id>`, through `/login?next=` when signed out. ✅ VERIFIED both states.
+- **P-04 phone mock** Approve / Review first → `/parent/review` for a signed-in parent, else `/get-started?role=parent`. ⚠️ ASSUMPTION.
+- **P-05 Share my story** → mailto with subject "My GTH story" (no story form exists). ⚠️ ASSUMPTION.
+- **Coming soon (joined)**: Copy link copies and says "Copied" for 2s; WhatsApp / X open their share pages; Instagram / Snapchat use the share sheet, else copy. The referral link is still the Figma sample. ⚠️ ASSUMPTION.
+- **FAQ accordion card** is one component now: `shared/LandingFaqItem.jsx` (`variant="home" | "page"`), used by home S9 and the FAQ page; the whole card toggles on both. ✅ VERIFIED.
+- Still inert: `EN · GH` language button (no other language exists), FAQ search (no results state designed), FAQ topics Assessments / Opportunities / Accessibility (no answers drawn).

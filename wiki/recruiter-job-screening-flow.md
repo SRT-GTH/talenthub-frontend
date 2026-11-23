@@ -8,22 +8,22 @@
 Diff % = our screenshot vs the Figma export (`figma-tools/framecmp.mjs`, 1728 wide, viewport = frame height − 52, whole frame, 2026-11-06). `✅ VERIFIED` (measured). Dialog frames score a little higher because Figma centres them in a taller viewport.
 Every URL below starts with `/recruiter/job-screening?job=senior-ux-designer` (written `…`) unless noted.
 
-| Code  | Frame                                         | Figma node    | URL                                                                | Diff |
-| ----- | --------------------------------------------- | ------------- | ------------------------------------------------------------------ | ---- |
-| JS-01 | Add required skill (search open)              | `10117:63827` | `…&skillSearch=Pro`                                                | 3.2% |
-| JS-02 | Skill added · funnel preview updating         | `10117:64312` | `…&skills=prototyping`                                             | 3.0% |
-| JS-03 | Education level on · level dropdown open      | `10117:64766` | `…&education=on&dropdown=education-level`                          | 3.0% |
-| JS-04 | Apply & Filter Pool · processing              | `10117:65240` | `…&run=processing&checked=80`                                      | 3.0% |
-| JS-05 | Results · meet all criteria                   | `10117:65714` | `…&results=meet`                                                   | 3.1% |
-| JS-06 | Results · close matches                       | `10117:66188` | `…&results=close`                                                  | 2.7% |
-| JS-07 | Adjust criteria drawer · live count           | `10117:66565` | `…&results=meet&drawer=adjust&adjExperience=4plus&adjLocation=off` | 4.3% |
-| JS-08 | Results · no one meets all criteria           | `10117:67598` | `…&results=none`                                                   | 2.3% |
-| JS-09 | No applicants yet (new posting)               | `10117:67878` | `/recruiter/job-screening?job=product-designer&results=waiting`    | 4.2% |
-| JS-10 | Move qualified applicants to Pipeline         | `10117:67096` | `…&results=meet&modal=move`                                        | 4.5% |
-| JS-11 | Hand-off · 46 applicants land in Pipeline     | `10117:68136` | `/recruiter/application-pipeline?handoff=46`                       | 5.1% |
-| JS-12 | Save screening criteria as template           | `10117:68588` | `…&modal=save-template`                                            | 3.4% |
-| JS-13 | Screening criteria saved · toast              | `10117:69080` | `…&saved=Senior%20design%20screening&toast=saved`                  | 4.5% |
-| JS-14 | Load saved screening criteria · dropdown open | `10117:69546` | `…&dropdown=saved-criteria`                                        | 3.3% |
+| Code  | Frame                                         | Figma node    | URL                                                                | Diff % (2026-11-22) |
+| ----- | --------------------------------------------- | ------------- | ------------------------------------------------------------------ | ------------------- |
+| JS-01 | Add required skill (search open)              | `10117:63827` | `…&skillSearch=Pro`                                                | 3.2                 |
+| JS-02 | Skill added · funnel preview updating         | `10117:64312` | `…&skills=prototyping`                                             | 3.0                 |
+| JS-03 | Education level on · level dropdown open      | `10117:64766` | `…&education=on&dropdown=education-level`                          | 3.0                 |
+| JS-04 | Apply & Filter Pool · processing              | `10117:65240` | `…&run=processing&checked=80`                                      | 3.0                 |
+| JS-05 | Results · meet all criteria                   | `10117:65714` | `…&results=meet`                                                   | 3.1                 |
+| JS-06 | Results · close matches                       | `10117:66188` | `…&results=close`                                                  | 2.7                 |
+| JS-07 | Adjust criteria drawer · live count           | `10117:66565` | `…&results=meet&drawer=adjust&adjExperience=4plus&adjLocation=off` | 4.3                 |
+| JS-08 | Results · no one meets all criteria           | `10117:67598` | `…&results=none`                                                   | 2.3                 |
+| JS-09 | No applicants yet (new posting)               | `10117:67878` | `/recruiter/job-screening?job=product-designer&results=waiting`    | 2.2                 |
+| JS-10 | Move qualified applicants to Pipeline         | `10117:67096` | `…&results=meet&modal=move`                                        | 4.5                 |
+| JS-11 | Hand-off · 46 applicants land in Pipeline     | `10117:68136` | `/recruiter/application-pipeline?handoff=46`                       | 5.1                 |
+| JS-12 | Save screening criteria as template           | `10117:68588` | `…&modal=save-template`                                            | 3.4                 |
+| JS-13 | Screening criteria saved · toast              | `10117:69080` | `…&saved=Senior%20design%20screening&toast=saved`                  | 4.5                 |
+| JS-14 | Load saved screening criteria · dropdown open | `10117:69546` | `…&dropdown=saved-criteria`                                        | 3.3                 |
 
 The two base frames (`7249:78066` S1, `7249:78533` S2) are unchanged: without `job` the page is exactly what it was (e2e "base frames untouched").
 

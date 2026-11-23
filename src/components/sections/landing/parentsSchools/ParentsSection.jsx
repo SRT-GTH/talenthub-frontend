@@ -1,7 +1,6 @@
 import PsSectionHead from './PsSectionHead.jsx';
 import { PARENTS } from './ParentsSchoolsData.js';
 import {
-  ArrowRightGlyph,
   BellGlyph,
   CheckCircleFillGlyph,
   CheckGlyph,
@@ -9,6 +8,8 @@ import {
   GlobeGlyph,
 } from './ParentsSchoolsIcons.jsx';
 import { LANDING_ROUTES } from '../../../../constants/landingRoutes.js';
+import { inviteParentPath } from '../shared/inviteParentPath.js';
+import { isLoggedIn, logoHomePath } from '../../../../services/auth.api.js';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
@@ -19,8 +20,16 @@ const CARD =
   'border-[1.4px] border-[#1c2a21]/[0.32] bg-[#fffdf7] shadow-[5px_5px_0_rgba(28,42,33,0.2),0_10px_24px_rgba(28,42,33,0.06)]';
 const ICONS = { bell: BellGlyph, check: CheckCircleFillGlyph, eye: EyeGlyph, globe: GlobeGlyph };
 
+/*
+ * The notification's Approve / Review first (⚠️ ASSUMPTION, Figma draws no target): a signed-in parent goes to their review queue
+ * (/parent/review, where certificates are approved); anyone else to the parent sign-up, as the "I'm a parent" link below does.
+ */
+const approvalPath = () =>
+  isLoggedIn() && logoHomePath() === '/parent' ? '/parent/review' : LANDING_ROUTES.parentSignUp;
+
 const PhoneMock = () => {
   const { phone } = PARENTS;
+  const reviewTo = approvalPath();
   return (
     <div className="relative mx-auto w-full max-w-[695px] pt-[30px] xl:py-[30px]">
       <div
@@ -50,23 +59,23 @@ const PhoneMock = () => {
           </div>
           <p className="m-0 font-sans text-[14px] leading-[21px] text-[#1c2a21]">{phone.message}</p>
           <div className="flex flex-col gap-3 xl:flex-row xl:gap-2">
-            <button
-              type="button"
-              onClick={() => log('approve (inert)')}
-              className="inline-flex cursor-pointer items-center justify-center gap-[6px] rounded-[12px] border-0 bg-[#387440] px-[14px] py-[10px] font-sans text-[14px] font-bold leading-[16.7px] text-white"
+            <Link
+              to={reviewTo}
+              onClick={() => log('approve ->', reviewTo)}
+              className="inline-flex cursor-pointer items-center justify-center gap-[6px] rounded-[12px] border-0 bg-[#387440] no-underline px-[14px] py-[10px] font-sans text-[14px] font-bold leading-[16.7px] text-white"
             >
               <span className="size-[14px]">
                 <CheckGlyph />
               </span>
               {phone.approve}
-            </button>
-            <button
-              type="button"
-              onClick={() => log('review first (inert)')}
-              className="inline-flex cursor-pointer items-center justify-center rounded-[12px] border-[1.5px] border-[#1c2a21] bg-transparent px-[14px] py-[10px] font-sans text-[14px] font-bold leading-[16.7px] text-[#1c2a21]"
+            </Link>
+            <Link
+              to={reviewTo}
+              onClick={() => log('review first ->', reviewTo)}
+              className="inline-flex cursor-pointer items-center justify-center rounded-[12px] border-[1.5px] border-[#1c2a21] bg-transparent no-underline px-[14px] py-[10px] font-sans text-[14px] font-bold leading-[16.7px] text-[#1c2a21]"
             >
               {phone.review}
-            </button>
+            </Link>
           </div>
         </div>
         <div className="flex flex-col gap-2 rounded-[20px] border border-white/25 bg-white/10 px-[18px] py-4">
@@ -95,9 +104,13 @@ const PhoneMock = () => {
  * (side by side on desktop; benefits 2x2 then phone on tablet; single column on mobile), 3 consent steps, "Invite my parent" CTA.
  */
 const ParentsSection = () => {
-  log('render');
+  const invitePath = inviteParentPath();
+  log('render', { invitePath });
   return (
-    <section className="bg-[linear-gradient(180deg,#fbf6ea_0%,#f7ebcf_100%)] px-5 py-14 md:px-10 md:py-[72px] xl:px-24 xl:py-[100px]">
+    <section
+      id="parents"
+      className="bg-[linear-gradient(180deg,#fbf6ea_0%,#f7ebcf_100%)] px-5 py-14 md:px-10 md:py-[72px] xl:px-24 xl:py-[100px]"
+    >
       <div className="mx-auto flex max-w-[1536px] flex-col gap-5 md:gap-10">
         <PsSectionHead
           chip={PARENTS.chip}
@@ -159,17 +172,27 @@ const ParentsSection = () => {
           ))}
         </ol>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-3">
           <Link
-            to={LANDING_ROUTES.getStarted}
-            onClick={() => log('cta: invite my parent')}
-            className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[10px] border-2 border-[#2a5730] bg-[#387440] px-5 font-sans text-[16px] font-bold tracking-[0.1px] text-[#fef1e7] no-underline shadow-[0_4px_0_#224626] md:px-6 xl:px-7"
+            to={invitePath}
+            onClick={() => log('cta: invite my parent ->', invitePath)}
+            // Figma 7797:29742 "Btn · Invite my parent": tertiary lg (Disabled-lg / tetiary button 2 variant), 203x56, no icons.
+            // Figma strokes sit inside the 34/16 padding: padding minus border (2 sides, 1 top, 2 bottom) keeps the 56px height.
+            className="inline-flex items-center justify-center gap-2 rounded-[14px] border-2 border-t border-solid border-[#c1d4c4] bg-[#e1eae2] px-8 pt-[15px] pb-[14px] font-sans text-[16px] font-bold leading-6 tracking-[0.1px] text-[#165d3a] no-underline shadow-[0_1px_2px_rgba(27,36,44,0.12)] transition-colors hover:bg-[#d6e2d8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             {PARENTS.cta}
-            <span className="size-5 text-white">
-              <ArrowRightGlyph />
-            </span>
           </Link>
+          {/* ⚠️ ASSUMPTION (not in Figma): a way in for a parent reading this, since the button above is for the child */}
+          <p className="m-0 font-sans text-[15px] font-medium leading-[18px] text-[#595959]">
+            {PARENTS.parentLead}{' '}
+            <Link
+              to={LANDING_ROUTES.parentSignUp}
+              onClick={() => log('parent sign-up link ->', LANDING_ROUTES.parentSignUp)}
+              className="lp-ul font-semibold text-[#387440]"
+            >
+              {PARENTS.parentLink}
+            </Link>
+          </p>
         </div>
       </div>
     </section>

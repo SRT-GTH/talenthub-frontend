@@ -53,13 +53,16 @@ const AdminConfirmDialog = ({
           {primary.label}
           {primary.arrow ? <AdminArrowRightIcon className="size-[20px]" /> : null}
         </button>
-        <button
-          type="button"
-          onClick={onSecondary ?? onClose}
-          className="inline-flex min-h-[44px] cursor-pointer items-center rounded-[14px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[18px] font-sans text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-        >
-          {secondary}
-        </button>
+        {/* No secondary label = no secondary button (an empty white pill showed next to the notices' single "Close"). */}
+        {secondary ? (
+          <button
+            type="button"
+            onClick={onSecondary ?? onClose}
+            className="inline-flex min-h-[44px] cursor-pointer items-center rounded-[14px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[18px] font-sans text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+          >
+            {secondary}
+          </button>
+        ) : null}
       </div>
     </div>
   </AgencyDialog>

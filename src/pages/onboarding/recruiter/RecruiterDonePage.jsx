@@ -42,6 +42,9 @@ const JOB_POSTS = {
  * app layout's) and NO right panel (panel={false}); the hero is full-bleed.
  * Demo hook: ?variant=pending|admin|active overrides the provider-derived variant.
  * CTA "Go To Recruiter Dashboard" -> /recruiter/home (no sticky annotation).
+ * Card links (no prototype link is drawn; the app's own screens): Post a job -> the create-post form, Search talent -> talent search,
+ * Invite your team -> Settings > Team and roles, Set up your organisation page -> Settings > Organisation, Track your request -> the
+ * dashboard's pending-affiliation view (?org=pending).
  */
 
 const DASHBOARD = '/recruiter/home';
@@ -67,7 +70,7 @@ const buildVariant = (s) => {
           title: 'Post your first job',
           body: `Your ${s.tier} plan includes ${JOB_POSTS[s.tierKey] || '1 job post'} this month.`,
           cta: 'Post a job',
-          to: '/recruiter/job-postings',
+          to: '/recruiter/job-postings/new',
         },
         {
           icon: iconSearch,
@@ -81,7 +84,7 @@ const buildVariant = (s) => {
           title: 'Invite your team',
           body: 'Colleagues create their own recruiter profiles and request to join — you approve them.',
           cta: 'Open',
-          to: DASHBOARD,
+          to: '/recruiter/settings?tab=team',
         },
       ],
     };
@@ -100,7 +103,7 @@ const buildVariant = (s) => {
           title: 'Post your first job',
           body: `Jobs show your name until ${org} approves you.`,
           cta: 'Post a job',
-          to: '/recruiter/job-postings',
+          to: '/recruiter/job-postings/new',
         },
         {
           icon: iconSearch,
@@ -114,7 +117,7 @@ const buildVariant = (s) => {
           title: 'Track your request',
           body: `See the status of your ${org} affiliation in Settings → Organisation.`,
           cta: 'Open',
-          to: DASHBOARD,
+          to: '/recruiter/home?org=pending',
         },
       ],
     };
@@ -139,7 +142,7 @@ const buildVariant = (s) => {
         title: 'Post your first job',
         body: `Jobs show your name and ${org}.`,
         cta: 'Post a job',
-        to: '/recruiter/job-postings',
+        to: '/recruiter/job-postings/new',
       },
       {
         icon: iconSearch,
@@ -153,7 +156,7 @@ const buildVariant = (s) => {
         title: 'Set up your organisation page',
         body: `Add a logo and description so talent recognise ${org}.`,
         cta: 'Open',
-        to: DASHBOARD,
+        to: '/recruiter/settings?tab=organisation',
       },
     ],
   };

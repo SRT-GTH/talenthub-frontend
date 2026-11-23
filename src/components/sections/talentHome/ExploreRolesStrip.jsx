@@ -3,6 +3,7 @@ import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
 import { TalentHomeExploreCompassIcon, TalentHomePlusIcon } from '../../shared/assets.jsx';
 import { CARD_DASHED, Chip } from './coreUi.jsx';
+import { smoothLayout } from '../../../utils/smoothLayout.js';
 import { CORE_CONTENT, EXPLORE } from './talentHomeCoreData.js';
 
 const log = debug('ExploreRolesStrip');
@@ -43,7 +44,7 @@ const ExploreRolesStrip = ({ home }) => {
         <p className="text-[14px] leading-[normal] font-medium text-[#595959]">{customize.text}</p>
         <button
           type="button"
-          onClick={() => home.update({ edit: true })}
+          onClick={() => smoothLayout(() => home.update({ edit: true }), 'edit on')}
           className="cursor-pointer text-[14px] leading-[normal] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           {customize.link}

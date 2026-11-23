@@ -4,8 +4,8 @@ import { HEADING, STICKER } from './circleStyles.js';
 import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
- * CircleHeader — Figma `Header` (Your circle 30/36 + subtitle 15/18 + search 300x40; Playful: Bricolage 34 and the tilted
- * "GROW YOUR CIRCLE" sticker left of the search). Props: q, onQ(text).
+ * CircleHeader — Figma `Header` (Your crew 30/36 + subtitle 15/18 + search 300x40; Playful: Bricolage 34 and the tilted
+ * "GROW YOUR CREW" sticker left of the search). Props: q, onQ(text).
  */
 const CircleHeader = ({ q, onQ }) => {
   const { copy: COPY } = useCircleVariantData();

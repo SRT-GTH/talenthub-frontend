@@ -17,17 +17,17 @@ import { useCircleVariantData } from './useCircleVariantData.js';
 const MENU_ICON = {
   'View profile': CircleUserIcon,
   'Mute their posts': CircleBellIcon,
-  'Remove connection': CircleCloseIcon,
+  'Remove from crew': CircleCloseIcon,
   'Remove from network': CircleCloseIcon,
   Block: CircleShieldIcon,
   Report: CircleShieldIcon,
 };
-const DANGER = ['Remove connection', 'Remove from network', 'Block', 'Report'];
+const DANGER = ['Remove from crew', 'Remove from network', 'Block', 'Report'];
 
 /*
- * CircleConnectionsCard — Figma `Connections list` (NW-05): "128 people in your circle" + the sort chips (Recently added · Region ·
+ * CircleConnectionsCard — Figma `Connections list` (NW-05): "128 people in your crew" + the sort chips (Recently added · Region ·
  * Skills · Community), rows of avatar 48 / name / headline / "Connected 2 days ago" with Message + the "…" button, and the open
- * `Connection menu` (View profile · Mute their posts · Remove connection · Report, red for the last two).
+ * `Connection menu` (View profile · Mute their posts · Remove from crew · Report, red for the last two).
  * Props: items ([{ id, connected }] already filtered / sorted), total, sort (chip label), onSort(label), menuId (person whose menu is
  * open), onMenu(id | null), muted (ids), onMessage(person), onMenuAction(index, person).
  * ⚠️ ASSUMPTION: the three grey chips re-sort the rows (group-by is not drawn); "Muted" rows get a small "Muted" tag.
@@ -74,12 +74,12 @@ const CircleConnectionsCard = ({
     <section className={classNames(CARD, 'flex flex-col gap-[16px] pb-[8px] pt-[16px]')}>
       <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[8px] px-[16px]">
         <h2 className={classNames(HEADING, 'text-[18px] leading-[21px]')}>
-          {COPY.people?.(total) ?? `${total} ${total === 1 ? 'person' : 'people'} in your circle`}
+          {COPY.people?.(total) ?? `${total} ${total === 1 ? 'person' : 'people'} in your crew`}
         </h2>
         <span aria-hidden="true" className="hidden min-w-[16px] flex-1 lg:block" />
         <div
           role="group"
-          aria-label={COPY.sortLabel ?? 'Sort your circle'}
+          aria-label={COPY.sortLabel ?? 'Sort your crew'}
           className="ml-auto flex flex-wrap gap-[8px]"
         >
           {connections.sorts.map((label, i) => {

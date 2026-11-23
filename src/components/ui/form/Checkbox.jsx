@@ -65,6 +65,14 @@ const BOX_STATE_CLASSES = {
     'bg-brand-green border-[1.5px] border-brand-green-dark-active shadow-none opacity-55',
 };
 
+// Opt-in `look="sticker"`: the auth screens' Playful box (Figma 2968:49902 "GTHCheckbox": white, 1.2px #ccc, radius 6,
+// hard 2px 2px ink shadow). Only the unticked box is drawn; ticked keeps the green fill and presses the ink shadow to 1px
+// (⚠️ ASSUMPTION). Error / disabled fall back to the default classes.
+const STICKER_BOX_CLASSES = {
+  default: 'bg-white border-[1.2px] border-[#cccccc] shadow-[2px_2px_0_0_#1c2a21]',
+  checked: 'bg-brand-green border-[1.2px] border-[#1c2a21] shadow-[1px_1px_0_0_#1c2a21]',
+};
+
 const BOX_BASE =
   'relative inline-flex shrink-0 items-center justify-center size-5 rounded-[6px] ' +
   'transition-[background-color,border-color,box-shadow,transform] duration-100';
@@ -88,6 +96,8 @@ const Checkbox = ({
   // `{ checked, unchecked }` ReactNodes drawn in a bare 16px slot instead of the
   // 20px shelf box. Undefined = unchanged for every other caller.
   glyphs,
+  // 'default' | 'sticker' (auth screens' Playful box, see STICKER_BOX_CLASSES)
+  look = 'default',
   className,
   ref,
   ...inputProps
@@ -127,7 +137,10 @@ const Checkbox = ({
   // For interactive (non-forced) usage the input drives the box visual via
   // its own state — no extra hover/focus class needed because the shadow
   // collapse already happens automatically when `checked` flips.
-  const boxClasses = BOX_STATE_CLASSES[resolvedKey] || BOX_STATE_CLASSES.default;
+  const boxClasses =
+    (look === 'sticker' && STICKER_BOX_CLASSES[resolvedKey]) ||
+    BOX_STATE_CLASSES[resolvedKey] ||
+    BOX_STATE_CLASSES.default;
 
   const message = error || helperText;
   const messageColourClass = error ? 'text-danger' : 'text-neutral-darker';

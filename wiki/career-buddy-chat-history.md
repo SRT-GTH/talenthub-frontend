@@ -60,3 +60,11 @@ thinking · working · writing · slow · stopped · history · history-menu · 
 - No "Esc" behaviour, hover growth or mobile layout for the drawer: the row "…" button appears on hover without growing the row (Figma grows it 6 px); below `lg` the drawer is a full-width sheet.
 - Focused scrim stops 148 px short of the pane edge, copied as drawn.
 - The first-visit greeting turn still runs once; a new chat no longer sends one (the start screen replaces it).
+
+## First-chat panel header (2026-11-21)
+
+NU-04 (`7746:2685` / `8097:5050`) "tile · expand" is linked in the prototype to NU-05 · Career Buddy · Expanded (`8419:530` / `8420:530`, the full Buddy view). Demo (`/home?demo=1&new=chat`) now does what the live panel does: Maximize → `/profile/filling/career-buddy?demo=1`, History → `/profile/filling/career-buddy?chat=history&demo=1` (the drawn history-drawer state). History has no prototype link. ✅ VERIFIED (browser).
+
+## Signed-in check (2026-11-22)
+
+With the test talent account on the local dev server the agent proxy (`/agent` → `localhost:4111`) answers 500, so a reply could not be checked: sending shows the user bubble, the error toast and a "Try again" chip (as built). The history drawer opens and lists the new chat, "New Chat" returns to the start screen, and the Ask Buddy panel's Maximize goes to `/profile/filling/career-buddy`. ✅ VERIFIED (UI only). Not checked: a real reply, rename / pin / delete against stored chats.

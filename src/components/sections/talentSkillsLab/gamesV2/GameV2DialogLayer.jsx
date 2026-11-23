@@ -69,14 +69,17 @@ const GameV2DialogLayer = () => {
     [navigate, params, game, mode, level]
   );
 
+  // the drawn mock hub (`?demo=1`) opens the mock game too, so a demo card never starts (or resumes) a live run
+  const demo = live ? undefined : params.get('demo') === '1' ? 1 : undefined;
+
   const start = useCallback(() => {
     const url =
       game.kind === 'playstyle'
-        ? gamePlayUrl(game.id, { mode: 'ranked' })
-        : gamePlayUrl(game.id, { mode, level: game.levels.length ? level : undefined });
+        ? gamePlayUrl(game.id, { mode: 'ranked', demo })
+        : gamePlayUrl(game.id, { mode, level: game.levels.length ? level : undefined, demo });
     log('start', url);
     navigate(url);
-  }, [navigate, game, mode, level]);
+  }, [navigate, game, mode, level, demo]);
 
   if (!game) return null;
 
@@ -92,6 +95,7 @@ const GameV2DialogLayer = () => {
             mode: s.mode ?? 'ranked',
             level: s.level ?? level,
             resume: 1,
+            demo,
           });
           log('resume game', url);
           navigate(url);
@@ -102,6 +106,7 @@ const GameV2DialogLayer = () => {
             mode: s.mode ?? 'ranked',
             level: s.level ?? level,
             restart: 1,
+            demo,
           });
           log('start again', url);
           navigate(url);
@@ -115,7 +120,7 @@ const GameV2DialogLayer = () => {
         game={game}
         onClose={close}
         onViewResult={() => {
-          const url = gamePlayUrl(game.id, { mode: 'ranked', view: 'result' });
+          const url = gamePlayUrl(game.id, { mode: 'ranked', view: 'result', demo });
           log('view result', url);
           navigate(url);
         }}

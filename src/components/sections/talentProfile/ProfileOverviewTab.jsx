@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { STAGE_BY_ID } from '../engagementShell/engagementShellData.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
 import Button from '../../ui/Button.jsx';
 import {
   ProfileCheckWhiteIcon,
@@ -385,10 +386,22 @@ const StrengthCard = ({ go }) => {
   );
 };
 
+// "See all →" on Who's looking: Figma links nothing from it and draws no profile-views list.
+// ⚠️ ASSUMPTION: the notifications page, where "… viewed your profile" items land (profile.viewed).
+const PROFILE_VIEWS_ROUTE = '/notifications';
+
 const ViewsCard = () => {
   const v = PROFILE_VIEWS;
+  const navigate = useNavigate();
   return (
-    <ProfileCard title={v.title} link={v.link} onLink={() => log('who’s looking: see all')}>
+    <ProfileCard
+      title={v.title}
+      link={v.link}
+      onLink={() => {
+        log('who’s looking: see all ->', PROFILE_VIEWS_ROUTE);
+        navigate(withDemoFlag(PROFILE_VIEWS_ROUTE));
+      }}
+    >
       <div className="flex flex-col gap-[16px]">
         <div className="flex items-end gap-[12px]">
           <span
@@ -471,12 +484,21 @@ const GoalCard = ({ go }) => {
   );
 };
 
-export const BadgesCard = ({ preview = false }) =>
-  PROFILE_BADGES.items.length === 0 ? null : (
+// "All 9 →": Figma links nothing from it and draws no all-badges screen (searched every canvas).
+// ⚠️ ASSUMPTION: the Skills Lab Verified tab, where the skill badges (Top 10%, Verified, Quiz Ace) are earned.
+const ALL_BADGES_ROUTE = '/skills-lab?tab=verified';
+
+export const BadgesCard = ({ preview = false }) => {
+  const navigate = useNavigate();
+  return PROFILE_BADGES.items.length === 0 ? null : (
     <ProfileCard
+      id="badges"
       title={PROFILE_BADGES.title}
       link={PROFILE_BADGES.link}
-      onLink={() => log('badges: all 9')}
+      onLink={() => {
+        log('badges: all 9 ->', ALL_BADGES_ROUTE);
+        navigate(withDemoFlag(ALL_BADGES_ROUTE));
+      }}
     >
       <ul className="flex flex-wrap justify-between gap-x-[6px] gap-y-[12px]">
         {PROFILE_BADGES.items
@@ -508,6 +530,7 @@ export const BadgesCard = ({ preview = false }) =>
       </ul>
     </ProfileCard>
   );
+};
 
 /*
  * ProfileOverviewTab — P-01 (Figma Focused 8110:368104 / Playful 7570:105): About, Top skills,

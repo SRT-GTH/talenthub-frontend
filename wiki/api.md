@@ -66,7 +66,7 @@ Backend error shape (moleculer-web): `{ name, message, code, type, data }`; fiel
 
 Onboarding step order is enforced by the backend: start → identity → contact (+ verify) → address → education → adult: consent / minor: parent → activate.
 
-**Not wired:** parent flows (branch `feat/parent-invited-flow` on origin, unmerged), recruiter dashboard, community, profile filling, Career Buddy, Skills Lab, messages — all still static/mock data.
+🪦 STALE (2026-11-13), most of this is wired now; see [backend-integration-gaps.md](backend-integration-gaps.md). **Not wired (old):** parent flows (branch `feat/parent-invited-flow` on origin, unmerged), recruiter dashboard, community, profile filling, Career Buddy, Skills Lab, messages — all still static/mock data.
 
 ## Environment
 

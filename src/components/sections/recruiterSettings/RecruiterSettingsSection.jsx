@@ -21,7 +21,6 @@ import LanguageTab from './tabs/LanguageTab.jsx';
 import SecurityTab from './tabs/SecurityTab.jsx';
 import RecruiterLogoutDialog from './RecruiterLogoutDialog.jsx';
 import RecruiterLoggedOut from './RecruiterLoggedOut.jsx';
-import RecruiterProfileMenu from './RecruiterProfileMenu.jsx';
 import { useRecruiterHelpPanels } from './help/useRecruiterHelpPanels.jsx';
 import HiringPausedBanner from './hiring/HiringPausedBanner.jsx';
 
@@ -46,7 +45,7 @@ const renderSettingsSidebar = ({ collapsed, onToggle }) =>
  * RecruiterSettingsSection - `/recruiter/settings` (Figma "Recruiter - Settings & Account" 10161:75722): the talent Settings page frame
  * (`talentSettings/SettingsLayout`, recruiter nav + copy) inside the recruiter workspace shell, Settings active in the rail.
  * Every tab is its own file under `tabs/`; dialogs and toasts are rendered by the tab that owns them. State is the URL (`useRecruiterSettingsState`).
- * The top-bar Help pop-over and Profile menu are passed to the shell through `panels` (`onHelp` / `help`, `onProfile` / `profileMenu`).
+ * The top-bar Help pop-over and Profile menu are passed to the shell through `panels` (`onHelp` / `help`); the Profile menu is the shell's recruiter default (`useRecruiterTopBarPanels`).
  * Wiki: recruiter-settings.md.
  */
 const RecruiterSettingsSection = () => {
@@ -54,7 +53,6 @@ const RecruiterSettingsSection = () => {
   // Figma draws the recruiter screens in SF Pro Rounded (bundled face, scoped to the recruiter screens).
   useScopedRoundedFont('data-recruiter-ui', true);
   const helpPanels = useRecruiterHelpPanels();
-  const profileOpen = settings.get('menu') === 'open';
   useEffect(() => {
     log('mount', { tab: settings.tab, modal: settings.modal, state: settings.state });
   }, [settings.tab, settings.modal, settings.state]);
@@ -62,12 +60,8 @@ const RecruiterSettingsSection = () => {
   if (settings.state === 'logged-out') return <RecruiterLoggedOut settings={settings} />;
 
   const Tab = TABS[settings.tab] ?? AccountTab;
-  const panels = {
-    ...helpPanels,
-    onProfile: () => settings.update({ menu: profileOpen ? null : 'open', help: null }),
-    profileOpen,
-    profileMenu: <RecruiterProfileMenu settings={settings} />,
-  };
+  // The Profile menu (and messages / bell / EN / accessibility) come from DashboardShell's recruiter defaults (useRecruiterTopBarPanels), shared by every recruiter page.
+  const panels = helpPanels;
 
   return (
     <DashboardShell renderSidebar={renderSettingsSidebar} panels={panels}>

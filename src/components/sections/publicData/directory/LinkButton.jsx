@@ -6,7 +6,7 @@ import { classNames } from '../../../../utils/classNames.js';
  * actions are navigation (Visit website ↗, Partner enquiries, Apply on GTH, Ask the data team), so they must be real links.
  *   outline : white, 2px #1c2a21/30, r14, p 12/22, shelf 0 4 0 rgba(17,17,17,.25), 16/24 700 #1c2a21   (Figma "Button · Visit website")
  *   primary : #387440, 2px #2a5730, r10, p 12/18, shelf 0 4 0 #224626, label gradient peach -> mint     (Figma "Button · Apply on GTH")
- * Props: to (router path) | href (external, opens in a new tab with rel noopener), variant, className, children.
+ * Props: to (router path) | href (external, opens in a new tab with rel noopener; a mailto: / tel: link opens in place), variant, className, children.
  */
 
 const BASE =
@@ -34,8 +34,15 @@ const LinkButton = ({ to, href, variant = 'outline', className, children, ...res
     );
   const cls = classNames(BASE, VARIANTS[variant], className);
   if (href) {
+    const inPlace = /^(mailto|tel):/i.test(href);
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={cls} {...rest}>
+      <a
+        href={href}
+        target={inPlace ? undefined : '_blank'}
+        rel={inPlace ? undefined : 'noopener noreferrer'}
+        className={cls}
+        {...rest}
+      >
         {label}
       </a>
     );

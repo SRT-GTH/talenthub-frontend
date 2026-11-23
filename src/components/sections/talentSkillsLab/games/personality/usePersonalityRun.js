@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { debug } from '../../../../../utils/debug.js';
 import { PLAY_ORDER } from './personalityData.js';
 import { markArcadePlayed } from '../../../engagementV2/arcade/arcadePlayed.js';
+import { gamesTabPath } from '../../skillsLabState.js';
 
 const log = debug('usePersonalityRun');
 const readPlayed = () => {
@@ -80,7 +81,7 @@ export const usePersonalityRun = ({ total, seed, gameId }) => {
       navigate(
         inArcade
           ? `/profile/filling/personality/arcade${readPlayed() >= 3 ? '?modal=archetype' : ''}`
-          : '/skills-lab?tab=games'
+          : gamesTabPath()
       ),
     [navigate, inArcade]
   );
@@ -88,7 +89,10 @@ export const usePersonalityRun = ({ total, seed, gameId }) => {
     const at = PLAY_ORDER.indexOf(gameId);
     const next = PLAY_ORDER[(at + 1) % PLAY_ORDER.length];
     log('go next', { from: gameId, next });
-    navigate(`${inArcade ? '/profile/filling/personality/arcade' : '/skills-lab/games'}/${next}`);
+    const demo = new URLSearchParams(window.location.search).get('demo') === '1' ? '?demo=1' : '';
+    navigate(
+      `${inArcade ? '/profile/filling/personality/arcade' : '/skills-lab/games'}/${next}${demo}`
+    );
   }, [gameId, navigate, inArcade]);
 
   return {

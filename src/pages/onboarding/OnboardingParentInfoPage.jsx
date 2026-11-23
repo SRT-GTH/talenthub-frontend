@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
 import { getApiErrorMessage } from '../../services/apiErrors.js';
 import { captureStep } from '../../services/onboarding.api.js';
-import { splitFullName, toGhanaE164 } from '../../services/onboardingMappers.js';
+import { ghanaLocalDigits, toGhanaE164 } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import Field from '../../components/ui/form/Field.jsx';
@@ -16,8 +16,6 @@ import {
   LoadingSpinner,
   MailIcon,
   ParentIcon,
-  PlayCircleIcon,
-  ShieldCheckIcon,
   UserIcon,
   UsersGroupIcon,
 } from '../../components/shared/assets.jsx';
@@ -26,6 +24,8 @@ import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
 import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
 import { PersonalOverlayCards } from '../../components/sections/talentAuth/TalentPersonalInfoPanelContent.jsx';
+import parentPanelPhoto from '../../assets/hero/talent-parent-panel-bottom-left.webp';
+import { GenzDoodleStar } from '../../components/shared/assets.jsx';
 
 const log = debug('OnboardingParentInfoPage');
 
@@ -187,66 +187,53 @@ const RELATIONSHIP_OPTIONS = [
 
 // ---- eyebrow ----------------------------------------------------------
 
+// "06b Parent / Guardian" step tag. Amber palette sets this under-18 step apart from the green talent steps.
+//   Focused: cream-amber pill (#faf4e8, gold-light edge), amber-ringed dot, grey "06b", gold-brown label.
+//   Playful: gold sticker tilted 4deg with an ink edge + hard 2px shadow, ink text, three doodle stars.
 const ParentEyebrow = () => (
-  // Figma 2858:28741 family — cream-amber pill with leading dot, italic
-  // "06b" ordinal + "Parent / Guardian" label. Amber palette
-  // distinguishes this step from the green-eyebrowed talent-side steps.
-  <span
-    className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-2 rounded-[8px] border px-4 py-1"
-    style={{ background: '#FFFEFC', borderColor: '#EEDEB8' }}
-  >
-    <span
-      aria-hidden="true"
-      className="size-2 rounded-full"
-      style={{
-        background: '#FAF4E8',
-        border: '1.5px solid #C8951A',
-        boxShadow: '0 0 4px #C8951A',
-      }}
+  <span className="relative inline-flex">
+    <span className="inline-flex items-center gap-1.5 rounded-[8px] border border-[#eedeb8] bg-[#faf4e8] px-4 py-1 max-md:px-3 max-md:py-0.5 playful:rotate-[4deg] playful:border-[1.2px] playful:border-[#1c2a21] playful:bg-[#ffd86b] playful:shadow-[2px_2px_0_#1c2a21]">
+      <span
+        aria-hidden="true"
+        className="size-2 rounded-full border-[1.5px] border-[#c8951a] bg-[#e1eae2] shadow-[0_0_4px_#006b3f]"
+      />
+      <span className="text-[15px] font-semibold leading-[1.25] text-[#6b6b6b] playful:font-heading playful:text-[#1c2a21]">
+        06b
+      </span>
+      <span className="text-[12px] leading-[18px] tracking-[0.2px] text-[#8a6100] playful:text-[#1c2a21]">
+        Parent / Guardian
+      </span>
+    </span>
+    <GenzDoodleStar
+      size={16}
+      color="#C8951A"
+      className="absolute hidden playful:block"
+      style={{ left: 'calc(100% + 8px)', top: 'calc(50% - 23px)' }}
     />
-    <span
-      className="font-display italic text-[#B5B5B5]"
-      style={{ fontSize: 16, lineHeight: 'normal' }}
-    >
-      06b
-    </span>
-    <span
-      className="text-[12px] leading-[18px]"
-      style={{ color: '#C8951A', letterSpacing: '0.2px' }}
-    >
-      Parent / Guardian
-    </span>
+    <GenzDoodleStar
+      size={10}
+      color="#C8951A"
+      className="absolute hidden playful:block"
+      style={{ left: 'calc(100% + 30px)', top: 'calc(50% - 5px)' }}
+    />
+    <GenzDoodleStar
+      size={9}
+      color="#387440"
+      className="absolute hidden playful:block"
+      style={{ left: '-20px', top: 'calc(50% - 1px)' }}
+    />
   </span>
 );
 
 // ---- legal disclosure banner -----------------------------------------
 
+// Blue-tinted card: bold title over the disclosure copy (both looks).
+// Figma's copy says one contact method (phone OR email) is enough; ours keeps email required because the opt-out
+// notice goes by email and the backend rejects the step without it, so the second line says so.
 const LegalDisclosureBanner = () => (
-  // Figma 2858:28854 (default frame). Blue-tinted rounded card with an
-  // icon + two-line disclosure copy. Same chassis as the Review page's
-  // DPA banner but with copy specific to the under-18 parent flow.
-  <div
-    className="flex w-full items-start gap-3 rounded-[12px] px-5 py-4"
-    style={{ background: 'rgba(234,239,251,0.4)', border: '1px solid #E0E7F9' }}
-  >
-    <span
-      className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full text-white"
-      style={{ background: '#3062D4' }}
-      aria-hidden="true"
-    >
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-        <path
-          d="M6 8.5V5.5M6 3.7v.1"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-        />
-      </svg>
-    </span>
-    <p
-      className="text-left text-[12px] leading-[18px] text-[#3062D4]"
-      style={{ letterSpacing: '0.2px' }}
-    >
+  <div className="flex w-full flex-col gap-1 rounded-[12px] border border-[#e0e7f9] bg-[rgba(234,239,251,0.4)] px-5 py-[13.5px] text-left tracking-[0.2px] text-[#3062d4]">
+    <p className="text-[12px] font-bold leading-5">Your data is protected under Ghanaian law</p>
+    <p className="text-[12px] leading-[18px]">
       The notification tells your parent/guardian about GTH and their right to opt you out within 7
       days if they have concerns. We send it to their email, so an email address is required. Your
       account opens immediately regardless.
@@ -274,12 +261,14 @@ const OnboardingParentInfoPage = () => {
     }
   }, [isMinor, navigate]);
 
-  const [guardianName, setGuardianName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [relationship, setRelationship] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [touched, setTouched] = useState({
-    guardianName: false,
+    firstName: false,
+    lastName: false,
     relationship: false,
     phone: false,
     email: false,
@@ -291,7 +280,7 @@ const OnboardingParentInfoPage = () => {
 
   // Per-field validation: name, relationship and email are required;
   // phone is optional.
-  const phoneDigits = phone.replace(/\D/g, '');
+  const phoneDigits = ghanaLocalDigits(phone); // leading 0 / pasted +233 allowed
   const isPhoneFilled = phone !== '';
   const isPhoneValid = isPhoneFilled ? phoneDigits.length === 9 : true;
   const isEmailFilled = email !== '';
@@ -301,9 +290,13 @@ const OnboardingParentInfoPage = () => {
 
   const showFieldError = (key) => touched[key] || submitAttempted;
 
-  const guardianNameError =
-    showFieldError('guardianName') && guardianName.trim().length === 0
-      ? 'Guardian name is required'
+  const firstNameError =
+    showFieldError('firstName') && firstName.trim().length === 0
+      ? 'First name is required'
+      : undefined;
+  const lastNameError =
+    showFieldError('lastName') && lastName.trim().length === 0
+      ? 'Last name is required'
       : undefined;
   const relationshipError =
     showFieldError('relationship') && relationship === '' ? 'Pick a relationship' : undefined;
@@ -321,12 +314,13 @@ const OnboardingParentInfoPage = () => {
 
   const isValid = useMemo(
     () =>
-      guardianName.trim().length > 0 &&
+      firstName.trim().length > 0 &&
+      lastName.trim().length > 0 &&
       relationship !== '' &&
       isEmailFilled &&
       isPhoneValid &&
       isEmailValid,
-    [guardianName, relationship, isEmailFilled, isPhoneValid, isEmailValid]
+    [firstName, lastName, relationship, isEmailFilled, isPhoneValid, isEmailValid]
   );
 
   // CTA copy mirrors Figma 2858:28741 (disabled prompt) → 2865:38068
@@ -340,7 +334,8 @@ const OnboardingParentInfoPage = () => {
     setSubmitAttempted(true);
     if (!isValid) {
       log('submit blocked — invalid', {
-        guardianName: !!guardianName,
+        firstName: !!firstName,
+        lastName: !!lastName,
         relationship: !!relationship,
         hasEmail: isEmailFilled,
         isPhoneValid,
@@ -348,13 +343,12 @@ const OnboardingParentInfoPage = () => {
       });
       return;
     }
-    log('submit', { guardianName, relationship, hasPhone: isPhoneFilled, hasEmail: isEmailFilled });
+    log('submit', { relationship, hasPhone: isPhoneFilled, hasEmail: isEmailFilled });
     setApiError('');
     setIsSubmitting(true);
-    const { first, last } = splitFullName(guardianName);
     captureStep('parent', {
-      parentFirstName: first,
-      ...(last ? { parentLastName: last } : {}),
+      parentFirstName: firstName.trim(),
+      parentLastName: lastName.trim(),
       parentRelationship: relationship,
       ...(isPhoneFilled ? { parentPhone: toGhanaE164(phone) } : {}),
       parentEmail: email.trim(),
@@ -365,7 +359,7 @@ const OnboardingParentInfoPage = () => {
   };
 
   return (
-    <div className="mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar bg-white max-md:scroll-pb-28">
+    <div className="mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar max-md:scroll-pb-28">
       <OnboardingHeader currentKey="parent" />
 
       <section className="relative flex flex-1">
@@ -380,35 +374,46 @@ const OnboardingParentInfoPage = () => {
             <ParentEyebrow />
 
             <h1
-              className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
-              style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
+              className="font-heading font-semibold focused:font-sans leading-[1.1] tracking-[-0.03em] text-[#1c2a21] max-md:text-[28px]! max-md:leading-tight!"
+              style={{ fontSize: 'clamp(2.125rem, 4vw, 3.375rem)' }}
             >
-              Your <span className="italic text-brand-green">parent</span> or guardian.
+              One <span className="text-[#c8951a]">More</span> Thing
             </h1>
 
-            <p
-              className="max-w-[520px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
-              style={{ letterSpacing: '0.2px' }}
-            >
-              We need a parent or guardian contact. Required for students under 18 by Ghanaian law —
-              we&apos;ll notify them after registration, not now.
+            <p className="max-w-[482px] text-[16px] leading-6 tracking-[0.2px] text-[#6b6b6b] max-md:text-[14px] max-md:leading-5">
+              We need a parent or guardian contact. Required for students under 18 by Ghanaian law.
+              We&apos;ll notify them after registration, not now.
             </p>
 
             <WavyDivider />
 
             <div className="flex w-full flex-col gap-4 text-left max-md:gap-3">
-              <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2 max-md:gap-y-3">
+              {/* Figma: First / Last name, then Relationship + Phone, then Email across the full width. */}
+              <div className="grid grid-cols-1 gap-x-4 gap-y-2 md:grid-cols-2 max-md:gap-y-3">
                 <TextInput
-                  id="parent-guardian-name"
-                  label="Guardian Name"
+                  id="parent-first-name"
+                  label="First Name"
                   required
-                  placeholder="Enter their full name"
-                  autoComplete="name"
-                  value={guardianName}
-                  onChange={(e) => setGuardianName(e.target.value)}
-                  onBlur={markTouched('guardianName')}
-                  error={guardianNameError}
-                  verified={guardianName.trim().length > 0 && !guardianNameError}
+                  placeholder="Enter your first name"
+                  autoComplete="off"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  onBlur={markTouched('firstName')}
+                  error={firstNameError}
+                  verified={firstName.trim().length > 0 && !firstNameError}
+                  leftIcon={<UserIcon />}
+                />
+                <TextInput
+                  id="parent-last-name"
+                  label="Last Name"
+                  required
+                  placeholder="Enter your last name"
+                  autoComplete="off"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  onBlur={markTouched('lastName')}
+                  error={lastNameError}
+                  verified={lastName.trim().length > 0 && !lastNameError}
                   leftIcon={<UserIcon />}
                 />
                 <Select
@@ -428,28 +433,35 @@ const OnboardingParentInfoPage = () => {
                 <PhoneNumberInput
                   id="parent-phone"
                   label="Phone Number"
-                  trailingLabel="Optional"
+                  trailingLabel="SMS"
                   value={phone}
                   onChange={setPhone}
-                  onBlur={markTouched('phone')}
+                  onBlur={() => {
+                    if (ghanaLocalDigits(phone).length === 9) setPhone(ghanaLocalDigits(phone));
+                    markTouched('phone')();
+                  }}
                   error={phoneError}
-                  helperText={
-                    phoneError ? undefined : 'Optional. Lets us reach them by phone if we need to'
-                  }
                 />
                 <TextInput
                   id="parent-email"
                   label="Email Address"
                   type="email"
-                  trailingLabel="Required"
-                  trailingLabelClassName={emailError ? 'text-danger' : 'text-brand-green'}
+                  required
+                  className="md:col-span-2"
+                  trailingLabel="Email"
+                  trailingLabelClassName={emailError ? 'text-danger' : 'text-[#595959]'}
                   placeholder="Email"
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={markTouched('email')}
                   error={emailError}
-                  helperText={emailError ? undefined : 'We email the opt-out notice here'}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0 text-brand-green" />}
+                  helperText={
+                    emailError
+                      ? undefined
+                      : 'We email the opt-out notice here; the phone number is optional'
+                  }
                   verified={isEmailFilled && isEmailValid}
                   leftIcon={<MailIcon />}
                 />
@@ -468,7 +480,7 @@ const OnboardingParentInfoPage = () => {
                 state={isSubmitting ? 'active' : undefined}
                 leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
                 rightIcon={<ArrowRightIcon />}
-                className="mt-2 w-full max-w-[420px]"
+                className="mt-6 w-full max-md:mt-2"
                 aria-busy={isSubmitting}
               >
                 {isValid ? (
@@ -481,14 +493,6 @@ const OnboardingParentInfoPage = () => {
                 )}
               </Button>
             </StickyActionBar>
-
-            <p
-              className="flex items-center justify-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
-              style={{ letterSpacing: '0.2px' }}
-            >
-              <ShieldCheckIcon className="text-[#959592]" />
-              Data encrypted at rest · Ghana Data Protection Act compliant
-            </p>
 
             <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
               <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
@@ -505,12 +509,11 @@ const OnboardingParentInfoPage = () => {
           </form>
         </div>
 
-        {/* No Figma frame for this step: reuses the Personal-info panel art
-            (8027:204534) on the shared responsive panel. */}
+        {/* Same panel as Personal info, with the living-room photo bottom-left (both looks, as drawn). */}
         <TalentOnboardingPanel
           photoCards={[]}
           showWatchTutorial={false}
-          overlayContent={<PersonalOverlayCards />}
+          overlayContent={<PersonalOverlayCards bottomPhoto={parentPanelPhoto} />}
         />
       </section>
     </div>

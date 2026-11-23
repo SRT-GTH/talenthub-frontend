@@ -264,7 +264,7 @@ const Passed = ({ onBack, onStart }) => {
   );
 };
 
-const Retry = ({ onRewatch, onAgain }) => {
+const Retry = ({ onRewatch, onAgain, onAskBuddy }) => {
   const r = QUIZ.retry;
   return (
     <div
@@ -340,6 +340,7 @@ const Retry = ({ onRewatch, onAgain }) => {
       </div>
       <button
         type="button"
+        onClick={onAskBuddy}
         className={classNames(
           'inline-flex cursor-pointer items-center gap-[6px] text-[13.5px] leading-[16.1px] font-semibold text-[#2d5d33]',
           FOCUS
@@ -381,6 +382,11 @@ const QuickCheck = ({ learning }) => {
     log('check answer', { picked, ok });
     learning.update({ quick: ok ? 'correct' : 'wrong' });
   };
+  // "Ask Career Buddy to explain it differently": opens the Career Buddy chat on this page.
+  const askBuddy = () => {
+    log('ask career buddy: open chat');
+    learning.update({ new: 'chat' });
+  };
   const again = () => {
     log('try again');
     setPicked(null);
@@ -413,7 +419,9 @@ const QuickCheck = ({ learning }) => {
         )}
       >
         {step === 'passed' ? <Passed onBack={goCourse} onStart={goLesson} /> : null}
-        {step === 'retry' ? <Retry onRewatch={goLesson} onAgain={again} /> : null}
+        {step === 'retry' ? (
+          <Retry onRewatch={goLesson} onAgain={again} onAskBuddy={askBuddy} />
+        ) : null}
         {step === 'question' || answered ? (
           <>
             <div

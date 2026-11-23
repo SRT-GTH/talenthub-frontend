@@ -105,6 +105,7 @@ const ChipGroup = ({ options, value, onChange }) => (
         <button
           key={val}
           type="button"
+          aria-pressed={selected}
           onClick={() => onChange(val)}
           className="relative flex h-[32px] max-md:h-8 items-center rounded-full border px-[15px] max-md:px-3 max-md:text-[13px]! font-sans font-medium transition-colors max-md:before:absolute max-md:before:inset-x-0 max-md:before:-inset-y-1.5 max-md:before:content-['']"
           style={{
@@ -130,6 +131,7 @@ const RadioGroup = ({ options, value, onChange }) => (
         <button
           key={opt}
           type="button"
+          aria-pressed={selected}
           onClick={() => onChange(opt)}
           className="relative flex h-[37px] max-md:h-8 max-md:flex-1 max-md:justify-center items-center gap-[8px] rounded-full border px-[19px] max-md:px-3 max-md:text-[13px]! font-sans font-medium transition-colors max-md:before:absolute max-md:before:inset-x-0 max-md:before:-inset-y-1.5 max-md:before:content-['']"
           style={{

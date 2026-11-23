@@ -13,7 +13,7 @@ export const HERO = {
   searchLabel: 'Search',
 };
 
-/* Type filter chips (counts as drawn). `id` is the URL value of ?type= */
+/* Type filter chips. `id` is the URL value of ?type=. `count` is the Figma number, no longer shown: the chips count the sample roles (opportunitiesFilter.js). */
 export const TYPES = [
   { id: 'all', label: 'All', count: '1580' },
   { id: 'internships', label: 'Internships', count: '412' },
@@ -60,28 +60,44 @@ export const FILTER_GROUPS = [
   },
 ];
 
-export const PAY = { label: 'PAY (GH₵ / MONTH)', range: '2,000 – 8,000', fillRatio: 162 / 296 };
+/* Pay range slider. Figma draws 2,000 – 8,000 on a static bar; it is now a two-handle slider (?pay=min-max, absent = these defaults). */
+export const PAY = {
+  label: 'PAY (GH₵ / MONTH)',
+  min: 0,
+  max: 15000,
+  step: 500,
+  defaults: [2000, 8000],
+};
 
 export const RESULTS = {
-  head: '312 roles match your filters',
-  sort: 'Sort: Best fit',
-  count: '312',
+  // Figma draws "312 roles match your filters" / "Show 312 roles": the number now comes from the roles shown (opportunitiesFilter.js)
+  headSuffix: 'match your filters',
+  headNone: 'No roles match your filters',
+  sortPrefix: 'Sort:', // + the chosen option's label (Figma: "Sort: Best fit")
   loadMore: 'Load more roles',
   sheetTitle: 'Filters',
   panelTitle: 'Filters',
   reset: 'Reset',
   showPrefix: 'Show',
-  showSuffix: 'roles',
   filtersButton: 'Filters',
   fitLocked: 'Sign up to see your fit score',
   posted: 'Posted 2d ago',
   featured: 'FEATURED',
 };
 
-/* `kinds` = which type chips (?type=) the role belongs to (derived from the chip label drawn on the card). */
+/* `kinds` = which type chips (?type=) the role belongs to (derived from the chip label drawn on the card).
+ * Filter facets, read off each card (⚠️ ASSUMPTION: Figma draws no data model): `level` from the chip (Internship → Undergraduate,
+ * NSS placement → Graduate, Scholarship → Student / SHS + Undergraduate), `style` and `regions` from the meta line (Accra / Tema →
+ * Greater Accra, Kumasi → Ashanti, Takoradi → Western; null = nationwide / any), `payMin` / `payMax` in GH₵ a month from the pay chip
+ * (null = no figure: "Paid internship", "Full grant"). */
 export const JOBS = [
   {
     id: 'frontend-engineer',
+    level: ['graduate'],
+    style: 'hybrid',
+    regions: ['greater-accra'],
+    payMin: 9000,
+    payMax: 13000,
     title: 'Frontend Engineer',
     meta: 'Hubtel · Accra · Hybrid',
     chip: 'Graduate',
@@ -92,6 +108,11 @@ export const JOBS = [
   },
   {
     id: 'data-analyst-intern',
+    level: ['undergraduate'],
+    style: 'hybrid',
+    regions: ['greater-accra'],
+    payMin: null,
+    payMax: null,
     title: 'Data Analyst Intern',
     meta: 'MTN Ghana · Accra · Hybrid',
     chip: 'Internship',
@@ -101,6 +122,11 @@ export const JOBS = [
   },
   {
     id: 'analyst-trainee',
+    level: ['graduate'],
+    style: 'on-site',
+    regions: ['greater-accra'],
+    payMin: 2400,
+    payMax: 3200,
     title: 'Analyst Trainee',
     meta: 'Ecobank Ghana · Accra · On-site',
     chip: 'Graduate',
@@ -110,6 +136,11 @@ export const JOBS = [
   },
   {
     id: 'marketing-graduate',
+    level: ['graduate'],
+    style: 'on-site',
+    regions: ['greater-accra'],
+    payMin: 3800,
+    payMax: 5200,
     title: 'Marketing Graduate',
     meta: 'Unilever Ghana · Tema · On-site',
     chip: 'Graduate scheme',
@@ -119,6 +150,11 @@ export const JOBS = [
   },
   {
     id: 'agritech-field-associate',
+    level: ['graduate'],
+    style: 'hybrid',
+    regions: ['ashanti'],
+    payMin: 3000,
+    payMax: 4000,
     title: 'Agritech Field Associate',
     meta: 'Farmerline · Kumasi · Hybrid',
     chip: 'NSS placement',
@@ -128,6 +164,11 @@ export const JOBS = [
   },
   {
     id: 'pharmacy-operations-intern',
+    level: ['undergraduate'],
+    style: 'on-site',
+    regions: ['greater-accra'],
+    payMin: null,
+    payMax: null,
     title: 'Pharmacy Operations Intern',
     meta: 'mPharma · Accra · On-site',
     chip: 'Internship',
@@ -137,6 +178,11 @@ export const JOBS = [
   },
   {
     id: 'engineering-scholarship',
+    level: ['student-shs', 'undergraduate'],
+    style: null,
+    regions: null,
+    payMin: null,
+    payMax: null,
     title: 'Engineering Scholarship 2026',
     meta: 'Ghana Education Service · Nationwide',
     chip: 'Scholarship',
@@ -146,6 +192,11 @@ export const JOBS = [
   },
   {
     id: 'customer-experience-associate',
+    level: ['early-career'],
+    style: 'on-site',
+    regions: ['western'],
+    payMin: 2800,
+    payMax: 3600,
     title: 'Customer Experience Associate',
     meta: 'Telecel Ghana · Takoradi · On-site',
     chip: 'Early career',

@@ -27,11 +27,12 @@ const ICONS = {
  * InstitutionWelcomeModal — "Akwaaba" welcome (Figma 11.4.1e 8607:3674 "Welcome modal"): 640 wide, white, 1px ink@.10, r28, p 0/0/28, gap 18, over the #0b1a0f 60 % scrim.
  * 170 high green art with the 104 round celebrate tile, heading (Bricolage 30/36 600, second half green) + 15/22 #595959 text, three milestone cards
  * (#f8f8f4, 1px #e7e7e7, r16), "Take the 30-second tour" (green shelf button) + "Look around first", then three text links (13/16 600 #387440).
- * The 36 round close button sits top right. Props: firstName, institutionName, onClose, onTour.
- * ⚠️ ASSUMPTION: the three extras (video, language, contrast) have no destination drawn; they log their intent.
+ * The 36 round close button sits top right. Props: firstName, institutionName, onClose, onTour, onExtra(id) (optional).
+ * The extras have no destination drawn: "English (Ghana) · change" and "Larger text or high contrast" open the top bar's Language and Accessibility
+ * panels (onExtra, ⚠️ ASSUMPTION); "Watch a 2-minute video" only logs (no video exists yet).
  */
 
-const InstitutionWelcomeModal = ({ firstName, institutionName, onClose, onTour }) => {
+const InstitutionWelcomeModal = ({ firstName, institutionName, onClose, onTour, onExtra }) => {
   useEffect(() => {
     log('mount');
   }, []);
@@ -111,7 +112,10 @@ const InstitutionWelcomeModal = ({ firstName, institutionName, onClose, onTour }
                   <li key={x.id}>
                     <button
                       type="button"
-                      onClick={() => log('extra', { id: x.id })}
+                      onClick={() => {
+                        log('extra', { id: x.id });
+                        onExtra?.(x.id);
+                      }}
                       className="inline-flex min-h-[24px] items-center gap-[6px] rounded-[4px] font-sans text-[13px] leading-[16px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
                     >
                       <Icon className="size-[16px]" />

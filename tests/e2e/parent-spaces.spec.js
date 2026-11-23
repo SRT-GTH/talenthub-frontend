@@ -168,7 +168,8 @@ test('Kofi’s Discoverable home is unchanged without ?as=emma', async ({ page }
   await page.goto('/home?state=discoverable');
   await expect(visible(page, 'Kofi Agyekum')).toBeVisible();
   await expect(visible(page, 'Junior Frontend Developer')).toBeVisible();
-  await expect(visible(page, 'Job Postings')).toBeVisible();
+  // The sidebar says "Opportunities" for everyone now (talentShellData.js, Figma re-read 2026-11-21).
+  await expect(visible(page, 'Opportunities')).toBeVisible();
   await expect(page.getByText('Emma')).toHaveCount(0);
   await expect(page.getByText('You’re in My career')).toHaveCount(0);
 });

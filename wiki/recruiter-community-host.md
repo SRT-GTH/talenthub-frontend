@@ -18,27 +18,27 @@ URL contract = talent's (`createCommunityState.js`), with `/recruiter/community`
 
 Base for the owner rows: `/recruiter/community/agritech-innovators-ghana/manage`; add `&rail=collapsed` (the frames draw the collapsed rail; see "Lead must" below).
 
-| Frame                           | URL                                                                       | Diff before → after |
+| Frame                           | URL                                                                       | Diff % (2026-11-22) |
 | ------------------------------- | ------------------------------------------------------------------------- | ------------------- |
-| CC02 Basics `…24608`            | `/recruiter/community/create?cat=software-engineering&step=basics&demo=1` | 4.3 → 4.4           |
-| CC02b Name taken `…24835`       | `…&step=basics&state=name-taken`                                          | n/a → 4.1           |
-| CC03 Who can join `…25050`      | `…&step=who&demo=1`                                                       | 4.6 → 4.8           |
-| CC04 House rules `…25307`       | `…&step=rules&demo=1`                                                     | n/a → 3.8           |
-| CC05 Review `…25566`            | `…&step=review&demo=1`                                                    | 4.7 → 4.7           |
-| CC12 Not ready `…25804`         | `/recruiter/community/create?state=not-ready&cat=software-engineering`    | 3.7 → 3.9           |
-| CC06 Under review `…26013`      | `…/manage?state=under-review`                                             | n/a → 5.4           |
-| CC07 Waiting mentor `…26322`    | `…/manage?state=waiting-mentor`                                           | n/a → 5.3           |
-| CC11 Needs a change `…26632`    | `…/manage?state=needs-change`                                             | 7.4 → 5.2           |
-| CC08 Live + toast `…26941`      | `…/manage?state=live&toast=live`                                          | n/a → 5.9           |
-| CC09 Invite people `…27250`     | `…/manage?state=live&modal=invite`                                        | n/a → 4.4           |
-| CC10 Manage · reports `…27602`  | `…/manage?state=live&modal=manage&tab=reports`                            | 5.1 → 4.3           |
-| CC13 Invite mentor `…27962`     | `…/manage?state=waiting-mentor&modal=mentor`                              | 4.9 → 4.1           |
-| CC14 Join requests `…28318`     | `…/manage?state=live&modal=manage&tab=requests&requests=3`                | n/a → 3.9           |
-| CC15 Settings `…28681`          | `…&tab=settings&requests=3`                                               | n/a → 3.9           |
-| CC16 Transfer `…29047`          | `…/manage?state=live&modal=transfer`                                      | 5.1 → 4.3           |
-| CC16b Transfer pending `…29412` | `…/manage?state=transfer-pending`                                         | n/a → 5.3           |
-| CC17 Archive `…29721`           | `…/manage?state=live&modal=archive`                                       | n/a → 4.0           |
-| CC17b Archived `…30080`         | `…/manage?state=archived`                                                 | 6.6 → 4.3           |
+| CC02 Basics `…24608`            | `/recruiter/community/create?cat=software-engineering&step=basics&demo=1` | 4.1                 |
+| CC02b Name taken `…24835`       | `…&step=basics&state=name-taken`                                          | 3.8                 |
+| CC03 Who can join `…25050`      | `…&step=who&demo=1`                                                       | 4.5                 |
+| CC04 House rules `…25307`       | `…&step=rules&demo=1`                                                     | 3.6                 |
+| CC05 Review `…25566`            | `…&step=review&demo=1`                                                    | 4.7                 |
+| CC12 Not ready `…25804`         | `/recruiter/community/create?state=not-ready&cat=software-engineering`    | 3.6                 |
+| CC06 Under review `…26013`      | `…/manage?state=under-review`                                             | 2.6                 |
+| CC07 Waiting mentor `…26322`    | `…/manage?state=waiting-mentor`                                           | 2.5                 |
+| CC11 Needs a change `…26632`    | `…/manage?state=needs-change`                                             | 2.5                 |
+| CC08 Live + toast `…26941`      | `…/manage?state=live&toast=live`                                          | 3.0                 |
+| CC09 Invite people `…27250`     | `…/manage?state=live&modal=invite`                                        | 3.4                 |
+| CC10 Manage · reports `…27602`  | `…/manage?state=live&modal=manage&tab=reports`                            | 3.4                 |
+| CC13 Invite mentor `…27962`     | `…/manage?state=waiting-mentor&modal=mentor`                              | 3.2                 |
+| CC14 Join requests `…28318`     | `…/manage?state=live&modal=manage&tab=requests&requests=3`                | 3.9                 |
+| CC15 Settings `…28681`          | `…&tab=settings&requests=3`                                               | 2.9                 |
+| CC16 Transfer `…29047`          | `…/manage?state=live&modal=transfer`                                      | 3.3                 |
+| CC16b Transfer pending `…29412` | `…/manage?state=transfer-pending`                                         | 2.5                 |
+| CC17 Archive `…29721`           | `…/manage?state=live&modal=archive`                                       | 3.0                 |
+| CC17b Archived `…30080`         | `…/manage?state=archived`                                                 | 2.4                 |
 
 "n/a before" = the first run hit the lazy-route loader. Remaining diff is font metrics, gradients, the shell (expanded rail, "Kofi A." nav name: lead's files) and the browse page behind the wizard (clubs agent).
 

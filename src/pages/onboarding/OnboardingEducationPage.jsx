@@ -34,6 +34,7 @@ import {
 } from '../../components/sections/talentAuth/talentIcons.jsx';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import { debug } from '../../utils/debug.js';
+import StepEyebrow from '../../components/sections/talentAuth/StepEyebrow.jsx';
 
 const log = debug('OnboardingEducationPage');
 
@@ -128,6 +129,9 @@ const GRADES_BY_LEVEL = {
     { value: 'year-2', label: 'Year 2' },
     { value: 'year-3', label: 'Year 3' },
     { value: 'year-4', label: 'Year 4' },
+    // Longer degrees: architecture / engineering (5), medicine, pharmacy (PharmD), dentistry (6).
+    { value: 'year-5', label: 'Year 5' },
+    { value: 'year-6', label: 'Year 6' },
   ],
   postgrad: [
     { value: 'masters-1', label: 'Masters Year 1' },
@@ -178,7 +182,7 @@ const EducationErrorCallout = ({ title, body, onClose }) => {
   return (
     <div
       role="alert"
-      className="relative flex w-full max-w-[430px] items-start gap-3 rounded-[10px] bg-danger-light px-4 py-3 shadow-[0_2px_2px_-1px_rgba(27,36,44,0.04),0_16px_24px_-6px_rgba(27,36,44,0.16)]"
+      className="relative z-40 flex w-full max-w-[430px] items-start gap-3 rounded-[10px] bg-danger-light px-4 py-3 lg:fixed lg:right-12 lg:top-[164px] lg:w-[430px] lg:text-left shadow-[0_2px_2px_-1px_rgba(27,36,44,0.04),0_16px_24px_-6px_rgba(27,36,44,0.16)]"
       style={{
         borderTop: '1px solid #C0392B',
         borderRight: '1px solid #C0392B',
@@ -233,110 +237,124 @@ const EducationErrorCallout = ({ title, body, onClose }) => {
 
 // ---- success modal ----------------------------------------------------
 
+import {
+  DialogHero,
+  DialogPortal,
+  DialogSticker,
+  LookLabel,
+  PLAYFUL_STEP_DIALOG,
+} from '../../components/sections/talentAuth/StepDialogParts.jsx';
+import spotLearning from '../../assets/talent-onboarding/step-dialog-spot-learning.svg';
+
 const EducationConfirmedModal = ({ summary, onClose, onContinue }) => {
   log('render success modal');
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="education-success-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
-    >
+    <DialogPortal>
       <div
-        className="relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
-        style={{ border: '3px solid #C1D4C4' }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="education-success-title"
+        className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
+        style={{ background: 'rgba(28, 42, 33, 0.7)' }}
       >
-        {/* Top-right close chip */}
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={onClose}
-          className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full"
-          style={{ background: '#EBF1EC' }}
+        <div
+          className={`relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 ${PLAYFUL_STEP_DIALOG} max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]`}
+          style={{ border: '3px solid #C1D4C4' }}
         >
-          <CloseIcon />
-        </button>
+          <DialogSticker>Saved!</DialogSticker>
+          {/* Top-right close chip */}
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full"
+            style={{ background: '#EBF1EC' }}
+          >
+            <CloseIcon />
+          </button>
 
-        {/* Icon block — green-tinted square with success check */}
-        <div className="flex flex-col items-center gap-3">
-          <span
-            className="flex size-16 items-center justify-center rounded-[10px] shadow-[0_1px_1px_rgba(27,36,44,0.12)]"
-            style={{ background: '#E1EAE2' }}
+          {/* Icon block — green-tinted square with success check */}
+          <div className="flex flex-col items-center gap-3">
+            <DialogHero spot={spotLearning} spotTop={60} padTop={28}>
+              <span
+                className="flex size-16 items-center justify-center rounded-[10px] shadow-[0_1px_1px_rgba(27,36,44,0.12)]"
+                style={{ background: '#E1EAE2' }}
+              >
+                <span className="text-brand-green">
+                  <SuccessCheckIcon />
+                </span>
+              </span>
+            </DialogHero>
+            <p
+              id="education-success-title"
+              className="font-heading font-semibold text-[#1C2A21]"
+              style={{ fontSize: 29, lineHeight: '34.8px', letterSpacing: '-0.64px' }}
+            >
+              Education <span className="text-brand-green">recorded</span>
+            </p>
+            <p
+              className="text-center text-[12px] leading-[18px] text-[#959592]"
+              style={{ letterSpacing: '0.2px' }}
+            >
+              Your details are saved. Here&apos;s a quick summary.
+            </p>
+          </div>
+
+          {/* Summary panel */}
+          <div
+            className="flex flex-col rounded-[16px] px-4 py-2"
+            style={{
+              background: 'rgba(235,241,236,0.3)',
+              border: '1px solid #E1EAE2',
+            }}
           >
-            <span className="text-brand-green">
-              <SuccessCheckIcon />
-            </span>
-          </span>
-          <p
-            id="education-success-title"
-            className="font-heading font-semibold text-[#1C2A21]"
-            style={{ fontSize: 29, lineHeight: '34.8px', letterSpacing: '-0.64px' }}
+            {summary.map((row, idx) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between gap-3 py-2.5"
+                style={{
+                  borderBottom: idx < summary.length - 1 ? '1px solid #E1EAE2' : 'none',
+                }}
+              >
+                <span className="inline-flex items-center gap-2 text-[12px] leading-5 text-[#575755]">
+                  <span className="inline-flex size-4 items-center justify-center text-[#575755]">
+                    {row.icon}
+                  </span>
+                  <span style={{ letterSpacing: '0.2px' }}>{row.label}</span>
+                </span>
+                <span
+                  className="truncate text-[12px] font-semibold leading-5 text-brand-green"
+                  style={{ letterSpacing: '0.2px' }}
+                >
+                  {row.value}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Primary CTA */}
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            rightIcon={<ArrowRightIcon />}
+            onClick={onContinue}
+            className="w-full"
           >
-            Education <span className="text-brand-green">recorded</span>
-          </p>
+            <LookLabel focused="I'm Ready" playful="I'm ready" />
+          </Button>
+
+          {/* Footer note — shield + GDPA */}
           <p
-            className="text-center text-[12px] leading-[18px] text-[#959592]"
+            className="flex items-center justify-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
             style={{ letterSpacing: '0.2px' }}
           >
-            Your details are saved. Here&apos;s a quick summary.
+            <ShieldCheckIcon className="size-3" />
+            Data encrypted at rest · Ghana Data Protection Act compliant
           </p>
         </div>
-
-        {/* Summary panel */}
-        <div
-          className="flex flex-col rounded-[16px] px-4 py-2"
-          style={{
-            background: 'rgba(235,241,236,0.3)',
-            border: '1px solid #E1EAE2',
-          }}
-        >
-          {summary.map((row, idx) => (
-            <div
-              key={row.label}
-              className="flex items-center justify-between gap-3 py-2.5"
-              style={{
-                borderBottom: idx < summary.length - 1 ? '1px solid #E1EAE2' : 'none',
-              }}
-            >
-              <span className="inline-flex items-center gap-2 text-[12px] leading-5 text-[#575755]">
-                <span className="inline-flex size-4 items-center justify-center text-[#575755]">
-                  {row.icon}
-                </span>
-                <span style={{ letterSpacing: '0.2px' }}>{row.label}</span>
-              </span>
-              <span
-                className="truncate text-[12px] font-semibold leading-5 text-brand-green"
-                style={{ letterSpacing: '0.2px' }}
-              >
-                {row.value}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Primary CTA */}
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          rightIcon={<ArrowRightIcon />}
-          onClick={onContinue}
-          className="w-full"
-        >
-          I&apos;m Ready
-        </Button>
-
-        {/* Footer note — shield + GDPA */}
-        <p
-          className="flex items-center justify-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
-          style={{ letterSpacing: '0.2px' }}
-        >
-          <ShieldCheckIcon className="size-3" />
-          Data encrypted at rest · Ghana Data Protection Act compliant
-        </p>
       </div>
-    </div>
+    </DialogPortal>
   );
 };
 
@@ -345,101 +363,109 @@ const EducationConfirmedModal = ({ summary, onClose, onContinue }) => {
 const LevelNotEligibleModal = ({ onClose, onChangeLevel }) => {
   log('render level-not-eligible modal');
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="education-gate-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
-    >
+    <DialogPortal>
       <div
-        className="relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
-        style={{ border: '3px solid #EEDEB8' }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="education-gate-title"
+        className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
+        style={{ background: 'rgba(28, 42, 33, 0.7)' }}
       >
-        {/* Top-right close chip (re-uses the green chip even on amber card,
-            per Figma 2752:14427). */}
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={onClose}
-          className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full"
-          style={{ background: '#EBF1EC' }}
-        >
-          <CloseIcon />
-        </button>
-
-        {/* Icon block — amber-tinted square with warning glyph */}
-        <div className="flex flex-col items-center gap-3">
-          <span
-            className="flex size-16 items-center justify-center rounded-[10px] shadow-[0_1px_1px_rgba(27,36,44,0.12)]"
-            style={{ background: '#F7EFDD' }}
-          >
-            <span style={{ color: '#C8951A' }}>
-              <WarningIcon />
-            </span>
-          </span>
-          <p
-            id="education-gate-title"
-            className="font-heading font-semibold text-[#1C2A21]"
-            style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-1.2px' }}
-          >
-            Not quite yet
-          </p>
-          <p
-            className="text-center text-[12px] leading-[18px] text-[#70706E]"
-            style={{ letterSpacing: '0.2px' }}
-          >
-            Ghana Talent Hub is for students from{' '}
-            <span className="font-bold text-[#58554E]">Junior High School (JHS)</span> and above. We
-            can&apos;t wait to have you!
-          </p>
-        </div>
-
-        {/* Info banner */}
         <div
-          className="flex flex-col gap-1 rounded-[12px] px-4 py-3"
-          style={{
-            background: 'rgba(250, 244, 232, 0.5)',
-            border: '1px solid #EEDEB8',
-          }}
+          className={`relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 ${PLAYFUL_STEP_DIALOG} max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]`}
+          style={{ border: '3px solid #EEDEB8' }}
         >
-          <p
-            className="text-[12px] font-bold leading-5 text-[#C8951A]"
-            style={{ letterSpacing: '0.1px' }}
+          <DialogSticker>Heads up</DialogSticker>
+          {/* Top-right close chip (re-uses the green chip even on amber card,
+            per Figma 2752:14427). */}
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full"
+            style={{ background: '#EBF1EC' }}
           >
-            Check back when you reach JHS 1
-          </p>
-          <p
-            className="text-[12px] leading-[18px] text-[#C8951A]"
-            style={{ letterSpacing: '0.2px' }}
-          >
-            GTH matches your education to real opportunities across Ghana. Primary school support is
-            coming soon.
-          </p>
-        </div>
+            <CloseIcon />
+          </button>
 
-        {/* Muted secondary CTA — "Choose A Different Level" */}
-        <button
-          type="button"
-          onClick={onChangeLevel}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-[14px] px-10 py-4"
-          style={{
-            background: '#FAF4E8',
-            borderTop: '1px solid rgba(17,17,17,0.3)',
-            borderLeft: '2px solid rgba(17,17,17,0.3)',
-            borderRight: '2px solid rgba(17,17,17,0.3)',
-            borderBottom: '2px solid rgba(17,17,17,0.3)',
-            boxShadow: '0 4px 0 rgba(17,17,17,0.25)',
-            color: '#575755',
-          }}
-        >
-          <ArrowLeftIcon />
-          <span className="text-[16px] font-semibold leading-7" style={{ letterSpacing: '0.1px' }}>
-            Choose A Different Level
-          </span>
-        </button>
+          {/* Icon block — amber-tinted square with warning glyph */}
+          <div className="flex flex-col items-center gap-3">
+            <DialogHero spot={spotLearning} spotTop={69} padTop={28}>
+              <span
+                className="flex size-16 items-center justify-center rounded-[10px] shadow-[0_1px_1px_rgba(27,36,44,0.12)]"
+                style={{ background: '#F7EFDD' }}
+              >
+                <span style={{ color: '#C8951A' }}>
+                  <WarningIcon />
+                </span>
+              </span>
+            </DialogHero>
+            <p
+              id="education-gate-title"
+              className="font-heading font-semibold text-[#1C2A21]"
+              style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-1.2px' }}
+            >
+              Not quite yet
+            </p>
+            <p
+              className="text-center text-[12px] leading-[18px] text-[#70706E]"
+              style={{ letterSpacing: '0.2px' }}
+            >
+              Ghana Talent Hub is for students from{' '}
+              <span className="font-bold text-[#58554E]">Junior High School (JHS)</span> and above.
+              We can&apos;t wait to have you!
+            </p>
+          </div>
+
+          {/* Info banner */}
+          <div
+            className="flex flex-col gap-1 rounded-[12px] px-4 py-3"
+            style={{
+              background: 'rgba(250, 244, 232, 0.5)',
+              border: '1px solid #EEDEB8',
+            }}
+          >
+            <p
+              className="text-[12px] font-bold leading-5 text-[#C8951A]"
+              style={{ letterSpacing: '0.1px' }}
+            >
+              Check back when you reach JHS 1
+            </p>
+            <p
+              className="text-[12px] leading-[18px] text-[#C8951A]"
+              style={{ letterSpacing: '0.2px' }}
+            >
+              GTH matches your education to real opportunities across Ghana. Primary school support
+              is coming soon.
+            </p>
+          </div>
+
+          {/* Muted secondary CTA — "Choose A Different Level" */}
+          <button
+            type="button"
+            onClick={onChangeLevel}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-[14px] px-10 py-4"
+            style={{
+              background: '#FAF4E8',
+              borderTop: '1px solid rgba(17,17,17,0.3)',
+              borderLeft: '2px solid rgba(17,17,17,0.3)',
+              borderRight: '2px solid rgba(17,17,17,0.3)',
+              borderBottom: '2px solid rgba(17,17,17,0.3)',
+              boxShadow: '0 4px 0 rgba(17,17,17,0.25)',
+              color: '#575755',
+            }}
+          >
+            <ArrowLeftIcon />
+            <span
+              className="text-[16px] font-semibold leading-7"
+              style={{ letterSpacing: '0.1px' }}
+            >
+              Choose A Different Level
+            </span>
+          </button>
+        </div>
       </div>
-    </div>
+    </DialogPortal>
   );
 };
 
@@ -474,7 +500,12 @@ const OnboardingEducationPage = () => {
     setGrade('');
     setGraduation('');
     setProgramme('');
-    if (showLevelGate && !SUB_JHS_LEVELS.has(value)) {
+    // Primary has no grades (GTH starts at JHS): show the "level not eligible" pop-up straight away instead of
+    // leaving an empty Grade list until Continue.
+    if (SUB_JHS_LEVELS.has(value)) {
+      log('sub-JHS level picked: opening level gate');
+      setShowLevelGate(true);
+    } else if (showLevelGate) {
       setShowLevelGate(false);
     }
   };
@@ -542,6 +573,9 @@ const OnboardingEducationPage = () => {
   const isLevelMissing = level === '';
   const isGradeMissing = grade === '';
   const isInstitutionMissing = !notStudying && institution.trim().length === 0;
+  // Both looks draw the empty form with a grey "Your Education Level" button; it turns into the green "Continue" once every
+  // field is filled. It stays clickable either way so an early click can explain what's missing.
+  const formReady = Boolean(level && grade && graduation && !isInstitutionMissing);
   const isGraduationMissing = !notStudying && graduation === '';
 
   // Field-level error chrome / copy — only after the first submit attempt
@@ -684,11 +718,13 @@ const OnboardingEducationPage = () => {
   // Helper-row text mirrors Figma copy and flips between cascade prompts
   // when the parent field hasn't been chosen yet. Institution + Graduation
   // both cascade-block to match frame 2709:15900.
-  const gradeHelper = !level
-    ? 'Select your level first'
-    : notStudying
-      ? 'The highest level you finished'
-      : 'Pick your current grade';
+  const gradeHelper = SUB_JHS_LEVELS.has(level)
+    ? 'GTH starts at JHS: pick JHS or above'
+    : !level
+      ? 'Select your level first'
+      : notStudying
+        ? 'The highest level you finished'
+        : 'Pick your current grade';
   const institutionHelper = level
     ? 'Type to search, or enter your school if it is not listed'
     : 'Select your level first';
@@ -698,7 +734,7 @@ const OnboardingEducationPage = () => {
       : 'Select level and grade first';
 
   return (
-    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
+    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden">
       <OnboardingHeader currentKey="education" />
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
@@ -711,33 +747,11 @@ const OnboardingEducationPage = () => {
               noValidate
               aria-busy={isSubmitting}
             >
-              {/* Eyebrow — "05 Education" — trend-up glyph + italic numeral */}
-              <span
-                className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-2 rounded-[8px] border px-4 py-1"
-                style={{
-                  background: '#FFFEFC',
-                  borderColor: '#C1D4C4',
-                }}
-              >
-                <span className="text-brand-green" aria-hidden="true">
-                  <TrendUpIcon className="size-3" />
-                </span>
-                <span
-                  className="font-heading font-semibold text-[#B5B5B5]"
-                  style={{ fontSize: 15, lineHeight: 'normal' }}
-                >
-                  05
-                </span>
-                <span
-                  className="text-[12px] leading-[18px] text-brand-green"
-                  style={{ letterSpacing: '0.2px' }}
-                >
-                  Education
-                </span>
-              </span>
+              {/* Eyebrow: Focused pill / Playful gold sticker with stars */}
+              <StepEyebrow number="05" label="Education" />
 
               <h1
-                className="max-w-[554px] font-heading font-semibold text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
+                className="max-w-[554px] font-heading font-semibold focused:font-sans text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
                 style={{ fontSize: 'clamp(2.25rem, 5vw, 3.375rem)', lineHeight: 1.1 }}
               >
                 Your <span className="text-brand-green">Educational</span> Level
@@ -752,6 +766,7 @@ const OnboardingEducationPage = () => {
 
               <WavyDivider />
 
+              {/* Desktop: a toast in the top-right corner, over the panel (as drawn); phones: inline above the form. */}
               {showErrorBanner && (
                 <EducationErrorCallout
                   title="A few fields need attention"
@@ -796,7 +811,7 @@ const OnboardingEducationPage = () => {
                   onChange={handleGradeChange}
                   leftIcon={<MapIcon />}
                   leftIconClassName="text-brand-green"
-                  disabled={!level}
+                  disabled={!level || SUB_JHS_LEVELS.has(level)}
                   helperText={gradeHelper}
                   error={gradeError}
                   state={gradeBoxState}
@@ -929,10 +944,14 @@ const OnboardingEducationPage = () => {
                   state={isSubmitting ? 'active' : undefined}
                   leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
                   rightIcon={<ArrowRightIcon />}
-                  className="mt-2 w-full"
+                  className={`mt-2 w-full ${
+                    formReady
+                      ? ''
+                      : 'border-[#cccccc]! bg-[#bfbfbf]! drop-shadow-[0_4px_0_rgba(191,191,191,0.8)]! hover:bg-[#bfbfbf]!'
+                  }`}
                   aria-busy={isSubmitting}
                 >
-                  Continue
+                  {formReady ? 'Continue' : 'Your Education Level'}
                 </Button>
               </StickyActionBar>
 

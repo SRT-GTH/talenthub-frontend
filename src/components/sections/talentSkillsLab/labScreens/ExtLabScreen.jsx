@@ -47,7 +47,13 @@ const ExtLabScreen = ({ flow, frame }) => {
   const [params, setParams] = useSearchParams();
   const { t } = useLabText();
   const modal = params.get('modal');
-  const hubPath = '/skills-lab';
+  /* same exits as LabPlayPage: back to the engagement Skills lab when launched from there, the mock hub in demo */
+  const hubPath =
+    params.get('from') === 'engagement'
+      ? '/profile/filling/skills?view=lab'
+      : params.get('demo') === '1'
+        ? '/skills-lab?demo=1'
+        : '/skills-lab';
   const { ui } = flow;
   registerFlowConfetti(flow);
 
@@ -128,7 +134,8 @@ const ExtLabScreen = ({ flow, frame }) => {
       <LabResultsDialog
         result={attempt.result}
         onClose={() => navigate(hubPath)}
-        onSecondary={() => (id === 'fail' || id === 'tough' ? restart() : navigate(hubPath))}
+        // secondary = "Back to Skills Lab" (pass / fail) or "Retake now" (tough run only)
+        onSecondary={() => (id === 'tough' ? restart() : navigate(hubPath))}
         onPrimary={() => {
           if (id === 'verified' || id === 'perfect') navigate('/profile');
           else if (id === 'tough') navigate('/learning');

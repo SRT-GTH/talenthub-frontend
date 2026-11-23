@@ -30,7 +30,7 @@ const CAN_ICONS = {
  * W-18 draws the same page (Main Content Canvas 8862:464520) behind "Sent to Mrs Agyekum" — `&modal=parent`.
  * Props: wallet (useTalentWalletState()).
  */
-const WalletUnder18 = () => {
+const WalletUnder18 = ({ wallet }) => {
   const navigate = useNavigate();
   const u = UNDER18;
   log('render');
@@ -63,7 +63,14 @@ const WalletUnder18 = () => {
             >
               {u.actions.topUp}
             </WalletButton>
-            <WalletButton onClick={() => log('redeem cycles (no destination in the prototype)')}>
+            <WalletButton
+              onClick={() => {
+                // W-17's button is not linked; the same button on Home is linked to the Redeem Cycles
+                // dialogs (W-15 family), so it opens the Redeem dialog over the Starter wallet.
+                log('redeem cycles -> redeem dialog (under 18)');
+                wallet.update({ modal: 'redeem' });
+              }}
+            >
               {u.actions.redeem}
             </WalletButton>
           </div>

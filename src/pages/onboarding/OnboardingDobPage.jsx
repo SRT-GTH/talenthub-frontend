@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
 import { getApiErrorMessage } from '../../services/apiErrors.js';
@@ -8,20 +8,25 @@ import Button from '../../components/ui/Button.jsx';
 import { TextInput, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
+import StepEyebrow from '../../components/sections/talentAuth/StepEyebrow.jsx';
 import {
   ArrowRightIcon,
-  CalendarIcon,
+  GenzDoodleStar,
   LoadingSpinner,
   MortarboardIcon,
-  UsersGroupIcon,
 } from '../../components/shared/assets.jsx';
+import { AlertDiamondIcon } from '../../components/sections/talentAuth/talentIcons.jsx';
+import calendarIcon from '../../assets/talent-onboarding/field-calendar.svg';
+import minorWarningIcon from '../../assets/talent-onboarding/dob-minor-warning.svg';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import { debug } from '../../utils/debug.js';
-import starImg from '../../assets/talent-onboarding/almost-there-star.png';
-import doneCheckImg from '../../assets/talent-onboarding/almost-there-done-check.png';
-import arrowImg from '../../assets/talent-onboarding/almost-there-arrow.png';
-import sparkleImg from '../../assets/talent-onboarding/almost-there-sparkle.png';
-import activatesCheckImg from '../../assets/talent-onboarding/almost-there-activates-check.png';
+import almostStar from '../../assets/talent-onboarding/almost-star.svg';
+import almostSpotWard from '../../assets/talent-onboarding/almost-spot-ward.svg';
+import almostDoneCheck from '../../assets/talent-onboarding/almost-done-check.svg';
+import almostNextArrow from '../../assets/talent-onboarding/almost-next-arrow.svg';
+import almostExtraPlus from '../../assets/talent-onboarding/almost-extra-plus.svg';
+import almostActivatesCheck from '../../assets/talent-onboarding/almost-activates-check.svg';
+import { createPortal } from 'react-dom';
 import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
 import { DobOverlayCards } from '../../components/sections/talentAuth/TalentDobPanelContent.jsx';
 
@@ -152,85 +157,197 @@ const LoadingOverlay = () => (
 
 // ---- minor interstitial -----------------------------------------------
 
-// "Almost there." - shown instead of the loader for under-18 entries.
-// Figma 8027:204256 (bitmap 'image 2', 562x643): copy transcribed from the
-// bitmap; icons are crops of that Figma bitmap (assets/talent-onboarding/almost-there-*.png).
-const AlmostThereOverlay = () => {
-  debug('OnboardingDobPage')('render almost-there overlay');
-  return (
+// "Almost There" pop-up, shown after date of birth for under-18s (stays open until they act):
+//   Playful: ink edge + hard 4px shadow, tilted gold "FOR YOUR PARENT" sticker, three doodle stars, hearts illustration.
+//   Focused: 3px pale green edge, soft shadow, gold star.
+// Rows: done (mint check) · next (black arrow) · extra (gold plus + "One extra step"), then the green activation card.
+// ⚠️ Figma's button reads "Next up: Education" / "Continue To Education", but Personal info is the next step here,
+// so the button names that step.
+const ALMOST_ROWS = [
+  {
+    icon: almostDoneCheck,
+    tile: 'border border-[#2a5730] bg-[#cce5cc]',
+    title: 'Date of birth',
+    sub: 'Done',
+  },
+  {
+    icon: almostNextArrow,
+    tile: 'bg-[#1a1a1a]',
+    title: 'Personal info · Contact · Address · Education',
+    sub: 'Same as everyone else',
+  },
+  {
+    icon: almostExtraPlus,
+    tile: 'border-2 border-[#c8951a] bg-white',
+    title: 'Parent or guardian contact',
+    sub: 'Just a name and number — takes 30 seconds',
+    extra: true,
+  },
+];
+
+const AlmostThereOverlay = ({ onContinue, onClose }) => {
+  debug('OnboardingDobPage')('render almost-there pop-up');
+  const dialogRef = useRef(null);
+  useEffect(() => {
+    dialogRef.current?.focus();
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="onboarding-almost-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: 'rgba(17, 17, 17, 0.70)' }}
+      className="fixed inset-0 z-[60] flex items-center justify-center px-4"
+      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
     >
-      <div className="flex max-h-[calc(100%-2rem)] w-[460px] max-w-full flex-col gap-5 overflow-y-auto no-scrollbar rounded-[28px] bg-white px-11 py-10 shadow-[0_6px_0_#bdbdbd] max-sm:px-5 max-sm:py-6">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <img src={starImg} alt="" draggable={false} className="h-[58px] w-auto" />
-          <p
-            id="onboarding-almost-title"
-            className="font-display text-[36px] leading-none text-[#111111]"
-          >
-            Almost <span className="italic text-brand-green">there.</span>
-          </p>
-          <p className="text-[14px] leading-5 text-[#737373]">
-            Here&apos;s exactly what&apos;s coming — then your account is live.
-          </p>
-        </div>
-        <ul className="flex flex-col text-left">
-          <li className="flex items-start gap-3 border-b border-[#E6E6E6] py-3">
-            <img src={doneCheckImg} alt="" draggable={false} className="size-7 shrink-0" />
-            <span className="flex flex-col">
-              <span className="text-[14px] font-semibold text-[#111111]">Date of birth</span>
-              <span className="text-[12px] text-[#737373]">Done</span>
-            </span>
-          </li>
-          <li className="flex items-start gap-3 border-b border-[#E6E6E6] py-3">
-            <img src={arrowImg} alt="" draggable={false} className="size-7 shrink-0" />
-            <span className="flex flex-col">
-              <span className="text-[14px] font-semibold text-[#111111]">
-                Personal info · Contact · Address · Education
-              </span>
-              <span className="text-[12px] text-[#737373]">Same as everyone else</span>
-            </span>
-          </li>
-          <li className="flex items-start gap-3 py-3">
-            <img src={sparkleImg} alt="" draggable={false} className="size-7 shrink-0" />
-            <span className="flex flex-col">
-              <span className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-[#111111]">
-                Parent or guardian contact
-                <span className="rounded-full bg-[#eedeb8] px-2 py-0.5 text-[11px] font-bold text-[#8a6410]">
-                  One extra step
-                </span>
-              </span>
-              <span className="text-[12px] text-[#737373]">
-                Just a name and number — takes 30 seconds
-              </span>
-            </span>
-          </li>
-        </ul>
-        <div className="flex items-center gap-3 rounded-[12px] border border-[#c1d4c4] bg-[#ebf1ec] p-3 text-left">
+      <div
+        ref={dialogRef}
+        tabIndex={-1}
+        className="relative flex max-h-[calc(100dvh-2rem)] w-[440px] max-w-full flex-col items-stretch gap-4 rounded-[24px] border-[3px] border-[#c1d4c4] bg-white px-10 py-8 shadow-[0_2px_2px_rgba(27,35,44,0.04),0_5px_11px_rgba(27,36,44,0.06)] outline-none max-sm:px-5 max-sm:py-6 playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[0_16px_20px_rgba(28,42,33,0.1),4px_4px_0_rgba(28,42,33,0.45)]"
+      >
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-6 top-[-17px] hidden rotate-[5deg] whitespace-nowrap rounded-[8px] border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-3 py-1.5 text-[13px] font-bold tracking-[0.5px] text-[#1c2a21] shadow-[2px_2px_0_#1c2a21] playful:block"
+        >
+          FOR YOUR PARENT
+        </span>
+        <GenzDoodleStar
+          size={18}
+          color="#C8951A"
+          className="absolute hidden playful:block"
+          style={{ right: 54, top: 116 }}
+        />
+        <GenzDoodleStar
+          size={11}
+          color="#C8951A"
+          className="absolute hidden playful:block"
+          style={{ right: 85, top: 148 }}
+        />
+        <GenzDoodleStar
+          size={12}
+          color="#387440"
+          className="absolute hidden playful:block"
+          style={{ left: 38, top: 122 }}
+        />
+
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full bg-brand-green-light text-brand-green transition-colors hover:bg-brand-green-light-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path
+              d="M2 2l8 8M10 2l-8 8"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+
+        <div className="no-scrollbar flex min-h-0 flex-col items-center gap-4 overflow-y-auto pt-4">
           <img
-            src={activatesCheckImg}
+            src={almostStar}
             alt=""
+            aria-hidden="true"
+            className="size-[58px] playful:hidden"
             draggable={false}
-            className="size-[30px] shrink-0 rounded-[8px]"
           />
-          <span className="flex flex-col">
-            <span className="text-[13px] font-bold text-[#2a5730]">
-              Your account activates immediately
+          <img
+            src={almostSpotWard}
+            alt=""
+            aria-hidden="true"
+            className="hidden size-[88px] playful:block"
+            draggable={false}
+          />
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h2
+              id="onboarding-almost-title"
+              className="font-heading text-[29px] font-semibold leading-[1.2] tracking-[-0.58px] text-[#1c2a21]"
+            >
+              Almost <span className="text-brand-green">There</span>
+            </h2>
+            <p className="max-w-[260px] text-[12px] leading-[18px] tracking-[0.2px] text-[#6b6b6b]">
+              Here&apos;s exactly what&apos;s coming, then your account is live.
+            </p>
+          </div>
+
+          <ul className="flex w-full flex-col text-left">
+            {ALMOST_ROWS.map((row) => (
+              <li
+                key={row.title}
+                className="flex min-h-14 items-center gap-6 border-b border-[#ebebeb] py-2 max-sm:gap-4"
+              >
+                <span
+                  className={`flex size-8 shrink-0 items-center justify-center rounded-full ${row.tile}`}
+                >
+                  <img
+                    src={row.icon}
+                    alt=""
+                    aria-hidden="true"
+                    className="size-[18px]"
+                    draggable={false}
+                  />
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-[#2a5730]">
+                    {row.title}
+                    {row.extra ? (
+                      <span className="rounded-[4px] border border-[#eedeb8] bg-[#faf4e8] px-2 text-[11px] font-semibold leading-[17px] text-[#8a6010]">
+                        One extra step
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="text-[12px] text-[#686f64]">{row.sub}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex w-full items-center gap-5 rounded-[8px] border border-[#c1d4c4] bg-[#ebf1ec] px-[7px] py-[9px] text-left max-sm:gap-3">
+            <span className="flex size-[29px] shrink-0 items-center justify-center rounded-[10px] bg-[#3b7a38]">
+              <img
+                src={almostActivatesCheck}
+                alt=""
+                aria-hidden="true"
+                className="size-[18px]"
+                draggable={false}
+              />
             </span>
-            <span className="text-[12px] text-[#575755]">
-              No waiting. No approval needed. You&apos;re in.
+            <span className="flex flex-col gap-0.5 text-[12px]">
+              <span className="font-bold text-[#2a5730]">Your account activates immediately</span>
+              <span className="text-brand-green">
+                No waiting. No approval needed. You&apos;re in.
+              </span>
             </span>
-          </span>
-        </div>
-        <div className="h-[3px] w-full overflow-hidden rounded-full bg-[#EBF1EC]">
-          <div className="h-full w-full rounded-full bg-brand-green" />
+          </div>
+
+          <div className="h-1 w-full rounded-full bg-brand-green-light" aria-hidden="true" />
+
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            onClick={onContinue}
+            rightIcon={<ArrowRightIcon />}
+            className="w-full"
+          >
+            <span className="playful:hidden">Continue To Personal Info</span>
+            <span className="hidden playful:inline">Next up: Personal info</span>
+          </Button>
+          <p className="flex items-center justify-center gap-1 text-center text-[12px] leading-4 tracking-[0.2px] text-[#6b6b6b]">
+            Data encrypted at rest · Ghana Data Protection Act compliant
+          </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -279,6 +396,10 @@ const OnboardingDobPage = () => {
       const res = await startOnboarding({ dob: toIsoDate(dob) });
       log('session started, agePath:', res?.agePath);
       setShowOverlay(true);
+      if (age < 18) {
+        log('minor: almost-there pop-up open; waits for the continue button');
+        return;
+      }
       setTimeout(() => {
         setShowOverlay(false);
         setIsSubmitting(false);
@@ -292,7 +413,7 @@ const OnboardingDobPage = () => {
   };
 
   return (
-    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
+    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden">
       <OnboardingHeader currentKey="start" />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
@@ -303,26 +424,11 @@ const OnboardingDobPage = () => {
               className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
             >
-              {/* Eyebrow pill - Figma 8027:203197: 126x27, r8, #c1d4c4 stroke, #fffefc */}
-              <span className="inline-flex items-center gap-2 rounded-[8px] border border-[#c1d4c4] bg-[#fffefc] px-4 py-1 max-md:px-3 max-md:py-0.5">
-                <span
-                  aria-hidden="true"
-                  className="size-2 rounded-full border-[1.5px] border-[#1d7c4d] bg-[#e1eae2]"
-                  style={{ boxShadow: '0 0 4px 0 #006B3F' }}
-                />
-                <span className="font-heading text-[15px] font-semibold leading-[19px] text-[#b5b5b5]">
-                  01
-                </span>
-                <span
-                  className="text-[12px] leading-[18px] text-brand-green"
-                  style={{ letterSpacing: '0.2px' }}
-                >
-                  The Basics
-                </span>
-              </span>
+              {/* Eyebrow: Focused pill / Playful gold sticker with stars (StepEyebrow) */}
+              <StepEyebrow number="01" label="The Basics" />
 
               <h1
-                className="font-heading font-semibold text-[#1c2a21] max-md:text-[28px]! max-md:leading-tight!"
+                className="font-heading font-semibold focused:font-sans text-[#1c2a21] max-md:text-[28px]! max-md:leading-tight!"
                 style={{
                   fontSize: 'clamp(2.125rem, 4vw, 3.375rem)',
                   lineHeight: 1.1,
@@ -342,7 +448,7 @@ const OnboardingDobPage = () => {
 
               <WavyDivider />
 
-              {/* DOB input + dynamic age badge in the label row */}
+              {/* DOB input + dynamic age badge in the label row: full 698px column (latest date-of-birth frames). */}
               <div className="w-full">
                 <div className="mb-2 flex items-center justify-between">
                   <label
@@ -388,8 +494,12 @@ const OnboardingDobPage = () => {
                   verified={isVerified}
                   aria-invalid={dobProblem ? true : undefined}
                   aria-describedby={dobProblem ? 'onboarding-dob-problem' : undefined}
-                  leftIcon={<CalendarIcon />}
+                  leftIcon={<img src={calendarIcon} alt="" aria-hidden="true" className="size-4" />}
                   required
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
+                  // One line on desktop; where it must wrap (phones) it reads left-aligned, icon pinned to the first line.
+                  helperIconClassName="self-start mt-px"
+                  helperTextClassName="text-left md:whitespace-nowrap"
                   helperText="Enter your day, month, then year we'll route you to the right experience."
                 />
               </div>
@@ -404,25 +514,31 @@ const OnboardingDobPage = () => {
                 </p>
               ) : null}
 
-              {/* Under-18 notice — Figma node 2282:23881 (notes symbol).
-                Translucent cream bg with a 1px gold-light outline. */}
+              {/* Under-18 notice (latest frames): full-width cream card, gold-light edge, amber warning triangle,
+                  bold "One more step coming up" over one line of detail, left-aligned. */}
               {isUnder18 && (
                 <div
                   role="status"
-                  className="flex w-full items-center justify-center gap-[10px] rounded-[10px] px-[10px] py-3"
-                  style={{
-                    background: 'rgba(250, 244, 232, 0.50)',
-                    outline: '1px solid #EEDEB8',
-                    outlineOffset: '-1px',
-                  }}
+                  className="flex w-full items-start gap-2 rounded-[10px] border border-[#eedeb8] bg-[#fff8f0] py-2 pl-[3px] pr-3 text-left tracking-[0.2px]"
                 >
-                  <UsersGroupIcon />
-                  <p
-                    className="text-[12px] leading-[18px] text-[#B48617]"
-                    style={{ letterSpacing: '0.2px' }}
-                  >
-                    Parent or guardian contact needed . Your account is activated straight after.
-                  </p>
+                  <span className="mt-[3px] flex size-[22px] shrink-0 items-center justify-center rounded-[6px]">
+                    <img
+                      src={minorWarningIcon}
+                      alt=""
+                      aria-hidden="true"
+                      className="size-[11px]"
+                      draggable={false}
+                    />
+                  </span>
+                  <span className="flex min-w-0 flex-col">
+                    <span className="text-[14px] font-semibold leading-6 text-[#8b6813]">
+                      One more step coming up
+                    </span>
+                    <span className="text-[12px] leading-[18px] text-[#8a6712]">
+                      We&apos;ll need a parent or guardian&apos;s contact then your account is live
+                      instantly.
+                    </span>
+                  </span>
                 </div>
               )}
 
@@ -436,7 +552,7 @@ const OnboardingDobPage = () => {
                   state={isSubmitting ? 'active' : undefined}
                   leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
                   rightIcon={<ArrowRightIcon />}
-                  className="mt-1 w-full max-w-[698px]"
+                  className="mt-[47px] w-full max-md:mt-1"
                   aria-busy={isSubmitting}
                 >
                   {isSubmitting ? 'Setting Things Up' : 'Continue'}
@@ -465,7 +581,24 @@ const OnboardingDobPage = () => {
           overlayContent={<DobOverlayCards />}
         />
       </div>
-      {showOverlay && (isUnder18 ? <AlmostThereOverlay /> : <LoadingOverlay />)}
+      {showOverlay &&
+        (isUnder18 ? (
+          <AlmostThereOverlay
+            onContinue={() => {
+              log('almost-there: continue');
+              setShowOverlay(false);
+              setIsSubmitting(false);
+              navigate('/onboarding/talent/personal-info');
+            }}
+            onClose={() => {
+              log('almost-there: closed, staying on date of birth');
+              setShowOverlay(false);
+              setIsSubmitting(false);
+            }}
+          />
+        ) : (
+          <LoadingOverlay />
+        ))}
     </section>
   );
 };

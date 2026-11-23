@@ -6,10 +6,11 @@ import { NATIONAL_SNAPSHOT as S } from './data/agencyHomeData.js';
 /*
  * AgencyNationalSnapshot — "National view snapshot" card (Figma 8597:398353, 1329 x 179, white, 1.5 #e5e5e5, r16, p 18/24, gap 24):
  * 96 x 140 map glyph · eyebrow 11/13 600 #387440 + headline 20/24 600 + top-regions line 14/17 #575755 · "Open national data" button.
- * All counts through formatCount(). Props: snapshot (GET /agency/home → national: { total, regions, top, readinessNote }).
+ * All counts through formatCount(). Props: snapshot (GET /agency/home → national: { total, regions, top, readinessNote }), failed (the home call failed:
+ * says so instead of loading forever; "Open national data" still works).
  */
 
-const AgencyNationalSnapshot = ({ snapshot, className }) => {
+const AgencyNationalSnapshot = ({ snapshot, failed = false, className }) => {
   const s = snapshot || { total: null, regions: 16, top: [], readinessNote: '' };
   return (
     <section
@@ -23,7 +24,9 @@ const AgencyNationalSnapshot = ({ snapshot, className }) => {
         </p>
         <h2 className="m-0 font-sans text-[20px] leading-[24px] font-semibold tracking-[0.2px] text-[#1c2a21]">
           {s.total === null
-            ? 'Loading national figures…'
+            ? failed
+              ? 'National figures are not available right now'
+              : 'Loading national figures…'
             : `${formatCount(s.total)} talents across ${s.regions} region${s.regions === 1 ? '' : 's'}`}
         </h2>
         <p className="m-0 font-sans text-[14px] leading-[17px] tracking-[0.2px] text-[#575755]">

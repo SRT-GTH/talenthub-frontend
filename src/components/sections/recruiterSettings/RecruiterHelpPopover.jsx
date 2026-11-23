@@ -19,13 +19,16 @@ import {
 
 const log = debug('RecruiterHelpPopover');
 
+// Recruiter pages whose own dialog is `?modal=invite` (candidate profile, community club pages).
+const PAGES_WITH_OWN_INVITE = [/^\/recruiter\/talent-search\/[^/]+/, /^\/recruiter\/community\//];
+
 /*
  * RecruiterHelpPopover - the recruiter top-bar "?" pop-over and its companions, rendered into `DashboardTopNav panels.help` (anchored under the "?" button)
  * by `/recruiter/settings` and, through `useRecruiterHelpPanels()`, by `/recruiter/job-postings` (where Figma draws it). State is the URL:
  *   ?help=page|searching|none   R-HP-01 / 02 / 03  the 400px pop-over (talent `HelpPopoverFlow` with the recruiter data)
  *   ?help=shortcuts             R-HP-08            keyboard-shortcuts modal (the "?" key opens it too)
  *   ?help=article|report|contact|sent   pages of the Help centre: redirected to /recruiter/help?help=<same> when opened elsewhere
- *   ?modal=feedback | ?modal=invite     R-FB-01 / R-IV-01  dialogs (talent SendFeedbackDialog / InviteFriendDialog with the recruiter copy)
+ *   ?modal=feedback | ?modal=invite (or invite-friend)  R-FB-01 / R-IV-01  dialogs (talent SendFeedbackDialog / InviteFriendDialog with the recruiter copy)
  * Props: none required (`settings` from the Settings page is ignored: the Help set reads the URL itself). Wiki: recruiter-settings-help.md.
  * Not drawn / not wired: "Ask Hiring Assistant", "WhatsApp us" and "Replay the recruiter tour" only log (no destination exists).
  */
@@ -41,6 +44,10 @@ const RecruiterHelpPopover = () => {
   const isPage = RECRUITER_HELP_PAGE_VALUES.includes(help);
   const isShortcuts = help === 'shortcuts';
   const isPopover = Boolean(help) && !isPage && !isShortcuts;
+  // `?modal=invite` is the teammate invite (R-IV-01) except on pages that own that key for their own dialog (the candidate profile's
+  // "Invite to apply", TS-12; a club's "Invite people", CC-09). The profile menu writes `modal=invite-friend`, which works everywhere.
+  const pageOwnsInvite = PAGES_WITH_OWN_INVITE.some((re) => re.test(pathname));
+  const inviteOpen = modal === 'invite-friend' || (modal === 'invite' && !pageOwnsInvite);
   // `?help=page|searching|none` as drawn; any other non-empty value (the "?" button's open flag) shows the default pop-over.
   const flow = RECRUITER_HELP_POPOVER_VALUES.includes(help) ? help : 'page';
   // "Ask Hiring Assistant" opens the recruiter AI chat (Figma "Recruiter - AI Chat" 7958:160771, `/profile/filling/career-buddy?role=recruiter`).
@@ -137,7 +144,7 @@ const RecruiterHelpPopover = () => {
       {modal === 'feedback' && (
         <SendFeedbackDialog copy={RECRUITER_FEEDBACK} onClose={closeModal} />
       )}
-      {modal === 'invite' && (
+      {inviteOpen && (
         <InviteFriendDialog
           copy={RECRUITER_INVITE}
           linkClassName="font-sans text-[16px]"

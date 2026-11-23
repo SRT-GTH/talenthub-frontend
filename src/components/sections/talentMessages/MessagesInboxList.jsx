@@ -219,18 +219,19 @@ const EmptyList = ({ live }) => {
       </p>
       <Button
         onClick={() => {
-          // Figma draws the button but no destination; the live inbox opens Profile and privacy.
-          if (live) navigate('/settings/privacy');
-          else log('check my visibility: no destination drawn');
+          // Figma draws no destination; both the live inbox and the drawn frame open Profile and privacy.
+          log('check my visibility -> /settings/privacy', { live });
+          navigate('/settings/privacy');
         }}
       >
         {copy.cta}
       </Button>
       <button
         type="button"
-        onClick={() =>
-          live ? navigate('/job-postings') : log('browse your matches: no destination drawn')
-        }
+        onClick={() => {
+          log('browse your matches -> /job-postings', { live });
+          navigate('/job-postings');
+        }}
         className={classNames(
           'cursor-pointer border-0 bg-transparent font-sans text-[13px] font-semibold leading-[16px] tracking-[0.2px] text-[#387440] no-underline max-lg:py-[4px]',
           FOCUS_RING

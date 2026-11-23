@@ -5,14 +5,14 @@
  *
  * Blocks (swap each for its endpoint later, keep the shapes):
  *   PEOPLE                 GET /circle/people/:id            one person card / profile header
- *   CIRCLE_SUMMARY         GET /circle/summary               128 in your circle · 46 following · 31 profile views · 3 invitations
+ *   CIRCLE_SUMMARY         GET /circle/summary               128 in your crew · 46 following · 31 profile views · 3 invitations
  *   DISCOVER_RESPONSE      GET /circle/discover              invitation preview + "People to link up with"
  *   INVITATIONS_RESPONSE   GET /circle/invitations           received (3) + sent (2)
  *   CONNECTIONS_RESPONSE   GET /circle/connections           first page of the 128
  *   PROFILE_RESPONSE       GET /circle/people/:id/profile    skills + endorsements, in common, recommendations
- *   FEED_RESPONSE          GET /circle/feed                  "From your circle"
+ *   FEED_RESPONSE          GET /circle/feed                  "From your crew"
  *   MINOR_RESPONSE         GET /circle/discover (age < 18)   NW-10: classmates + verified mentors only, parent card
- *   EMPTY_RESPONSE         GET /circle/discover (no links)   NW-11 "Start your circle"
+ *   EMPTY_RESPONSE         GET /circle/discover (no links)   NW-11 "Start your crew"
  *
  * Relationship status per person: 'none' | 'pending-sent' | 'invited' | 'connected'. The blocks carry the status the API would
  * return in that context; the session store (circleStore.js) overrides it after the talent acts.
@@ -196,12 +196,48 @@ export const CIRCLE_SUMMARY = {
 };
 /* ---- END BLOCK: CIRCLE_SUMMARY ------------------------------------------------------------------------------------- */
 
+/* ---- BLOCK: GROW + MENTORS (right rail, NW-01 … NW-05 / NW-11) ----------------------------------------------------- */
+// Demo only: the backend has no checklist or mentor list yet, so the live screen keeps the stats card alone.
+// The progress line differs per look (Focused "pts", Playful "XP"), as drawn.
+export const CIRCLE_GROW = {
+  title: 'Grow your crew',
+  progress: '2 of 4 done · +20 pts each',
+  progressPlayful: '2 of 4 done · +20 XP each',
+  doneCount: 2,
+  steps: [
+    { id: 'school', title: 'Add your school', body: 'We use it to find classmates', done: true },
+    {
+      id: 'join-clubs',
+      title: 'Join 2 clubs',
+      body: 'People there become suggestions',
+      done: true,
+    },
+    { id: 'link-up-five', title: 'Link up with 5 people', body: '3 of 5 so far', done: false },
+    {
+      id: 'invite-friend',
+      title: 'Invite a friend on WhatsApp',
+      body: 'Share your GTH link',
+      done: false,
+    },
+  ],
+};
+
+export const CIRCLE_MENTORS_CARD = {
+  title: 'Mentors to learn from',
+  seeAll: 'See all',
+  items: [
+    { id: 'kwame-boateng', note: 'Mentor · Data Science Ghana' },
+    { id: 'adwoa-sarpong', note: 'Data lead · MTN Ghana' },
+  ],
+};
+/* ---- END BLOCK: GROW + MENTORS ------------------------------------------------------------------------------------- */
+
 /* ---- BLOCK: DISCOVER_RESPONSE -------------------------------------------------------------------------------------- */
 export const DISCOVER_RESPONSE = {
   invitationsPreview: { ids: ['esi-quaye', 'nana-yaw-mensah'], total: 3 },
   suggestions: {
     title: 'People to link up with',
-    note: 'Based on your communities, school and skills',
+    note: 'Based on your clubs, school and skills',
     topPickId: 'abena-owusu',
     // cta: 'link-up' = Link up + add-note button, 'learn-from' = follow a verified mentor ("Learn from")
     items: [
@@ -222,7 +258,7 @@ export const INVITATIONS_RESPONSE = {
     {
       id: 'esi-quaye',
       ago: '2 days ago',
-      note: '“Hi Kofi, I loved your dashboard post in Data Science Ghana. Would be great to connect and swap tips.”',
+      note: '“Hi Kofi, I loved your dashboard post in Data Science Ghana. Would be great to link up and swap tips.”',
     },
     { id: 'nana-yaw-mensah', ago: '4 days ago', note: null },
     {
@@ -244,14 +280,14 @@ export const INVITATIONS_RESPONSE = {
 export const CONNECTIONS_RESPONSE = {
   total: 128,
   items: [
-    { id: 'yaw-darko', connected: 'Connected 2 days ago', region: 'Eastern Region' },
-    { id: 'esi-quaye', connected: 'Connected 5 days ago', region: 'Greater Accra' },
-    { id: 'efua-asante', connected: 'Connected 2 weeks ago', region: 'Central Region' },
-    { id: 'akosua-mensah', connected: 'Connected 3 weeks ago', region: 'Western Region' },
-    { id: 'kojo-annan', connected: 'Connected 1 month ago', region: 'Northern Region' },
+    { id: 'yaw-darko', connected: 'Linked up 2 days ago', region: 'Eastern Region' },
+    { id: 'esi-quaye', connected: 'Linked up 5 days ago', region: 'Greater Accra' },
+    { id: 'efua-asante', connected: 'Linked up 2 weeks ago', region: 'Central Region' },
+    { id: 'akosua-mensah', connected: 'Linked up 3 weeks ago', region: 'Western Region' },
+    { id: 'kojo-annan', connected: 'Linked up 1 month ago', region: 'Northern Region' },
   ],
   sorts: ['Recently added', 'Region', 'Skills', 'Community'],
-  menu: ['View profile', 'Mute their posts', 'Remove connection', 'Report'],
+  menu: ['View profile', 'Mute their posts', 'Remove from crew', 'Report'],
 };
 /* ---- END BLOCK: CONNECTIONS_RESPONSE ------------------------------------------------------------------------------- */
 
@@ -261,8 +297,8 @@ export const PROFILE_RESPONSE = {
     id: 'yaw-darko',
     tagline: 'UX design student at Ashesi · Product design, user research',
     location: 'Berekuso, Eastern Region',
-    mutualLine: '8 in your circle know them · Abena, Efua and 6 others',
-    circleSize: '214 in his circle',
+    mutualLine: '8 in your crew know them · Abena, Efua and 6 others',
+    circleSize: '214 in their crew',
     openTo: 'OPEN TO INTERNSHIPS',
     skills: [
       {
@@ -277,43 +313,53 @@ export const PROFILE_RESPONSE = {
       { id: 'design-thinking', label: 'Design thinking', count: 3, line: '3 endorsements' },
     ],
     endorsePrompt: 'Endorse skills you have seen Yaw use',
-    lockedNote: 'Link up with Yaw to endorse his skills',
+    lockedNote: 'Link up with Yaw to endorse their skills',
     inCommon: [
       { kind: 'community', label: 'Data Science Ghana', note: 'Both members' },
       { kind: 'school', label: 'Design track', note: 'Skills Lab' },
       { kind: 'interest', label: 'Product design', note: 'Shared interest' },
     ],
+    // NW-06 … NW-08 right rail (both looks; the recruiter profile RC-NW06 draws the same card).
+    youBothKnow: {
+      title: 'You both know · 8',
+      seeAll: 'See all 8',
+      items: [
+        { id: 'abena-owusu', note: 'Data Science Ghana' },
+        { id: 'efua-asante', note: 'Accra Designers' },
+        { id: 'kwame-boateng', note: 'Verified mentor · Hubtel' },
+      ],
+    },
     recommendations: [
       {
         id: 'kwame-boateng',
         author: 'kwame-boateng',
         meta: 'Mentored Yaw in Data Science Ghana · Sep 2026',
-        text: '“Yaw asks the right questions before he designs. In our community hackathon he interviewed 12 traders at Makola before drawing a single screen.”',
+        text: '“Yaw asks the right questions before he designs. In our club hackathon he interviewed 12 traders at Makola before drawing a single screen.”',
       },
     ],
     // Dialog copy (NW-07 / NW-08)
     endorseDialog: {
       title: 'Endorse Yaw’s skills',
-      subtitle: 'Only endorse skills you have seen him use.',
-      howLabel: 'How do you know his skills?',
-      ways: ['Same community project', 'Studied together', 'Worked together', 'He mentored me'],
+      subtitle: 'Only endorse skills you have seen them use.',
+      howLabel: 'How do you know their skills?',
+      ways: ['Same club project', 'Studied together', 'Worked together', 'He mentored me'],
     },
     recommendDialog: {
       title: 'Recommend Yaw',
-      subtitle: 'Your words help recruiters trust his profile.',
+      subtitle: 'Your words help recruiters trust their profile.',
       howLabel: 'How do you know Yaw?',
       relationships: [
-        'We worked on a community project together',
+        'We worked on a club project together',
         'We studied together',
         'I mentored him',
-        'We are in the same community',
+        'We are in the same club',
       ],
-      whatLabel: 'What should people know about working with him?',
+      whatLabel: 'What should people know about working with them?',
       suggestion:
         'Yaw led the user interviews for our Makola market app. He is patient with people and turns messy notes into clear designs quickly.',
       max: 600,
       approval:
-        'Yaw will see it first and choose whether to show it on his profile. You can edit or remove it any time.',
+        'Yaw will see it first and choose whether to show it on their profile. You can edit or remove it any time.',
       help: 'Help me make it specific',
     },
   },
@@ -327,7 +373,7 @@ export const buildGenericProfile = (person) => ({
   id: person.id,
   tagline: `${person.headline}`,
   location: `${person.town}, Ghana`,
-  mutualLine: `${person.mutual ?? 0} in your circle know them`,
+  mutualLine: `${person.mutual ?? 0} in your crew know them`,
   circleSize: null,
   openTo: null,
   skills: (person.shares ?? [])
@@ -361,9 +407,9 @@ export const buildGenericProfile = (person) => ({
 
 /* ---- BLOCK: FEED_RESPONSE ------------------------------------------------------------------------------------------ */
 export const FEED_RESPONSE = {
-  title: 'From your circle',
+  title: 'From your crew',
   sticker: 'CHEER THEM ON',
-  subtitle: 'Wins and updates from people you’re connected to and mentors you follow.',
+  subtitle: 'Wins and updates from people in your crew and mentors you learn from.',
   items: [
     {
       kind: 'win',
@@ -413,15 +459,15 @@ export const FEED_RESPONSE = {
 
 /* ---- BLOCK: MINOR_RESPONSE ----------------------------------------------------------------------------------------- */
 export const MINOR_RESPONSE = {
-  me: { name: 'Ama', age: 15, parent: 'Mrs. Abena Owusu' },
+  me: { name: 'Ama', age: 15, parent: 'Mrs. Efua Asamoah' },
   banner: {
-    title: 'Your circle is for classmates and verified mentors',
+    title: 'Your crew is for classmates and verified mentors',
     body: 'Adults can’t send you requests. Your parent can see who you’re connected with. Messages with mentors stay in GTH.',
     learnMore: 'Learn more',
   },
   classmates: {
     title: 'Classmates you may know',
-    note: 'From Achimota School and your communities',
+    note: 'From Achimota School and your clubs',
     topPickId: 'kwesi-ofori',
     items: [
       { id: 'kwesi-ofori', cta: 'link-up' },
@@ -440,16 +486,53 @@ export const MINOR_RESPONSE = {
   },
   parentCard: {
     title: 'Shared with your parent',
-    body: 'Mrs. Abena Owusu can see your connections and who you follow. She can’t read your messages.',
+    body: 'Your parent, Mrs. Efua Asamoah, can see who is in your crew and who you learn from. She can’t read your messages.',
+  },
+  // NW-10 right rail and tabs (demo; live under-18 screens keep the live counts and the parent card only).
+  summaryTiles: [
+    { value: 9, label: 'In your crew' },
+    { value: 2, label: 'Mentors' },
+    { value: 14, label: 'Classmates on GTH' },
+  ],
+  tip: 'Classmates you study with are the best first links. Your parent can see who is in your crew.',
+  invitationsCount: 1,
+  networkCount: 9,
+  followingCount: 2,
+  grow: {
+    title: 'Grow your crew',
+    progress: '1 of 4 done · +20 pts each',
+    progressPlayful: '1 of 4 done · +20 XP each',
+    doneCount: 1,
+    steps: [
+      { id: 'school', title: 'Add your school', body: 'Find classmates from Achimota', done: true },
+      {
+        id: 'school-club',
+        title: 'Join a school club',
+        body: 'Young Coders GH is popular',
+        done: false,
+      },
+      {
+        id: 'link-up-three',
+        title: 'Link up with 3 classmates',
+        body: '1 of 3 so far',
+        done: false,
+      },
+      {
+        id: 'learn-from-mentor',
+        title: 'Learn from 1 verified mentor',
+        body: 'Checked by GTH',
+        done: false,
+      },
+    ],
   },
 };
 /* ---- END BLOCK: MINOR_RESPONSE ------------------------------------------------------------------------------------- */
 
 /* ---- BLOCK: EMPTY_RESPONSE ----------------------------------------------------------------------------------------- */
 export const EMPTY_RESPONSE = {
-  title: 'Start your circle',
-  sticker: 'DAY 1 OF YOUR NETWORK',
-  body: 'Connect with classmates, teammates and mentors. People in your network see your wins and can vouch for your skills.',
+  title: 'Start your crew',
+  sticker: 'DAY 1 OF YOUR CREW',
+  body: 'Link up with classmates, teammates and mentors. People in your crew see your wins and can vouch for your skills.',
   ways: [
     {
       id: 'classmates',
@@ -460,7 +543,7 @@ export const EMPTY_RESPONSE = {
     {
       id: 'community',
       icon: 'users',
-      title: 'Join a community',
+      title: 'Join a club',
       body: 'Meet people who share your interests',
     },
     {
@@ -481,29 +564,43 @@ export const EMPTY_RESPONSE = {
       { id: 'kwame-boateng', cta: 'learn-from', status: 'none' },
     ],
   },
+  // NW-11 right rail and tabs (demo).
+  summaryTiles: [
+    { value: 0, label: 'In your crew' },
+    { value: 0, label: 'Learning from' },
+    { value: 0, label: 'Profile views this week' },
+  ],
+  tip: 'Start with 3 people you already know. Classmates say yes most often.',
+  grow: {
+    ...CIRCLE_GROW,
+    progress: '0 of 4 done · +20 pts each',
+    progressPlayful: '0 of 4 done · +20 XP each',
+    doneCount: 0,
+    steps: CIRCLE_GROW.steps.map((step) => ({ ...step, done: false })),
+  },
 };
 /* ---- END BLOCK: EMPTY_RESPONSE ------------------------------------------------------------------------------------- */
 
 /* ---- BLOCK: COPY (screen chrome) ----------------------------------------------------------------------------------- */
 export const CIRCLE_COPY = {
-  switchCommunities: 'Communities',
-  switchCircle: 'My circle',
-  createCommunity: 'Create a community',
-  title: 'Your circle',
+  switchCommunities: 'Clubs',
+  switchCircle: 'My crew',
+  createCommunity: 'Create a club',
+  title: 'Your crew',
   subtitle: 'Your people: classmates, teammates and mentors who help you grow.',
-  growSticker: 'GROW YOUR CIRCLE',
+  growSticker: 'GROW YOUR CREW',
   searchPlaceholder: 'Search people by name, skill or school',
   tabs: {
     discover: 'Discover',
     feed: 'Feed',
     invitations: 'Invitations',
-    circle: 'Circle',
-    following: 'Following',
+    circle: 'Crew',
+    following: 'Learning from',
   },
   invitationsTitle: 'Invitations',
   seeAll: 'See all',
-  yourCircle: 'Your circle',
-  stats: ['In your circle', 'Following', 'Profile views this week'],
+  yourCircle: 'Your crew',
+  stats: ['In your crew', 'Learning from', 'Profile views this week'],
   tipTitle: 'Tip from Buddy',
   youShare: 'YOU SHARE',
   topPick: 'TOP PICK',
@@ -513,7 +610,7 @@ export const CIRCLE_COPY = {
   ignore: 'Ignore',
   accept: 'Accept',
   sayHi: 'Say hi',
-  inYourCircle: 'In your circle',
+  inYourCircle: 'In your crew',
   message: 'Message',
   manage: 'Manage',
   verifiedMentor: 'Verified mentor',
@@ -534,7 +631,7 @@ export const CIRCLE_COPY = {
   toast: {
     sent: (first) => `Link-up sent to ${first}`,
     undo: 'Undo',
-    inCircle: (first) => `${first} is now in your circle`,
+    inCircle: (first) => `${first} is now in your crew`,
     messageAction: 'Message',
   },
   xp: '+5 XP · NEW CONNECTION',

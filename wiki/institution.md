@@ -1,12 +1,12 @@
 # Institution portal — Theme 11 (`/institution/*`)
 
-Figma file `Bin8roWL8sloyc36IgFMuT`, canvas **Persona · Institutions & Agencies (Theme 11)** `8520:10` — sections 11.1, 11.2, 11.3, 11.6 and the 11.3.5 v2 board report; 87 frames (79 screens + 8 board-report pages; 1 SUPERSEDED v1 PDF cover). **Focused only.** No Theme 11 institution story doc exists: the Figma frames are the acceptance criteria.
+Figma file `iErYj7O3ft6WAG2FBT6aEw` (moved out of `Bin8roWL8sloyc36IgFMuT`; node ids unchanged) ✅ VERIFIED 2026-11-22, canvas **Persona · Institutions & Agencies (Theme 11)** `8520:10` — sections 11.1, 11.2, 11.3, 11.6 and the 11.3.5 v2 board report; 87 frames (79 screens + 8 board-report pages; 1 SUPERSEDED v1 PDF cover). **Focused only.** No Theme 11 institution story doc exists: the Figma frames are the acceptance criteria.
 
 ## What it is
 
 The signed-in portal of an educational institution (schools and universities). Persona in the frames: **Iddrisu Abdul-Rahman · Admin · Registrar · Savannah Hills SHS** (head: Mrs Salamatu Yakubu, GES number `GES/NR/SHS/0412`). Sign-up and accreditation, welcome tour, home, student roster (add, CSV import, guardian consent for under-18s, remove, transfer out, student record), record verification, credentials (issue, preview, revoke with dual approval, corrected copy, whole class, public "Verify a credential"), programmes, student progress, messages, profile menu + settings and an 8-page A4 "Board of Governors report". Counts in aggregates under 5 are always `<5` (`formatCount` / `safeShare`, shared with Theme 8); roster rows are the institution's own data and are drawn as in Figma.
 
-⚠️ ASSUMPTION: **no real auth** — `useInstitutionSession()` returns a mock signed-in session (`data/institutionCoreData.js`).
+🪦 STALE (was: mock session). ✅ VERIFIED 2026-11-22: real auth — `InstitutionSessionProvider` reads `GET /api/institution/me`; `InstitutionGate` sends signed-out visitors to `/login` and keeps a not-yet-accredited institution on accreditation / settings. Public without a session: `/institution/sign-up`, `/institution/verify` and `/institution/verify/:credentialId`. Sign-up `?state=` mock states are gone (live flow, `?step=verify`). `?verify=` overrides only in dev.
 
 ## Architecture
 
@@ -157,3 +157,15 @@ A sign-up, accreditation, verification status, welcome modal + tour (11.1, 17 fr
 ## Build status (2026-10-25)
 
 Foundation only: chrome, state, nav, session, router with 14 stub pages, manifest and this document. Chrome verified against 11.2.1a / b / c and 11.1.2b–e (rail, persona card, nav, "Your institution page" card, top bar, phone bar). Pages are stubs until the packages land.
+
+## Inspection pass 2026-11-22 (phase 7) ✅ VERIFIED
+
+- Pages are built and backend-driven (not stubs); the per-frame ⬜ table above is 🪦 STALE as a build status.
+- `/institution/verify` (no number) is a public route: the empty check form. "Check credential" with the same ID re-runs the check.
+- Profile menu: email = session `admin.email` or the profile saved at login (no hard-coded address); Send feedback opens the shared `SendFeedbackDialog` (logs only, no API); Privacy / Terms open the shared legal summaries; Accessibility / Language / Help open the top-bar panels.
+- Settings sub-nav "Accessibility" opens `?modal=a11y` ⚠️ ASSUMPTION; Appearance and Security and sign-in stay inert (no screen).
+- Welcome modal extras: language → `?modal=language`, larger text / contrast → `?modal=a11y` ⚠️ ASSUMPTION; the video only logs (no video exists).
+- "See regional data" quick actions (first-login home, accreditation gates) → `/data/regions/<institution region>` (`regionDataPath`, institutionNav.js) ⚠️ ASSUMPTION.
+- Public page breadcrumb: Directory → `/data/partners`, Institutions → `/data/partners?type=school|university`.
+- `InstitutionNavItem` now renders `AgencyNavItem` with the institution icon set (one nav-item component).
+- Old bulk-onboarding report: "Go to Institution Dashboard" → `/institution`.

@@ -18,7 +18,9 @@ const log = debug('MessagesFrame');
  * every frame URL (`messages.demo`) keeps the drawn Kofi shell.
  */
 const MessagesFrame = ({ messages, children }) => {
-  const home = useTalentHomeState();
+  // A drawn frame (`messages.demo`, e.g. the recruiter's `?view=talent`) never calls the talent API, so a signed-out
+  // visit is not sent to /login by the home call; it only feeds the live shell.
+  const home = useTalentHomeState({ enabled: !messages.demo });
   const liveShell = !messages.demo && Boolean(home?.live);
   const live = useLiveMessagesContext();
   const liveUnread = live ? live.counts.unread + live.counts.requests : 0;

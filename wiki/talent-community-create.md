@@ -4,6 +4,10 @@ Figma file `Bin8roWL8sloyc36IgFMuT`, canvas "Talent - community Engagement": Pla
 
 CC-01 (the entry point) is drawn in neither section: the "Create a community" button sits in the Community browse header row next to the Communities | My circle switch (added by the My circle build, see [talent-my-circle.md](talent-my-circle.md)) and links to `/community/create`.
 
+## Clubs rename (2026-11-21)
+
+✅ VERIFIED (Figma REST 2026-11-21): sections renamed "Create your own club"; copy now "Start a club", "Club name", "Almost ready to start a club", "Archive club", "Restore club", "This club is archived", "All clubs", "…clubs within 24 hours", etc. (`createCommunityData.js`). The owner page shows the "Clubs | My crew" switch above the hero (CC-06 … CC-17b draw it). The entry button is "Create a club" (see talent-community.md).
+
 ## Status
 
 Every frame renders at its URL in both styles and was compared with its Figma 0.5x export (framecmp, viewport = frame height − 52; community-create agent's run, not yet independently re-run by the lead). Playful 3.2–6.2 %, Focused 2.6–5.2 %; the wizard frames are the high end (Figma centres the dialog 26 px lower than our viewport does, and the Community browse page behind it is a different page). Layout of CC-02, CC-05, CC-06, CC-10, CC-12 (Playful) and CC-03 (Focused) was checked by eye against the frames.
@@ -45,3 +49,7 @@ Wizard 4 steps with regions and rule edit/add, submit → under review; mentor i
 - ⚠️ ASSUMPTION: eligibility passes in the real flow; a new draft starts empty; the owner page About / Members / Events tabs are inert; "Edit details" opens the wizard prefilled; reviewer outcomes (approved, needs a change, mentor accepted) are URL-only, there is no demo control.
 - Figma inconsistencies kept: "112 of 160 characters" beside a 105-character text (we show the real count); Focused CC-09 and CC-10 draw a different page behind the dialog; the "Requests" tab appears only in CC-14 and CC-15; three portraits are reused for different people.
 - Not verified: the final errscan of every URL; the Focused phone widths of the later wizard steps at 390 (timeouts); `/community` and `/home` after the `CommunityPage.jsx` edit (the lead re-checked `/community`, see log). Headless talent pages redirect to `/login` unless `/api/**` is stubbed; the audit scripts use the demo params.
+
+## Control destinations (2026-11-21)
+
+Moderator "Remind" (Manage dialog moderators list, e.g. `…/manage?state=live&modal=manage&tab=reports&demo=1`; the under-review page itself shows no Remind button): no prototype link (CC-06 `8948:98` links only Invite co-moderators / Newest), no remind endpoint. The row now keeps "Reminder sent" on the owner's club in the session store (`moderators[].reminded`), so it survives closing and reopening the dialog (✅ VERIFIED in the browser). ⚠️ ASSUMPTION; backend gap: a remind-moderator endpoint.

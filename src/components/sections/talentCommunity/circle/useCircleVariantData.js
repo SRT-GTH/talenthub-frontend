@@ -4,6 +4,8 @@ import { communityHref, useCommunityVariant } from '../communityVariant.js';
 import {
   buildGenericProfile,
   CIRCLE_COPY,
+  CIRCLE_GROW,
+  CIRCLE_MENTORS_CARD,
   CIRCLE_PEOPLE,
   CIRCLE_SUMMARY,
   CONNECTIONS_RESPONSE,
@@ -23,7 +25,9 @@ import {
   NETWORK_DISCOVER,
   NETWORK_EMPTY,
   NETWORK_FEED,
+  NETWORK_GROW,
   NETWORK_INVITATIONS,
+  NETWORK_MENTORS_CARD,
   NETWORK_MINOR,
   NETWORK_PEOPLE,
   NETWORK_PROFILE,
@@ -35,7 +39,7 @@ const log = debug('useCircleVariantData');
 /*
  * useCircleVariantData — the My circle (talent) / My network (recruiter) screens are the SAME components; this hook hands them the
  * data, copy, photos and links of the audience read from the URL (`/recruiter/community…` = recruiter, see communityVariant.js).
- * Talent values are the untouched circleData.js exports, so talent screens render exactly as before.
+ * Talent values are the circleData.js exports; `grow` / `mentorsCard` feed the shared right-rail cards (NetworkSideColumn).
  * Small hooks below return one slice each so a leaf component asks only for what it draws.
  */
 const TALENT = {
@@ -52,6 +56,8 @@ const TALENT = {
   feed: FEED_RESPONSE,
   minor: MINOR_RESPONSE,
   empty: EMPTY_RESPONSE,
+  grow: CIRCLE_GROW,
+  mentorsCard: CIRCLE_MENTORS_CARD,
   photos: PERSON_PHOTOS,
   assistantAvatar: BUDDY_AVATAR,
 };
@@ -70,6 +76,8 @@ const RECRUITER = {
   feed: NETWORK_FEED,
   minor: NETWORK_MINOR,
   empty: NETWORK_EMPTY,
+  grow: NETWORK_GROW,
+  mentorsCard: NETWORK_MENTORS_CARD,
   photos: NETWORK_PERSON_PHOTOS,
   assistantAvatar: HIRING_ASSISTANT_AVATAR,
 };

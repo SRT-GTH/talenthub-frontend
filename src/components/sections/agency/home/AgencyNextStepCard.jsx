@@ -4,11 +4,15 @@ import { NEXT_STEP as N } from './data/agencyHomeData.js';
 /*
  * AgencyNextStepCard — the dark-green "Next step" card (Figma 8597:398384, 427 x 173, #1f6b3f, 1px #00522b, r16, p 21/22/22/22, gap 12):
  * eyebrow 14/15 500 #b9d6c8 (+0.44), title 20/25 600 white, body 16/22 500 #b9cdbd.
- * Props: step (GET /agency/home → nextStep { title, body, to }); the whole card links to `to`.
+ * Props: step (GET /agency/home → nextStep { title, body, to }), failed (the home call failed); the whole card links to `to`.
  */
 
-const AgencyNextStepCard = ({ step, className }) => {
-  const s = step || { title: '', body: 'Loading…', to: null };
+const AgencyNextStepCard = ({ step, failed = false, className }) => {
+  const s = step || {
+    title: '',
+    body: failed ? 'Your next step could not be loaded. Reload the page to try again.' : 'Loading…',
+    to: null,
+  };
   const inner = (
     <>
       <p className="m-0 font-sans text-[14px] leading-[15px] font-medium tracking-[0.44px] text-[#b9d6c8]">

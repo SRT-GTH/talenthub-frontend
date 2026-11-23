@@ -1,7 +1,13 @@
-import { Fragment, useEffect, useId, useRef, useState } from 'react';
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import Field from './Field.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+
+// Menu height: the design's 340px cap; never squeezed below 160px (it would rather flip or scroll the page).
+const MENU_MAX_HEIGHT = 340;
+const MENU_MIN_HEIGHT = 160;
+// Breathing room kept between the menu and the edge of the visible area.
+const MENU_EDGE = 16;
 
 const log = debug('Select');
 
@@ -153,6 +159,9 @@ const Select = ({
   className,
   name,
   id,
+  // Opt-in: called whenever the open list closes (option picked, click outside, Escape, trigger). Lets a form mark the
+  // field as visited even when focus was inside the list's search box.
+  onClose,
   ...rest
 }) => {
   const generatedId = useId();
@@ -233,17 +242,78 @@ const Select = ({
     };
   }, [open]);
 
-  // Phones: the menu opens downward; make sure it is not left hidden under the
+  // Menu placement: opens below by default; flips above the trigger when there isn't room below and there is more
+  // room above, and caps its height to the room it has. "Room" is measured against the visible area the field sits in:
+  // the viewport intersected with every clipping (overflow) ancestor, so a scrolling form column can't cut it off.
+  const [menuPlacement, setMenuPlacement] = useState({ up: false, maxHeight: MENU_MAX_HEIGHT });
+  useLayoutEffect(() => {
+    if (!open) return undefined;
+    const measure = () => {
+      const trigger = wrapperRef.current;
+      const menu = document.getElementById(listboxId);
+      if (!trigger || !menu) return;
+      let top = 0;
+      let bottom = window.innerHeight;
+      for (let el = trigger.parentElement; el && el !== document.body; el = el.parentElement) {
+        const { overflowY } = getComputedStyle(el);
+        if (overflowY === 'visible') continue;
+        const r = el.getBoundingClientRect();
+        top = Math.max(top, r.top);
+        bottom = Math.min(bottom, r.bottom);
+      }
+      const t = trigger.getBoundingClientRect();
+      const gap = 12;
+      const below = bottom - t.bottom - gap - MENU_EDGE;
+      const above = t.top - top - gap - MENU_EDGE;
+      const needed = Math.min(MENU_MAX_HEIGHT, menu.scrollHeight);
+      const up = below < needed && above > below;
+      const maxHeight = Math.max(MENU_MIN_HEIGHT, Math.min(MENU_MAX_HEIGHT, up ? above : below));
+      log('menu placement', {
+        up,
+        maxHeight,
+        below: Math.round(below),
+        above: Math.round(above),
+        needed,
+      });
+      setMenuPlacement((prev) =>
+        prev.up === up && prev.maxHeight === maxHeight ? prev : { up, maxHeight }
+      );
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('scroll', measure, true);
+    return () => {
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('scroll', measure, true);
+    };
+  }, [open, listboxId]);
+
+  // Phones: if the menu still opens downward, make sure it is not left hidden under the
   // sticky action bar / below the fold (respects the scroller's scroll-padding).
   useEffect(() => {
-    if (!open || typeof window === 'undefined' || !window.matchMedia('(max-width: 767px)').matches)
+    if (
+      !open ||
+      menuPlacement.up ||
+      typeof window === 'undefined' ||
+      !window.matchMedia('(max-width: 767px)').matches
+    )
       return;
     const frame = requestAnimationFrame(() => {
       log('mobile: scroll menu into view');
       document.getElementById(listboxId)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     });
     return () => cancelAnimationFrame(frame);
-  }, [open, listboxId]);
+  }, [open, listboxId, menuPlacement.up]);
+
+  // Tell the form when the list closes (open -> closed only, not on first render).
+  const wasOpenRef = useRef(false);
+  useEffect(() => {
+    if (wasOpenRef.current && !open) {
+      log('closed');
+      onClose?.();
+    }
+    wasOpenRef.current = open;
+  }, [open, onClose]);
 
   // Focus search box when menu opens with searchable enabled.
   useEffect(() => {
@@ -373,11 +443,21 @@ const Select = ({
             id={listboxId}
             role="listbox"
             aria-labelledby={triggerId}
-            className={
+            style={{ maxHeight: menuPlacement.maxHeight }}
+            className={classNames(
               isDividedMenu
-                ? 'absolute top-full left-0 right-0 mt-[5px] z-20 bg-white border border-[#e6e6e6] rounded-[10px] py-3 max-h-[340px] overflow-y-auto'
-                : 'absolute top-full left-0 right-0 mt-3 z-20 bg-white border-2 border-brand-green-light-active rounded-md shadow-[0_-4px_0_0_rgba(34,70,38,0.8)] p-3 max-h-[340px] overflow-y-auto'
-            }
+                ? 'absolute left-0 right-0 z-20 bg-white border border-[#e6e6e6] rounded-[10px] py-3 overflow-y-auto'
+                : 'absolute left-0 right-0 z-20 bg-white border-2 border-brand-green-light-active rounded-md p-3 overflow-y-auto',
+              menuPlacement.up
+                ? classNames(
+                    'bottom-full',
+                    isDividedMenu ? 'mb-[5px]' : 'mb-3 shadow-[0_4px_0_0_rgba(34,70,38,0.8)]'
+                  )
+                : classNames(
+                    'top-full',
+                    isDividedMenu ? 'mt-[5px]' : 'mt-3 shadow-[0_-4px_0_0_rgba(34,70,38,0.8)]'
+                  )
+            )}
           >
             {searchable && (
               <>

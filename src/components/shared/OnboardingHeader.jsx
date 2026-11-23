@@ -22,6 +22,9 @@ import checkGreen from '../../assets/onboarding-header/check-green.svg';
 import checkGrey from '../../assets/onboarding-header/check-grey.svg';
 import separator from '../../assets/onboarding-header/separator.svg';
 
+const playfulProgressLabel = (pct) =>
+  pct < 35 ? 'GOOD START' : pct < 85 ? 'KEEP GOING' : 'NEARLY THERE';
+
 const OnboardingHeader = ({ steps: stepsProp, currentKey, percent, completedTone = 'muted' }) => {
   // Steps list defaults to whatever the talent context implies (the
   // Parent step appears automatically for under-18 users). Callers can
@@ -120,11 +123,14 @@ const OnboardingHeader = ({ steps: stepsProp, currentKey, percent, completedTone
         {/* Completion meter */}
         <div className="flex w-[245px] shrink-0 flex-col gap-2 pl-6">
           <div className="flex items-center justify-between text-[14px] leading-4">
+            {/* Focused frames say "COMPLETE"; the Playful frames cheer by progress: GOOD START (12 / 25%), KEEP GOING
+                (40 / 55 / 70%), NEARLY THERE (90%) */}
             <span
-              className="font-medium capitalize text-[#BFBFBF]"
+              className="font-medium capitalize text-[#BFBFBF] playful:text-[#1c2a21]"
               style={{ letterSpacing: '0.5px' }}
             >
-              COMPLETE
+              <span className="playful:hidden">COMPLETE</span>
+              <span className="hidden playful:inline">{playfulProgressLabel(clamped)}</span>
             </span>
             <span className="font-semibold text-brand-green">{clamped}%</span>
           </div>

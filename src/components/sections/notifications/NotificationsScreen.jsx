@@ -6,6 +6,7 @@ import { useUiStyle } from '../../../hooks/useUiStyle.js';
 import NotifButton from './NotifButton.jsx';
 import NotificationRow from './NotificationRow.jsx';
 import { useNotificationFeed } from './useNotificationFeed.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
 import {
   COMING_UP,
   FEED_COPY,
@@ -163,7 +164,9 @@ const FilterRail = ({ active, onSelect, counts, className }) => {
   );
 };
 
-const PageHeader = ({ caughtUp, unreadCount }) => (
+// `live` (signed in): the drawn "Seen by 9 recruiters" and "5-day streak" stickers are sample numbers, so they
+// are left out; the unread chip is real (same rule as the Job Postings header).
+const PageHeader = ({ caughtUp, unreadCount, live = false }) => (
   <div className="flex items-start justify-between gap-[24px]">
     <div className="flex flex-col gap-[3px]">
       <h1 className="m-0 font-sans text-[clamp(26px,1.97vw,34px)] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1c2a21] playful:font-heading">
@@ -193,20 +196,24 @@ const PageHeader = ({ caughtUp, unreadCount }) => (
         <span className="size-[8px] rounded-full bg-[#349643]" />
         {caughtUp ? PAGE_HEADER.inboxCaughtUp : PAGE_HEADER.inbox(unreadCount)}
       </span>
-      <span
-        className="absolute left-[337px] top-[2px] inline-flex items-center gap-[6px] rounded-full bg-[#387440] px-[14px] py-[8px] font-sans text-[13px] font-medium leading-[16px] tracking-[0.2px] text-white shadow-[0_4px_0_#224626]"
-        style={{ transform: 'rotate(2deg)' }}
-      >
-        <img src={headSparkle} alt="" className="size-[15px]" />
-        {PAGE_HEADER.sticker}
-      </span>
-      <span
-        className="absolute left-[430px] top-[36px] inline-flex items-center gap-[6px] rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] font-semibold leading-[14px] tracking-[0.2px] text-[#c8951a] shadow-[0_3px_0_rgba(200,149,26,0.45)]"
-        style={{ transform: 'rotate(2deg)' }}
-      >
-        <img src={headFlame} alt="" className="size-[15px]" />
-        {PAGE_HEADER.streak}
-      </span>
+      {live ? null : (
+        <>
+          <span
+            className="absolute left-[337px] top-[2px] inline-flex items-center gap-[6px] rounded-full bg-[#387440] px-[14px] py-[8px] font-sans text-[13px] font-medium leading-[16px] tracking-[0.2px] text-white shadow-[0_4px_0_#224626]"
+            style={{ transform: 'rotate(2deg)' }}
+          >
+            <img src={headSparkle} alt="" className="size-[15px]" />
+            {PAGE_HEADER.sticker}
+          </span>
+          <span
+            className="absolute left-[430px] top-[36px] inline-flex items-center gap-[6px] rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] font-semibold leading-[14px] tracking-[0.2px] text-[#c8951a] shadow-[0_3px_0_rgba(200,149,26,0.45)]"
+            style={{ transform: 'rotate(2deg)' }}
+          >
+            <img src={headFlame} alt="" className="size-[15px]" />
+            {PAGE_HEADER.streak}
+          </span>
+        </>
+      )}
       <img src={headDoodleGold} alt="" className="absolute left-[574px] top-0 size-[22px]" />
       <img src={headDoodleGreen} alt="" className="absolute left-[316px] top-[46px] size-[12px]" />
       <img
@@ -285,7 +292,11 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
     enabled: !sharedFeed,
   });
   const feed = sharedFeed ?? ownFeed;
-  const items = feed.select(filter);
+  // "Newest first" select: the Figma prototype only flips the pill to its open state (no list is drawn),
+  // so the menu is the native one with the two orders. ⚠️ ASSUMPTION: "Oldest first" is the only other order.
+  const [order, setOrder] = useState('newest');
+  const items = order === 'oldest' ? [...feed.select(filter)].reverse() : feed.select(filter);
+  const groups = order === 'oldest' ? [...PAGE_GROUPS].reverse() : PAGE_GROUPS;
   const empty = feed.ready && items.length === 0;
   const onAction = (action) => {
     if (!action?.to) return;
@@ -303,7 +314,11 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
 
   return (
     <div className="flex flex-col gap-[24px] px-[clamp(16px,2.31vw,40px)] pb-[32px] pt-[32px] max-md:gap-[16px] max-md:px-[12px] max-md:pt-[16px]">
-      <PageHeader caughtUp={feed.ready && feed.unreadCount === 0} unreadCount={feed.unreadCount} />
+      <PageHeader
+        caughtUp={feed.ready && feed.unreadCount === 0}
+        unreadCount={feed.unreadCount}
+        live={isLoggedIn()}
+      />
 
       <div className="grid items-start gap-[24px] max-md:gap-[12px] lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[248px_minmax(0,1fr)_340px]">
         <FilterRail
@@ -356,13 +371,24 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
               )}
             </h2>
             <span className="min-w-0 flex-1" />
-            <button
-              type="button"
-              className="inline-flex h-[34px] items-center gap-[6px] rounded-full border border-solid border-[#e1eae2] bg-white pl-[14px] pr-[12px] font-sans text-[13px] font-semibold leading-[16px] text-[#595959] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-            >
-              {FEED_COPY.sort}
+            <label className="relative inline-flex h-[34px] cursor-pointer items-center gap-[6px] rounded-full border border-solid border-[#e1eae2] bg-white pl-[14px] pr-[12px] font-sans text-[13px] font-semibold leading-[16px] text-[#595959] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-green">
+              <span aria-hidden="true">
+                {order === 'oldest' ? FEED_COPY.sortOldest : FEED_COPY.sort}
+              </span>
               <img src={selectChevron} alt="" aria-hidden="true" className="size-[14px]" />
-            </button>
+              <select
+                aria-label={FEED_COPY.sortLabel}
+                value={order}
+                onChange={(e) => {
+                  log('sort', e.target.value);
+                  setOrder(e.target.value);
+                }}
+                className="absolute inset-0 size-full cursor-pointer appearance-none rounded-full opacity-0"
+              >
+                <option value="newest">{FEED_COPY.sort}</option>
+                <option value="oldest">{FEED_COPY.sortOldest}</option>
+              </select>
+            </label>
             <NotifButton size="sm" tone="secondary" onClick={feed.markAllRead}>
               {FEED_COPY.markAllRead}
             </NotifButton>
@@ -391,7 +417,7 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
           ) : (
             <>
               <div className="flex min-h-0 flex-1 flex-col gap-[2px] overflow-y-auto px-[12px] pb-[12px] pt-[4px] playful:gap-[8px]">
-                {PAGE_GROUPS.map((g) => {
+                {groups.map((g) => {
                   const rows = items.filter((n) => n.group === g.id);
                   if (!rows.length) return null;
                   return (
@@ -421,6 +447,10 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
                             unread={feed.isUnread(n)}
                             onRead={feed.markRead}
                             onAction={onAction}
+                            onSettings={() => {
+                              log('row menu -> /settings/notifications', n.id);
+                              navigate('/settings/notifications');
+                            }}
                           />
                         ))}
                       </ul>
@@ -515,7 +545,17 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
               <NotifButton size="sm" tone="primary" onClick={() => log('add to calendar')}>
                 {COMING_UP.primary}
               </NotifButton>
-              <NotifButton size="sm" tone="secondary" onClick={() => log('prep')}>
+              <NotifButton
+                size="sm"
+                tone="secondary"
+                onClick={() => {
+                  // Same hand-off as the Home "Start mock interview" CTA: Career Buddy with a prompt.
+                  log('prep -> Career Buddy', COMING_UP.event);
+                  navigate('/profile/filling/career-buddy', {
+                    state: { prompt: COMING_UP.prepPrompt },
+                  });
+                }}
+              >
                 {COMING_UP.secondary}
               </NotifButton>
             </div>
@@ -535,8 +575,14 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
                 </span>
                 <button
                   type="button"
+                  aria-label={`${r.label}: ${r.value}. Change in notification settings`}
+                  onClick={() => {
+                    // The ping pills have no menu of their own; Settings › Notifications holds these controls.
+                    log('ping setting -> /settings/notifications', r.label);
+                    navigate('/settings/notifications');
+                  }}
                   className={classNames(
-                    'inline-flex items-center gap-[4px] rounded-full border border-solid px-[10px] py-[4px] font-sans text-[12px] font-semibold leading-[14px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+                    'inline-flex cursor-pointer items-center gap-[4px] rounded-full border border-solid px-[10px] py-[4px] font-sans text-[12px] font-semibold leading-[14px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
                     r.on
                       ? 'border-[rgba(28,42,33,0.35)] bg-[#ebf1ec] text-[#2d5d33]'
                       : 'border-[rgba(28,42,33,0.35)] bg-[#f8f8f4] text-[#595959]'

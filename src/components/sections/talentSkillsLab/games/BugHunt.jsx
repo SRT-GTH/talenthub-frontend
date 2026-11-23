@@ -21,6 +21,7 @@ import {
   SEL_BORDER,
   SEL_SHADOW,
   buildGameResult,
+  displayOrder,
   formatClock,
   topicRowsFor,
   useCountdown,
@@ -431,6 +432,12 @@ const BugHunt = ({ frame }) => {
   const { t } = useLabText();
   const [resultOpen, setResultOpen] = useReducer((_, v) => v, true);
   const round = BUG_ROUNDS[state.round];
+  // the fixes on screen in a shuffled order per round (the data keeps the right fix first); drawn frames keep the drawn order
+  const fixOrder = displayOrder(
+    round.fixes.length,
+    `bug-${state.runKey}-${state.round}`,
+    Boolean(frame)
+  );
   const running = state.phase === 'playing' && !state.frozen;
   const left = useCountdown({
     start: state.seeded && state.round === 3 && state.runKey === 0 ? 38 : BUG_HUNT.roundSeconds,
@@ -487,7 +494,13 @@ const BugHunt = ({ frame }) => {
       const key = event.key.toLowerCase();
       const index =
         ['1', '2', '3'].indexOf(key) >= 0 ? Number(key) - 1 : ['a', 'b', 'c'].indexOf(key);
-      if (index >= 0 && state.phase === 'playing' && state.tapped !== null) pick(index);
+      if (
+        index >= 0 &&
+        index < fixOrder.length &&
+        state.phase === 'playing' &&
+        state.tapped !== null
+      )
+        pick(fixOrder[index]);
       else if (event.key === 'Enter' && event.target?.tagName !== 'BUTTON') {
         if (state.phase === 'playing' && state.picked !== null) check();
         else if (state.phase === 'squashed' || state.phase === 'missed') dispatch({ type: 'next' });
@@ -596,16 +609,18 @@ const BugHunt = ({ frame }) => {
               aria-label={`Fixes for line ${state.tapped}`}
               className="flex flex-wrap gap-[12px] max-md:flex-col"
             >
-              {round.fixes.map((text, i) => (
-                <FixCard
-                  key={text}
-                  letter={OPTION_LETTERS[i]}
-                  text={text}
-                  tone={fixTone(i)}
-                  disabled={state.wrongFixes.includes(i)}
-                  onPick={() => pick(i)}
-                />
-              ))}
+              {fixOrder
+                .map((i, at) => [round.fixes[i], i, at])
+                .map(([text, i, at]) => (
+                  <FixCard
+                    key={text}
+                    letter={OPTION_LETTERS[at]}
+                    text={text}
+                    tone={fixTone(i)}
+                    disabled={state.wrongFixes.includes(i)}
+                    onPick={() => pick(i)}
+                  />
+                ))}
             </div>
           </>
         ) : null}

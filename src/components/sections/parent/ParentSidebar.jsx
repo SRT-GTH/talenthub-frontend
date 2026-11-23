@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
-import { NAV_MAIN, NAV_SECONDARY } from './data/parentCoreData.js';
+import { NAV_MAIN, NAV_SECONDARY, careerHome } from './data/parentCoreData.js';
 import { NO_CAREER } from './switch/switchData.js';
 import useParentChrome from './live/useParentChrome.js';
 import homeActive from '../../../assets/parent/frame-1.svg';
@@ -18,7 +18,7 @@ import switchChevron from '../../../assets/parent/switch-chevron.svg';
 import dot from '../../../assets/parent/ellipse.svg';
 import linkChain from '../../../assets/parent/group.svg';
 import { TalentSidebarPreviewArrowUpRightIcon } from '../../shared/assets.jsx';
-import toggleIcon from '../../../assets/parent/ep-d-arrow-left.svg';
+import ParentSidebarToggle from './ParentSidebarToggle.jsx';
 
 const log = debug('ParentSidebar');
 
@@ -134,7 +134,7 @@ const ParentSidebar = ({
     <aside
       aria-label="Parent navigation"
       className={classNames(
-        'relative flex w-[303px] shrink-0 flex-col items-center gap-[24px] overflow-y-auto border-r-2 border-solid border-white bg-white pt-[22px] pb-[16px]',
+        'slim-scrollbar relative flex min-h-0 w-[303px] shrink-0 flex-col items-center gap-[24px] overflow-y-auto border-r-2 border-solid border-white bg-white pt-[22px] pb-[16px]',
         className
       )}
     >
@@ -236,8 +236,12 @@ const ParentSidebar = ({
         </div>
       </div>
 
-      <nav aria-label="Parent" className="flex w-[275px] shrink-0 flex-col gap-[16px] px-[8px]">
-        <div className="flex w-[259px] flex-col gap-[6px] pt-[6px]">
+      {/* Profile card (with the collapse button) pinned at the top, the talent card pinned at the bottom; only the links scroll. */}
+      <nav
+        aria-label="Parent"
+        className="flex min-h-0 w-[275px] flex-1 flex-col gap-[16px] px-[8px]"
+      >
+        <div className="slim-scrollbar flex min-h-[120px] w-[265px] flex-1 flex-col gap-[6px] overflow-y-auto pt-[6px] pr-[6px] pb-[6px]">
           <div className="flex flex-col gap-[4px]">
             {NAV_MAIN.map((it) => (
               <NavItem key={it.id} item={it} active={it.id === active} badge={s.badges[it.id]} />
@@ -246,11 +250,15 @@ const ParentSidebar = ({
           <span className="h-px w-full rounded-[30px] bg-[#e1eae2]" aria-hidden="true" />
           <div className="flex flex-col gap-[4px]">
             {NAV_SECONDARY.map((it) => (
-              <NavItem key={it.id} item={it} active={it.id === active} />
+              <NavItem
+                key={it.id}
+                item={it.id === 'career' ? { ...it, to: careerHome(chrome.live) } : it}
+                active={it.id === active}
+              />
             ))}
           </div>
         </div>
-        <div className="flex h-[125px] w-[259px] flex-col gap-[10px] overflow-clip rounded-[12px] border border-solid border-[#f8f8f4] bg-white p-[12px]">
+        <div className="flex h-[125px] w-[259px] shrink-0 flex-col gap-[10px] overflow-clip rounded-[12px] border border-solid border-[#f8f8f4] bg-white p-[12px]">
           <span className="flex items-center gap-[6px] rounded-[8px] bg-[#ebf1ec] px-[10px] py-[8px]">
             <span className="flex size-[14px] shrink-0 items-center justify-center bg-white">
               <img src={linkChain} alt="" className="size-[11.8px]" />
@@ -275,7 +283,7 @@ const ParentSidebar = ({
             </button>
           ) : (
             <Link
-              to="/home"
+              to={careerHome(chrome.live)}
               className="flex h-[36px] items-center justify-center gap-[6px] rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.3)] bg-white px-[12px] font-sans text-[13px] leading-[24px] font-bold tracking-[0.1px] whitespace-nowrap text-[#1c2a21] no-underline shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
             >
               Switch to My career
@@ -285,14 +293,10 @@ const ParentSidebar = ({
         </div>
       </nav>
 
-      <button
-        type="button"
-        aria-label="Collapse sidebar"
+      <ParentSidebarToggle
+        className="top-[32px] right-[22px]"
         onClick={() => (onCollapse ? onCollapse() : log('collapse (no handler given)'))}
-        className="absolute top-[32px] right-[22px] flex size-[28px] cursor-pointer items-center justify-center overflow-clip rounded-[8px] border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-      >
-        <img src={toggleIcon} alt="" className="h-[20px] w-[23px]" />
-      </button>
+      />
     </aside>
   );
 };

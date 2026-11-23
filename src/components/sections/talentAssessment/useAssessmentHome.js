@@ -11,7 +11,8 @@ const log = debug('useAssessmentHome');
  * `assessment` is null while loading; `failed` is true if it could not load. Disabled in demo mode.
  */
 export const useAssessmentHome = ({ enabled = true } = {}) => {
-  const home = useTalentHomeState();
+  // Demo / Figma frames never call the talent API, so a signed-out design check is not sent to /login.
+  const home = useTalentHomeState({ enabled });
   const live = home?.live && !home.live.placeholder ? home.live : null;
   const [assessment, setAssessment] = useState(null);
   // Wait for the verified skills (the assessment uses them). Later /home

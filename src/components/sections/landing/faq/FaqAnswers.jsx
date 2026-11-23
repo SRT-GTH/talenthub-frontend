@@ -1,10 +1,19 @@
 import { useState } from 'react';
-import { FaqPlusIcon } from './FaqIcons.jsx';
+import LandingFaqItem from '../shared/LandingFaqItem.jsx';
 import { FAQ_CATEGORIES, FAQ_DEFAULT_OPEN, FAQ_GROUPS } from './FaqData.js';
 import { classNames } from '../../../../utils/classNames.js';
+import { smoothScrollTo } from '../../../../utils/smoothScrollTo.js';
 import { debug } from '../../../../utils/debug.js';
 
 const log = debug('FaqAnswers');
+
+const topicsOffset = () => {
+  const nav = document.querySelector('[data-landing-nav]')?.offsetHeight ?? 0;
+  const topics = document.querySelector('[data-faq-topics]');
+  const stuck =
+    topics && getComputedStyle(topics).flexDirection === 'row' ? topics.offsetHeight : 0; // xl is a side column
+  return nav + stuck + 16;
+};
 
 const CARD_SHADOW = 'shadow-[5px_5px_0_rgba(28,42,33,0.2),0_10px_24px_rgba(28,42,33,0.06)]';
 
@@ -12,13 +21,17 @@ const CARD_SHADOW = 'shadow-[5px_5px_0_rgba(28,42,33,0.2),0_10px_24px_rgba(28,42
 const Categories = ({ active, onSelect }) => (
   <nav
     aria-label="Browse by topic"
+    data-faq-topics
     className={classNames(
-      'flex items-center gap-2 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+      'flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+      // phones / tablets: the pill row sticks under the fixed nav (72 / 88px) while the answers scroll (product owner, 2026-11-14)
+      'sticky top-[72px] z-20 -mx-5 bg-[#fbf3e4]/95 px-5 py-3 shadow-[0_6px_12px_-8px_rgba(28,42,33,0.25)] backdrop-blur-md md:top-[88px] md:-mx-10 md:px-10',
+      'xl:mx-0 xl:shadow-none xl:backdrop-blur-none',
       'xl:sticky xl:top-[124px] xl:h-fit xl:w-[320px] xl:shrink-0 xl:flex-col xl:items-stretch xl:gap-4 xl:overflow-visible xl:rounded-[26px] xl:border-[1.4px] xl:border-[#1c2a21]/[.32] xl:bg-[#fffdf7] xl:p-5',
       'xl:shadow-[5px_5px_0_rgba(28,42,33,0.2),0_10px_24px_rgba(28,42,33,0.06)]'
     )}
   >
-    <h2 className="m-0 shrink-0 whitespace-nowrap pr-1 font-heading text-[19px] font-semibold leading-[23.8px] text-[#1c2a21]">
+    <h2 className="m-0 hidden shrink-0 whitespace-nowrap pr-1 font-heading xl:block text-[19px] font-semibold leading-[23.8px] text-[#1c2a21]">
       Browse by topic
     </h2>
     {FAQ_CATEGORIES.map((cat) => {
@@ -55,59 +68,6 @@ const Categories = ({ active, onSelect }) => (
   </nav>
 );
 
-/* "LP · FAQ item" (Figma 7797:31776): r22, white, 1.4px ink border + hard shadow, pad 22/22/22/26; row = question 20/600 + 40px toggle circle. */
-const FaqItem = ({ item, open, onToggle }) => (
-  <div
-    className={classNames(
-      'flex flex-col rounded-[22px] border-[1.4px] border-[#1c2a21]/[.32] bg-white py-[22px] pl-[26px] pr-[22px] transition-shadow duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none',
-      open
-        ? 'shadow-[0_6px_0_#387440,0_10px_24px_rgba(28,42,33,.06)]'
-        : 'shadow-[5px_5px_0_rgba(28,42,33,0.2),0_10px_24px_rgba(28,42,33,0.06)]'
-    )}
-  >
-    <h3 className="m-0">
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls={`faq-a-${item.id}`}
-        onClick={onToggle}
-        className="flex w-full cursor-pointer items-center gap-4 border-0 bg-transparent p-0 text-left"
-      >
-        <span className="min-w-0 flex-1 font-sans text-[clamp(17px,calc(14px+0.35vw),20px)] font-semibold leading-[1.2] text-[#1c2a21]">
-          {item.q}
-        </span>
-        <span
-          className={classNames(
-            'flex size-10 shrink-0 items-center justify-center rounded-full border-[1.5px] border-[#1c2a21] transition-colors duration-[400ms]',
-            open ? 'bg-[#387440] text-white' : 'bg-white text-[#1c2a21]'
-          )}
-        >
-          <FaqPlusIcon
-            size={16}
-            className={classNames('transition-transform', open && 'rotate-45')}
-          />
-        </span>
-      </button>
-    </h3>
-    <div
-      className={classNames(
-        'grid transition-[grid-template-rows,opacity] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none',
-        open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-      )}
-    >
-      <div className="overflow-hidden">
-        <p
-          id={`faq-a-${item.id}`}
-          aria-hidden={!open}
-          className="m-0 pr-6 pt-3 font-sans text-[16px] leading-[25px] text-[#595959]"
-        >
-          {item.a}
-        </p>
-      </div>
-    </div>
-  </div>
-);
-
 /*
  * FaqAnswers — "Section · Answers" (Figma 7797:31734, 1728x1703, gradient #fbf3e4 → #f1ede2, pad 100/96).
  * Row gap 40: Categories (320) | groups column 1000 (gap 36; group = Bricolage 29/600 title + gap 24 + items). First item drawn open.
@@ -123,9 +83,8 @@ const FaqAnswers = () => {
     log('category selected', { id, group: cat?.group });
     setActive(id);
     if (cat?.group) {
-      document
-        .getElementById(`faq-group-${cat.group}`)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // land the group title below the fixed nav and, under xl, below the sticky topic row (smooth on iOS too)
+      smoothScrollTo(document.getElementById(`faq-group-${cat.group}`), { offset: topicsOffset });
     }
   };
 
@@ -149,9 +108,11 @@ const FaqAnswers = () => {
               </h2>
               <div className="flex flex-col gap-6">
                 {g.items.map((item) => (
-                  <FaqItem
+                  <LandingFaqItem
                     key={item.id}
-                    item={item}
+                    id={item.id}
+                    question={item.q}
+                    answer={item.a}
                     open={openId === item.id}
                     onToggle={() => {
                       const next = openId === item.id ? null : item.id;

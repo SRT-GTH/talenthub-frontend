@@ -12,6 +12,8 @@ import avatarPortrait from '../../../assets/talent-settings/menu/kofi-avatar-por
 import gthLogo from '../../../assets/engagement/GTHLogo 1.svg';
 import glowMint from '../../../assets/talent-settings/menu/logged-out-glow-mint.svg';
 import glowGold from '../../../assets/talent-settings/menu/logged-out-glow-gold.svg';
+// the top-bar "Log in" chip's 14px icon, exported from Figma as drawn (a clock glyph cropped by the chip's 14px icon box)
+import loginChipIcon from '../../../assets/talent-settings/menu/logged-out-login-chip-icon.svg';
 
 const log = debug('LoggedOutScreen');
 
@@ -76,6 +78,7 @@ const LoggedOutScreen = () => {
           to="/login"
           className="flex h-[32px] items-center gap-[6px] rounded-[999px] border border-solid border-[#e1eae2] bg-white px-[14px] font-sans text-[13px] font-semibold whitespace-nowrap text-[#595959] no-underline outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
+          <img src={loginChipIcon} alt="" className="size-[14px] shrink-0" />
           Log in
         </Link>
       </header>

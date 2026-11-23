@@ -19,6 +19,10 @@ import {
 } from '../../../shared/assets.jsx';
 import { VERIFY_CHIP } from './data/institutionSettingsData.js';
 import { logout } from '../../../../services/auth.api.js';
+import { STORAGE_KEYS } from '../../../../constants/storageKeys.js';
+import PrivacyPolicyModal from '../../../shared/PrivacyPolicyModal.jsx';
+import TermsModal from '../../../shared/TermsModal.jsx';
+import SendFeedbackDialog from '../../talentSettings/SendFeedbackDialog.jsx';
 
 const log = debug('InstitutionProfileMenu');
 
@@ -67,6 +71,16 @@ const MenuItem = ({ icon, label, value, chevron, hot, onActivate, onHot, id }) =
 
 const Divider = () => <div aria-hidden="true" className="h-px w-full shrink-0 bg-[#e7e7e7]" />;
 
+/* The signed-in user's email: the session's admin email, else the profile saved at login. */
+const signedInEmail = (admin) => {
+  if (admin?.email) return admin.email;
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.userProfile) || 'null')?.email || '';
+  } catch {
+    return '';
+  }
+};
+
 const FOOT =
   'inline-flex min-h-[24px] cursor-pointer items-center border-0 bg-transparent p-0 font-medium text-[#595959] underline outline-none focus-visible:outline-2 focus-visible:outline-[#1c2a21]';
 
@@ -75,8 +89,9 @@ const FOOT =
  * Admin chip, email, school + "Verified institution"), your institution page / preview as a student / staff / accreditation, Institution settings
  * (highlighted as drawn), accessibility, language, help, feedback, invite staff, log out, footer. Mounted by InstitutionFrame while ?modal=profile.
  * Keyboard: arrows / Home / End move, Esc closes, focus returns to the element that opened it (the top-bar chip); outside click closes.
- * ⚠️ ASSUMPTIONS: Accessibility / Language / Help set the chrome's inert ?modal= keys, Send feedback / Privacy / Terms just close, Log out returns to
- * /institution/sign-up (no real session), Preview as a student opens the public institution page (as the rail card does), Accreditation opens the
+ * Accessibility / Language / Help open the top bar's panels (?modal=a11y|language|help); Send feedback opens the shared feedback dialog (no backend yet:
+ * it only logs), Privacy / Terms open the shared legal summaries (as the talent profile menu does); Log out signs out to /login.
+ * ⚠️ ASSUMPTIONS: Preview as a student opens the public institution page (as the rail card does), Accreditation opens the
  * verification status. The drawn strength bar of the header is 1px wide (an instance leftover): kept as drawn. Contract kept from the foundation stub:
  * Props: data (useInstitutionState()), session (useInstitutionSession()).
  */
@@ -85,7 +100,12 @@ const InstitutionProfileMenu = ({ data, session }) => {
   const rootRef = useRef(null);
   const openerRef = useRef(null);
   const [hot, setHot] = useState('settings');
+  // 'feedback' | 'privacy' | 'terms' | null: a dialog opened from the menu (the menu card hides under it; closing it closes the menu)
+  const [overlay, setOverlay] = useState(null);
+  const overlayRef = useRef(null);
+  overlayRef.current = overlay;
   const { admin, institution, verify } = session;
+  const email = signedInEmail(admin);
   const { update } = data;
   const updateRef = useRef(update);
   useEffect(() => {
@@ -119,6 +139,7 @@ const InstitutionProfileMenu = ({ data, session }) => {
       if (restore) requestAnimationFrame(restoreFocus);
     };
     const onKey = (e) => {
+      if (overlayRef.current) return; // the open dialog handles its own keys
       if (e.key === 'Escape') {
         e.preventDefault();
         closeMenu(true);
@@ -142,6 +163,7 @@ const InstitutionProfileMenu = ({ data, session }) => {
       }
     };
     const onDown = (e) => {
+      if (overlayRef.current) return; // clicks inside the dialog must not close the menu under it
       if (rootRef.current?.contains(e.target)) return;
       if (e.target.closest?.('button[aria-label^="Profile menu"]')) return;
       closeMenu(false);
@@ -164,6 +186,22 @@ const InstitutionProfileMenu = ({ data, session }) => {
   };
   const item = (id, props) => <MenuItem id={id} hot={hot === id} onHot={setHot} {...props} />;
   const inert = (modal) => () => update({ modal });
+  const openOverlay = (id) => () => {
+    log('open', id);
+    setOverlay(id);
+  };
+  const closeOverlay = () => {
+    log('dialog closed', overlay);
+    setOverlay(null);
+    close();
+  };
+
+  if (overlay === 'feedback')
+    return <SendFeedbackDialog copy={{ textValue: '' }} onClose={closeOverlay} />;
+  if (overlay === 'privacy')
+    return <PrivacyPolicyModal ctaLabel="Got it" onAccept={closeOverlay} onClose={closeOverlay} />;
+  if (overlay === 'terms')
+    return <TermsModal ctaLabel="Got it" onAccept={closeOverlay} onClose={closeOverlay} />;
 
   return (
     <div
@@ -186,9 +224,11 @@ const InstitutionProfileMenu = ({ data, session }) => {
                 </span>
               </span>
             </div>
-            <p className="m-0 max-w-full truncate font-sans text-[13px] text-[#595959]">
-              registrar@savannahhills.edu.gh
-            </p>
+            {email ? (
+              <p className="m-0 max-w-full truncate font-sans text-[13px] text-[#595959]">
+                {email}
+              </p>
+            ) : null}
           </div>
           <div className="flex w-full items-center gap-[10px]">
             <span
@@ -260,7 +300,7 @@ const InstitutionProfileMenu = ({ data, session }) => {
           {item('feedback', {
             icon: <ProfileMenuFeedbackIcon className="size-[20px]" />,
             label: 'Send feedback',
-            onActivate: close,
+            onActivate: openOverlay('feedback'),
           })}
           {item('invite', {
             icon: <ProfileMenuInviteIcon className="size-[20px]" />,
@@ -281,10 +321,10 @@ const InstitutionProfileMenu = ({ data, session }) => {
         </div>
 
         <div className="flex w-full shrink-0 flex-wrap items-center gap-x-[12px] gap-y-[4px] px-[12px] pt-[6px] pb-[4px] font-sans text-[12px] text-[#595959]">
-          <button type="button" onClick={close} className={FOOT}>
+          <button type="button" onClick={openOverlay('privacy')} className={FOOT}>
             Privacy
           </button>
-          <button type="button" onClick={close} className={FOOT}>
+          <button type="button" onClick={openOverlay('terms')} className={FOOT}>
             Terms
           </button>
           <span className="ml-auto whitespace-nowrap">Keyboard: ↑ ↓ to move, Esc to close</span>

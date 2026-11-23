@@ -18,6 +18,7 @@ import {
   getTalentProfile,
   getTalentNavData,
   getTalentSidebarData,
+  withDemoFlag,
 } from './talentShellData.js';
 // Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
 import '../../../copy/portals/talentCopy.js';
@@ -96,9 +97,9 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
   const select = (item) => {
     log('select:', item.id);
     if (item.route) {
-      if (pathname !== item.route) navigate(item.route);
+      if (pathname !== item.route) navigate(withDemoFlag(item.route));
     } else if (item.tab && pathname !== '/home') {
-      navigate(item.tab === 'home' ? '/home' : `/home?tab=${item.tab}`);
+      navigate(withDemoFlag(item.tab === 'home' ? '/home' : `/home?tab=${item.tab}`));
     } else if (item.tab) home?.update?.({ tab: item.tab === 'home' ? null : item.tab });
     setMoreOpen(false);
   };

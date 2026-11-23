@@ -14,41 +14,41 @@
 
 Diff % from `figma-tools/framecmp.mjs` (1728 wide, viewport = frame height − 52). `✅ VERIFIED` 2026-11-06.
 
-| Code  | Frame                                   | Figma node  | URL                                                                      | Diff |
-| ----- | --------------------------------------- | ----------- | ------------------------------------------------------------------------ | ---- |
-| JT-01 | Template details (modal)                | 10117:50522 | `/recruiter/job-templates?modal=details&template=product-designer`       | 4.7  |
-| JT-02 | Template preview (as talent sees it)    | 10117:51016 | `/recruiter/job-templates/product-designer/preview`                      | 4.6  |
-| JT-03 | Create job, pre-filled                  | 10117:51352 | `/recruiter/job-postings/new?template=product-designer`                  | 3.8  |
-| JT-04 | Employment type dropdown                | 10117:51735 | `…new?template=product-designer&menu=employment`                         | 3.8  |
-| JT-05 | Location dropdown (searchable)          | 10117:52143 | `…&menu=location&q=Acc`                                                  | 3.8  |
-| JT-06 | Screening criteria dropdown             | 10117:52554 | `…&menu=screening`                                                       | 3.9  |
-| JT-07 | Validation errors                       | 10117:52967 | `…&state=errors`                                                         | 3.8  |
-| JT-08 | Preview before publishing               | 10117:53347 | `/recruiter/job-postings/new/preview`                                    | 4.9  |
-| JT-09 | Publishing (processing)                 | 10117:53683 | `…new?template=product-designer&state=publishing`                        | 4.6  |
-| JT-10 | Published, success + next steps         | 10117:54589 | `/recruiter/job-postings?modal=published`                                | 3.3  |
-| JT-11 | New job live (toast)                    | 10117:54084 | `/recruiter/job-postings?toast=published`                                | 3.8  |
-| CT-01 | New template, blank                     | 10117:55122 | `/recruiter/job-templates/new`                                           | 3.1  |
-| CT-02 | New template, filled                    | 10117:55476 | `/recruiter/job-templates/new?state=filled`                              | 3.8  |
-| CT-03 | Save template dialog                    | 10117:55846 | `…/new?modal=save`                                                       | 7.3  |
-| CT-04 | Category dropdown open                  | 10117:56249 | `…/new?modal=save&menu=category`                                         | 7.5  |
-| CT-05 | Name already used                       | 10117:56677 | `…/new?modal=save&state=name-taken`                                      | 7.5  |
-| CT-06 | My templates, saved (toast)             | 10117:57080 | `/recruiter/job-templates?mine=1&toast=saved`                            | 3.9  |
-| CT-07 | My template card menu                   | 10117:57431 | `/recruiter/job-templates?mine=1&menu=junior-frontend-developer`         | 2.8  |
-| CT-08 | Reuse (template library)                | 10117:57792 | `/recruiter/job-templates`                                               | 4.7  |
-| JM-01 | Job detail, recruiter view              | 10117:58288 | `/recruiter/job-postings/senior-ux-designer`                             | 3.7  |
-| JM-02 | Posting card actions menu               | 10117:58656 | `/recruiter/job-postings?menu=senior-ux-designer&menuKind=manage`        | 1.9  |
-| JM-03 | Edit live posting                       | 10117:61000 | `/recruiter/job-postings/senior-ux-designer/edit`                        | 3.6  |
-| JM-04 | Save changes confirm                    | 10117:61371 | `…/edit?modal=confirm`                                                   | 5.5  |
-| JM-05 | Changes saved                           | 10117:61762 | `/recruiter/job-postings/senior-ux-designer?saved=1`                     | 5.2  |
-| JM-06 | Duplicate as template                   | 10117:59133 | `/recruiter/job-postings?modal=save-template&posting=senior-ux-designer` | 4.5  |
-| JM-07 | Duplicated, saved to My templates       | 10117:63457 | `/recruiter/job-templates?mine=1&toast=copied`                           | 4.2  |
-| JM-08 | Pause applications confirm              | 10117:59623 | `…?modal=pause&posting=senior-ux-designer`                               | 2.4  |
-| JM-09 | Posting paused (toast, undo)            | 10117:62145 | `…?toast=paused&posting=senior-ux-designer`                              | 3.3  |
-| JM-10 | Close posting confirm (with applicants) | 10117:60080 | `…?modal=close-applicants&posting=senior-ux-designer`                    | 3.8  |
-| JM-11 | Posting closed (toast)                  | 10117:62599 | `…?toast=closed&posting=senior-ux-designer`                              | 3.4  |
-| JM-12 | Delete draft confirm                    | 10117:60548 | `…?modal=delete-draft&posting=devops-engineer`                           | 2.4  |
-| JM-13 | Draft deleted (undo)                    | 10117:63053 | `…?toast=deleted&posting=devops-engineer`                                | 3.1  |
-| JS-15 | Templates › Screening criteria          | 10117:70023 | `/recruiter/job-templates?view=screening`                                | 4.4  |
+| Code  | Frame                                   | Figma node  | URL                                                                      | Diff % (2026-11-22)   |
+| ----- | --------------------------------------- | ----------- | ------------------------------------------------------------------------ | --------------------- |
+| JT-01 | Template details (modal)                | 10117:50522 | `/recruiter/job-templates?modal=details&template=product-designer`       | 4.2                   |
+| JT-02 | Template preview (as talent sees it)    | 10117:51016 | `/recruiter/job-templates/product-designer/preview`                      | 4.6                   |
+| JT-03 | Create job, pre-filled                  | 10117:51352 | `/recruiter/job-postings/new?template=product-designer`                  | 3.7                   |
+| JT-04 | Employment type dropdown                | 10117:51735 | `…new?template=product-designer&menu=employment`                         | 3.8                   |
+| JT-05 | Location dropdown (searchable)          | 10117:52143 | `…&menu=location&q=Acc`                                                  | 3.8                   |
+| JT-06 | Screening criteria dropdown             | 10117:52554 | `…&menu=screening`                                                       | 3.9                   |
+| JT-07 | Validation errors                       | 10117:52967 | `…&state=errors`                                                         | 3.8                   |
+| JT-08 | Preview before publishing               | 10117:53347 | `/recruiter/job-postings/new/preview`                                    | 4.9                   |
+| JT-09 | Publishing (processing)                 | 10117:53683 | `…new?template=product-designer&state=publishing`                        | 4.7                   |
+| JT-10 | Published, success + next steps         | 10117:54589 | `/recruiter/job-postings?modal=published`                                | 2.7                   |
+| JT-11 | New job live (toast)                    | 10117:54084 | `/recruiter/job-postings?toast=published`                                | 3.8                   |
+| CT-01 | New template, blank                     | 10117:55122 | `/recruiter/job-templates/new`                                           | 3.1                   |
+| CT-02 | New template, filled                    | 10117:55476 | `/recruiter/job-templates/new?state=filled`                              | 3.8                   |
+| CT-03 | Save template dialog                    | 10117:55846 | `…/new?modal=save`                                                       | 7.3 (dialog centring) |
+| CT-04 | Category dropdown open                  | 10117:56249 | `…/new?modal=save&menu=category`                                         | 7.5 (dialog centring) |
+| CT-05 | Name already used                       | 10117:56677 | `…/new?modal=save&state=name-taken`                                      | 7.5 (dialog centring) |
+| CT-06 | My templates, saved (toast)             | 10117:57080 | `/recruiter/job-templates?mine=1&toast=saved`                            | 3.9                   |
+| CT-07 | My template card menu                   | 10117:57431 | `/recruiter/job-templates?mine=1&menu=junior-frontend-developer`         | 2.8                   |
+| CT-08 | Reuse (template library)                | 10117:57792 | `/recruiter/job-templates`                                               | 4.0                   |
+| JM-01 | Job detail, recruiter view              | 10117:58288 | `/recruiter/job-postings/senior-ux-designer`                             | 3.7                   |
+| JM-02 | Posting card actions menu               | 10117:58656 | `/recruiter/job-postings?menu=senior-ux-designer&menuKind=manage`        | 1.9                   |
+| JM-03 | Edit live posting                       | 10117:61000 | `/recruiter/job-postings/senior-ux-designer/edit`                        | 3.6                   |
+| JM-04 | Save changes confirm                    | 10117:61371 | `…/edit?modal=confirm`                                                   | 5.5                   |
+| JM-05 | Changes saved                           | 10117:61762 | `/recruiter/job-postings/senior-ux-designer?saved=1`                     | 5.3                   |
+| JM-06 | Duplicate as template                   | 10117:59133 | `/recruiter/job-postings?modal=save-template&posting=senior-ux-designer` | 4.5                   |
+| JM-07 | Duplicated, saved to My templates       | 10117:63457 | `/recruiter/job-templates?mine=1&toast=copied`                           | 4.2                   |
+| JM-08 | Pause applications confirm              | 10117:59623 | `…?modal=pause&posting=senior-ux-designer`                               | 2.3                   |
+| JM-09 | Posting paused (toast, undo)            | 10117:62145 | `…?toast=paused&posting=senior-ux-designer`                              | 3.3                   |
+| JM-10 | Close posting confirm (with applicants) | 10117:60080 | `…?modal=close-applicants&posting=senior-ux-designer`                    | 3.5                   |
+| JM-11 | Posting closed (toast)                  | 10117:62599 | `…?toast=closed&posting=senior-ux-designer`                              | 3.4                   |
+| JM-12 | Delete draft confirm                    | 10117:60548 | `…?modal=delete-draft&posting=devops-engineer`                           | 2.2                   |
+| JM-13 | Draft deleted (undo)                    | 10117:63053 | `…?toast=deleted&posting=devops-engineer`                                | 3.1                   |
+| JS-15 | Templates › Screening criteria          | 10117:70023 | `/recruiter/job-templates?view=screening`                                | 2.8                   |
 
 Flows: Use template → create → Publish job (validates; errors write `state=errors`; valid runs the three-step publishing dialog, then `/recruiter/job-postings?toast=published&modal=published`). Save template dialog → `/recruiter/job-templates?mine=1&toast=saved`. Pause / close / delete dialogs write the matching toast and apply the change locally (Undo / Reopen revert it).
 

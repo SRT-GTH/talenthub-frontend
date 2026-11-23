@@ -15,6 +15,7 @@ import {
 } from '../../shared/assets.jsx';
 import { CARD_INK, CtaButton, Chip, Doodle, HEAD, Points, Sticker } from './coreUi.jsx';
 import { HERO } from './talentHomeCoreData.js';
+import { smoothLayout } from '../../../utils/smoothLayout.js';
 import { JOURNEY_MAP_ROUTE } from '../engagementShell/engagementShellData.js';
 
 const log = debug('TalentHomeHero');
@@ -267,7 +268,7 @@ const StatsHero = ({ copy, home, go }) => (
     </div>
     <button
       type="button"
-      onClick={() => home.update({ edit: true })}
+      onClick={() => smoothLayout(() => home.update({ edit: true }), 'edit on')}
       className="max-lg:order-first max-lg:self-end lg:absolute lg:top-[16px] lg:right-[24px] inline-flex cursor-pointer items-center gap-[6px] rounded-full border border-[#e7e7e7] bg-white px-[10px] py-[6px] text-[12px] leading-[normal] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
     >
       <TalentHomeCustomizeIcon className="size-[14px]" />

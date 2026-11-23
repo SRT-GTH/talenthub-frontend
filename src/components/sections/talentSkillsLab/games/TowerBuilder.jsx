@@ -4,6 +4,7 @@ import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import GameCompleteDialog from './personality/PersonalityDialog.jsx';
 import GameShell from './personality/PersonalityChrome.jsx';
+import { demoSearch, gamesTabPath } from '../skillsLabState.js';
 import { PgMouseIcon, PgRepeatIcon, PgTrendUpIcon } from './personality/PersonalityIcons.jsx';
 import { GameIntro } from './personality/PersonalityParts.jsx';
 import { PLAY_ORDER } from './personality/personalityData.js';
@@ -185,9 +186,9 @@ const TowerBuilder = ({ frame }) => {
   };
   const next = () =>
     navigate(
-      `/skills-lab/games/${PLAY_ORDER[(PLAY_ORDER.indexOf(TOWER.gameId) + 1) % PLAY_ORDER.length]}`
+      `/skills-lab/games/${PLAY_ORDER[(PLAY_ORDER.indexOf(TOWER.gameId) + 1) % PLAY_ORDER.length]}${demoSearch()}`
     );
-  const arcade = () => navigate('/skills-lab?tab=games');
+  const arcade = () => navigate(gamesTabPath());
   const done = finished;
   const segments = TOWER.levels.map((_, i) =>
     done || i < level ? 'done' : i === level ? 'now' : 'todo'

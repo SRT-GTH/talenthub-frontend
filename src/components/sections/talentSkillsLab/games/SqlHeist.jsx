@@ -4,7 +4,13 @@ import { debug } from '../../../../utils/debug.js';
 import { FOCUS_RING } from '../labPlayStyles.js';
 import { GameKeyIcon, GameUsersIcon, GameViewTableIcon } from '../skillGames/GameIcons.jsx';
 import { GameFrame, GameHead } from '../skillGames/gameKit.jsx';
-import { INK, MONO, buildGameResult, topicRowsFor } from '../skillGames/gameKitUtils.js';
+import {
+  INK,
+  MONO,
+  buildGameResult,
+  displayOrder,
+  topicRowsFor,
+} from '../skillGames/gameKitUtils.js';
 import { SQL_CLUES, SQL_FRAMES, SQL_HEIST } from '../skillGames/sqlHeistData.js';
 
 const log = debug('SqlHeist');
@@ -129,12 +135,13 @@ const QueryEditor = ({ clue, slot, held, onDrop, onClear }) => (
 );
 
 /* ---------- clauses ---------- */
-const TokenBank = ({ clue, held, slot, onHold }) => (
+const TokenBank = ({ clue, held, slot, onHold, order }) => (
   <div className="flex flex-wrap items-center gap-[10px]">
     <span className="font-sans text-[13.5px] leading-[16px] font-semibold text-[#595959]">
       Drag in:
     </span>
-    {clue.tokens.map((token, i) => {
+    {(order ?? clue.tokens.map((_, k) => k)).map((i) => {
+      const token = clue.tokens[i];
       const isHeld = held === i;
       const used = slot === i;
       return (
@@ -417,6 +424,11 @@ const SqlHeist = ({ frame }) => {
         />
         <TokenBank
           clue={clue}
+          order={displayOrder(
+            clue.tokens.length,
+            `sql-${state.runKey}-${state.clue}`,
+            Boolean(frame)
+          )}
           held={state.held}
           slot={state.slot}
           onHold={(index, force) => dispatch({ type: 'hold', index, force })}

@@ -3,10 +3,17 @@ import { HEADING, STICKER } from './circleStyles.js';
 
 /*
  * CircleSectionHead — a section title over the card grid: title 22/26 (empty state 20/24) + 13px grey note; Playful can carry the
- * "PICKED FOR YOU" sticker (-3°) at the right. Props: title, note, sticker, size ('lg' | 'md'), className.
+ * "PICKED FOR YOU" sticker (-3°) at the right. Props: title, note, sticker, size ('lg' | 'md'), id (scroll target of the right-rail
+ * links), className.
  */
-const CircleSectionHead = ({ title, note, sticker, size = 'lg', className }) => (
-  <div className={classNames('flex flex-wrap items-end justify-between gap-[8px]', className)}>
+const CircleSectionHead = ({ id, title, note, sticker, size = 'lg', className }) => (
+  <div
+    id={id}
+    className={classNames(
+      'flex scroll-mt-[16px] flex-wrap items-end justify-between gap-[8px]',
+      className
+    )}
+  >
     <div className="flex min-w-0 flex-col gap-[3px]">
       <h2
         className={classNames(

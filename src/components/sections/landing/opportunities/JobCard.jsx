@@ -7,7 +7,9 @@ import {
   MapGlyph,
   WalletGlyph,
 } from './OpportunitiesIcons.jsx';
+import { Link } from 'react-router-dom';
 import { RESULTS } from './OpportunitiesData.js';
+import { jobDestinations as destinations } from './jobDestinations.js';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 
@@ -29,6 +31,7 @@ const JOB_ICONS = {
  */
 const JobCard = ({ job }) => {
   const Icon = JOB_ICONS[job.icon];
+  const { open, save } = destinations(job);
   return (
     <article
       className={classNames(
@@ -49,18 +52,26 @@ const JobCard = ({ job }) => {
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
           <h3 className="m-0 font-sans text-[17px] font-semibold leading-[20.3px] text-[#1c2a21]">
-            {job.title}
+            {/* the title link covers the whole card (::after), so a tap anywhere opens the role */}
+            <Link
+              to={open}
+              onClick={() => log('open role', job.id, '->', open)}
+              className="text-inherit no-underline after:absolute after:inset-0 after:rounded-[24px] after:content-[''] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-[#387440]"
+            >
+              {job.title}
+            </Link>
           </h3>
           <p className="m-0 font-sans text-[13px] leading-[15.5px] text-[#595959]">{job.meta}</p>
         </div>
-        <button
-          type="button"
+        {/* above the card link (z-10) so it saves instead of opening the role */}
+        <Link
+          to={save}
           aria-label={`Save ${job.title}`}
-          onClick={() => log('save (inert)', job.id)}
-          className="size-5 shrink-0 cursor-pointer border-0 bg-transparent p-0 text-[#595959]"
+          onClick={() => log('save role', job.id, '->', save)}
+          className="relative z-10 size-5 shrink-0 cursor-pointer text-[#595959] hover:text-[#387440]"
         >
           <HeartGlyph />
-        </button>
+        </Link>
       </div>
       <div className="flex flex-wrap items-center gap-[6px]">
         <span className="inline-flex h-[26px] items-center rounded-full border border-[#1c2a21] bg-[#ffd86b] px-3 font-sans text-[12px] font-semibold text-[#1c2a21]">

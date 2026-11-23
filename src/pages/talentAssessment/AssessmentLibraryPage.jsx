@@ -16,10 +16,11 @@ const log = debug('AssessmentLibraryPage');
 /* AssessmentLibraryPage — `/my-assessment/library` (MA-09): the talent shell around the assessments library. */
 const AssessmentLibraryPage = () => {
   const assessment = useAssessmentState();
-  const home = useTalentHomeState(); // live sidebar / nav (AssessmentFrame)
   const [params] = useSearchParams();
   // ?demo=1 keeps the drawn MA-09 (per-skill mock) for design QA; otherwise the six real assessments.
   const demo = params.get('demo') === '1';
+  // Live sidebar / nav (AssessmentFrame); ?demo=1 skips the talent API (no /login bounce when signed out).
+  const home = useTalentHomeState({ enabled: !demo });
   const live = useLiveAssessments({ enabled: !demo });
   const data = useMemo(
     () =>

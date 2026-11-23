@@ -27,7 +27,8 @@ const enterCodeAndLand = async (page) => {
   await expect(first).toBeVisible({ timeout: 90_000 });
   await first.click();
   await page.keyboard.type(OTP_BYPASS, { delay: 120 });
-  await page.waitForURL('**/profile/engagement', { timeout: 60_000 });
+  // Talents land on their dashboard (homePathFor in auth.api.js, commit 293f3ed).
+  await page.waitForURL('**/home', { timeout: 60_000 });
   const token = await page.evaluate(() => localStorage.getItem('th:auth-token'));
   expect(token, 'access token stored').toBeTruthy();
 };
@@ -40,7 +41,7 @@ test('logs in with a phone number', async ({ page }) => {
   if (await phoneTab.isVisible().catch(() => false)) await phoneTab.click();
   await page.locator('#login-phone').pressSequentially(ACCOUNT.phone, { delay: 40 });
   await page.locator('#login-password').fill(ACCOUNT.password);
-  await page.getByRole('button', { name: /^continue/i }).click();
+  await page.getByRole('button', { name: 'Enter Your Details To Continue' }).click();
   await enterCodeAndLand(page);
 });
 
@@ -51,7 +52,7 @@ test('logs in with an email', async ({ page }) => {
   await page.getByRole('tab', { name: 'Email' }).click();
   await page.locator('#login-email').fill(ACCOUNT.email);
   await page.locator('#login-password').fill(ACCOUNT.password);
-  await page.getByRole('button', { name: /^continue/i }).click();
+  await page.getByRole('button', { name: 'Enter Your Details To Continue' }).click();
   await enterCodeAndLand(page);
 });
 
@@ -61,7 +62,7 @@ test('wrong password shows the error toast', async ({ page }) => {
   await page.getByRole('tab', { name: 'Email' }).click();
   await page.locator('#login-email').fill(ACCOUNT.email);
   await page.locator('#login-password').fill('not-the-password');
-  await page.getByRole('button', { name: /^continue/i }).click();
+  await page.getByRole('button', { name: 'Enter Your Details To Continue' }).click();
   // The toast renders twice (phone-size inline + desktop panel); assert the visible one.
   await expect(
     page.locator('[role="alert"]:visible').filter({ hasText: 'Incorrect Email Or Password' })

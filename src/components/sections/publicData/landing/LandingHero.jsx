@@ -43,12 +43,13 @@ const LandingHero = ({ talents, returning = null }) => (
         <p className="m-0 font-sans text-[14px] leading-[17px] font-semibold tracking-[1.12px] text-[#c1d4c4] uppercase max-md:hidden">
           Ghana Talent Hub · public data
         </p>
-        <h2
+        {/* The page's single <h1> (the top-bar title is a <p>); it was an <h2>, which left the landing page with no <h1>. */}
+        <h1
           id="landing-title"
           className="m-0 font-sans text-[34px] leading-[38px] font-bold tracking-[-0.34px] text-white md:text-[clamp(44px,6vw,72px)] md:leading-[1.055] md:tracking-[-0.025em]"
         >
           Ghana’s talent, discovered.
-        </h2>
+        </h1>
         <p className="m-0 max-w-[620px] font-sans text-[15px] leading-[21px] text-white md:text-[20px] md:leading-[30px] md:text-[#e1eae2]">
           <span className="md:hidden">
             {typeof talents === 'number'

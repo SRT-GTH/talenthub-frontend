@@ -28,6 +28,21 @@ const AlertIcon = ({ className }) => (
   </svg>
 );
 
+// Diamond alert (the "20-alert" glyph) in currentColor: used for errors on fields whose helper icon is the green
+// diamond image, so the error row reads red like the design instead of keeping the green glyph.
+const DiamondAlertIcon = ({ className }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M8 1.2 14.8 8 8 14.8 1.2 8Z"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
+    />
+    <path d="M8 4.6v3.2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    <circle cx="8" cy="10.6" r="0.75" fill="currentColor" />
+  </svg>
+);
+
 const CheckIcon = ({ className }) => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
     <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.4" />
@@ -159,7 +174,11 @@ const Field = ({
             className={classNames('inline-flex size-4 shrink-0', helperIconClassName)}
             aria-hidden="true"
           >
-            {helperIcon ?? defaultIcon}
+            {error && helperIcon ? (
+              <DiamondAlertIcon className="size-4 shrink-0" />
+            ) : (
+              (helperIcon ?? defaultIcon)
+            )}
           </span>
           <p
             className={classNames(

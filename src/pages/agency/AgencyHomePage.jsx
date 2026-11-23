@@ -124,7 +124,7 @@ const AgencyHomePage = () => {
 
   const heroAction =
     quota.nearlyUsed && !firstLogin ? (
-      <AgencyButton to="/agency/settings?tab=mou">{heroDef.action}</AgencyButton>
+      <AgencyButton to="/agency/settings/mou">{heroDef.action}</AgencyButton>
     ) : (
       <AgencyButton to="/agency/settings">{heroDef.action}</AgencyButton>
     );
@@ -170,14 +170,14 @@ const AgencyHomePage = () => {
             </>
           ) : (
             <>
-              <AgencyNationalSnapshot snapshot={h?.national} />
+              <AgencyNationalSnapshot snapshot={h?.national} failed={Boolean(home.error)} />
               <div className="grid gap-[24px] xl:grid-cols-[minmax(0,878fr)_minmax(0,427fr)]">
                 <AgencyMonthCard
                   queriesRun={quota.used}
                   dataRequests={limits.dataRequests.used}
                   csvExports={limits.csvExports.used}
                 />
-                <AgencyNextStepCard step={h?.nextStep} />
+                <AgencyNextStepCard step={h?.nextStep} failed={Boolean(home.error)} />
               </div>
               <div className="flex flex-col gap-[8px]">
                 <AgencySavedQueriesTable rows={rows} />

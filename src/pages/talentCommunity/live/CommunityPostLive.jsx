@@ -40,6 +40,7 @@ import {
   useLivePost,
 } from '../../../components/sections/talentCommunity/useLiveCommunity.js';
 import { shareLink } from './shareLink.js';
+import ClubsSwitchRow from '../../../components/sections/talentCommunity/ClubsSwitchRow.jsx';
 import { LiveError, LiveLoading } from './LiveStates.jsx';
 
 const log = debug('CommunityPostLive');
@@ -121,7 +122,7 @@ const CommunityPostLive = ({ community }) => {
         { id: 'feed', label: COMMUNITY_PAGE_COPY.tabs.feed },
         { id: 'about', label: COMMUNITY_PAGE_COPY.tabs.about },
         { id: 'members', label: COMMUNITY_PAGE_COPY.tabs.members, count: detail.info.members },
-        { id: 'events', label: COMMUNITY_PAGE_COPY.tabs.events, inert: true },
+        { id: 'events', label: COMMUNITY_PAGE_COPY.tabs.events },
       ]
     : [];
   const error = page.status === 'error' || open.status === 'error';
@@ -129,6 +130,7 @@ const CommunityPostLive = ({ community }) => {
   return (
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1506px] flex-col gap-[20px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)]">
+        <ClubsSwitchRow rail={community.rail} />
         {error ? (
           <LiveError
             message="Couldn’t load this post. Check your connection and try again."
@@ -231,7 +233,7 @@ const CommunityPostLive = ({ community }) => {
             </div>
           </>
         ) : page.status === 'loading' ? (
-          <LiveLoading label="Loading community…" />
+          <LiveLoading label="Loading club…" />
         ) : null}
       </div>
       {toast ? <PostedToast text={toast} onDone={hideToast} /> : null}

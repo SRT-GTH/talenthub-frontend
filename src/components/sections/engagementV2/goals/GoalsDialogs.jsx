@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Button from '../../../ui/Button.jsx';
+import Field from '../../../ui/form/Field.jsx';
 import { usePlayfulDialogA11y } from '../../../ui/PlayfulDialogA11y.js';
 import { ArrowRightIcon, ChevronDownIcon } from '../../../shared/assets.jsx';
 import { debug } from '../../../../utils/debug.js';
@@ -8,6 +9,7 @@ import {
   CONFETTI,
   GOAL_INDUSTRIES,
   GOAL_PLACES,
+  GOAL_REQUIRED_MESSAGES,
   GOAL_TIMELINES,
   GOAL_TYPES,
   NOTES_MAX,
@@ -105,32 +107,45 @@ const FieldLabel = ({ htmlFor, children, required, aside }) => (
   </div>
 );
 
-const SelectField = ({ id, label, value, options, placeholder, onChange, invalid }) => (
+/*
+ * Error row under a required field: the shared form Field (no label row) around the control, so the message renders with
+ * the same red alert row, role="alert" and `${id}-msg` id as the talent sign-up steps.
+ */
+const FieldErrorRow = ({ id, error, children }) => (
+  <Field htmlFor={id} error={error || undefined}>
+    {children}
+  </Field>
+);
+
+const SelectField = ({ id, label, value, options, placeholder, onChange, error }) => (
   <div className="flex min-w-0 flex-col gap-2">
     <FieldLabel htmlFor={id} required>
       {label}
     </FieldLabel>
-    <div className={`relative ${FIELD_BOX} ${invalid ? INVALID : ''}`}>
-      <select
-        id={id}
-        value={value}
-        aria-invalid={invalid || undefined}
-        onChange={(e) => onChange(e.target.value)}
-        className={`absolute inset-0 size-full cursor-pointer appearance-none rounded-[10px] border-0 bg-transparent py-0 pl-5 pr-11 font-sans text-[14px] font-medium tracking-[0.2px] outline-none ${
-          value ? 'text-[#1c2a21]' : 'text-[#1c2a21]'
-        }`}
-      >
-        <option value="">{placeholder}</option>
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
-      <span className="pointer-events-none absolute top-1/2 right-4 grid size-5 -translate-y-1/2 place-items-center text-[#387440]">
-        <ChevronDownIcon className="size-5" />
-      </span>
-    </div>
+    <FieldErrorRow id={id} error={error}>
+      <div className={`relative ${FIELD_BOX} ${error ? INVALID : ''}`}>
+        <select
+          id={id}
+          value={value}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-msg` : undefined}
+          onChange={(e) => onChange(e.target.value)}
+          className={`absolute inset-0 size-full cursor-pointer appearance-none rounded-[10px] border-0 bg-transparent py-0 pl-5 pr-11 font-sans text-[14px] font-medium tracking-[0.2px] outline-none ${
+            value ? 'text-[#1c2a21]' : 'text-[#1c2a21]'
+          }`}
+        >
+          <option value="">{placeholder}</option>
+          {options.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
+        <span className="pointer-events-none absolute top-1/2 right-4 grid size-5 -translate-y-1/2 place-items-center text-[#387440]">
+          <ChevronDownIcon className="size-5" />
+        </span>
+      </div>
+    </FieldErrorRow>
   </div>
 );
 
@@ -175,13 +190,19 @@ export const GoalFormDialog = ({ goal, mode, isPrimary, onSave, onDelete, onClos
     industry: !draft.industry,
     when: !draft.when,
   };
+  // the message for each missing required field, only after a save attempt
+  const errorFor = (k) => (tried && missing[k] ? GOAL_REQUIRED_MESSAGES[k] : undefined);
+  const fieldId = (k) => (k === 'title' ? `${uid}-title-input` : `${uid}-${k}`);
   const submit = (e) => {
     e.preventDefault();
     setTried(true);
     const first = Object.keys(missing).find((k) => missing[k]);
     if (first) {
-      log('save blocked, missing:', first);
-      document.getElementById(`${uid}-${first}`)?.focus();
+      log(
+        'save blocked, missing:',
+        Object.keys(missing).filter((k) => missing[k])
+      );
+      document.getElementById(fieldId(first))?.focus();
       return;
     }
     log('save', { mode, title: draft.title, primary });
@@ -231,16 +252,19 @@ export const GoalFormDialog = ({ goal, mode, isPrimary, onSave, onDelete, onClos
             <FieldLabel htmlFor={`${uid}-title-input`} required>
               Role or opportunity
             </FieldLabel>
-            <div className={`${FIELD_BOX} ${tried && missing.title ? INVALID : ''}`}>
-              <input
-                id={`${uid}-title-input`}
-                value={draft.title}
-                aria-invalid={(tried && missing.title) || undefined}
-                placeholder="e.g. Software Engineer, Product Designer, MSc"
-                onChange={(e) => set({ title: e.target.value })}
-                className="w-full min-w-0 border-0 bg-transparent p-0 font-sans text-[14px] font-medium leading-[20px] tracking-[0.2px] text-[#1c2a21] outline-none placeholder:font-normal placeholder:text-[#595959]"
-              />
-            </div>
+            <FieldErrorRow id={`${uid}-title-input`} error={errorFor('title')}>
+              <div className={`${FIELD_BOX} ${errorFor('title') ? INVALID : ''}`}>
+                <input
+                  id={`${uid}-title-input`}
+                  value={draft.title}
+                  aria-invalid={errorFor('title') ? true : undefined}
+                  aria-describedby={errorFor('title') ? `${uid}-title-input-msg` : undefined}
+                  placeholder="e.g. Software Engineer, Product Designer, MSc"
+                  onChange={(e) => set({ title: e.target.value })}
+                  className="w-full min-w-0 border-0 bg-transparent p-0 font-sans text-[14px] font-medium leading-[20px] tracking-[0.2px] text-[#1c2a21] outline-none placeholder:font-normal placeholder:text-[#595959]"
+                />
+              </div>
+            </FieldErrorRow>
           </div>
           <SelectField
             id={`${uid}-type`}
@@ -248,7 +272,7 @@ export const GoalFormDialog = ({ goal, mode, isPrimary, onSave, onDelete, onClos
             value={draft.type}
             options={withCurrent(GOAL_TYPES, draft.type)}
             placeholder="Select a type"
-            invalid={tried && missing.type}
+            error={errorFor('type')}
             onChange={(v) => set({ type: v })}
           />
           <SelectField
@@ -257,7 +281,7 @@ export const GoalFormDialog = ({ goal, mode, isPrimary, onSave, onDelete, onClos
             value={draft.industry}
             options={withCurrent(GOAL_INDUSTRIES, draft.industry)}
             placeholder="Select an industry"
-            invalid={tried && missing.industry}
+            error={errorFor('industry')}
             onChange={(v) => set({ industry: v })}
           />
           <SelectField
@@ -266,7 +290,7 @@ export const GoalFormDialog = ({ goal, mode, isPrimary, onSave, onDelete, onClos
             value={draft.when}
             options={withCurrent(GOAL_TIMELINES, draft.when)}
             placeholder="Select a timeline"
-            invalid={tried && missing.when}
+            error={errorFor('when')}
             onChange={(v) => set({ when: v })}
           />
         </div>

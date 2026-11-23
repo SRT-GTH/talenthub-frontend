@@ -11,32 +11,32 @@
 
 Diff % = our screenshot vs the Figma export (`recmp`, whole frame, 2026-11-07, lead re-measured). `✅ VERIFIED` (measured). The 2–4 % floor is the Ask Buddy button, the shell's "Kofi A." vs Figma's "Joel K.", font and anti-aliasing differences. Dialog frames sit about 25 px lower than drawn: Figma centres them in a 1117 px frame, the measurement viewport is 1065 px. All URLs are under `/recruiter/application-pipeline`; `SEL` = `ama-boateng,eleanor-fant,marcus-thorne`; `SC` = `scenario=offer-sent-sarah&scroll=end`.
 
-| Frame  | Content                                     | Figma node    | URL                                                                                                   | Diff |
-| ------ | ------------------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- | ---- |
-| PL-01  | Board · Senior UX Designer, all stages      | `10173:11112` | (none)                                                                                                | 2.8% |
-| PL-01b | Scrolled to Hired and Not progressed        | `10173:11715` | `?scroll=end`                                                                                         | 2.7% |
-| PL-02  | Candidate card menu                         | `10173:12318` | `?menu=ama-boateng&menuItem=move-shortlisted`                                                         | 3.0% |
-| PL-03  | Candidate drawer · Ama Boateng              | `10173:12962` | `?drawer=ama-boateng`                                                                                 | 3.8% |
-| PL-04  | Moving a card · drag to Shortlisted         | `10173:13640` | `?drag=nana-kwarteng&over=shortlisted`                                                                | 3.1% |
-| PL-05  | Card moved · notify candidate prompt        | `10173:14268` | `?modal=move-notify&candidate=eleanor-fant&from=applied&to=shortlisted&justMoved=eleanor-fant-recent` | 3.5% |
-| PL-06  | Bulk select · 3 selected                    | `10173:14906` | `?selected=SEL&justMoved=eleanor-fant-recent`                                                         | 3.4% |
-| PL-07  | Bulk move · confirm                         | `10173:15546` | `?modal=bulk-move&candidate=SEL&selected=SEL`                                                         | 4.4% |
-| PL-08  | Not progressing · reason and message        | `10173:16195` | `?modal=not-progressing&candidate=marcus-thorne&selected=SEL`                                         | 3.9% |
-| PL-09  | Not progressed · message sent (toast)       | `10173:16858` | `?scenario=marcus-not-progressed&scroll=end&toast=not-progressed-sent&candidate=marcus-thorne`        | 3.4% |
-| PL-10  | Extend offer · details                      | `10173:17496` | `?modal=extend-offer&candidate=sarah-jenkins&selected=SEL`                                            | 3.9% |
-| PL-11  | Offer sent · Sarah in Offer extended        | `10173:18161` | `?SC&toast=offer-sent&candidate=sarah-jenkins`                                                        | 3.3% |
-| PL-12  | Offer accepted · hired + "opening filled"   | `10173:18806` | `?SC&modal=offer-accepted&candidate=akosua-quansah`                                                   | 2.9% |
-| PL-13  | Offer declined · next step                  | `10173:19464` | `?SC&modal=offer-declined&candidate=akosua-quansah`                                                   | 2.8% |
-| PL-14  | Interview completed · feedback and decision | `10173:20129` | `?SC&modal=interview-completed&candidate=sarah-jenkins`                                               | 3.6% |
-| PL-15  | Empty pipeline · Product Designer           | `10173:20826` | `?pipeline=empty`                                                                                     | 1.9% |
-| PL-16  | Interview scheduled · toast                 | `10173:21199` | `?SC&toast=interview-scheduled&candidate=ella-mensah`                                                 | 3.3% |
-| orig 1 | Schedule interview · empty                  | `10173:21844` | `?sidebar=collapsed&modal=schedule-interview`                                                         | 4.2% |
-| orig 2 | Schedule · empty, interviewers open         | `10173:22405` | `?sidebar=collapsed&modal=schedule-interview&interviewers=open`                                       | 4.1% |
-| orig 3 | Schedule · filled, online                   | `10173:22977` | `…&state=filled&format=online`                                                                        | 5.8% |
-| orig 4 | Cancel interview confirmation               | `10173:23566` | `?sidebar=collapsed&modal=cancel-interview`                                                           | 2.9% |
-| orig 5 | Schedule interview confirmation             | `10173:23990` | `?sidebar=collapsed&modal=schedule-confirmation`                                                      | 3.3% |
-| orig 6 | Schedule · filled, in person                | `10173:24414` | `…&state=filled&format=in-person`                                                                     | 5.8% |
-| orig 7 | Schedule · filled, phone                    | `10173:25006` | `…&state=filled&format=phone`                                                                         | 5.7% |
+| Frame  | Content                                     | Figma node    | URL                                                                                                   | Diff % (2026-11-22) |
+| ------ | ------------------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- | ------------------- |
+| PL-01  | Board · Senior UX Designer, all stages      | `10173:11112` | (none)                                                                                                | 2.8                 |
+| PL-01b | Scrolled to Hired and Not progressed        | `10173:11715` | `?scroll=end`                                                                                         | 2.7                 |
+| PL-02  | Candidate card menu                         | `10173:12318` | `?menu=ama-boateng&menuItem=move-shortlisted`                                                         | 3.0                 |
+| PL-03  | Candidate drawer · Ama Boateng              | `10173:12962` | `?drawer=ama-boateng`                                                                                 | 3.8                 |
+| PL-04  | Moving a card · drag to Shortlisted         | `10173:13640` | `?drag=nana-kwarteng&over=shortlisted`                                                                | 3.1                 |
+| PL-05  | Card moved · notify candidate prompt        | `10173:14268` | `?modal=move-notify&candidate=eleanor-fant&from=applied&to=shortlisted&justMoved=eleanor-fant-recent` | 3.5                 |
+| PL-06  | Bulk select · 3 selected                    | `10173:14906` | `?selected=SEL&justMoved=eleanor-fant-recent`                                                         | 3.4                 |
+| PL-07  | Bulk move · confirm                         | `10173:15546` | `?modal=bulk-move&candidate=SEL&selected=SEL`                                                         | 4.4                 |
+| PL-08  | Not progressing · reason and message        | `10173:16195` | `?modal=not-progressing&candidate=marcus-thorne&selected=SEL`                                         | 3.9                 |
+| PL-09  | Not progressed · message sent (toast)       | `10173:16858` | `?scenario=marcus-not-progressed&scroll=end&toast=not-progressed-sent&candidate=marcus-thorne`        | 3.4                 |
+| PL-10  | Extend offer · details                      | `10173:17496` | `?modal=extend-offer&candidate=sarah-jenkins&selected=SEL`                                            | 3.9                 |
+| PL-11  | Offer sent · Sarah in Offer extended        | `10173:18161` | `?SC&toast=offer-sent&candidate=sarah-jenkins`                                                        | 3.3                 |
+| PL-12  | Offer accepted · hired + "opening filled"   | `10173:18806` | `?SC&modal=offer-accepted&candidate=akosua-quansah`                                                   | 2.9                 |
+| PL-13  | Offer declined · next step                  | `10173:19464` | `?SC&modal=offer-declined&candidate=akosua-quansah`                                                   | 2.8                 |
+| PL-14  | Interview completed · feedback and decision | `10173:20129` | `?SC&modal=interview-completed&candidate=sarah-jenkins`                                               | 3.6                 |
+| PL-15  | Empty pipeline · Product Designer           | `10173:20826` | `?pipeline=empty`                                                                                     | 1.9                 |
+| PL-16  | Interview scheduled · toast                 | `10173:21199` | `?SC&toast=interview-scheduled&candidate=ella-mensah`                                                 | 3.3                 |
+| orig 1 | Schedule interview · empty                  | `10173:21844` | `?sidebar=collapsed&modal=schedule-interview`                                                         | 4.2                 |
+| orig 2 | Schedule · empty, interviewers open         | `10173:22405` | `?sidebar=collapsed&modal=schedule-interview&interviewers=open`                                       | 4.1                 |
+| orig 3 | Schedule · filled, online                   | `10173:22977` | `…&state=filled&format=online`                                                                        | 5.8                 |
+| orig 4 | Cancel interview confirmation               | `10173:23566` | `?sidebar=collapsed&modal=cancel-interview`                                                           | 2.9                 |
+| orig 5 | Schedule interview confirmation             | `10173:23990` | `?sidebar=collapsed&modal=schedule-confirmation`                                                      | 3.3                 |
+| orig 6 | Schedule · filled, in person                | `10173:24414` | `…&state=filled&format=in-person`                                                                     | 5.8                 |
+| orig 7 | Schedule · filled, phone                    | `10173:25006` | `…&state=filled&format=phone`                                                                         | 5.7                 |
 
 The orig frames were 0.2–0.3 points better in the earlier flow (3.9, 3.8, 5.5, 2.7, 3.0, 5.5, 5.4 %); the cause was not traced (probably shell changes by other sessions). Some measurement runs returned blank pages (`net::ERR_NETWORK_CHANGED`, the machine's network drops); those frames were re-run until they rendered.
 

@@ -36,7 +36,7 @@ export const QUICK_ACTIONS = {
       icon: 'userPlus',
       tint: '#ebf1ec',
       ink: '#2d5d33',
-      to: '/agency/settings?tab=analysts',
+      to: '/agency/settings/analysts',
     },
     {
       id: 'query',
@@ -92,7 +92,7 @@ export const QUICK_ACTIONS = {
       icon: 'userPlus',
       tint: '#ebf1ec',
       ink: '#2d5d33',
-      to: '/agency/settings?tab=analysts',
+      to: '/agency/settings/analysts',
     },
     {
       id: 'programme',
@@ -131,7 +131,7 @@ export const QUICK_ACTIONS = {
       icon: 'userPlus',
       tint: '#ebf1ec',
       ink: '#2d5d33',
-      to: '/agency/settings?tab=analysts',
+      to: '/agency/settings/analysts',
     },
     {
       id: 'programme',

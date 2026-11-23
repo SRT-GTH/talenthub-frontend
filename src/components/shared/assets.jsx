@@ -19005,3 +19005,22 @@ export const Fi20VideoCamera = ({ className = '', style }) => (
     />
   </svg>
 );
+
+/*
+ * GenzDoodleStar — the Playful "genz:doodle star" (Figma 8361:7455 / 8363:29020 on the auth screens): a sharp four-point star,
+ * flat fill, no stroke. One shape at every size; colour per placement (gold #FCD116 on the green panel, #C8951A / #387440
+ * by headings). Decorative only.
+ */
+export const GenzDoodleStar = ({ size = 16, color = '#FCD116', className = '', style }) => (
+  <svg
+    aria-hidden="true"
+    width={size}
+    height={size}
+    viewBox="0 0 22 22"
+    fill="none"
+    className={className}
+    style={style}
+  >
+    <path d="M11 0L14.5 7.5L22 11L14.5 14.5L11 22L7.5 14.5L0 11L7.5 7.5L11 0Z" fill={color} />
+  </svg>
+);

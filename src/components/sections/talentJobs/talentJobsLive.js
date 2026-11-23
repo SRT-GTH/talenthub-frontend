@@ -22,6 +22,18 @@ const weekdayDay = (d) => {
   return `${x.toLocaleDateString('en-GB', { weekday: 'short' })} ${dayMonth(x)}`;
 };
 
+/**
+ * When a posting was saved: the feed's `savedAt` if it sends one, else the creation time inside the bookmark's Mongo
+ * ObjectId (its first 8 hex digits are seconds since 1970). Null when neither is there (the row then keeps feed order).
+ */
+export const savedAtOf = (j) => {
+  if (j?.savedAt) return j.savedAt;
+  const id = typeof j?.saved === 'string' ? j.saved : '';
+  return /^[0-9a-f]{24}$/i.test(id)
+    ? new Date(parseInt(id.slice(0, 8), 16) * 1000).toISOString()
+    : null;
+};
+
 /** "Today" / "2d" / "3w" — the short age the rows show. */
 export const ageOf = (date, now = Date.now()) => {
   if (!date) return '';
@@ -133,6 +145,7 @@ export const toCard = (j, now = Date.now()) => {
     match: j.match || 0,
     why: (j.why || []).slice(0, 3),
     posted: postedOf(j.posted, now),
+    postedAt: j.posted || null,
     age: ageOf(j.posted, now),
     // live-only fields
     live: true,
@@ -376,13 +389,15 @@ export const buildJobsData = (feed, now = Date.now()) => {
       unmatched: 'Not matched yet',
       place: feed?.place || null, // the talent's own { region, district }: the Location filter's "near you"
     },
-    // Browse all sorts "Newest" (SORTS.browse): newest posting first.
+    // Browse all sorts "Newest" by default (BROWSE_SORTS in JobsScreen): newest posting first.
     BROWSE_ROWS: [...open]
       .sort((a, b) => String(b.posted || '').localeCompare(String(a.posted || '')))
       .map((j) => ({
         id: j.id,
         title: j.title,
         meta: metaOf(j),
+        logo: j.company?.logo || null, // J-18 row logo tile (initials tile when the company has none)
+        initials: initials(j.company?.name),
         match: j.eligible !== false && j.match ? j.match : null,
         age: ageOf(j.posted, now),
         // read by the Browse filters / sort
@@ -415,6 +430,7 @@ export const buildJobsData = (feed, now = Date.now()) => {
           ? 'closing'
           : 'open',
       bookmarkId: j.saved,
+      savedAt: savedAtOf(j),
     })),
     APPLIED_COPY: {
       filters: [

@@ -29,6 +29,11 @@ export const NOTICES = {
     title: 'Your staff account is locked',
     body: 'Too many wrong codes, or the account is suspended. Ask a Super Admin to unlock it in Settings › Staff accounts.',
   },
+  // "Ask your Super Admin" on the sign-in form (no destination drawn in Figma): says where set-up links come from.
+  setup: {
+    title: 'Ask your Super Admin for a set-up link',
+    body: 'Staff accounts are created by a Super Admin in Settings › Staff accounts. They send you a set-up link by email. It lasts 24 hours.',
+  },
   expired: {
     title: 'This set-up link has expired',
     body: 'Set-up links last 24 hours. Use “Forgot password?” on the sign-in page to set your password, or ask a Super Admin for help.',

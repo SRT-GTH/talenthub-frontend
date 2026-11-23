@@ -29,7 +29,7 @@ import { COMMUNITIES_RESPONSE, COMMUNITY_DETAILS } from '../communityData.js';
 /* ---- wizard ---- */
 
 export const CREATE_COPY = {
-  title: 'Start a community',
+  title: 'Start a club',
   reviewTitle: 'Check and submit',
   close: 'Close',
   steps: [
@@ -39,7 +39,7 @@ export const CREATE_COPY = {
     { id: 'review', label: 'Review' },
   ],
   basics: {
-    name: 'Community name',
+    name: 'Club name',
     nameFree: 'Name is free. People will find it as #{tag}.',
     nameTaken: 'That name is taken. Pick another name, or join the one that exists.',
     about: 'What’s it about?',
@@ -83,20 +83,20 @@ export const CREATE_COPY = {
     justYou: 'Just you so far',
     nextTitle: 'What happens next',
     nextBody:
-      'GTH checks new communities within 24 hours. While you wait, invite your co-moderators. A mentor or teacher must join before it opens to under-18s.',
+      'GTH checks new clubs within 24 hours. While you wait, invite your co-moderators. A mentor or teacher must join before it opens to under-18s.',
     agree:
-      'I agree to the GTH community guidelines. I’ll moderate this community and act on reports within 48 hours.',
+      'I agree to the GTH club guidelines. I’ll moderate this club and act on reports within 48 hours.',
     back: 'Back',
     submit: 'Submit for review',
   },
   notReady: {
-    title: 'Almost ready to start a community',
-    intro: 'Communities need a real person behind them. Two more things and you’re set.',
+    title: 'Almost ready to start a club',
+    intro: 'Clubs need a real person behind them. Two more things and you’re set.',
     finishProfile: 'Finish profile',
     underTitle: 'Under 18?',
     underBody:
-      'You can draft a community and invite friends. It opens once a verified mentor or teacher co-moderates it, and your parent is told.',
-    note: 'You can run up to 3 communities at a time',
+      'You can draft a club and invite friends. It opens once a verified mentor or teacher co-moderates it, and your parent is told.',
+    note: 'You can run up to 3 clubs at a time',
     notNow: 'Not now',
     finishMine: 'Finish my profile',
   },
@@ -297,7 +297,7 @@ export const OWNER_STATUS_COPY = {
     hint: 'Only you can see this page until it’s live',
     empty: {
       title: 'Posting opens when it’s live',
-      body: 'Draft a welcome post now. It goes out the moment GTH approves your community.',
+      body: 'Draft a welcome post now. It goes out the moment GTH approves your club.',
       cta: 'Draft a welcome post',
     },
   },
@@ -315,7 +315,7 @@ export const OWNER_STATUS_COPY = {
     hint: 'Opens when a verified mentor accepts',
     empty: {
       title: 'Posting opens when it’s live',
-      body: 'Your welcome post is saved and goes out when the community opens.',
+      body: 'Your welcome post is saved and goes out when the club opens.',
       cta: 'Edit welcome post',
     },
   },
@@ -376,11 +376,11 @@ export const OWNER_STATUS_COPY = {
       title: 'Archived on 20 Oct 2026',
       body: 'Read-only and hidden from search. You can restore it until 18 Jan 2027.',
     },
-    primary: { id: 'restore', label: 'Restore community' },
+    primary: { id: 'restore', label: 'Restore club' },
     secondary: null,
     hint: 'You + 2 founding members',
     empty: {
-      title: 'This community is archived',
+      title: 'This club is archived',
       body: 'Old posts stay readable. Restore it to let members post again.',
       cta: null,
     },
@@ -388,7 +388,7 @@ export const OWNER_STATUS_COPY = {
 };
 
 export const OWNER_COPY = {
-  back: 'All communities',
+  back: 'All clubs',
   feedHint: 'Posting opens when it’s live',
   info: {
     members: 'Members',
@@ -560,7 +560,7 @@ export const INVITE_COPY = {
   invited: 'Invited',
   calloutTitle: 'Inviting under-18s',
   calloutBody:
-    'Talents under 18 only get invites from people they follow, and their parent can see which communities they join.',
+    'Talents under 18 only get invites from people they follow, and their parent can see which clubs they join.',
   note: 'Founding members who post this week get a badge',
   done: 'Done',
   suggestions: [
@@ -651,7 +651,7 @@ export const MANAGE_COPY = {
   howTitle: 'How requests work',
   howBody:
     'Each request answers one question you set. Age bands show to verified moderators only. Requests expire after 14 days and the person is told kindly.',
-  requestsNote: 'Only for “Request to join” communities',
+  requestsNote: 'Only for “Request to join” clubs',
   settingsNote: 'Only the owner sees Settings',
   close: 'Close',
   settings: {
@@ -667,7 +667,7 @@ export const MANAGE_COPY = {
       action: 'Transfer',
     },
     archive: {
-      title: 'Archive community',
+      title: 'Archive club',
       body: 'Make it read-only and hide it from search. Restore within 90 days.',
       action: 'Archive',
     },
@@ -695,7 +695,7 @@ export const TRANSFER_COPY = {
     {
       icon: 'shield',
       title: 'New owners must be 18+ and verified',
-      body: 'Because the community is open to ages 14 and up.',
+      body: 'Because the club is open to ages 14 and up.',
     },
   ],
   confirm: 'I understand I can’t undo this once {name} accepts.',
@@ -727,7 +727,7 @@ export const ARCHIVE_COPY = {
   confirm: 'I understand members will lose the ability to post.',
   note: 'Thinking of leaving? Transfer it instead',
   cancel: 'Cancel',
-  archive: 'Archive community',
+  archive: 'Archive club',
 };
 
 export const COMMUNITY_THUMB = coverThumb;

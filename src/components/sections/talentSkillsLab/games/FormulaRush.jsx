@@ -4,7 +4,13 @@ import { debug } from '../../../../utils/debug.js';
 import { FOCUS_RING } from '../labPlayStyles.js';
 import { GameBoltIcon, GameClockIcon, GameSpeedmeterIcon } from '../skillGames/GameIcons.jsx';
 import { GameFeedback, GameFrame, GameHead, GameTip } from '../skillGames/gameKit.jsx';
-import { HAIR, MONO, buildGameResult, formatClock } from '../skillGames/gameKitUtils.js';
+import {
+  HAIR,
+  MONO,
+  buildGameResult,
+  displayOrder,
+  formatClock,
+} from '../skillGames/gameKitUtils.js';
 import { FORMULA_FRAMES, FORMULA_RUSH, LAPS, SHEET } from '../skillGames/formulaRushData.js';
 
 const log = debug('FormulaRush');
@@ -371,25 +377,27 @@ const FormulaRush = ({ frame }) => {
           <span className="font-sans text-[13.5px] leading-[16px] font-semibold text-[#595959]">
             Tap to fill:
           </span>
-          {lap.tokens.map((token, i) => (
-            <button
-              key={token}
-              type="button"
-              disabled={fired}
-              onClick={() => dispatch({ type: 'fill', index: i })}
-              aria-pressed={chipLabel === i}
-              className={classNames(
-                'rounded-[10px] px-[12px] py-[7px] text-[14px] leading-[18px] text-[#1c2a21]',
-                'border border-solid border-[rgba(28,42,33,0.12)] playful:border-[1.5px] playful:border-[#1c2a21]',
-                chipLabel === i ? 'bg-[#ffd86b]' : 'bg-white',
-                fired ? 'cursor-default' : 'cursor-pointer',
-                FOCUS_RING
-              )}
-              style={{ fontFamily: MONO }}
-            >
-              {token}
-            </button>
-          ))}
+          {displayOrder(lap.tokens.length, `formula-${state.runKey}-${state.lap}`, Boolean(frame))
+            .map((i) => [lap.tokens[i], i])
+            .map(([token, i]) => (
+              <button
+                key={token}
+                type="button"
+                disabled={fired}
+                onClick={() => dispatch({ type: 'fill', index: i })}
+                aria-pressed={chipLabel === i}
+                className={classNames(
+                  'rounded-[10px] px-[12px] py-[7px] text-[14px] leading-[18px] text-[#1c2a21]',
+                  'border border-solid border-[rgba(28,42,33,0.12)] playful:border-[1.5px] playful:border-[#1c2a21]',
+                  chipLabel === i ? 'bg-[#ffd86b]' : 'bg-white',
+                  fired ? 'cursor-default' : 'cursor-pointer',
+                  FOCUS_RING
+                )}
+                style={{ fontFamily: MONO }}
+              >
+                {token}
+              </button>
+            ))}
         </div>
         {sheetOpen && !fired ? (
           <GameTip>

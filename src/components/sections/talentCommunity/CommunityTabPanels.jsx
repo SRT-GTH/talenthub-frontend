@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { useCommunityContent } from './communityContent.js';
+import { MESSAGE_CONVERSATIONS } from '../talentMessages/messagesData.js';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
+import { useCommunityVariant } from './communityVariant.js';
 import {
   CmCalendarIcon,
   CmGlobeIcon,
@@ -19,6 +23,8 @@ import {
   TAG_CHIP,
 } from './communityPageStyles.js';
 import { HEADING } from './communityStyles.js';
+import { DashedEmptyCard } from './CommunityFeedParts.jsx';
+import { CalendarPickerIcon } from '../../shared/assets.jsx';
 
 const log = debug('CommunityTabPanels');
 
@@ -147,8 +153,60 @@ const Badge = ({ badge }) =>
     <span className={TAG_CHIP}>{badge.label}</span>
   );
 
+/*
+ * Events tab. The design draws the tab but no Events screen, and clubs have no events data or API yet, so the tab opens
+ * the club's own dashed empty card (same shell as the empty feed) instead of doing nothing. ⚠️ ASSUMPTION: copy is ours.
+ */
+const EVENTS_EMPTY = {
+  title: 'No events yet',
+  body: 'When this club plans a meetup, workshop or live session, it shows up here and members get an invite.',
+  cta: 'Back to the feed',
+};
+
+export const EventsPanel = ({ onFeed }) => {
+  log('events panel (empty)');
+  return (
+    <DashedEmptyCard>
+      <span
+        aria-hidden="true"
+        className="flex size-[72px] items-center justify-center rounded-[20px] bg-[#ebf1ec]"
+      >
+        <CalendarPickerIcon className="size-[36px]" />
+      </span>
+      <h2
+        className={classNames(
+          HEADING,
+          'text-[23px] leading-[28.75px] max-sm:text-[20px] max-sm:leading-[26px]'
+        )}
+      >
+        {EVENTS_EMPTY.title}
+      </h2>
+      <p className="m-0 max-w-[440px] font-sans text-[14px] leading-[21px] text-[#595959]">
+        {EVENTS_EMPTY.body}
+      </p>
+      {onFeed ? (
+        <PageButton className="mt-[2px]" onClick={onFeed}>
+          {EVENTS_EMPTY.cta}
+        </PageButton>
+      ) : null}
+    </DashedEmptyCard>
+  );
+};
+
 export const MembersPanel = ({ detail }) => {
   const { pageCopy } = useCommunityContent();
+  const { isRecruiter } = useCommunityVariant();
+  const navigate = useNavigate();
+  // Message opens the inbox, like Message on a My circle profile. The inbox has no "new chat with <person>"
+  // deep link (no start-conversation endpoint); a member who already has a drawn conversation opens it
+  // (`/messages?c=<key>`, e.g. Abigail Mensah), anyone else lands on the inbox.
+  const messagesHref = isRecruiter ? '/recruiter/messages' : '/messages';
+  const messageHrefFor = (person) => {
+    const thread = isRecruiter
+      ? null
+      : MESSAGE_CONVERSATIONS.find((c) => c.name && c.name === person.name);
+    return thread ? withDemoFlag(`/messages?c=${thread.id}`) : messagesHref;
+  };
   const copy = pageCopy.members;
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('All');
@@ -240,7 +298,11 @@ export const MembersPanel = ({ detail }) => {
                 <button
                   type="button"
                   aria-label={`Message ${person.name}`}
-                  onClick={() => log('message', person.id)}
+                  onClick={() => {
+                    const to = messageHrefFor(person);
+                    log('message', person.id, '->', to);
+                    navigate(to);
+                  }}
                   className={classNames(
                     'inline-flex size-[40px] shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-solid border-[#e6e6e6] bg-white p-0',
                     FOCUS_RING

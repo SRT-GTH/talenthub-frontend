@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -29,8 +30,19 @@ import MilestoneShareModal from './MilestoneShareModal.jsx';
 import PurposePicker from './PurposePicker.jsx';
 import { FOCUS_RING, HEADING, fillCopy } from './communityDialogUtils.js';
 import { useCommunityContent } from './communityContent.js';
+import { STORAGE_KEYS } from '../../../constants/storageKeys.js';
 
 const log = debug('CommunityDialogs');
+
+// The signed-in talent's name (stored at login, kept fresh by /home), for the live milestone preview.
+const storedName = () => {
+  try {
+    const u = JSON.parse(localStorage.getItem(STORAGE_KEYS.userProfile) || 'null');
+    return [u?.firstName, u?.lastName].filter(Boolean).join(' ') || null;
+  } catch {
+    return null;
+  }
+};
 
 const TYPE_ICONS = {
   info: CommunityInfoCircleGlyph,
@@ -70,7 +82,16 @@ export const CreatePostDialog = ({
   const titleId = useId();
   const fieldId = useId();
   const fileRef = useRef(null);
-  const { createPost: copy } = useCommunityContent();
+  const { createPost: copy, isRecruiter } = useCommunityContent();
+  const navigate = useNavigate();
+  // "Help me write it" (not linked in Figma): hands the draft to Career Buddy, the same hand-off as the
+  // Home "Start mock interview" CTA (router state { prompt }). Talent only; the recruiter chrome keeps a log.
+  const helpMeWrite = () => {
+    if (isRecruiter) return log('help me write it (recruiter: no destination)');
+    const prompt = `Help me write a post for ${communityName || 'my club'}.${text.trim() ? ` My draft: "${text.trim()}"` : ''}`;
+    log('help me write it -> Career Buddy', { chars: text.length });
+    navigate('/profile/filling/career-buddy', { state: { prompt } });
+  };
   const [type, setType] = useState(copy.seed.type);
   const [text, setText] = useState(live ? '' : copy.seed.text);
   const [tags, setTags] = useState(live ? [] : copy.seed.tags);
@@ -187,7 +208,7 @@ export const CreatePostDialog = ({
         {live ? null : (
           <button
             type="button"
-            onClick={() => log('help me write it')}
+            onClick={helpMeWrite}
             className={classNames(
               'inline-flex h-[28px] cursor-pointer items-center gap-[6px] rounded-full border border-solid border-[#c8951a] bg-[#faf4e8] py-[6px] pl-[10px] pr-[12px] font-sans text-[12px] font-semibold leading-[14px] text-[#463409]',
               FOCUS_RING
@@ -560,9 +581,11 @@ const CommunityDialogs = ({ community, communityName = '#Frontend Devs Ghana', o
       );
     case 'milestone':
       // Live: no "+50 XP" sticker (no XP in the ledger for this); `?demo=1` keeps the drawn one.
+      // Live: the preview shows the signed-in talent's name, never the drawn "Kofi Agyekum".
       return (
         <MilestoneShareModal
           copy={milestone}
+          authorName={(!community.demo && storedName()) || milestone.previewName}
           onClose={close}
           onShare={close}
           onDecline={close}

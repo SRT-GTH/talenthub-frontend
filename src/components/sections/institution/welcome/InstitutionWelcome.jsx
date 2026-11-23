@@ -31,6 +31,11 @@ const InstitutionWelcome = ({ data }) => {
           institutionName={session.institution.short}
           onClose={() => data.update({ modal: null })}
           onTour={() => data.update({ modal: null, tour: 1 })}
+          onExtra={(id) => {
+            // the welcome extras open the top bar's panels; the video has no content yet (logs only)
+            const panel = { language: 'language', contrast: 'a11y' }[id];
+            if (panel) data.update({ modal: panel });
+          }}
         />
       ) : null}
       {data.tour ? (

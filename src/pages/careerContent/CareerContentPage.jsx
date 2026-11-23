@@ -23,10 +23,14 @@ const CareerContentPage = () => {
 
   useEffect(() => {
     let live = true;
+    log('loading post', contentId);
     setState({ status: 'loading', item: null });
     careerContentApi
       .item(contentId)
-      .then((item) => live && setState({ status: 'ready', item }))
+      .then((item) => {
+        log('post loaded', { type: item?.type, related: item?.related?.length ?? 0 });
+        if (live) setState({ status: 'ready', item });
+      })
       .catch((err) => {
         log.error('item failed', err?.response?.status);
         // 404 (not for this talent) and 403 (not for their education level) both mean "not available".
@@ -42,7 +46,8 @@ const CareerContentPage = () => {
   const item = state.item;
   return (
     <CommunityFrame community={community}>
-      <main className="mx-auto flex w-full max-w-[760px] flex-col gap-[20px] px-[16px] py-[24px]">
+      {/* The shell already renders the page's <main> landmark, so this is a plain wrapper (one main per page). */}
+      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-[20px] px-[16px] py-[24px]">
         <button
           type="button"
           // Opened straight from a link there is nothing to go back to: Career Buddy instead.
@@ -155,7 +160,7 @@ const CareerContentPage = () => {
             ) : null}
           </>
         )}
-      </main>
+      </div>
     </CommunityFrame>
   );
 };

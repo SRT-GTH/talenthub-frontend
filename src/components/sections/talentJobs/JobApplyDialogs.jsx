@@ -28,6 +28,7 @@ import {
 } from './JobDetailIcons.jsx';
 import { FOCUS_RING, INK_CARD, PILL_OUTLINE, fill } from './jobDetailStyles.js';
 import { APPLY_COPY as COPY, JOBS_LIVE, PROFILE_PREVIEW } from './talentJobsData.js';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
 
 const log = debug('JobApplyDialogs');
 
@@ -324,7 +325,7 @@ const PreviewDialog = ({ jobs, view, kind, projects, onClose }) => {
             size="xs"
             tone="secondary"
             className="!h-[32px] !px-[13px] !text-[13.5px]"
-            onClick={() => navigate('/profile?manage=1')}
+            onClick={() => navigate(withDemoFlag('/profile?manage=1'))}
           >
             {COPY.editVisibility}
           </NotifButton>

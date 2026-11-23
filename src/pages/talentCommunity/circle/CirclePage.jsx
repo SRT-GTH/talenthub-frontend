@@ -170,23 +170,24 @@ const CirclePage = () => {
     circle: total,
     following: liveOn ? null : CIRCLE_SUMMARY.following,
   };
-  // RC-NW10 (under 18) and RC-NW11 (empty) draw their own tab counts and switch badge.
-  const shownTabCounts =
-    isRecruiter && minor
-      ? {
-          invitations: MINOR_RESPONSE.invitationsCount,
-          circle: MINOR_RESPONSE.networkCount,
-          following: MINOR_RESPONSE.followingCount,
-        }
-      : isRecruiter && empty
-        ? { invitations: false, circle: 0, following: 0 }
-        : tabCounts;
-  const switchCount =
-    isRecruiter && minor
-      ? MINOR_RESPONSE.invitationsCount
-      : isRecruiter && empty
-        ? null
-        : pendingCount;
+  // NW-10 / RC-NW10 (under 18) and NW-11 / RC-NW11 (empty) draw their own tab counts and switch badge (demo only; the
+  // recruiter screens are never live).
+  const drawnMinor = !liveOn && minor;
+  const drawnEmpty = !liveOn && empty;
+  const shownTabCounts = drawnMinor
+    ? {
+        invitations: MINOR_RESPONSE.invitationsCount,
+        circle: MINOR_RESPONSE.networkCount,
+        following: MINOR_RESPONSE.followingCount,
+      }
+    : drawnEmpty
+      ? { invitations: false, circle: 0, following: 0 }
+      : tabCounts;
+  const switchCount = drawnMinor
+    ? MINOR_RESPONSE.invitationsCount
+    : drawnEmpty
+      ? null
+      : pendingCount;
   const liveFail = (err, fallback) => show({ text: circleErrorText(err, fallback) });
 
   /* ---- actions ----------------------------------------------------------------------------------------------- */
@@ -300,10 +301,10 @@ const CirclePage = () => {
           })
         )
         .catch((err) => liveFail(err));
-    } else if (label === 'Remove connection') {
+    } else if (label === 'Remove from crew') {
       L.actions
         .remove(person)
-        .then(() => show({ text: `${first} was removed from your circle` }))
+        .then(() => show({ text: `${first} was removed from your crew` }))
         .catch((err) => liveFail(err));
     } else if (label === 'Block') {
       // Confirm in the toast (no browser dialog): blocking also removes them from the circle.
@@ -340,13 +341,43 @@ const CirclePage = () => {
     } else if (k === 2) {
       circleActions.removeConnection(person.id);
       show({
-        text:
-          COPY.removed?.(person.firstName) ?? `${person.firstName} was removed from your circle`,
+        text: COPY.removed?.(person.firstName) ?? `${person.firstName} was removed from your crew`,
         actionLabel: COPY.toast.undo,
         onAction: () => circleActions.restoreConnection(person.id),
       });
     } else show({ text: `Thanks, we will review ${person.firstName}'s profile` });
   };
+
+  // Right-rail "Grow your crew" steps (no prototype links in Figma: each opens the place where the step is done).
+  const growStep = (id) => {
+    log('grow step', id);
+    if (id === 'school' || id === 'company-page') way('classmates');
+    else if (id === 'join-clubs' || id === 'school-club') way('community');
+    else if (id === 'invite-friend') {
+      // Talent: the shell's "Invite a friend" dialog (WhatsApp, SMS, email, copy link); recruiter: its teammate-invite twin.
+      circle.update(isRecruiter ? { modal: 'invite-friend' } : { dialog: 'invite' });
+    } else seeSuggestions(id === 'learn-from-mentor' ? 'circle-mentors' : 'circle-suggestions');
+  };
+  // "Link up with 5 people", "Learn from 1 verified mentor", the mentors card's "See all": the suggestions on Discover.
+  const seeSuggestions = (target = 'circle-suggestions') => {
+    log('see suggestions', target);
+    if (tab !== 'discover') selectTab('discover');
+    setTimeout(() => {
+      (
+        document.getElementById(target) ?? document.getElementById('circle-suggestions')
+      )?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
+  const sideColumn = (extra = {}) => (
+    <NetworkSideColumn
+      stats={{ inCircle: total }}
+      following={store.following}
+      onFollow={learnFrom}
+      onSeeAll={() => seeSuggestions()}
+      onStep={growStep}
+      {...extra}
+    />
+  );
 
   /* ---- lists --------------------------------------------------------------------------------------------------- */
   const renderCard = (item, i, topPicks) => {
@@ -389,7 +420,7 @@ const CirclePage = () => {
       .filter((item) => matches(CIRCLE_PEOPLE[item.id], q));
     const fresh = acceptedIds
       .filter((id) => store.relations[id]?.status === 'connected')
-      .map((id) => ({ id, connected: 'Connected just now', region: '' }));
+      .map((id) => ({ id, connected: 'Linked up just now', region: '' }));
     const all = [...fresh, ...items];
     return sort === 'Recently added'
       ? all
@@ -435,7 +466,7 @@ const CirclePage = () => {
     <CircleSidePanel
       className="lg:sticky lg:top-[16px]"
       tiles={[
-        { value: total, label: 'In your circle' },
+        { value: total, label: 'In your crew' },
         { value: pendingCount, label: 'Invitations' },
         { value: sentRows.length, label: 'Link-ups sent' },
       ]}
@@ -448,7 +479,7 @@ const CirclePage = () => {
     body = (
       <div className="flex flex-col items-start gap-[12px] py-[40px]">
         <p className="m-0 font-sans text-[15px] leading-[22px] text-[#595959]">
-          {L.status === 'error' ? 'We couldn’t load your circle.' : 'Loading your circle…'}
+          {L.status === 'error' ? 'We couldn’t load your crew.' : 'Loading your crew…'}
         </p>
         {L.status === 'error' && (
           <button
@@ -481,6 +512,7 @@ const CirclePage = () => {
         <div className="flex min-w-0 flex-col gap-[22px] playful:max-w-[1058px]">
           <CircleEmptyNetwork onWay={way} />
           <CircleSectionHead
+            id="circle-suggestions"
             title={liveOn ? discoverBlock.title : EMPTY_RESPONSE.suggestions.title}
             note={liveOn ? discoverBlock.note : EMPTY_RESPONSE.suggestions.note}
             size="md"
@@ -512,18 +544,18 @@ const CirclePage = () => {
           onSelect={selectTab}
           withFeed={liveOn}
         />
-        {isRecruiter ? (
+        {/* Demo (NW-11 / RC-NW11): content + right rail. Figma's Focused NW-11 places the rail past the frame edge; we draw the
+            two columns in both looks (Playful NW-11 shows them). Live: no checklist / mentors backend, so one column. */}
+        {!liveOn ? (
           <div className={splitGrid}>
             <div className="flex min-w-0 flex-col gap-[22px]">{emptyMain}</div>
-            <NetworkSideColumn
-              tiles={EMPTY_RESPONSE.summaryTiles}
-              tip={EMPTY_RESPONSE.tip}
-              grow={EMPTY_RESPONSE.grow}
-              showMentors
-              following={store.following}
-              onFollow={learnFrom}
-              onSeeAll={() => selectTab('discover')}
-            />
+            {sideColumn({
+              stats: undefined,
+              tiles: EMPTY_RESPONSE.summaryTiles,
+              tip: EMPTY_RESPONSE.tip,
+              grow: EMPTY_RESPONSE.grow,
+              showMentors: true,
+            })}
           </div>
         ) : (
           <div className="flex flex-col gap-[22px]">{emptyMain}</div>
@@ -561,6 +593,7 @@ const CirclePage = () => {
             ) : (
               <>
                 <CircleSectionHead
+                  id="circle-suggestions"
                   title={MINOR_RESPONSE.classmates.title}
                   note={MINOR_RESPONSE.classmates.note}
                 />
@@ -570,6 +603,7 @@ const CirclePage = () => {
                   )}
                 </CircleCardGrid>
                 <CircleSectionHead
+                  id="circle-mentors"
                   title={MINOR_RESPONSE.mentors.title}
                   note={MINOR_RESPONSE.mentors.note}
                 />
@@ -581,14 +615,14 @@ const CirclePage = () => {
               </>
             )}
           </div>
-          {isRecruiter ? (
-            <NetworkSideColumn
-              tiles={MINOR_RESPONSE.summaryTiles}
-              tip={MINOR_RESPONSE.tip}
-              parentCard={MINOR_RESPONSE.parentCard}
-              grow={MINOR_RESPONSE.grow}
-              onStep={(id) => log('grow step', id)}
-            />
+          {!liveOn ? (
+            sideColumn({
+              stats: undefined,
+              tiles: MINOR_RESPONSE.summaryTiles,
+              tip: MINOR_RESPONSE.tip,
+              parentCard: MINOR_RESPONSE.parentCard,
+              grow: MINOR_RESPONSE.grow,
+            })
           ) : (
             <CircleParentCard
               {...(liveOn && L.discover?.minor ? { card: L.discover.minor.parentCard } : {})}
@@ -598,21 +632,11 @@ const CirclePage = () => {
       </>
     );
   } else {
-    const side = liveOn ? (
-      liveSide
-    ) : isRecruiter ? (
-      <NetworkSideColumn
-        stats={{ inCircle: total }}
-        showMentors={tab === 'discover'}
-        following={store.following}
-        onFollow={learnFrom}
-        onSeeAll={() => selectTab('discover')}
-        onStep={(id) => log('grow step', id)}
-        className="lg:sticky lg:top-[16px]"
-      />
-    ) : (
-      <CircleSidePanel stats={{ inCircle: total }} className="lg:sticky lg:top-[16px]" />
-    );
+    // Demo: stats + "Grow your crew" (+ "Mentors to learn from" on Discover), NW-01 … NW-05. Live: the stats card only
+    // (no checklist / mentor list from the backend yet).
+    const side = liveOn
+      ? liveSide
+      : sideColumn({ showMentors: tab === 'discover', className: 'lg:sticky lg:top-[16px]' });
     let main;
     if (liveOn && tab === 'feed') {
       main = <LiveCircleFeed minor={minor} onDiscover={() => selectTab('discover')} show={show} />;
@@ -636,6 +660,10 @@ const CirclePage = () => {
             people={PEOPLE}
             onWithdraw={liveOn ? withdraw : undefined}
             showManage={!liveOn}
+            onManage={() => {
+              log('invitations: manage -> sent list');
+              circle.update({ sub: 'sent' });
+            }}
           />
           {liveOn && <LiveRecommendationsForYou show={show} />}
           <CircleInvitationsFootnote />
@@ -656,7 +684,7 @@ const CirclePage = () => {
           people={PEOPLE}
           menu={
             liveOn
-              ? ['View profile', 'Mute their posts', 'Remove connection', 'Block', 'Report']
+              ? ['View profile', 'Mute their posts', 'Remove from crew', 'Block', 'Report']
               : undefined
           }
         />
@@ -680,6 +708,7 @@ const CirclePage = () => {
             />
           )}
           <CircleSectionHead
+            id="circle-suggestions"
             title={discoverBlock.title}
             note={discoverBlock.note}
             sticker="PICKED FOR YOU"

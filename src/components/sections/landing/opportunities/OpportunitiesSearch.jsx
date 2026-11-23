@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { HERO, TYPES } from './OpportunitiesData.js';
+import { smoothScrollTo } from '../../../../utils/smoothScrollTo.js';
+import { countByType } from './opportunitiesFilter.js';
 import { ArrowRightGlyph, PinGlyph, SearchGlyph } from './OpportunitiesIcons.jsx';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
@@ -26,21 +29,50 @@ const Field = ({ icon, value, onChange, placeholder, label, className }) => (
   </label>
 );
 
+/* Height of the fixed landing nav (72 / 88 / 104px), so the listing lands just below it. */
+const navOffset = () => (document.querySelector('[data-landing-nav]')?.offsetHeight ?? 0) + 16;
+
 /*
  * Hero search block (Figma "Frame 134" 7797:28438 / mobile 7815:305782): search bar (query + location + Search button) and the
  * type chips with counts. Desktop: one row, 74px bar; tablet/mobile (<1280): fields stacked, full-width button.
- * State lives in the URL via `update` (see useOpportunitiesParams).
+ * State lives in the URL via `update` (see useOpportunitiesParams). The two fields are drafts: typing changes nothing below;
+ * Search (button or Enter) writes ?q / ?loc, which filters the listing, then scrolls smoothly down to it (product owner, 2026-11-13).
  */
-const OpportunitiesSearch = ({ state, update }) => {
-  log('render', { q: state.q, loc: state.loc, type: state.type });
+const OpportunitiesSearch = ({ state, update, listingId }) => {
+  const [draft, setDraft] = useState({ q: state.q, loc: state.loc });
+  // the URL changed from outside (back / forward, a shared link): show what it now says
+  const [synced, setSynced] = useState({ q: state.q, loc: state.loc });
+  if (synced.q !== state.q || synced.loc !== state.loc) {
+    log('url changed, resetting drafts', { q: state.q, loc: state.loc });
+    setSynced({ q: state.q, loc: state.loc });
+    setDraft({ q: state.q, loc: state.loc });
+  }
+  // roles per type chip for the applied search (not the Figma numbers)
+  const typeCounts = countByType(
+    state,
+    TYPES.map((t) => t.id)
+  );
+  log('render', { q: state.q, loc: state.loc, draft, type: state.type, typeCounts });
+
+  const submit = (e) => {
+    e.preventDefault();
+    const q = draft.q.trim();
+    const loc = draft.loc.trim();
+    log('search submit', { q, loc });
+    // close the on-screen keyboard first (iOS), so the scroll is not fighting the viewport resize
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    update({ q, loc });
+    const listing = document.getElementById(listingId);
+    log('scroll to listing', { found: Boolean(listing) });
+    // next frame: the filtered listing has rendered
+    requestAnimationFrame(() => smoothScrollTo(listing, { offset: navOffset }));
+  };
+
   return (
     <div className="mt-[18px] flex w-full flex-col gap-6 min-[1700px]:w-[1040px]">
       <form
         role="search"
-        onSubmit={(e) => {
-          e.preventDefault();
-          log('search submit', { q: state.q, loc: state.loc });
-        }}
+        onSubmit={submit}
         className={classNames(
           'flex flex-col gap-3 rounded-[24px] border-[1.4px] border-[#1c2a21]/[0.32] bg-white py-[10px] pl-5 pr-[10px] xl:flex-row xl:items-center xl:gap-[10px]',
           CARD_SHADOW
@@ -48,16 +80,16 @@ const OpportunitiesSearch = ({ state, update }) => {
       >
         <Field
           icon={<SearchGlyph />}
-          value={state.q}
-          onChange={(v) => update({ q: v })}
+          value={draft.q}
+          onChange={(v) => setDraft((d) => ({ ...d, q: v }))}
           placeholder={HERO.queryPlaceholder}
           label={HERO.queryPlaceholder}
           className="xl:flex-[470]"
         />
         <Field
           icon={<PinGlyph />}
-          value={state.loc}
-          onChange={(v) => update({ loc: v })}
+          value={draft.loc}
+          onChange={(v) => setDraft((d) => ({ ...d, loc: v }))}
           placeholder={HERO.locationPlaceholder}
           label={HERO.locationPlaceholder}
           className="xl:flex-[300]"
@@ -80,6 +112,7 @@ const OpportunitiesSearch = ({ state, update }) => {
       >
         {TYPES.map((t) => {
           const active = state.type === t.id;
+          const count = typeCounts[t.id];
           return (
             <button
               key={t.id}
@@ -100,7 +133,7 @@ const OpportunitiesSearch = ({ state, update }) => {
                   active ? 'text-[#785910]' : 'text-[#ffd86b]'
                 )}
               >
-                {t.count}
+                {count}
               </span>
             </button>
           );

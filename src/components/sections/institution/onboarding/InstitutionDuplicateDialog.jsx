@@ -42,7 +42,7 @@ const InstitutionDuplicateDialog = ({ institutionName, registeredOn, onClose }) 
             Ask for an invite
           </button>
           <a
-            href="mailto:institutions@ghanatalenthub.example"
+            href="mailto:info@ghanatalenthub.com?subject=Institution%20registration"
             className="inline-flex min-h-[44px] items-center rounded-[14px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[18px] font-sans text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#1c2a21] no-underline shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             Contact support

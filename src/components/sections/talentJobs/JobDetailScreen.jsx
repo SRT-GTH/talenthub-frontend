@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { JobBriefIcon, JobCashIcon, JobPinIcon } from '../../shared/assets.jsx';
@@ -190,7 +191,25 @@ const SkillChip = ({ name, verified, missing }) =>
   );
 
 /* Hero ------------------------------------------------------------------------------------------- */
+// Share: Figma links nothing from the share icon. Same behaviour as the profile's "More" share
+// (ShareProfileMain): the system share sheet, or the posting link copied where there is none.
+const shareJob = async (job, title, setCopied) => {
+  const url = `${window.location.origin}/job-postings?job=${encodeURIComponent(job.id)}`;
+  log('share', job.id, { native: Boolean(navigator.share) });
+  try {
+    if (navigator.share) await navigator.share({ title, url });
+    else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2400);
+    }
+  } catch (err) {
+    log('share dismissed', err?.name);
+  }
+};
+
 const Hero = ({ view, mode, saved, onSave, onApply, jobs }) => {
+  const [copied, setCopied] = useState(false);
   const { job, d, confidential, line, sticker } = view;
   const { closed, applied, sent } = mode;
   const title = job.title;
@@ -285,9 +304,15 @@ const Hero = ({ view, mode, saved, onSave, onApply, jobs }) => {
           >
             <JobDetailSaveIcon className="size-[20px]" filled={saved} />
           </IconButton>
-          <IconButton label={`Share ${title}`} onClick={() => log('share', job.id)}>
+          <IconButton
+            label={copied ? 'Link copied' : `Share ${title}`}
+            onClick={() => shareJob(job, title, setCopied)}
+          >
             <JobDetailShareIcon className="size-[20px]" />
           </IconButton>
+          <span role="status" className="sr-only">
+            {copied ? 'Link copied' : ''}
+          </span>
         </div>
       </div>
 
@@ -405,7 +430,15 @@ const ApplicationCard = ({ view, jobs }) => {
         </ol>
       </div>
       <div className="flex flex-wrap items-center gap-x-[16px] gap-y-[8px]">
-        <Button variant="tertiary" size="sm" onClick={() => log('prep with buddy')}>
+        <Button
+          variant="tertiary"
+          size="sm"
+          onClick={() => {
+            // Opens Career Buddy's chat on this page (the same ?new=chat the Ask Buddy button sets).
+            log('prep with buddy -> new=chat', jobs.job);
+            jobs.update({ new: 'chat' });
+          }}
+        >
           {COPY.prep}
         </Button>
         <button
@@ -535,35 +568,53 @@ const MatchCard = ({ view, mode, jobs }) => {
   );
 };
 
-const BoostCard = ({ boost }) => (
-  <section
-    aria-label="Boost your match"
-    className="flex min-w-0 flex-col gap-[10px] rounded-[22px] border-[1.2px] border-solid border-[#c8951a] bg-[#faf4e8] p-[clamp(16px,1.16vw,20px)] max-xl:order-4"
-  >
-    <div className="flex min-h-[24px] flex-wrap items-center gap-[8px] playful:min-h-[27px]">
-      <h2 className="m-0 font-sans text-[19px] leading-[24px] font-semibold text-[#1c2a21] playful:font-heading">
-        Boost to ~{boost.to}%
-      </h2>
-      <Sticker
-        tone="white"
-        className="playful:rotate-[4deg] !py-[3px] !text-[11px] !leading-[13px] max-lg:!text-[12px]"
-      >
-        {boost.delta}
-      </Sticker>
-    </div>
-    <p className="m-0 font-sans text-[13.5px] leading-[1.4] text-[#595959] max-lg:text-[14px]">
-      {boost.note}
-    </p>
-    <div className="flex flex-wrap gap-[8px] pt-[2px] pb-[10px] playful:pb-0">
-      <Button variant="tertiary" size="sm" onClick={() => log('boost: have it')}>
-        {boost.have}
-      </Button>
-      <Button variant="tertiary" size="sm" onClick={() => log('boost: learn it')}>
-        {boost.learn}
-      </Button>
-    </div>
-  </section>
-);
+// Boost (demo data only; the live detail hides this card): "I have it · add skill" opens the Skills
+// stage (same as Home / My Assessment "Manage skills"); "Learn it" opens My Learning › Explore on the
+// drawn Power BI search (EX-03 is that search). Neither is linked in the Figma prototype.
+const BoostCard = ({ boost }) => {
+  const navigate = useNavigate();
+  const go = (what, to) => {
+    log(`boost: ${what} ->`, to);
+    navigate(to);
+  };
+  return (
+    <section
+      aria-label="Boost your match"
+      className="flex min-w-0 flex-col gap-[10px] rounded-[22px] border-[1.2px] border-solid border-[#c8951a] bg-[#faf4e8] p-[clamp(16px,1.16vw,20px)] max-xl:order-4"
+    >
+      <div className="flex min-h-[24px] flex-wrap items-center gap-[8px] playful:min-h-[27px]">
+        <h2 className="m-0 font-sans text-[19px] leading-[24px] font-semibold text-[#1c2a21] playful:font-heading">
+          Boost to ~{boost.to}%
+        </h2>
+        <Sticker
+          tone="white"
+          className="playful:rotate-[4deg] !py-[3px] !text-[11px] !leading-[13px] max-lg:!text-[12px]"
+        >
+          {boost.delta}
+        </Sticker>
+      </div>
+      <p className="m-0 font-sans text-[13.5px] leading-[1.4] text-[#595959] max-lg:text-[14px]">
+        {boost.note}
+      </p>
+      <div className="flex flex-wrap gap-[8px] pt-[2px] pb-[10px] playful:pb-0">
+        <Button
+          variant="tertiary"
+          size="sm"
+          onClick={() => go('have it', withDemoFlag('/profile/filling/skills'))}
+        >
+          {boost.have}
+        </Button>
+        <Button
+          variant="tertiary"
+          size="sm"
+          onClick={() => go('learn it', withDemoFlag('/learning?view=explore&ex=search'))}
+        >
+          {boost.learn}
+        </Button>
+      </div>
+    </section>
+  );
+};
 
 const SimilarCard = ({ ids, jobs }) => (
   <section

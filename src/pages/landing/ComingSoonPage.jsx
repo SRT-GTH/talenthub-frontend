@@ -75,7 +75,7 @@ const ComingSoonPage = () => {
 
   return (
     <div
-      className="relative isolate flex min-h-dvh flex-col overflow-x-clip bg-[linear-gradient(180deg,#0f2414_0%,#1e4a27_55%,#2e6436_100%)] font-sans text-white"
+      className="relative isolate flex min-h-dvh flex-col overflow-clip bg-[linear-gradient(180deg,#0f2414_0%,#1e4a27_55%,#2e6436_100%)] font-sans text-white"
       style={zoom < 1 ? { zoom } : undefined}
     >
       <div className="pointer-events-none absolute -right-[60px] -top-[100px] -z-10 size-[640px] rounded-full bg-[#84cc16]/20 blur-[120px]" />

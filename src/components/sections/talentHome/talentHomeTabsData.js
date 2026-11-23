@@ -346,6 +346,7 @@ export const DEFAULT_HOME_CARDS = [
   { id: 'matched', label: 'Matched to you', section: 'main', state: 'shown' },
   { id: 'applications', label: 'My applications', section: 'main', state: 'shown' },
   { id: 'recent-activity', label: 'Recent activity', section: 'main', state: 'shown' },
+  { id: 'crew', label: 'People to link up with', section: 'main', state: 'shown' },
   { id: 'career-buddy', label: 'Career Buddy', section: 'main', state: 'shown' },
   { id: 'streak', label: '12-day streak', section: 'main', state: 'shown' },
   { id: 'job-readiness', label: 'Job readiness', section: 'main', state: 'shown' },

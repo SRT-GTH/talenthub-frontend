@@ -5,6 +5,15 @@ import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { COPY, STAGE_COPY } from './journeyData.js';
+import { isLiveProfile } from '../../../../services/profileStages.api.js';
+import { currentFirstName } from '../../../../services/careerBuddy.api.js';
+
+// Signed in, the "all done" note greets the talent by name (the drawn copy names the demo talent, Kofi).
+const doneMessage = () => {
+  if (!isLiveProfile()) return COPY.buddyMsgDone;
+  const first = currentFirstName();
+  return COPY.buddyMsgDone.replace('Kofi', first || 'you').replace('work, you.', 'work.');
+};
 import {
   ArrowRightIcon,
   CheckCircleFillIcon,
@@ -182,7 +191,7 @@ const CareerBuddyCard = ({ done }) => {
           style={{ clipPath: 'polygon(0 0, 100% 100%, 0 100%)' }}
         />
         <p className="relative m-0 font-sans text-[13px] font-semibold leading-[18px] text-[#111827]">
-          {done ? COPY.buddyMsgDone : COPY.buddyMsg}
+          {done ? doneMessage() : COPY.buddyMsg}
         </p>
       </div>
       <button

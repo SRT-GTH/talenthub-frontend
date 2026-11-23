@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { STREAK_PAGE_COPY } from './talentStreakData.js';
@@ -36,12 +38,20 @@ export const StreakCountsCard = () => (
     <h2 className={TITLE_19}>{STREAK_PAGE_COPY.counts.title}</h2>
     <ul className="m-0 flex list-none flex-wrap gap-[10px] p-0">
       {STREAK_PAGE_COPY.counts.items.map((item) => (
-        <li
-          key={item.id}
-          className="inline-flex items-center gap-[8px] rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] py-[9px] pl-[10px] pr-[14px] font-sans text-[13.5px] font-semibold leading-[16px] text-[#2d5d33] max-lg:text-[14px]"
-        >
-          <img src={ICONS[item.icon]} alt="" aria-hidden="true" className="size-[16px] shrink-0" />
-          {item.label}
+        <li key={item.id} className="inline-flex">
+          <Link
+            to={withDemoFlag(item.to)}
+            onClick={() => log('what counts ->', item.id, item.to)}
+            className="inline-flex items-center gap-[8px] rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] py-[9px] pl-[10px] pr-[14px] font-sans text-[13.5px] font-semibold leading-[16px] text-[#2d5d33] no-underline hover:border-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] max-lg:text-[14px]"
+          >
+            <img
+              src={ICONS[item.icon]}
+              alt=""
+              aria-hidden="true"
+              className="size-[16px] shrink-0"
+            />
+            {item.label}
+          </Link>
         </li>
       ))}
     </ul>

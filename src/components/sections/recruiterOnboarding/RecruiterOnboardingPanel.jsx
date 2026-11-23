@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import OnboardingPanel from '../../shared/OnboardingPanel.jsx';
+import LoginTutorialModal from '../talentAuth/LoginTutorialModal.jsx';
 import photoGold from '../../../assets/recruiter-onboarding/recruiter-panel-photo-gold.webp';
 import photoPink from '../../../assets/recruiter-onboarding/recruiter-panel-photo-pink.webp';
 import photoGreen from '../../../assets/recruiter-onboarding/recruiter-panel-photo-green.webp';
@@ -313,33 +315,43 @@ const RecruiterOnboardingPanel = ({ variant = 'profile', copy: copyOverride, ...
   // `copy` may override any of chipTitle / chipSub / cardSub / wideGdpr.
   const copy = { ...base, ...copyOverride };
   log('mount', { variant, resolved: base === RECRUITER_PANEL_COPY[variant] });
+  // The tutorial button opens the onboarding tutorial (the talent panel's and login's "How to register on GTH"; no recruiter tutorial is drawn, ⚠️ ASSUMPTION)
+  // unless the step passes its own onWatchTutorial.
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   return (
-    <OnboardingPanel
-      refAspect={916 / 739}
-      bgColor="#1F4A2B"
-      ellipseTopRightColor="#F7EFDD"
-      ellipseBottomLeftColor="#F9EBEA"
-      ellipseAlpha={50}
-      // Figma layer blur 200 / 300 -> CSS blur radius = half (100 / 150 px at 739)
-      ellipseBlurTopRight={cq(100)}
-      ellipseBlurBottomLeft={cq(150)}
-      showBgLines={false}
-      showBlElement={false}
-      gridStyle={{
-        left: '51.83%',
-        top: '62.45%',
-        width: '48.44%',
-        height: '44.2%',
-        rotate: '180deg',
-      }}
-      photoCards={PHOTO_CARDS}
-      overlayContent={<RecruiterOverlay copy={copy} />}
-      tutorialShowLabel={false}
-      // Figma: 72px circle, right edge 57px / bottom edge 40px from the panel
-      tutorialPlacement={{ right: cq(57), bottom: cq(40) }}
-      tutorialAriaLabel="Watch recruiter onboarding tutorial"
-      {...rest}
-    />
+    <>
+      <OnboardingPanel
+        refAspect={916 / 739}
+        bgColor="#1F4A2B"
+        ellipseTopRightColor="#F7EFDD"
+        ellipseBottomLeftColor="#F9EBEA"
+        ellipseAlpha={50}
+        // Figma layer blur 200 / 300 -> CSS blur radius = half (100 / 150 px at 739)
+        ellipseBlurTopRight={cq(100)}
+        ellipseBlurBottomLeft={cq(150)}
+        showBgLines={false}
+        showBlElement={false}
+        gridStyle={{
+          left: '51.83%',
+          top: '62.45%',
+          width: '48.44%',
+          height: '44.2%',
+          rotate: '180deg',
+        }}
+        photoCards={PHOTO_CARDS}
+        overlayContent={<RecruiterOverlay copy={copy} />}
+        tutorialShowLabel={false}
+        // Figma: 72px circle, right edge 57px / bottom edge 40px from the panel
+        tutorialPlacement={{ right: cq(57), bottom: cq(40) }}
+        tutorialAriaLabel="Watch recruiter onboarding tutorial"
+        onWatchTutorial={() => {
+          log('open tutorial');
+          setTutorialOpen(true);
+        }}
+        {...rest}
+      />
+      <LoginTutorialModal isOpen={tutorialOpen} onClose={() => setTutorialOpen(false)} />
+    </>
   );
 };
 

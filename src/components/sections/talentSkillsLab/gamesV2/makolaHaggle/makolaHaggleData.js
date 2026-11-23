@@ -108,6 +108,13 @@ const STYLES = [
   { kind: 'bundle', min: 2, name: 'The Deal Builder' },
 ];
 const FALLBACK_STYLE = 'The Warm Closer';
+// ⚠️ ASSUMPTION: the result card's trait chips per move kind (GV-12 draws "Firm on value" · "Builds rapport"); the two most used.
+const TRAIT_TAGS = {
+  counter: 'Firm on value',
+  bundle: 'Builds rapport',
+  walk: 'Knows when to walk',
+  pay: 'Keeps the peace',
+};
 
 export const summarise = (picks) => {
   const count = (kind) => picks.filter((m) => MOVE_KINDS[m] === kind).length;
@@ -133,5 +140,12 @@ export const summarise = (picks) => {
       },
     ],
     summary: `You played ${picks.length} rounds with Auntie Akos: ${parts.join(', ')}.`,
+    // the play-style card's chips (it used to fall back to the two bar labels above, which read as headings)
+    tags: Object.keys(TRAIT_TAGS)
+      .map((kind) => [kind, count(kind)])
+      .filter(([, n]) => n > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([kind]) => TRAIT_TAGS[kind]),
   };
 };

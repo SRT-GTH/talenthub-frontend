@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementStageFrame from '../../components/sections/engagementShell/EngagementStageFrame.jsx';
 import EngagementStageBar from '../../components/sections/engagementShell/EngagementStageBar.jsx';
-import { ENGAGEMENT_STAGES } from '../../components/sections/engagementShell/engagementShellData.js';
+import {
+  ENGAGEMENT_STAGES,
+  buildStageSegments,
+} from '../../components/sections/engagementShell/engagementShellData.js';
+import { useLiveJourney } from '../../components/sections/engagementShell/useLiveJourney.js';
+import { currentUserLabel } from '../../services/careerBuddy.api.js';
 import AvatarHero from '../../components/sections/engagementV2/avatar/AvatarHero.jsx';
 import AvatarPanel from '../../components/sections/engagementV2/avatar/AvatarPanel.jsx';
 import AvatarSwitchModesDialog from '../../components/sections/engagementV2/avatar/AvatarSwitchModesDialog.jsx';
@@ -41,7 +46,8 @@ const log = debug('AvatarPage');
  * Buddy shows the same avatar.
  * Live vs demo: for a signed-in talent (isLiveProfile()) the saved profile `avatar` is loaded into the provider once per session
  * (an empty profile resets the picker to its no-picks defaults). Until that load succeeds the picker is inert and nothing can be
- * saved; a failed load shows a status line and blocks the save (the app-root seed is never written). The last step's "finish
+ * saved; while it loads the hero showcase, name tag and step body show skeletons (SkeletonBlock) rather than the app-root
+ * demo seed ⚠️ ASSUMPTION (no loading frame); a failed load shows a status line and blocks the save (the app-root seed is never written). The last step's "finish
  * avatar" button awaits the save (avatarToProfile in avatarData.js) and only then leaves; a failed save keeps the talent here
  * with an inline status message.
  * Signed out (demo) the provider keeps its app-root seed and nothing is saved. The Figma stage bar reads "STAGE 1 OF 9 · Avatar · 1 of 9 done · 11%" with segment 2 in gold, which the
@@ -89,7 +95,8 @@ const AvatarPage = ({ step: stepProp }) => {
   hydrateRef.current = hydrate;
 
   useEffect(() => {
-    log('mount', { step, modal });
+    log('mount', { step, modal, load });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, modal]);
 
   // Live: load the saved avatar into the picker (once per session; the picker is inert until then).
@@ -102,7 +109,11 @@ const AvatarPage = ({ step: stepProp }) => {
         if (cancelled) return;
         const saved = profile?.avatar?.avatarId ? profile.avatar : null;
         log('load saved avatar', saved ? saved.avatarId : 'none');
-        hydrateRef.current(avatarFromProfile(saved) || {});
+        // the name tag under the avatar shows the talent's own name (the provider's seed is the demo "KofiA_23")
+        hydrateRef.current({
+          ...(avatarFromProfile(saved) || {}),
+          username: currentUserLabel().name,
+        });
         hydratedFor = t;
         setLoad('ready');
       })
@@ -156,6 +167,16 @@ const AvatarPage = ({ step: stepProp }) => {
     else go(ORDER[idx + 1]);
   };
 
+  // Signed in: the stage bar shows the talent's real progress (it was the drawn "1 of 9 done · 11%" for everyone)
+  const liveJourney = useLiveJourney();
+  const liveSegments = liveJourney
+    ? buildStageSegments({
+        doneIds: liveJourney.doneIds,
+        currentId: 'avatar',
+        jhs: Boolean(liveJourney.jhs),
+      })
+    : null;
+
   const selectedCount =
     step === 'extras'
       ? extrasSelectedCount(selection)
@@ -169,13 +190,18 @@ const AvatarPage = ({ step: stepProp }) => {
       footer={false}
       onChangeInputMode={() => update({ modal: 'switch-modes' })}
     >
-      <EngagementStageBar stageNumber={1} stageName="Avatar" segments={SEGMENTS} doneCount={1} />
+      <EngagementStageBar
+        stageNumber={1}
+        stageName="Avatar"
+        segments={liveJourney ? liveSegments : SEGMENTS}
+        doneCount={liveJourney ? liveJourney.doneIds.length : 1}
+      />
       <div className="relative isolate overflow-hidden [container-type:inline-size]">
         <div
           className="relative grid grid-cols-1 lg:grid-cols-[990fr_738fr]"
           style={{ '--u': 'calc(min(100cqw, 1728px) / 1728)' }}
         >
-          <AvatarHero meta={meta} />
+          <AvatarHero meta={meta} loading={load === 'loading'} />
           <AvatarPanel
             meta={meta}
             step={step}
@@ -185,6 +211,7 @@ const AvatarPage = ({ step: stepProp }) => {
             onNext={onNext}
             notice={load === 'error' ? LOAD_ERROR : saveError}
             busy={load !== 'ready'}
+            loading={load === 'loading'}
           >
             <Body />
           </AvatarPanel>

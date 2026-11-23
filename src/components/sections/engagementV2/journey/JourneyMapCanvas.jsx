@@ -5,16 +5,16 @@ import { debug } from '../../../../utils/debug.js';
 import kofiAvatar from '../../../../assets/engagement-v2/journey/kofi-avatar.svg';
 import journeyMap from '../../../../assets/engagement-v2/journey/journey-map.webp';
 import Button from '../../../ui/Button.jsx';
-import { AVATAR_SPOTS, COPY, MAP_H, MAP_W, REGION_LINES } from './journeyData.js';
+import { AVATAR_SPOTS, COPY, MAP_H, MAP_W, REGION_LINES, stageTooltip } from './journeyData.js';
 import {
   ArrowRightIcon,
-  BoltIcon,
   EyeIcon,
   MarkerPinIcon,
   TimeClockIcon,
   TrophyIcon,
 } from './JourneyIcons.jsx';
 import JourneyNode from './JourneyNode.jsx';
+import { stageIconFor } from './stageIcons.js';
 import { nodeSub, nodePill } from './journeyText.js';
 import { ROAD_BOX, ROAD_SEGMENTS, ROAD_START } from './journeyRoad.js';
 import { travelledNodeCount } from './journeyModel.js';
@@ -48,17 +48,28 @@ const Region = ({ region }) => (
   </div>
 );
 
+/* Pop-up geometry: 300 wide, ~250 tall, 20 from the node's edge (the current stage's ring is 62 out, others 42). */
+const TIP_W = 300;
+const TIP_H = 250;
+const TIP_GAP = 20;
+const TIP_EDGE = 16;
+
 const Tooltip = ({ node, onEnter, onLeave }) => {
   const navigate = useNavigate();
-  const t = node.copy.tooltip;
-  const Glyph = BoltIcon;
+  const t = stageTooltip(node);
+  const Glyph = stageIconFor(node.id);
+  const r = node.status === 'current' ? 62 : 42;
+  // Left of the stage as drawn; stages near the map's left edge open to the right instead.
+  const onRight = node.cx - r - TIP_GAP - TIP_W < TIP_EDGE;
+  const left = onRight ? node.cx + r + TIP_GAP : node.cx - r - TIP_GAP - TIP_W;
+  const top = Math.min(Math.max(node.cy - 122, TIP_EDGE), MAP_H - TIP_H - TIP_EDGE);
   return (
     <div
       role="tooltip"
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
       className="absolute z-30 flex w-[300px] flex-col gap-[12px] rounded-[18px] border border-[#e7e7e7] bg-white p-[16px] shadow-[0_8px_22px_rgba(13,31,15,0.08)]"
-      style={{ left: node.cx - 42 - 20 - 300, top: node.cy - 122 }}
+      style={{ left, top }}
     >
       <div className="flex items-center gap-[12px]">
         <span className="flex size-[40px] items-center justify-center rounded-[12px] bg-[#ebf1ec] text-[#387440]">
@@ -95,7 +106,13 @@ const Tooltip = ({ node, onEnter, onLeave }) => {
       </Button>
       <span
         aria-hidden="true"
-        className="absolute right-[-11px] top-[102px] size-[22px] rotate-45 border-r border-t border-[#e7e7e7] bg-white"
+        className={classNames(
+          'absolute size-[22px] rotate-45 bg-white',
+          onRight
+            ? 'left-[-11px] border-b border-l border-[#e7e7e7]'
+            : 'right-[-11px] border-r border-t border-[#e7e7e7]'
+        )}
+        style={{ top: node.cy - top - 20 }}
       />
     </div>
   );
@@ -127,7 +144,8 @@ const JourneyMapCanvas = ({ model, hoverId, onHover, toast, onToast }) => {
 
   const travelled = ROAD_SEGMENTS.slice(0, travelledNodeCount(model) - 1).join('');
   const spot = avatarSpotFor(model);
-  const hovered = model.nodes.find((n) => n.id === hoverId && n.copy?.tooltip);
+  // Every stage opens the pop-up (milestones don't).
+  const hovered = model.nodes.find((n) => n.id === hoverId && n.kind === 'stage');
 
   return (
     <div ref={hostRef} className="w-full" style={{ maxWidth: MAP_W }}>
@@ -212,8 +230,8 @@ const JourneyMapCanvas = ({ model, hoverId, onHover, toast, onToast }) => {
               sub={nodeSub(node, model)}
               pill={nodePill(node, model)}
               emphasis={hoverId === node.id}
-              onEnter={() => node.copy?.tooltip && onHover(node.id)}
-              onLeave={() => node.copy?.tooltip && onHover(null)}
+              onEnter={() => node.kind === 'stage' && onHover(node.id)}
+              onLeave={() => node.kind === 'stage' && onHover(null)}
             />
           ))}
 

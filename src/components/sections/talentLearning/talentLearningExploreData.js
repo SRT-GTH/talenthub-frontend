@@ -228,6 +228,7 @@ export const NO_RESULTS = {
   title: 'No course for that… yet',
   body: 'Tell us you want it. When enough talents ask, we build it, and you’ll be the first to know.',
   request: 'Request this course',
+  requested: 'Request sent',
   askBuddy: 'Ask Career Buddy',
   closestLabel: 'Closest we have:',
   closest: ['Agribusiness 101', 'Farm Data with Sheets', 'Intro to Fintech'],

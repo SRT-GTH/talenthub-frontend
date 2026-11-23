@@ -1,7 +1,7 @@
 /*
  * articleData — the help articles of the parent "Help and guides" (Figma file SCXc457vwiq6o7d9g4jVbh, canvas "Parent · 10 Help and safety" 10057:67418).
  * Only one article is drawn: PH-02 "Opting out and privacy" 10053:3343 (crumb "Help and guides › Your controls"). The other five topics have no designed article yet (their cards only log).
- * `related` links: `to` opens a built page; without `to` the link has no designed destination (it only logs).
+ * `related` links: `to` opens a built page. Topics with no designed article go where that control lives (⚠️ ASSUMPTION: My wards, where each ward page has Flags and the turning-18 notice).
  */
 export const ARTICLES = {
   'opting-out': {
@@ -27,8 +27,8 @@ export const ARTICLES = {
       },
     ],
     related: [
-      { label: 'Flagging your ward’s profile →' },
-      { label: 'When your ward turns 18 →' },
+      { label: 'Flagging your ward’s profile →', to: '/parent/wards' },
+      { label: 'When your ward turns 18 →', to: '/parent/wards' },
       { label: 'Report a safety concern →', to: '/parent/help?modal=report' },
     ],
   },

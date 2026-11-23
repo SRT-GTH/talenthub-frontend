@@ -14,6 +14,7 @@ import {
 } from '../../shared/assets.jsx';
 import BuddyThinking, { StopGeneratingPill } from '../../ui/BuddyThinking.jsx';
 import FlowPortal from './FlowPortal.jsx';
+import { withDemoFlag } from './talentShellData.js';
 import CareerPostCards from '../profileFilling/careerExposure/CareerPostCards.jsx';
 import CourseRecommendationCards from '../profileFilling/learningGuidance/CourseRecommendationCards.jsx';
 import { careerPostView, courseCardView } from '../profileFilling/careerBuddyLive.js';
@@ -184,17 +185,18 @@ const CareerBuddyFirstChat = ({ home }) => {
     log('open full Career Buddy');
     navigate(CAREER_BUDDY_ROUTE);
   };
-  // Header buttons (Figma): maximize = the same conversation on the full Career Buddy screen;
-  // history = that screen with its conversation list open. Demo mode has no destination.
+  // Header buttons: the expand tile is linked in the Figma prototype to the expanded Career Buddy
+  // (the full-view conversation); history = that screen with its conversation list open.
+  // Demo opens the scripted full screen (?chat=history is its drawn history-drawer state).
   const maximize = () => {
-    if (!live) return log('maximize: demo has no full screen conversation');
-    log('maximize -> full Career Buddy');
-    navigate(CAREER_BUDDY_ROUTE);
+    log('maximize -> full Career Buddy', { live });
+    navigate(live ? CAREER_BUDDY_ROUTE : withDemoFlag(CAREER_BUDDY_ROUTE));
   };
   const openHistory = () => {
-    if (!live) return log('history: no destination in Figma');
-    log('history -> full Career Buddy, history open');
-    navigate(`${CAREER_BUDDY_ROUTE}?history=1`);
+    log('history -> full Career Buddy, history open', { live });
+    navigate(
+      live ? `${CAREER_BUDDY_ROUTE}?history=1` : withDemoFlag(`${CAREER_BUDDY_ROUTE}?chat=history`)
+    );
   };
 
   // Demo: ?buddy=<phase> draws one reply-in-progress row; Stop / Continue / Try again move it between phases.

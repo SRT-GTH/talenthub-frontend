@@ -208,7 +208,7 @@ export const RowsBox = ({ rows, gap = 16 }) => (
 );
 
 /* Talent credit score mini card (right column of the financing and credit pages). Props: onView. */
-export const CreditMiniCard = () => (
+export const CreditMiniCard = ({ onView }) => (
   <SideCard label="Talent credit score" aria-label="Talent credit score">
     <div className="flex items-center gap-[8px]">
       <span
@@ -224,7 +224,12 @@ export const CreditMiniCard = () => (
     <p className="m-0 font-sans text-[13px] leading-[1.2] text-[#575755]">
       Good scores get lower rates. Verified skills and finished courses help most.
     </p>
-    <GreenLink onClick={() => log('view your score (no destination in the prototype)')}>
+    <GreenLink
+      onClick={() => {
+        log('view your score: credit score tab');
+        onView?.();
+      }}
+    >
       View your score →
     </GreenLink>
   </SideCard>

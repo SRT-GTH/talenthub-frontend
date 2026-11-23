@@ -179,7 +179,12 @@ const ProfileCompletePage = () => {
                 setTone(t);
               }}
               onRegenerate={regenerate}
-              onEdit={() => log('edit bio (no editor drawn in Figma)')}
+              onEdit={() => {
+                // No bio editor is drawn here; the bio is the profile's About (professionalBio), edited in place on
+                // the profile (P-08 Edit About). ⚠️ ASSUMPTION.
+                log('edit bio -> /profile?edit=about');
+                navigate('/profile?edit=about');
+              }}
               bio={me ? me.bio : undefined}
             />
             <SectionLabel>WHAT HAPPENS NEXT</SectionLabel>

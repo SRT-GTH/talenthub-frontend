@@ -14,6 +14,7 @@ import { GameBulbIcon, GameCheckLargeIcon, GameCloseXlIcon } from './GameIcons.j
 import { EYEBROW, HAIR, ensureGameFonts } from './gameKitUtils.js';
 import { useLiveStreak } from '../../talentStreak/useLiveStreak.js';
 import { useLiveXp } from '../../talentXp/useLiveXp.js';
+import { gamesTabPath } from '../skillsLabState.js';
 
 const log = debug('gameKit');
 
@@ -186,7 +187,7 @@ export const GameFrame = (props) => {
   const arcadePath =
     params.get('from') === 'engagement'
       ? '/profile/filling/skills?view=lab'
-      : '/skills-lab?tab=games';
+      : gamesTabPath(`?${params.toString()}`);
 
   useEffect(() => {
     ensureGameFonts();

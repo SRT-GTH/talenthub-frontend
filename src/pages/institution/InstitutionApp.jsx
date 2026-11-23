@@ -56,6 +56,8 @@ const InstitutionApp = () => (
     <Suspense fallback={<Fallback />}>
       <Routes>
         <Route path="sign-up" element={<InstitutionSignUpPage />} />
+        {/* bare /institution/verify = the empty check form (public too) */}
+        <Route path="verify" element={<InstitutionVerifyPage />} />
         <Route path="verify/:credentialId" element={<InstitutionVerifyPage />} />
         <Route
           path="*"

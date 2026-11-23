@@ -302,7 +302,10 @@ const HelpCentre = ({ settings, help, q, openFaq, setOpenFaq, data, ownRequests 
                   <Tag
                     key={c.id}
                     {...(href ? { href } : { type: 'button' })}
-                    onClick={() => log('contact', c.id)}
+                    onClick={() => {
+                      log('contact', c.id);
+                      data?.onContact?.(c.id); // recruiter (add-only): routes a contact row; talent unchanged
+                    }}
                     className={classNames(
                       'flex w-full cursor-pointer items-center gap-[12px] rounded-[14px] bg-[#f8f8f4] p-[12px] text-left no-underline',
                       FOCUS_RING

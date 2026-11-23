@@ -104,7 +104,7 @@ const SPARKLE_VECTORS = [
 const PanelSparkle = () => (
   <div
     aria-hidden="true"
-    className="pointer-events-none absolute overflow-hidden"
+    className="pointer-events-none absolute overflow-hidden focused:hidden"
     style={{ left: '78.2%', top: '2.3%', width: 100, height: 102 }}
   >
     {SPARKLE_VECTORS.map(({ src, inset }, i) => (
@@ -149,7 +149,7 @@ const SNOW_VECTORS = [
 const PanelSnowDots = () => (
   <div
     aria-hidden="true"
-    className="pointer-events-none absolute overflow-hidden"
+    className="pointer-events-none absolute overflow-hidden focused:hidden"
     style={{ left: '-389px', top: '-31px', width: 447, height: 359 }}
   >
     {SNOW_VECTORS.map(({ src, inset }, i) => (
@@ -189,14 +189,23 @@ const PhotoCard = ({
   borderOverlay = false,
   cornerEllipseInside = false,
   cornerEllipseStyle,
+  // Talent sign-up Focused look ("Focused ·" frames): its own centre ({ centerX, centerY }), drawn flat unless
+  // focused.rotate is given. CSS variables so the focused: variant (only inside the sign-up scope) can swap them.
+  focused,
 }) => (
   <div
     aria-hidden="true"
-    className="absolute"
+    className="gth-mode-move absolute [--pc-r:var(--pc-r-p)] [--pc-x:var(--pc-x-p)] [--pc-y:var(--pc-y-p)] focused:[--pc-r:var(--pc-r-f)] focused:[--pc-x:var(--pc-x-f)] focused:[--pc-y:var(--pc-y-f)]"
     style={{
-      left: centerX,
-      top: centerY,
-      transform: `translate(-50%, -50%) ${rotate}`,
+      '--pc-x-p': centerX,
+      '--pc-y-p': centerY,
+      '--pc-r-p': rotate || 'rotate(0deg)',
+      '--pc-x-f': focused?.centerX ?? centerX,
+      '--pc-y-f': focused?.centerY ?? centerY,
+      '--pc-r-f': focused?.rotate ?? 'rotate(0deg)',
+      left: 'var(--pc-x)',
+      top: 'var(--pc-y)',
+      transform: 'translate(-50%, -50%) var(--pc-r)',
       width,
       aspectRatio,
     }}
@@ -225,7 +234,7 @@ const PhotoCard = ({
     )}
 
     <div
-      className="absolute inset-0 overflow-hidden"
+      className="gth-mode-move absolute inset-0 overflow-hidden focused:shadow-[0_2px_2px_-1px_rgba(27,36,44,0.04),0_10px_17px_-6px_rgba(27,36,44,0.08)]!"
       style={{
         border: borderOverlay ? undefined : `${borderWidth} solid ${borderColor}`,
         borderRadius,
@@ -353,99 +362,103 @@ const OnboardingPanel = ({
       }}
     >
       {!isSimple && (
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          {/* ── Layer 1: Cream ellipse top-right (2884:64827) — default only ── */}
-          {!isSimple && (
-            <div
-              className={classNames(
-                'pointer-events-none absolute rounded-full overflow-hidden',
-                !ellipseBlurTopRight && 'blur-sm'
-              )}
-              style={{
-                filter: ellipseBlurTopRight ? `blur(${ellipseBlurTopRight})` : undefined,
-                backgroundColor: ellipseTrTint,
-                left: '83.5%',
-                top: '-21.6%',
-                width: 'clamp(200px, 64%, 473px)',
-                height: 'clamp(200px, 64%, 473px)',
-              }}
-            />
-          )}
-
-          {/* ── Layer 2: Pink ellipse bottom-left (2884:64828) — default only ── */}
-          {!isSimple && (
-            <div
-              className={classNames(
-                'pointer-events-none rounded-full absolute overflow-hidden',
-                !ellipseBlurBottomLeft && 'blur-sm'
-              )}
-              style={{
-                filter: ellipseBlurBottomLeft ? `blur(${ellipseBlurBottomLeft})` : undefined,
-                backgroundColor: ellipseBlTint,
-                left: '-23.1%',
-                bottom: '-22.9%',
-                width: 'clamp(200px, 64%, 473px)',
-                height: 'clamp(200px, 64%, 473px)',
-              }}
-            />
-          )}
-
-          {/* ── Layer 3: BG grid rectangle (2884:64829) — default only ── */}
-          {!isSimple && (
-            <div
-              className="pointer-events-none absolute overflow-hidden"
-              style={{
-                left: gridBox.left,
-                top: gridBox.top,
-                width: gridBox.width,
-                height: gridBox.height,
-              }}
-            >
-              <img
-                src={bgGrid}
-                alt=""
-                aria-hidden="true"
-                className="absolute block max-w-none"
+        <div className="pointer-events-none absolute inset-0">
+          {/* Background layers 1-6 are decoration: hidden from assistive tech here. The stage below stays exposed
+              so a caller overlay can hold real controls (the talent steps' Watch Tutorial button); its own art
+              layers carry aria-hidden. */}
+          <div aria-hidden="true" className="contents">
+            {/* ── Layer 1: Cream ellipse top-right (2884:64827) — default only ── */}
+            {!isSimple && (
+              <div
+                className={classNames(
+                  'pointer-events-none absolute rounded-full overflow-hidden',
+                  !ellipseBlurTopRight && 'blur-sm'
+                )}
                 style={{
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transform: `rotate(${gridBox.rotate})`,
+                  filter: ellipseBlurTopRight ? `blur(${ellipseBlurTopRight})` : undefined,
+                  backgroundColor: ellipseTrTint,
+                  left: '83.5%',
+                  top: '-21.6%',
+                  width: 'clamp(200px, 64%, 473px)',
+                  height: 'clamp(200px, 64%, 473px)',
                 }}
-                draggable={false}
               />
-            </div>
-          )}
+            )}
 
-          {/* ── Layer 4: Sparkle stars (2884:64833) — default only ── */}
-          {!isSimple && <PanelSparkle />}
-
-          {/* ── Layer 5: Snow ring dots (2884:64834) — default only ── */}
-          {!isSimple && <PanelSnowDots />}
-
-          {/* ── Layer 6: BG lines overlay (2884:67315) — 10% opacity, default only ── */}
-          {!isSimple && showBgLines && (
-            <div
-              className="pointer-events-none absolute inset-0 overflow-hidden"
-              style={{ opacity: 0.1 }}
-            >
-              <img
-                src={bgLines}
-                alt=""
-                aria-hidden="true"
-                className="absolute block max-w-none"
+            {/* ── Layer 2: Pink ellipse bottom-left (2884:64828) — default only ── */}
+            {!isSimple && (
+              <div
+                className={classNames(
+                  'pointer-events-none rounded-full absolute overflow-hidden',
+                  !ellipseBlurBottomLeft && 'blur-sm'
+                )}
                 style={{
-                  inset: '0.05% -43.79% -9.64% 0.03%',
-                  width: 'calc(100% + 43.82%)',
-                  height: 'calc(100% + 9.69%)',
+                  filter: ellipseBlurBottomLeft ? `blur(${ellipseBlurBottomLeft})` : undefined,
+                  backgroundColor: ellipseBlTint,
+                  left: '-23.1%',
+                  bottom: '-22.9%',
+                  width: 'clamp(200px, 64%, 473px)',
+                  height: 'clamp(200px, 64%, 473px)',
                 }}
-                draggable={false}
               />
-            </div>
-          )}
+            )}
 
+            {/* ── Layer 3: BG grid rectangle (2884:64829) — default only ── */}
+            {!isSimple && (
+              <div
+                className="pointer-events-none absolute overflow-hidden"
+                style={{
+                  left: gridBox.left,
+                  top: gridBox.top,
+                  width: gridBox.width,
+                  height: gridBox.height,
+                }}
+              >
+                <img
+                  src={bgGrid}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute block max-w-none"
+                  style={{
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transform: `rotate(${gridBox.rotate})`,
+                  }}
+                  draggable={false}
+                />
+              </div>
+            )}
+
+            {/* ── Layer 4: Sparkle stars (2884:64833) — default only ── */}
+            {!isSimple && <PanelSparkle />}
+
+            {/* ── Layer 5: Snow ring dots (2884:64834) — default only ── */}
+            {!isSimple && <PanelSnowDots />}
+
+            {/* ── Layer 6: BG lines overlay (2884:67315) — 10% opacity, default only ── */}
+            {!isSimple && showBgLines && (
+              <div
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+                style={{ opacity: 0.1 }}
+              >
+                <img
+                  src={bgLines}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute block max-w-none"
+                  style={{
+                    inset: '0.05% -43.79% -9.64% 0.03%',
+                    width: 'calc(100% + 43.82%)',
+                    height: 'calc(100% + 9.69%)',
+                  }}
+                  draggable={false}
+                />
+              </div>
+            )}
+          </div>
           {/* ── Stage (layers 7-9): scaled down on short panels, identity otherwise ── */}
           <div
             className="absolute left-0 top-0 w-full"

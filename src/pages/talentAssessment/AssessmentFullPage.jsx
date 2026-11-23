@@ -37,8 +37,9 @@ const AssessmentFullPage = () => {
   const { skillId } = useParams();
   const [params] = useSearchParams();
   const assessment = useAssessmentState();
-  const home = useTalentHomeState(); // live sidebar / nav (AssessmentFrame)
   const frame = params.get('f');
+  // Live sidebar / nav (AssessmentFrame). Figma frames and ?demo=1 skip the talent API (no /login bounce when signed out).
+  const home = useTalentHomeState({ enabled: !frame && !assessment.demo });
   // The six server-scored assessments (liveAssessments.js); `typescript` stays the drawn mock for design QA.
   const isLive = Boolean(LIVE_TYPES[skillId]) && !frame;
   const live = useLiveAssessments({ enabled: isLive });

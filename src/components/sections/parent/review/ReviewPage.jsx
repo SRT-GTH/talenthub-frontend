@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
-import ActionToast from '../../../ui/ActionToast.jsx';
 import UnderlineTabs from '../../../ui/UnderlineTabs.jsx';
 import ParentFrame from '../ParentFrame.jsx';
 import { useWardFlags } from '../flags/flagsStore.js';
 import { WARDS } from '../wards/data/wardsData.js';
+import ParentToast from '../wards/dialogs/ParentToast.jsx';
 import { useParentMe, useParentWardsDetail } from '../live/parentLive.js';
 import { flagRows, wardView } from '../live/parentLiveView.js';
 import AssessmentResults from './AssessmentResults.jsx';
@@ -269,13 +269,12 @@ const ReviewPage = () => {
       ) : null}
 
       {rv.toast ? (
-        <ActionToast
+        <ParentToast
           message={TOAST[rv.toast].message}
           detail={TOAST[rv.toast].detail}
           actionLabel={TOAST[rv.toast].action}
           onAction={() => undo(rv.toast)}
           onClose={() => update({ toast: null }, { replace: true })}
-          className="lg:left-[calc(50%+151px)]"
         />
       ) : null}
     </ParentFrame>

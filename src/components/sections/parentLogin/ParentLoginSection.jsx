@@ -277,7 +277,11 @@ const ParentLoginSection = () => {
               <button
                 type="button"
                 className="font-semibold hover:underline focus-visible:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
-                onClick={() => log('forgot password clicked')}
+                onClick={() => {
+                  // The shared password-reset page (the main login links there too).
+                  log('forgot password clicked -> /forgot-password');
+                  navigate('/forgot-password');
+                }}
               >
                 Forget Password
               </button>

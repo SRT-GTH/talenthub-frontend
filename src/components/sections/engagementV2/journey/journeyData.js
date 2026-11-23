@@ -92,6 +92,42 @@ export const STAGE_COPY = {
   pitch: { eta: 6 },
 };
 
+/*
+ * Hover pop-up line per stage. The design draws the pop-up once (Skills, verbatim below in STAGE_COPY.skills.tooltip);
+ * the other stages reuse that pop-up with these lines, written in the same voice. ⚠️ ASSUMPTION: copy not in Figma.
+ */
+export const STAGE_TOOLTIP_TEXT = {
+  avatar: 'Build the avatar recruiters see on your card. Pick a base, skin, hair and extras.',
+  interests:
+    'Pick the fields and causes you care about. Recruiters filter by these, and we suggest clubs and courses from them.',
+  personality:
+    'Answer short work scenarios. Your results help match you to roles and teams that suit you.',
+  work: 'Add jobs, internships, volunteering and side gigs. Real experience helps recruiters trust your skills.',
+  portfolio: 'Show projects you built or helped with, with links and the skills you used.',
+  certs:
+    'Add certificates and courses. Anything you finished on GTH is added and verified for you.',
+  goals:
+    'Tell us the roles and paths you are aiming for, so matches and courses point the right way.',
+  pitch: 'Record a short video pitch so recruiters hear from you in your own words.',
+};
+
+/*
+ * Pop-up content for any stage: Figma's Skills copy for Skills, the line above for the rest. The trophy pill names the
+ * milestone the stage counts towards, and the button follows the stage state (Start / Continue / Edit).
+ */
+export const stageTooltip = (node, milestones = MILESTONES) => {
+  const { stage, status, copy } = node;
+  if (copy?.tooltip && status === 'todo') return copy.tooltip;
+  const milestone = milestones.find((m) => stage.n <= m.at) ?? milestones[milestones.length - 1];
+  const verb = status === 'done' ? 'Edit' : status === 'current' ? 'Continue' : 'Start';
+  return {
+    about: `about ${copy?.eta ?? 5} min`,
+    text: copy?.tooltip?.text ?? STAGE_TOOLTIP_TEXT[node.id] ?? '',
+    counts: `Counts towards ${milestone.label}`,
+    action: `${verb} ${stage.label}`,
+  };
+};
+
 /* Mock saved progress for a stage that is "in progress" (only Interests is drawn that way). */
 export const JOURNEY_PROGRESS = {
   interests: { picked: 3, of: 6, minutesLeft: 2 },

@@ -49,12 +49,13 @@ const FeaturedStory = () => {
               <span className="font-sans text-[14px] leading-[17px] text-[#595959]">{s.role}</span>
             </div>
           </div>
-          <ul className="m-0 grid list-none grid-cols-2 gap-2 p-0 md:flex md:flex-wrap">
+          {/* chips flow and wrap as whole chips; a label never breaks inside its pill (was a 2-column grid on phones) */}
+          <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
             {s.timeline.map((t) => (
               <li
                 key={t.label}
                 style={{ backgroundColor: t.bg }}
-                className="inline-flex min-h-7 items-center rounded-full border border-[#1c2a21] px-3 py-[5px] font-sans text-[13px] font-semibold leading-[15.5px] text-[#1c2a21]"
+                className="inline-flex min-h-7 items-center whitespace-nowrap rounded-full border border-[#1c2a21] px-3 py-[5px] font-sans text-[13px] font-semibold leading-[15.5px] text-[#1c2a21]"
               >
                 {t.label}
               </li>

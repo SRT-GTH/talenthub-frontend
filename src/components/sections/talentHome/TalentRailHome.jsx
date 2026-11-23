@@ -16,7 +16,7 @@ import {
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import avatarPortrait from '../../../assets/talent-settings/menu/kofi-avatar-portrait.svg';
-import { homeTabRoute } from './talentShellData.js';
+import { homeTabRoute, withDemoFlag } from './talentShellData.js';
 import { TALENT_NAV_MAIN, TALENT_NAV_SECONDARY, getTalentSidebarData } from './talentShellData.js';
 // Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
 import '../../../copy/portals/talentCopy.js';
@@ -63,9 +63,9 @@ const Tile = ({ item, active, badge }) => {
   const go = () => {
     log('nav select:', item.id);
     if (item.route) {
-      if (pathname !== item.route) navigate(item.route);
+      if (pathname !== item.route) navigate(withDemoFlag(item.route));
     } else if (item.tab) {
-      navigate(homeTabRoute(item.tab, pathname, search));
+      navigate(withDemoFlag(homeTabRoute(item.tab, pathname, search)));
     }
   };
   const dot = DOT_IDS.includes(item.id) && badge;
@@ -124,7 +124,7 @@ const TalentRailHome = ({ activeId = 'home', home, activeNav, badges, onToggle, 
   return (
     <div
       className={classNames(
-        'relative flex w-[126px] shrink-0 flex-col items-center justify-between overflow-y-auto border-r-2 border-solid border-white bg-white px-[12px] pt-[60px] pb-[40px]',
+        'slim-scrollbar relative flex w-[126px] shrink-0 flex-col items-center justify-between overflow-y-auto border-r-2 border-solid border-white bg-white px-[12px] pt-[60px] pb-[40px]',
         className
       )}
     >

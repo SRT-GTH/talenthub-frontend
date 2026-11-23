@@ -5,7 +5,6 @@ import {
   JobBookmarkIcon,
   JobBriefIcon,
   JobCashIcon,
-  JobClockIcon,
   JobConfidentialLockIcon,
   JobEyeIcon,
   JobPinIcon,
@@ -57,9 +56,20 @@ export const BookmarkButton = ({ on, onClick, title }) => (
     aria-pressed={on}
     aria-label={`${on ? 'Unsave' : 'Save'} ${title}`}
     onClick={onClick}
-    className="flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-solid border-[rgba(28,42,33,0.12)] bg-white p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+    className={classNames(
+      'flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-solid p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
+      // Saved: ink circle with a gold bookmark (Figma's "Save" on state), shelf shadow in Playful.
+      on
+        ? 'border-[#1c2a21] bg-[#1c2a21] playful:shadow-[2px_2px_0_rgba(28,42,33,0.25)]'
+        : 'border-[rgba(28,42,33,0.12)] bg-white'
+    )}
   >
-    <JobBookmarkIcon className={classNames('size-[15px]', on ? '[&_path]:fill-[#1c2a21]' : null)} />
+    <JobBookmarkIcon
+      className={classNames(
+        'size-[15px]',
+        on ? '[&_path]:fill-[#ffd86b] [&_path]:stroke-[#ffd86b]' : null
+      )}
+    />
   </button>
 );
 
@@ -112,6 +122,7 @@ export const MatchCard = ({
   onDismiss,
   showDismiss,
   footer,
+  hideOpen,
 }) => {
   const { company } = job;
   return (
@@ -121,7 +132,7 @@ export const MatchCard = ({
         featured
           ? 'border-[1.5px] border-solid border-[rgba(28,42,33,0.55)] shadow-[0_4px_0_rgba(28,42,33,0.12)]'
           : 'border border-solid border-[#e1eae2]',
-        job.dim ? 'opacity-70' : null
+        job.dim ? 'opacity-60' : null
       )}
     >
       <div className="flex items-center gap-[10px]">
@@ -160,7 +171,12 @@ export const MatchCard = ({
         <MetaChip icon={JobBriefIcon}>{job.type}</MetaChip>
         <MetaChip icon={JobCashIcon}>{job.pay}</MetaChip>
       </div>
-      <div className="flex flex-col gap-[10px] rounded-[16px] bg-[#ebf1ec] p-[12px]">
+      <div
+        className={classNames(
+          'flex flex-col gap-[10px] rounded-[16px] p-[12px]',
+          job.dim ? 'bg-[#f8f8f4]' : 'bg-[#ebf1ec]'
+        )}
+      >
         <div className="flex items-center gap-[10px]">
           <span className="font-sans text-[23px] leading-[1] font-semibold text-[#1c2a21] playful:font-heading">
             {job.match}%
@@ -187,51 +203,50 @@ export const MatchCard = ({
               Not for me
             </button>
           ) : null}
-          <NotifButton
-            size="sm"
-            tone={featured ? 'primary' : 'secondary'}
-            onClick={() => onOpen?.(job)}
-          >
-            View opportunity
-          </NotifButton>
+          {hideOpen ? null : (
+            <NotifButton
+              size="sm"
+              tone={featured ? 'primary' : 'secondary'}
+              onClick={() => onOpen?.(job)}
+            >
+              View opportunity
+            </NotifButton>
+          )}
         </div>
       </div>
     </article>
   );
 };
 
-/* Saved card: same body, status pill instead of the New sticker, Remove + View in the footer. */
-export const SavedCard = ({ job, status, onRemove, onOpen }) => {
+/* Saved card (J-19): same body; "Closes in 2 days" / "Closed" sticker instead of New. Open roles keep only "View
+ * opportunity" (the ink bookmark unsaves); a closed role is dimmed and only offers "Remove". */
+export const SavedCard = ({ job, status, featured, onRemove, onOpen }) => {
   const closed = status === 'closed';
-  const pill = (
-    <span
-      className={classNames(
-        'inline-flex items-center gap-[4px] whitespace-nowrap rounded-full border border-solid px-[8px] py-[3px] font-sans text-[11.5px] leading-[normal] font-semibold max-lg:text-[12px]',
-        closed
-          ? 'border-[rgba(28,42,33,0.2)] bg-[#f1f1ee] text-[#737373]'
-          : status === 'closing'
-            ? 'border-[#c8951a] bg-[#faf4e8] text-[#8a6410]'
-            : 'hidden'
-      )}
-    >
-      {status === 'closing' ? <JobClockIcon className="size-[13px]" /> : null}
-      {closed ? SAVED_COPY.closed : SAVED_COPY.closesIn}
-    </span>
-  );
+  const pill =
+    status === 'open' ? null : (
+      <JobSticker
+        className={classNames(
+          'whitespace-nowrap text-[11px] font-bold text-[#1f4a2b]',
+          closed ? 'text-[11.5px] playful:rotate-0 playful:bg-[#e1eae2]' : null
+        )}
+      >
+        {closed ? SAVED_COPY.closed : SAVED_COPY.closesIn}
+      </JobSticker>
+    );
   return (
     <MatchCard
-      job={{ ...job, isNew: false, statusPill: status === 'open' ? null : pill, dim: closed }}
+      job={{ ...job, isNew: false, statusPill: pill, dim: closed }}
+      featured={featured && !closed}
       saved
       onSave={onRemove}
       onOpen={onOpen}
+      hideOpen={closed}
       footer={
-        <button
-          type="button"
-          onClick={onRemove}
-          className="cursor-pointer border-0 bg-transparent px-[6px] font-sans text-[12.5px] leading-[normal] font-semibold text-[#595959] hover:underline focus-visible:outline-2 focus-visible:outline-[#387440]"
-        >
-          {SAVED_COPY.remove}
-        </button>
+        closed ? (
+          <NotifButton size="sm" tone="secondary" onClick={onRemove}>
+            {SAVED_COPY.remove}
+          </NotifButton>
+        ) : null
       }
     />
   );
@@ -318,18 +333,22 @@ export const JobListRow = ({ job, saved, onSave, onOpen }) => {
   );
 };
 
-/* J-18 browse row: no logo in the Figma rows, a leading marker tile instead. */
+/* J-18 browse row: 42px company logo tile, title 16 / meta 13, match pill, age, save, arrow. */
 export const BrowseRow = ({ row, onOpen, saved: savedProp, onSave }) => {
   // Live: saved state + toggle come from the screen (real bookmarks); demo: local only.
   const [localSaved, setSaved] = useState(false);
   const saved = onSave ? Boolean(savedProp) : localSaved;
+  const company = { name: row.meta.split(' · ')[0], logo: row.logo, initials: row.initials };
   return (
     <RowShell>
-      <div className="flex min-w-0 flex-[1_1_240px] flex-col gap-[2px] pl-[2px]">
-        <span className="font-sans text-[14.5px] leading-[normal] font-semibold text-[#1c2a21]">
-          {row.title}
-        </span>
-        <span className="font-sans text-[12px] leading-[16px] text-[#737373]">{row.meta}</span>
+      <div className="flex min-w-0 flex-[1_1_240px] items-center gap-[14px]">
+        <Logo company={company} size={42} />
+        <div className="flex min-w-0 flex-col gap-[2px]">
+          <span className="font-sans text-[16px] leading-[19px] font-semibold text-[#1c2a21] max-sm:text-[15px]">
+            {row.title}
+          </span>
+          <span className="font-sans text-[13px] leading-[16px] text-[#737373]">{row.meta}</span>
+        </div>
       </div>
       <div className="ml-auto flex items-center gap-[10px]">
         {row.match ? (

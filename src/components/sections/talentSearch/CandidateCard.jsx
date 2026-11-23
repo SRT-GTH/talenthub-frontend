@@ -25,7 +25,15 @@ const log = debug('CandidateCard');
  * Both CTAs use the solid "shelf" shadow Figma specifies (0 Npx 0, no blur),
  * which is a different effect from the theme's blurred --shadow-button-shelf.
  */
-const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onInviteToApply, className }) => {
+const CandidateCard = ({
+  candidate,
+  avatarSrc,
+  onViewProfile,
+  onInviteToApply,
+  onSave,
+  onMore,
+  className,
+}) => {
   log('render', {
     id: candidate.id,
     matchPercent: candidate.matchPercent,
@@ -111,7 +119,10 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onInviteToApply, c
               <button
                 type="button"
                 aria-label={`Save ${candidate.name}`}
-                onClick={() => log('branch', { action: 'save', id: candidate.id, wired: false })}
+                onClick={() => {
+                  log('branch', { action: 'save', id: candidate.id, wired: Boolean(onSave) });
+                  onSave?.(candidate.id);
+                }}
                 className="relative grid size-[32px] place-items-center rounded-full max-lg:after:absolute max-lg:after:-inset-1.5 border border-[#e6e6e6] text-content-helper transition-colors hover:bg-neutral"
               >
                 <SaveHeartIcon className="w-[12px]" />
@@ -119,7 +130,10 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onInviteToApply, c
               <button
                 type="button"
                 aria-label={`More options for ${candidate.name}`}
-                onClick={() => log('branch', { action: 'more', id: candidate.id, wired: false })}
+                onClick={() => {
+                  log('branch', { action: 'more', id: candidate.id, wired: Boolean(onMore) });
+                  onMore?.(candidate.id);
+                }}
                 className="relative grid size-[32px] place-items-center rounded-full max-lg:after:absolute max-lg:after:-inset-1.5 border border-[#e6e6e6] text-content-helper transition-colors hover:bg-neutral"
               >
                 <MoreDotsIcon className="w-[10px]" />

@@ -363,7 +363,12 @@ const NotificationPopover = ({ home, anchorRef }) => {
         <button
           type="button"
           className="inline-flex items-center gap-[6px] font-sans text-[13px] font-medium leading-[16px] text-[#595959] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-          onClick={() => log('settings (no destination yet)')}
+          onClick={() => {
+            // The footer "Settings" opens the talent's notification settings (Settings › Notifications).
+            log('settings -> /settings/notifications');
+            home.update({ notif: null, tip: null });
+            navigate('/settings/notifications');
+          }}
         >
           <img src={iconSettings} alt="" aria-hidden="true" className="size-[15px]" />
           {POPOVER_COPY.settings}

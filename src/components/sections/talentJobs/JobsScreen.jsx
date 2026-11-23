@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import JobsMenu from './JobsMenu.jsx';
 import { debug } from '../../../utils/debug.js';
 import {
   JobArrowIcon,
+  JobClockIcon,
   JobNoteSparkIcon,
   JobPlusIcon,
   JobSearchIcon,
@@ -27,7 +29,7 @@ import {
   JobsHeader,
   JobsTabs,
   MatchToolbar,
-  SortSelect,
+  TabSortMenu,
   ViewToggle,
 } from './JobsChrome.jsx';
 import {
@@ -45,12 +47,33 @@ import {
   MATCH_FOOTER,
   SAVED_COPY,
   SAVED_JOBS,
-  SORTS,
+  TAB_SORT_DEFAULT,
   jobById,
 } from './talentJobsData.js';
 
 const log = debug('JobsScreen');
 const byId = jobById;
+
+/*
+ * Matched / Saved / Applied order: "Best match" = match score high → low, "Most recent" = posted / saved / applied date
+ * new → old.
+ * Ties and rows without a score or date keep their source order (Figma order in the demo, feed order live).
+ */
+const timeOf = (d) => {
+  const t = d ? new Date(d).getTime() : NaN;
+  return Number.isNaN(t) ? -Infinity : t;
+};
+const sortRows = (rows, sort, dateKey) =>
+  rows
+    .map((r, i) => ({ r, i }))
+    .sort((a, b) => {
+      const d =
+        sort === 'match'
+          ? (byId(b.r.id)?.match || 0) - (byId(a.r.id)?.match || 0)
+          : timeOf(b.r[dateKey]) - timeOf(a.r[dateKey]);
+      return d || a.i - b.i;
+    })
+    .map((x) => x.r);
 
 const Banner = ({ dim }) => (
   <div
@@ -119,46 +142,63 @@ const Skeleton = () => (
   </div>
 );
 
-const EmptyMatches = ({ jobs }) => (
-  <div className="flex flex-col items-center gap-[14px] rounded-[24px] border border-solid border-[#e1eae2] bg-white px-[24px] py-[32px] text-center">
-    <img src={targetArt} alt="" aria-hidden="true" className="size-[150px]" />
-    <h2 className="m-0 font-sans text-[31px] leading-[37px] font-semibold text-[#1c2a21] playful:font-heading max-sm:text-[26px]">
-      {EMPTY_COPY.title}
-    </h2>
-    <p className="m-0 max-w-[470px] font-sans text-[13px] leading-[19px] text-[#595959] max-lg:text-[14px]">
-      {EMPTY_COPY.body}
-    </p>
-    <ul className="m-0 flex w-full max-w-[560px] list-none flex-col overflow-hidden rounded-[16px] border border-solid border-[#e1eae2] p-0">
-      {[JobPlusIcon, JobSparkIcon, JobUserIcon].map((Icon, i) => (
-        <li
-          key={EMPTY_COPY.steps[i].title}
-          className="flex items-center gap-[12px] border-0 border-b border-solid border-[#e1eae2] bg-[#f8f8f4] px-[14px] py-[10px] text-left last:border-b-0"
-        >
-          <span className="flex size-[26px] shrink-0 items-center justify-center rounded-[8px] border border-solid border-[rgba(28,42,33,0.2)] bg-white">
-            <Icon className="size-[15px]" />
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="font-sans text-[13px] leading-[normal] font-semibold text-[#1c2a21]">
-              {EMPTY_COPY.steps[i].title}
-            </span>
-            <span className="font-sans text-[12px] leading-[normal] text-[#737373]">
-              {EMPTY_COPY.steps[i].sub}
-            </span>
-          </span>
-          <JobArrowIcon className="size-[16px] shrink-0" />
-        </li>
-      ))}
-    </ul>
-    <div className="flex flex-wrap items-center justify-center gap-[12px] pt-[6px]">
-      <NotifButton size="md" tone="primary">
-        {EMPTY_COPY.primary}
-      </NotifButton>
-      <NotifButton size="md" tone="secondary" onClick={() => jobs.update({ tab: 'browse' })}>
-        {EMPTY_COPY.secondary}
-      </NotifButton>
+/* Where each "No matches… yet" step leads: the skills step of profile filling, Skills Lab, the profile journey. */
+const EMPTY_STEP_ROUTES = ['/profile/filling/skills', '/skills-lab', '/profile/engagement'];
+const EMPTY_BOOST_ROUTE = '/profile/engagement';
+
+const EmptyMatches = ({ jobs }) => {
+  const navigate = useNavigate();
+  const go = (to, why) => {
+    log('empty state ->', why, to);
+    navigate(to);
+  };
+  return (
+    <div className="flex flex-col items-center gap-[14px] rounded-[24px] border border-solid border-[#e1eae2] bg-white px-[24px] py-[32px] text-center">
+      <img src={targetArt} alt="" aria-hidden="true" className="size-[150px]" />
+      <h2 className="m-0 font-sans text-[31px] leading-[37px] font-semibold text-[#1c2a21] playful:font-heading max-sm:text-[26px]">
+        {EMPTY_COPY.title}
+      </h2>
+      <p className="m-0 max-w-[470px] font-sans text-[13px] leading-[19px] text-[#595959] max-lg:text-[14px]">
+        {EMPTY_COPY.body}
+      </p>
+      <ul className="m-0 flex w-full max-w-[560px] list-none flex-col overflow-hidden rounded-[16px] border border-solid border-[#e1eae2] p-0">
+        {[JobPlusIcon, JobSparkIcon, JobUserIcon].map((Icon, i) => (
+          <li
+            key={EMPTY_COPY.steps[i].title}
+            className="border-0 border-b border-solid border-[#e1eae2] last:border-b-0"
+          >
+            <button
+              type="button"
+              onClick={() => go(EMPTY_STEP_ROUTES[i], EMPTY_COPY.steps[i].title)}
+              className="flex w-full cursor-pointer items-center gap-[12px] border-0 bg-[#f8f8f4] px-[14px] py-[10px] text-left hover:bg-[#f1f1ec] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#387440]"
+            >
+              <span className="flex size-[26px] shrink-0 items-center justify-center rounded-[8px] border border-solid border-[rgba(28,42,33,0.2)] bg-white">
+                <Icon className="size-[15px]" />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="font-sans text-[13px] leading-[normal] font-semibold text-[#1c2a21]">
+                  {EMPTY_COPY.steps[i].title}
+                </span>
+                <span className="font-sans text-[12px] leading-[normal] text-[#737373]">
+                  {EMPTY_COPY.steps[i].sub}
+                </span>
+              </span>
+              <JobArrowIcon className="size-[16px] shrink-0" />
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div className="flex flex-wrap items-center justify-center gap-[12px] pt-[6px]">
+        <NotifButton size="md" tone="primary" onClick={() => go(EMPTY_BOOST_ROUTE, 'boost')}>
+          {EMPTY_COPY.primary}
+        </NotifButton>
+        <NotifButton size="md" tone="secondary" onClick={() => jobs.update({ tab: 'browse' })}>
+          {EMPTY_COPY.secondary}
+        </NotifButton>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ListCard = ({ children }) => (
   <div className="overflow-hidden rounded-[22px] border border-solid border-[#e1eae2] bg-white">
@@ -166,10 +206,24 @@ const ListCard = ({ children }) => (
   </div>
 );
 
+/* Matched chips (J-01 "All · 80%+ match · Remote / Hybrid · Internships · Accra"), read from the card fields both sources fill. */
+const MATCH_FILTER_TESTS = {
+  '80%+ match': (j) => (j.match || 0) >= 80,
+  'Remote / Hybrid': (j) => /remote|hybrid/i.test(j.location || ''),
+  Internships: (j) => /intern/i.test(`${j.type || ''} ${j.title || ''}`),
+  Accra: (j) => /accra/i.test(j.location || ''),
+};
+
 const MatchedTab = ({ jobs, saved, toggle }) => {
   const open = (job) => jobs.update({ job: job.id });
   const dismiss = (job) => jobs.update({ modal: 'not-for-me', dismiss: job.id });
-  const shown = JOB_LIST.filter((j) => !jobs.hidden.includes(j.id));
+  const sub = jobs.sub ?? 'All';
+  const sort = jobs.sort ?? TAB_SORT_DEFAULT.matched;
+  const visible = JOB_LIST.filter((j) => !jobs.hidden.includes(j.id));
+  const shown = sortRows(visible.filter(MATCH_FILTER_TESTS[sub] ?? (() => true)), sort, 'postedAt');
+  // A quick filter narrows the list: the footer then counts what is shown instead of the drawn "That's all 6".
+  const filtered = sub !== 'All' && Boolean(MATCH_FILTER_TESTS[sub]);
+  log('matched order', { sub, sort, filtered, shown: shown.length, of: visible.length });
   const pending =
     jobs.modal === 'not-for-me' ? (jobs.dismiss ?? (JOBS_LIVE ? null : 'bi-intern')) : null;
   const list = jobs.view === 'list';
@@ -204,16 +258,35 @@ const MatchedTab = ({ jobs, saved, toggle }) => {
           ))}
         </div>
       )}
-      <p className="m-0 text-center font-sans text-[12px] leading-[18px] text-[#737373]">
-        {MATCH_FOOTER.done} {MATCH_FOOTER.sub}{' '}
-        <button
-          type="button"
-          onClick={() => jobs.update({ tab: 'browse' })}
-          className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] font-semibold text-[#2d5d33] underline"
+      {filtered ? (
+        // ⚠️ ASSUMPTION: no frame draws a filtered footer or an empty filter result; same 12px footer style.
+        <p
+          role="status"
+          className="m-0 text-center font-sans text-[12px] leading-[18px] text-[#737373]"
         >
-          {MATCH_FOOTER.link}
-        </button>
-      </p>
+          {shown.length
+            ? `Showing ${shown.length} of ${visible.length} matches.`
+            : 'No matches for this filter yet.'}{' '}
+          <button
+            type="button"
+            onClick={() => jobs.update({ sub: null })}
+            className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] font-semibold text-[#2d5d33] underline"
+          >
+            Show all
+          </button>
+        </p>
+      ) : (
+        <p className="m-0 text-center font-sans text-[12px] leading-[18px] text-[#737373]">
+          {MATCH_FOOTER.done} {MATCH_FOOTER.sub}{' '}
+          <button
+            type="button"
+            onClick={() => jobs.update({ tab: 'browse' })}
+            className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] font-semibold text-[#2d5d33] underline"
+          >
+            {MATCH_FOOTER.link}
+          </button>
+        </p>
+      )}
     </>
   );
 };
@@ -278,7 +351,7 @@ const BrowseTab = ({ jobs, saved, toggle }) => {
   return (
     <>
       <div className="flex flex-wrap items-center gap-x-[10px] gap-y-[10px]">
-        <label className="flex h-[40px] min-w-[240px] flex-[1_1_320px] items-center gap-[10px] rounded-full border border-solid border-[rgba(28,42,33,0.15)] bg-white px-[14px]">
+        <label className="flex h-[40px] min-w-[240px] flex-[0_1_400px] items-center gap-[10px] rounded-full border border-solid border-[rgba(28,42,33,0.15)] bg-white px-[14px]">
           <JobSearchIcon className="size-[20px] shrink-0" />
           <input
             type="search"
@@ -330,16 +403,18 @@ const BrowseTab = ({ jobs, saved, toggle }) => {
             onChange={setIndustry}
           />
         ) : null}
-        <ViewToggle view={jobs.view} onView={(v) => jobs.update({ view: v })} />
-        <JobsMenu
-          shape="sort"
-          align="right"
-          label={BROWSE_SORTS.find((o) => o.id === sort).label}
-          value={sort}
-          options={BROWSE_SORTS}
-          onChange={setSort}
-        />
-        <AlertsButton onClick={() => jobs.update({ modal: 'alerts' })} />
+        {/* J-18: search + filters on the left, layout / sort / alerts pushed to the right edge */}
+        <div className="ml-auto flex flex-wrap items-center gap-[10px]">
+          <ViewToggle view={jobs.view} onView={(v) => jobs.update({ view: v })} />
+          <JobsMenu
+            align="right"
+            label={BROWSE_SORTS.find((o) => o.id === sort).label}
+            value={sort}
+            options={BROWSE_SORTS}
+            onChange={setSort}
+          />
+          <AlertsButton onClick={() => jobs.update({ modal: 'alerts' })} />
+        </div>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-[10px]">
         <span className="font-sans text-[14px] leading-[normal] font-semibold text-[#1c2a21]">
@@ -448,9 +523,15 @@ const SavedTab = ({ jobs, toggle }) => {
   // Live: Remove unsaves through the API (the feed reload drops the row); demo: hide it locally.
   const remove = (id) => (JOBS_LIVE ? toggle(id) : setRemoved((r) => [...r, id]));
   const sub = jobs.sub ?? 'all';
-  const items = SAVED_JOBS.filter((s) => !removed.includes(s.id) && byId(s.id)).filter((s) =>
-    sub === 'all' ? true : sub === 'closed' ? s.status === 'closed' : s.status !== 'closed'
+  const sort = jobs.sort ?? TAB_SORT_DEFAULT.saved;
+  const items = sortRows(
+    SAVED_JOBS.filter((s) => !removed.includes(s.id) && byId(s.id)).filter((s) =>
+      sub === 'all' ? true : sub === 'closed' ? s.status === 'closed' : s.status !== 'closed'
+    ),
+    sort,
+    'savedAt'
   );
+  log('saved order', { sort, ids: items.map((s) => s.id) });
   const open = (j) => jobs.update({ job: j.id });
   return (
     <>
@@ -462,13 +543,13 @@ const SavedTab = ({ jobs, toggle }) => {
         />
         <div className="flex flex-wrap items-center gap-[10px]">
           <ViewToggle view={jobs.view} onView={(v) => jobs.update({ view: v })} />
-          <SortSelect label={SORTS.saved} />
+          <TabSortMenu jobs={jobs} value={sort} />
           <AlertsButton onClick={() => jobs.update({ modal: 'alerts' })} />
         </div>
       </div>
-      <div className="flex items-center gap-[10px] rounded-[14px] bg-[#faf4e8] px-[14px] py-[10px]">
-        <JobNoteSparkIcon className="size-[14px] shrink-0" />
-        <span className="font-sans text-[12.5px] leading-[18px] text-[#595959]">
+      <div className="flex items-center gap-[14px] rounded-[20px] border border-solid border-[#eedeb8] bg-[#faf4e8] py-[14px] pl-[14px] pr-[18px]">
+        <JobClockIcon className="size-[18px] shrink-0 text-[#967014]" />
+        <span className="font-sans text-[14px] leading-[17px] font-medium text-[#1c2a21] max-sm:text-[13px]">
           {SAVED_COPY.notice}
         </span>
       </div>
@@ -486,10 +567,11 @@ const SavedTab = ({ jobs, toggle }) => {
         </ListCard>
       ) : (
         <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 xl:grid-cols-3">
-          {items.map((s) => (
+          {items.map((s, i) => (
             <SavedCard
               key={s.id}
               job={byId(s.id)}
+              featured={i === 0}
               status={s.status}
               onRemove={() => remove(s.id)}
               onOpen={open}
@@ -517,9 +599,15 @@ const AppliedTab = ({ jobs }) => {
         }
       : r
   );
-  const rows = all.filter((r) =>
-    sub === 'all' ? true : sub === 'active' ? r.group !== 'closed' : r.group === sub
+  const sort = jobs.sort ?? TAB_SORT_DEFAULT.applied;
+  const rows = sortRows(
+    all.filter((r) =>
+      sub === 'all' ? true : sub === 'active' ? r.group !== 'closed' : r.group === sub
+    ),
+    sort,
+    'appliedAt'
   );
+  log('applied order', { sort, ids: rows.map((r) => r.id) });
   const filters = withdrawn
     ? APPLIED_COPY.filters.map((f) =>
         f.id === 'active' ? { ...f, count: '2' } : f.id === 'closed' ? { ...f, count: '2' } : f
@@ -534,7 +622,7 @@ const AppliedTab = ({ jobs }) => {
           onChange={(v) => jobs.update({ sub: v === 'all' ? null : v })}
         />
         <div className="flex flex-wrap items-center gap-[10px]">
-          <SortSelect label={SORTS.applied} />
+          <TabSortMenu jobs={jobs} value={sort} />
           <AlertsButton onClick={() => jobs.update({ modal: 'alerts' })} />
         </div>
       </div>
@@ -547,9 +635,9 @@ const AppliedTab = ({ jobs }) => {
               row={r}
               featured={i === 0 && r.tone === 'good'}
               logo={
-                j?.company.logo ? (
+                j?.company.logo || r.logo ? (
                   <img
-                    src={j.company.logo}
+                    src={j?.company.logo || r.logo}
                     alt=""
                     aria-hidden="true"
                     className="size-[40px] shrink-0 rounded-[12px]"
@@ -597,23 +685,38 @@ const JobsScreen = ({ jobs }) => {
       return next;
     });
   };
+  // Signed in and the feed is still on its way: the bindings still hold the Figma demo, so show the
+  // loading frame on every tab with no demo numbers (sticker, header decor, tab counts, banner).
+  const liveLoading = jobs.data?.status === 'loading';
   const empty = jobs.state === 'empty' && jobs.tab === 'matched';
-  const loading = jobs.state === 'loading' && jobs.tab === 'matched';
-  const sticker = empty ? JOBS_HEADER.stickers.empty : JOBS_HEADER.stickers[jobs.tab];
+  const loading = jobs.state === 'loading' && (jobs.tab === 'matched' || liveLoading);
+  const sticker = liveLoading
+    ? null
+    : empty
+      ? JOBS_HEADER.stickers.empty
+      : JOBS_HEADER.stickers[jobs.tab];
+  if (liveLoading) log('live feed loading: demo counts hidden', { tab: jobs.tab });
 
   return (
     <div className="mx-auto flex w-full max-w-[1433px] flex-col gap-[24px] px-[clamp(12px,3vw,52px)] pt-[clamp(16px,1.85vw,32px)] pb-[24px]">
-      <JobsHeader sticker={sticker} />
+      <JobsHeader sticker={sticker} decor={!liveLoading} />
       <div className="flex flex-col gap-[16px]">
         <JobsTabs
+          hideCounts={liveLoading}
           matchedCount={empty ? '0' : undefined}
           tab={jobs.tab}
           onTab={(tab) =>
-            jobs.update({ tab: tab === 'matched' ? null : tab, sub: null, view: null, state: null })
+            jobs.update({
+              tab: tab === 'matched' ? null : tab,
+              sub: null,
+              view: null,
+              state: null,
+              sort: null,
+            })
           }
         />
         {jobs.tab === 'matched' ? <MatchToolbar jobs={jobs} dim={empty} /> : null}
-        {loading ? <Banner dim /> : null}
+        {loading && !liveLoading ? <Banner dim /> : null}
       </div>
       {empty ? (
         <EmptyMatches jobs={jobs} />

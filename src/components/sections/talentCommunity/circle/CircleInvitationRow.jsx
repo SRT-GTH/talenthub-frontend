@@ -16,8 +16,8 @@ const FACES = {
 
 /*
  * CircleInvitationRow — Figma `Invitation · {name}` (NW-01 preview, NW-04 list): 56px avatar, name + "2nd" degree chip (+ Verified
- * mentor), headline, mutual faces + "{n} in your circle know them · {ago}", the sender's note in a quote box, and Ignore / Accept.
- * Accepted (NW-04 Nana Yaw): the row turns #f8f8f4, the buttons become the "In your circle" chip + "Say hi".
+ * mentor), headline, mutual faces + "{n} in your crew know them · {ago}", the sender's note in a quote box, and Ignore / Accept.
+ * Accepted (NW-04 Nana Yaw): the row turns #f8f8f4, the buttons become the "In your crew" chip + "Say hi".
  * Props: person, invite ({ ago, note }), accepted (bool), divided (top rule, rows 2+ of the full list), xp (Playful "+5 XP" sticker
  * over an accepted row), onAccept(person), onIgnore(person), onSayHi(person).
  */
@@ -69,7 +69,7 @@ const CircleInvitationRow = ({
           <span className="font-sans text-[12px] leading-[14px] text-[#737373] max-lg:text-[13px]">
             {person.mutual > 0
               ? (COPY.knowThem?.(person.mutual, invite.ago) ??
-                `${person.mutual} in your circle know them · ${invite.ago}`)
+                `${person.mutual} in your crew know them · ${invite.ago}`)
               : invite.ago}
           </span>
         </div>

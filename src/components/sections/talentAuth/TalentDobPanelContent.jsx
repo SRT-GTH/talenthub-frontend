@@ -11,6 +11,8 @@ import {
   PanelStage,
   StageCard,
   StageSparkle,
+  StageStar,
+  StageBrandSticker,
   StageWatchTutorial,
 } from './TalentPanelParts.jsx';
 import { debug } from '../../../utils/debug.js';
@@ -52,6 +54,7 @@ export const DOB_PHOTO_CARDS = [
     size: 39.0,
     rotate: 5,
     borderColor: '#eedeb8',
+    focused: { cx: 73.93, cy: 46.78 }, // Focused frame: flat, own centre
     ellipse: ellipseCard1,
     inset: [-17.98, -9.18, -1.76, -10.56],
   },
@@ -62,6 +65,7 @@ export const DOB_PHOTO_CARDS = [
     size: 44.86,
     rotate: 7,
     borderColor: '#ebc2bd',
+    focused: { cx: 33.15, cy: 21.37 },
     ellipse: ellipseCard23,
     inset: [-17.98, -9.9, -2.47, -10.56],
   },
@@ -72,6 +76,7 @@ export const DOB_PHOTO_CARDS = [
     size: 44.86,
     rotate: -13,
     borderColor: '#c1d4c4',
+    focused: { cx: 22.81, cy: 79.62 },
     ellipse: ellipseCard23,
     inset: [-17.98, -9.89, -2.47, -10.56],
   },
@@ -80,21 +85,31 @@ export const DOB_PHOTO_CARDS = [
 export const DobOverlayCards = () => {
   log('render overlays');
   return (
-    <PanelStage refH={PANEL_REF_H}>
-      {DOB_PHOTO_CARDS.map((card) => (
-        <StageCard key={card.borderColor} {...card} />
-      ))}
-      {/* Data Protected chip 8027:203092 - left 3.38% top 36.56% */}
-      <DataProtectedChip left={3.38} top={36.56} />
-      {/* GDPA badge 8027:203105 - left 54.79% top 22.81% */}
-      <GdpaBadge left={54.79} top={22.81} />
-      {/* sparkle-26 8027:203111 - ctr (43.96%, 53.35%), rot 32 */}
-      <StageSparkle src={sparkle26} cx={43.96} cy={53.35} rotate={32} />
-      {/* Adult / Youth card 8027:203112 - left 60.39% top 70.2% */}
-      <AdultYouthCard left={60.39} top={70.2} />
-      {/* Watch tutorial 8027:203121 */}
-      <StageWatchTutorial refH={PANEL_REF_H} />
-    </PanelStage>
+    <>
+      <PanelStage refH={PANEL_REF_H}>
+        {DOB_PHOTO_CARDS.map((card) => (
+          <StageCard key={card.borderColor} {...card} />
+        ))}
+        {/* Data Protected chip 8027:203092 - left 3.38% top 36.56% */}
+        <DataProtectedChip left={3.38} top={36.56} />
+        {/* GDPA badge 8027:203105 - left 54.79% top 22.81% */}
+        <GdpaBadge left={54.79} top={22.81} />
+        {/* sparkle-26 8027:203111 - ctr (43.96%, 53.35%), rot 32 */}
+        <StageSparkle src={sparkle26} cx={43.96} cy={53.35} rotate={32} />
+        {/* Adult / Youth card 8027:203112 - left 60.39% top 70.2% */}
+        <AdultYouthCard left={60.39} top={70.2} />
+        {/* Playful touches: three gold doodle stars and the brand sticker (no tape strips, product owner 2026-11-15). Hidden in Focused. */}
+        <StageStar x={9.34} y={4.37} size={22} />
+        <StageStar x={86.47} y={64.41} size={14} />
+        <StageStar x={44.52} y={96.07} size={18} />
+        <StageBrandSticker x={20.46} y={90.62} />
+      </PanelStage>
+      {/* The tutorial button sits on its own stage (not aria-hidden) so screen readers and keyboards reach it;
+        the artwork stage above stays hidden. */}
+      <PanelStage refH={PANEL_REF_H} decorative={false}>
+        <StageWatchTutorial refH={PANEL_REF_H} />
+      </PanelStage>
+    </>
   );
 };
 

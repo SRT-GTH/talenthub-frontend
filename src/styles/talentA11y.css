@@ -10,6 +10,15 @@ html[data-talent-home] :focus-visible {
 html[data-talent-home] main:focus {
   outline: none;
 }
+/* Text fields match :focus-visible on a mouse click too, so the ring landed on the bare field inside its styled box
+   (e.g. the top-bar search). They show focus through their own box (border colour) and the caret instead. */
+html[data-talent-home]
+  :is(
+    input:not([type='checkbox'], [type='radio'], [type='range'], [type='file']),
+    textarea
+  ):focus-visible {
+  outline: none;
+}
 
 /* prefers-reduced-motion: stop animation/transition/smooth-scroll; static visuals unchanged. */
 @media (prefers-reduced-motion: reduce) {

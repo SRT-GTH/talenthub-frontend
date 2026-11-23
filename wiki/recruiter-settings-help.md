@@ -5,19 +5,19 @@
 
 ## Frame → URL ✅ VERIFIED (framecmp, 2026-11-07, 1728×(frame−52))
 
-| Frame                                          | Figma id      | URL                                                 | Diff % |
-| ---------------------------------------------- | ------------- | --------------------------------------------------- | ------ |
-| R-FB-01 Send feedback                          | `10161:86399` | `/recruiter/job-postings?modal=feedback`            | 6.4    |
-| R-IV-01 Invite a teammate                      | `10161:86808` | `/recruiter/job-postings?modal=invite`              | 7.0    |
-| R-HS-01 Help and support                       | `10161:87217` | `/recruiter/help`                                   | 2.3    |
-| R-HP-01 Help pop-over · For this page          | `10161:87540` | `/recruiter/job-postings?help=page`                 | 4.1    |
-| R-HP-02 Help pop-over · Searching              | `10161:87922` | `/recruiter/job-postings?help=searching&q=fee`      | 4.2    |
-| R-HP-03 Help pop-over · No results             | `10161:88304` | `/recruiter/job-postings?help=none&q=bulk%20reject` | 3.9    |
-| R-HP-08 Keyboard shortcuts                     | `10161:88686` | `/recruiter/job-postings?help=shortcuts`            | 6.2    |
-| R-HP-04 Help article · Candidate asked for fee | `10161:89124` | `/recruiter/help?help=article`                      | 3.5    |
-| R-HP-07 Report a problem (modal over article)  | `10161:89324` | `/recruiter/help?help=report`                       | 5.7    |
-| R-HP-05 Contact support                        | `10161:89558` | `/recruiter/help?help=contact`                      | 3.3    |
-| R-HP-06 Request sent (modal over contact)      | `10161:89746` | `/recruiter/help?help=sent`                         | 5.1    |
+| Frame                                          | Figma id      | URL                                                 | Diff % (2026-11-22) |
+| ---------------------------------------------- | ------------- | --------------------------------------------------- | ------------------- |
+| R-FB-01 Send feedback                          | `10161:86399` | `/recruiter/job-postings?modal=feedback`            | 6.4                 |
+| R-IV-01 Invite a teammate                      | `10161:86808` | `/recruiter/job-postings?modal=invite`              | 7.0                 |
+| R-HS-01 Help and support                       | `10161:87217` | `/recruiter/help`                                   | 2.3                 |
+| R-HP-01 Help pop-over · For this page          | `10161:87540` | `/recruiter/job-postings?help=page`                 | 4.1                 |
+| R-HP-02 Help pop-over · Searching              | `10161:87922` | `/recruiter/job-postings?help=searching&q=fee`      | 4.1                 |
+| R-HP-03 Help pop-over · No results             | `10161:88304` | `/recruiter/job-postings?help=none&q=bulk%20reject` | 3.9                 |
+| R-HP-08 Keyboard shortcuts                     | `10161:88686` | `/recruiter/job-postings?help=shortcuts`            | 6.2                 |
+| R-HP-04 Help article · Candidate asked for fee | `10161:89124` | `/recruiter/help?help=article`                      | 3.5                 |
+| R-HP-07 Report a problem (modal over article)  | `10161:89324` | `/recruiter/help?help=report`                       | 5.7                 |
+| R-HP-05 Contact support                        | `10161:89558` | `/recruiter/help?help=contact`                      | 3.3                 |
+| R-HP-06 Request sent (modal over contact)      | `10161:89746` | `/recruiter/help?help=sent`                         | 5.1                 |
 
 The same `?help=` / `?modal=feedback|invite` URLs work on `/recruiter/settings` (label "FOR THIS PAGE · SETTINGS"). Diffs are mostly the shell around the frames (rail card "Kwame Asante" vs the frame's "Joel Adade Kofie", Job Postings card data/order, "Kofi A." top bar — other builders' files), not the Help UI.
 
@@ -62,3 +62,7 @@ The same `?help=` / `?modal=feedback|invite` URLs work on `/recruiter/settings` 
 
 - "Ask Hiring Assistant" now opens the recruiter AI chat (wired by the lead 2026-11-07, see [recruiter-settings.md](recruiter-settings.md)); "WhatsApp us" (no number is drawn) and "Replay the recruiter tour" (no tour is drawn) only log.
 - No Playful variants, no phone-specific Figma frames (the "?" button is hidden below lg by the shell; modals and the Help page are fluid).
+
+## Figma compare (2026-11-22)
+
+Diff column re-measured (R-IV-01 7.0 %, dialog centring). Method: 0.5x Figma exports vs a Playwright screenshot at the frame's size (viewport = frame height − 52 for the Safari toolbar on recruiter frames; no toolbar on /data), compared at the export's resolution, whole frame. 2–4 % = font metrics; dialogs read higher because Figma centres them in the taller frame. `✅ VERIFIED` (measured 2026-11-22). The profile menu's "Invite a friend" now opens `?modal=invite-friend`; `?modal=invite` still opens R-IV-01 except on pages that own `modal=invite` (candidate profile, club pages). `✅ VERIFIED`.

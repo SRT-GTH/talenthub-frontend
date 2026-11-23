@@ -4,6 +4,10 @@ import accraTech from '../../../assets/talent-jobs/logos/accra-tech.svg';
 import mtn from '../../../assets/talent-jobs/logos/mtn-ghana.svg';
 import hubtel from '../../../assets/talent-jobs/logos/hubtel.svg';
 import zeepay from '../../../assets/talent-jobs/logos/zeepay.svg';
+import ecobank from '../../../assets/talent-jobs/logos/ecobank-ghana.svg';
+import jumia from '../../../assets/talent-jobs/logos/jumia-ghana.svg';
+import kudzo from '../../../assets/talent-jobs/logos/kudzo.svg';
+import vodafone from '../../../assets/talent-jobs/logos/vodafone-ghana.svg';
 import face1 from '../../../assets/talent-jobs/faces/banner-face-1.png';
 import face2 from '../../../assets/talent-jobs/faces/banner-face-2.png';
 import face3 from '../../../assets/talent-jobs/faces/banner-face-3.png';
@@ -39,12 +43,13 @@ export let JOB_TAB_LIST = [
 ];
 
 export const MATCH_FILTERS = ['All', '80%+ match', 'Remote / Hybrid', 'Internships', 'Accra'];
-export const SORTS = {
-  matched: 'Best match',
-  browse: 'Newest',
-  saved: 'Best match',
-  applied: 'Most recent',
-};
+/* Matched / Saved / Applied sort menu (Figma "GTH · Select": "Best match" on Matched + Saved, "Most recent" on Applied).
+   `?sort=` holds the choice. Browse all has its own list (Newest / Best match / Closing soon) in JobsScreen. */
+export const TAB_SORT_OPTIONS = [
+  { id: 'match', label: 'Best match' },
+  { id: 'recent', label: 'Most recent' },
+];
+export const TAB_SORT_DEFAULT = { matched: 'match', saved: 'match', applied: 'recent' };
 export const ALERTS_BUTTON = 'Match alerts · 75%+';
 
 export let DISCOVERY = {
@@ -68,6 +73,7 @@ export let JOB_LIST = [
     why: ['SQL (verified)', 'Python', 'Data storytelling'],
     posted: 'Posted 2d ago',
     age: '2d',
+    postedAt: '2026-10-08T09:00:00Z', // drives "Most recent" (demo date)
   },
   {
     id: 'data-analyst',
@@ -82,6 +88,7 @@ export let JOB_LIST = [
     why: ['SQL (verified)', 'Excel', 'Lives in Accra'],
     posted: 'Posted Today',
     age: 'Today',
+    postedAt: '2026-10-10T08:00:00Z', // drives "Most recent" (demo date)
   },
   {
     id: 'junior-product-analyst',
@@ -98,6 +105,7 @@ export let JOB_LIST = [
     why: ['Analytics', 'User research', 'BSc completed'],
     posted: 'Posted 3d ago',
     age: '3d',
+    postedAt: '2026-10-07T09:00:00Z', // drives "Most recent" (demo date)
   },
   {
     id: 'graduate-data-analyst',
@@ -111,6 +119,7 @@ export let JOB_LIST = [
     why: ['SQL (verified)', 'Statistics', 'BSc completed'],
     posted: 'Posted 4d ago',
     age: '4d',
+    postedAt: '2026-10-06T09:00:00Z', // drives "Most recent" (demo date)
   },
   {
     id: 'bi-intern',
@@ -124,6 +133,7 @@ export let JOB_LIST = [
     why: ['Excel', 'Dashboards', 'Data cleaning'],
     posted: 'Posted 5d ago',
     age: '5d',
+    postedAt: '2026-10-05T09:00:00Z', // drives "Most recent" (demo date)
   },
   {
     id: 'junior-data-engineer',
@@ -137,6 +147,7 @@ export let JOB_LIST = [
     why: ['Python', 'SQL (verified)', 'Git'],
     posted: 'Posted 1w ago',
     age: '1w',
+    postedAt: '2026-10-03T09:00:00Z', // drives "Most recent" (demo date)
   },
 ];
 
@@ -148,11 +159,16 @@ export let BROWSE_COPY = {
   onlyMine: 'Only show my matches',
   unmatched: 'Not matched yet',
 };
+/* Each row carries its company mark (J-18 draws a 42px logo tile per row) and the job type from its meta line, which the
+ * "Job type" filter reads. */
 export let BROWSE_ROWS = [
   {
     id: 'data-science-intern',
     title: 'Data Science Intern',
     meta: 'Farmerline · Kumasi · Remote-first · Internship',
+    logo: farmerline,
+    typeLabel: 'Internship',
+    industry: 'Agritech', // demo sector for the Industry filter
     match: 88,
     age: '2d',
   },
@@ -160,6 +176,9 @@ export let BROWSE_ROWS = [
     id: 'customer-insights-associate',
     title: 'Customer Insights Associate',
     meta: 'Ecobank Ghana · Accra · On-site · Full-time',
+    logo: ecobank,
+    typeLabel: 'Full-time',
+    industry: 'Banking', // demo sector for the Industry filter
     match: null,
     age: 'Today',
   },
@@ -167,6 +186,9 @@ export let BROWSE_ROWS = [
     id: 'data-analyst',
     title: 'Data Analyst',
     meta: 'Accra Tech Ltd · Accra · On-site · Full-time',
+    logo: accraTech,
+    typeLabel: 'Full-time',
+    industry: 'Fintech', // demo sector for the Industry filter
     match: 82,
     age: 'Today',
   },
@@ -174,6 +196,9 @@ export let BROWSE_ROWS = [
     id: 'marketing-intern',
     title: 'Marketing Intern',
     meta: 'Jumia Ghana · Accra · Hybrid · Internship',
+    logo: jumia,
+    typeLabel: 'Internship',
+    industry: 'E-commerce', // demo sector for the Industry filter
     match: null,
     age: '1d',
   },
@@ -181,6 +206,9 @@ export let BROWSE_ROWS = [
     id: 'graduate-data-analyst',
     title: 'Graduate Data Analyst',
     meta: 'MTN Ghana · Accra · On-site · Graduate',
+    logo: mtn,
+    typeLabel: 'Graduate',
+    industry: 'Telecoms', // demo sector for the Industry filter
     match: 76,
     age: '4d',
   },
@@ -188,6 +216,8 @@ export let BROWSE_ROWS = [
     id: 'junior-software-tester',
     title: 'Junior Software Tester',
     meta: 'Kudzo Ltd · Remote · Contract',
+    logo: kudzo,
+    typeLabel: 'Contract',
     match: 58,
     age: '5d',
   },
@@ -195,6 +225,9 @@ export let BROWSE_ROWS = [
     id: 'field-operations-trainee',
     title: 'Field Operations Trainee',
     meta: 'Vodafone Ghana · Tamale · On-site · Graduate',
+    logo: vodafone,
+    typeLabel: 'Graduate',
+    industry: 'Telecoms', // demo sector for the Industry filter
     match: null,
     age: '1w',
   },
@@ -213,11 +246,11 @@ export let SAVED_COPY = {
   remove: 'Remove',
   view: 'View opportunity',
 };
-/* id -> status ("closing" = closes in 2 days, "closed"), in Figma order */
+/* id -> status ("closing" = closes in 2 days, "closed"), in Figma order (= best match); savedAt drives "Most recent" */
 export let SAVED_JOBS = [
-  { id: 'data-science-intern', status: 'open' },
-  { id: 'graduate-data-analyst', status: 'closing' },
-  { id: 'junior-data-engineer', status: 'closed' },
+  { id: 'data-science-intern', status: 'closing', savedAt: '2026-10-08T10:00:00Z' },
+  { id: 'graduate-data-analyst', status: 'open', savedAt: '2026-10-11T09:00:00Z' },
+  { id: 'junior-data-engineer', status: 'closed', savedAt: '2026-09-30T15:00:00Z' },
 ];
 
 /* Applied (J-10) */
@@ -239,6 +272,7 @@ export let APPLIED_ROWS = [
     id: 'data-science-intern',
     title: 'Data Science Intern',
     meta: 'Farmerline · Applied 9 Oct',
+    appliedAt: '2026-10-09T09:00:00Z',
     step: 3,
     status: 'Interview Thu 16 Oct',
     tone: 'good',
@@ -249,6 +283,7 @@ export let APPLIED_ROWS = [
     id: 'data-analyst',
     title: 'Data Analyst',
     meta: 'Accra Tech Ltd · Applied 2 days ago',
+    appliedAt: '2026-10-08T09:00:00Z',
     step: 1,
     status: 'Seen by Ama',
     tone: 'plain',
@@ -259,6 +294,7 @@ export let APPLIED_ROWS = [
     id: 'graduate-data-analyst',
     title: 'Graduate Data Analyst',
     meta: 'MTN Ghana · Applied 5 days ago',
+    appliedAt: '2026-10-05T09:00:00Z',
     step: 0,
     status: 'Sent · waiting for reply',
     tone: 'plain',
@@ -269,6 +305,8 @@ export let APPLIED_ROWS = [
     id: 'junior-data-analyst',
     title: 'Junior Data Analyst',
     meta: 'Kudzo Ltd · Applied 28 Sep',
+    appliedAt: '2026-09-28T09:00:00Z',
+    logo: kudzo, // not in the matched list, so the row carries its own mark
     step: 0,
     status: 'Not this time',
     tone: 'closed',
@@ -557,7 +595,9 @@ export const JOB_DETAIL_COPY = {
 
 /* Applying: profile preview (J-04 / J-12 / J-14) and the "sent" celebration (J-05). `{token}` = template slot. */
 export const APPLY_COPY = {
-  step: 'STEP 1 OF 2 · PREVIEW',
+  // Figma draws "STEP 1 OF 2 · PREVIEW", but no step 2 exists (no design, and no screening questions in the backend):
+  // "Continue application" sends. Kept as one step until step 2 (screening questions) is designed and supported.
+  step: 'PREVIEW',
   title: 'This is what {company} will see',
   sub: 'Your profile, exactly as their recruiter sees it for this role.',
   forThisRole: 'for this role',

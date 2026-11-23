@@ -6,16 +6,17 @@ import { PublicIconInfo } from '../publicDataIcons.jsx';
  * 17 Oct 2026 · 14:02 GMT" 14/500 + "How we count" (info icon, 14/600 #387440, leads to the methodology page).
  * Mobile 8.2.1e (8507:41): title 26/31, short sentence 14/20, and one line "Updated 2 min ago · data as of 17 Oct, 14:02" (12/500).
  * Tablet 8.2.1f draws the same row as desktop.
- * The top bar owns the page's <h1> ("National snapshot"), so the big title is an <h2>.
+ * The top-bar title ("National snapshot") is a <p> (PublicDataFrame), so this big title is the page's single <h1> (it was an <h2>, which left
+ * the overview with no <h1>).
  * Props: asOf { label, short, ago? } — `ago` ("Updated 4 min ago") leads the phone line when known.
  */
 
 const OverviewPageHeader = ({ asOf }) => (
   <div className="flex flex-col gap-[8px] md:flex-row md:items-end md:justify-between md:gap-[16px]">
     <div className="flex min-w-0 flex-col gap-[4px] md:gap-[6px]">
-      <h2 className="m-0 font-sans text-[26px] leading-[31px] font-semibold tracking-[-0.13px] text-[#1c2a21] md:text-[34px] md:leading-[41px] md:tracking-[-0.34px]">
+      <h1 className="m-0 font-sans text-[26px] leading-[31px] font-semibold tracking-[-0.13px] text-[#1c2a21] md:text-[34px] md:leading-[41px] md:tracking-[-0.34px]">
         National talent snapshot
-      </h2>
+      </h1>
       <p className="m-0 font-sans text-[14px] leading-[20px] text-[#595959] md:text-[16px] md:leading-[19px]">
         <span className="md:hidden">Live, anonymised figures. No personal details shown.</span>
         <span className="hidden md:inline">

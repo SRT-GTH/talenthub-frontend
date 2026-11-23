@@ -25,6 +25,18 @@ export const LAB_CATS = ['data', 'design', 'business', 'people'];
 export const LAB_MODALS = ['how', 'add', 'suggest', 'weekly', 'restart', 'leave'];
 export const LAB_TOASTS = ['suggestion', 'hidden', 'reminder', 'pdf'];
 
+/** `?demo=1` when the page runs the drawn mock, else '' (append to a game URL so the next game stays in demo). */
+export const demoSearch = (search = typeof window !== 'undefined' ? window.location.search : '') =>
+  new URLSearchParams(search).get('demo') === '1' ? '?demo=1' : '';
+
+/** The Games tab, keeping the drawn mock (`?demo=1`) when the game was opened from the demo hub. */
+export const gamesTabPath = (
+  search = typeof window !== 'undefined' ? window.location.search : ''
+) =>
+  new URLSearchParams(search).get('demo') === '1'
+    ? '/skills-lab?tab=games&demo=1'
+    : '/skills-lab?tab=games';
+
 const pick = (value, allowed, fallback = null) => (allowed.includes(value) ? value : fallback);
 
 export const useSkillsLabState = () => {

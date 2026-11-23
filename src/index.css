@@ -543,6 +543,26 @@
 @custom-variant playful (&:where([data-ui-style='playful'] *));
 @custom-variant focused (&:where([data-ui-style='focused'] *));
 
+/*
+ * gth-mode-move: elements that sit in a different place, size or tilt in the Focused and Playful looks glide between
+ * them when the style switch flips (transitions only run on a change, so first paint is untouched). Off for
+ * reduced motion.
+ */
+.gth-mode-move {
+  transition:
+    left 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    rotate 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gth-mode-move {
+    transition: none;
+  }
+}
+
 /* Base element styles */
 html,
 body {
@@ -599,6 +619,59 @@ body {
   width: 0;
   height: 0;
   display: none; /* Chrome/Safari */
+}
+
+/*
+ * Slim scrollbar for sidebars: a thin rounded thumb on a clear track, darker on hover.
+ * Used on every portal sidebar's scrolling area so the bar doesn't eat into the nav.
+ */
+.slim-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(28, 42, 33, 0.18) transparent;
+}
+.slim-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.slim-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.slim-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(28, 42, 33, 0.18);
+  border-radius: 99px;
+}
+.slim-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(28, 42, 33, 0.32);
+}
+.slim-scrollbar::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+}
+
+/*
+ * Home layout transitions (utils/smoothLayout.js): editing the dashboard (enter / leave edit mode, move, hide, show,
+ * add, reset) runs as a View Transition. Named cards glide to their new place; everything else cross-fades.
+ * Short and eased so the shift reads as one calm motion.
+ */
+::view-transition-group(*) {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 220ms;
+  animation-timing-function: ease-out;
+  /* keep each card's own aspect while it moves (no stretch) */
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
 
 /* Hero trusted-by strip uses an infinite marquee. */

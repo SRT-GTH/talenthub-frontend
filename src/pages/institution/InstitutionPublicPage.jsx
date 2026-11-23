@@ -24,6 +24,11 @@ const InstitutionPublicPage = () => {
   const data = useInstitutionState();
   const session = useInstitutionSession();
   const slug = session.institution.slug;
+  // Breadcrumb "Directory › Institutions": the public partner directory (Theme 8), then its school / university filter.
+  const crumbTo = [
+    '/data/partners',
+    `/data/partners?type=${/universit/i.test(session.institution.type) ? 'university' : 'school'}`,
+  ];
   const [page, setPage] = useState(null);
   const [state, setState] = useState('loading');
   const [error, setError] = useState('');
@@ -72,10 +77,10 @@ const InstitutionPublicPage = () => {
       />
       <nav aria-label="Breadcrumb" className="text-[14px] leading-[17px]">
         <ol className="m-0 flex list-none flex-wrap items-center gap-[8px] p-0">
-          {COPY.breadcrumb.map((b) => (
+          {COPY.breadcrumb.map((b, i) => (
             <li key={b} className="flex items-center gap-[8px]">
               <Link
-                to="/institution/public-page"
+                to={crumbTo[i] || '/data/partners'}
                 className="inline-flex min-h-[24px] items-center font-semibold text-[#387440] no-underline hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
               >
                 {b}

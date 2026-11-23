@@ -6,6 +6,8 @@ import playfulSuccessIcon from '../../assets/playful/overlays/toast-success.svg'
 import playfulErrorIcon from '../../assets/playful/overlays/toast-error.svg';
 import playfulWarningIcon from '../../assets/playful/overlays/toast-warning.svg';
 import playfulCloseIcon from '../../assets/playful/overlays/toast-close.svg';
+import welcomeCardCheck from '../../assets/talent-onboarding/panel-verified-check.svg';
+import welcomeCardClose from '../../assets/talent-onboarding/modal-close.svg';
 import {
   ToastSuccessIcon,
   ToastErrorIcon,
@@ -26,7 +28,9 @@ const log = debug('Toast');
  * Props for ToastItem / Toast:
  *   title     {ReactNode}  — bold first line
  *   body      {ReactNode}  — secondary content (supports JSX for mixed styles)
- *   variant   {string}     — 'success' | 'warning' | 'error' | 'info' | 'welcome'
+ *   variant   {string}     — 'success' | 'warning' | 'error' | 'info' | 'welcome' | 'welcome-card'
+ *                            ('welcome-card' = the talent sign-up welcome card: 309px wide, #f8f8f4 fill,
+ *                            pale green edge, green check, green title over grey body, green X)
  *   duration  {number}     — ms until auto-dismiss (0 = no auto-dismiss)
  *   onDismiss {Function}   — called with `id` after dismiss animation
  *   position  {string}     — Toast/ToastContainer only: see POSITIONS map
@@ -256,6 +260,9 @@ const ToastItem = React.forwardRef(function ToastItem(
   const beginExit = useCallback(() => {
     if (exitingRef.current) return;
     exitingRef.current = true;
+    // A dismiss can land while the slide-in is still running: stop it, or its finish would flip the phase back to
+    // "shown" and cancel the exit (the toast then sat invisible and mounted).
+    nodeRef.current?.__gthToastRaf?.();
     log('dismiss', id);
     setPhase('exiting');
     onPhaseChangeRef.current?.('exiting');
@@ -282,7 +289,7 @@ const ToastItem = React.forwardRef(function ToastItem(
         toOpacity: 1,
         ms: ENTER_MS,
       });
-      if (cancelled) return;
+      if (cancelled || exitingRef.current) return;
       setPhase('shown');
       onPhaseChangeRef.current?.('shown');
     })();
@@ -332,11 +339,64 @@ const ToastItem = React.forwardRef(function ToastItem(
     return () => document.removeEventListener('keydown', onKey);
   }, [playful, beginExit]);
 
+  // Welcome card: a press anywhere on the screen dismisses it, in both looks (Playful's layer is click-through,
+  // so the scrim alone wouldn't catch it). Capture phase, so the press still reaches whatever was under it.
+  useEffect(() => {
+    if (variant !== 'welcome-card') return undefined;
+    const onPress = () => {
+      log('branch', { dismissViaPressAnywhere: true, id });
+      beginExit();
+    };
+    document.addEventListener('pointerdown', onPress, true);
+    return () => document.removeEventListener('pointerdown', onPress, true);
+  }, [variant, beginExit, id]);
+
   // Overlay / Escape bumps exitSignal to request the same animated exit.
   useEffect(() => {
     if (!exitSignal) return;
     beginExit();
   }, [exitSignal, beginExit]);
+
+  // Talent sign-up welcome card ("Welcome to GTH, Student!"). Keeps its own face; the Playful skin adds the ink edge
+  // and hard shadow every Playful toast gets.
+  if (variant === 'welcome-card') {
+    return (
+      <div
+        ref={setRefs}
+        role="status"
+        aria-live="polite"
+        className={`flex w-[309px] max-w-[calc(100vw-32px)] items-start gap-2 rounded-[14px] border border-[#e1eae2] bg-[#f8f8f4] px-4 py-2.5 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)] playful:rounded-[16px] playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[0_10px_12px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)] ${className}`}
+        onMouseEnter={() => playful && setPaused(true)}
+        onMouseLeave={() => playful && setPaused(false)}
+        onFocus={() => playful && setPaused(true)}
+        onBlur={() => playful && setPaused(false)}
+        {...props}
+      >
+        <img
+          src={welcomeCardCheck}
+          alt=""
+          aria-hidden="true"
+          className="mt-[11px] size-[22.6px] shrink-0"
+        />
+        <div className="min-w-0 flex-1 px-2.5">
+          <p className="text-[14px] font-semibold leading-6 tracking-[0.2px] text-[#387440]">
+            {title}
+          </p>
+          {body && (
+            <p className="text-[12px] leading-[18px] tracking-[0.2px] text-[#575755]">{body}</p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={beginExit}
+          aria-label="Dismiss notification"
+          className="mt-[13px] flex size-5 shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+        >
+          <img src={welcomeCardClose} alt="" aria-hidden="true" className="block size-full" />
+        </button>
+      </div>
+    );
+  }
 
   if (compact || variant === 'welcome') {
     const isWelcome = variant === 'welcome';

@@ -43,13 +43,14 @@ const WardRow = ({ ward, last }) => {
         {pending ? 'Pending link' : opted ? 'Opted out' : 'Active'}
       </WardChip>
       {pending ? (
-        <button
-          type="button"
+        // Resend = the "Request sent" screen of Link a ward (the home card's "Remind Kwesi" goes there too).
+        <Link
+          to="/parent/link-ward?step=sent"
           onClick={() => log('Resend link request:', ward.id)}
           className={`cursor-pointer border-0 bg-transparent p-0 ${linkCls}`}
         >
           {ward.action}
-        </button>
+        </Link>
       ) : (
         <Link
           to={`/parent/wards/${ward.id}`}

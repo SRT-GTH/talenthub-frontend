@@ -1,3 +1,390 @@
+## [2026-11-22] fix | Profile-building UX follow-ups
+
+- Skills stage lists platform-verified skills first (display only); Goals dialog names each missing required field (shared `Field` error, focus moves to the first missing input); Pitch stage opens an existing pitch on its published / review screen ("Loading your pitch…" meanwhile; Edit / Replace reach the chooser); Avatar stage shows skeletons while the saved avatar loads (signed in). Copy for errors and loading is ⚠️ ASSUMPTION (not drawn). ✅ VERIFIED demo + signed in.
+
+## [2026-11-22] fix | Skills Lab games and signed-in profile stages
+
+- All 13 Games v2 and 18 Arcade games play to their end (246 frame URLs × 2 looks, no page errors). Fixed: demo dialogs and Arcade links dropped `?demo=1` and started live runs; Makola Haggle "Time's up" inert and wrong result chips; the correct answer was always first in five games (now a stable shuffled order; `?f=` frames keep the drawn order); failed lab "Back to Skills Lab" restarted the lab; Team leadership / Strategic thinking ignored `?from=engagement`.
+- Signed in: avatar name tag said "KofiA_23" and the stage bar "1 of 9" for everyone; Skills stage showed "Verified 0" (now reads verifications with the shared rule: 4); Goals couldn't be saved outside tech (Industry offered only Fintech); Interests placeholder was tech-only. New backend gaps: banner not saved, portfolio role dropped, onboarding interests invisible.
+
+## [2026-11-22] feat | My crew right column, Playful grid and photos
+
+- Talent My crew now matches the current NW frames: "Grow your crew" checklist, "Mentors to learn from", "You both know · 8", "Linked up …" lines, updated dialog copy, under-18 and empty right rails. The three right-rail people cards are one `CircleMiniPeopleCard` (recruiter wrappers unchanged). Playful card grid is three per row as drawn; photos re-exported from the current frames (`src/assets/talent-circle/people/`, 30 old files removed). NW diffs: worst Playful frames 13-14 % → 7-9 %. Signed in, the checklist / mentors / mutual cards stay hidden (no backend data, see gaps). ❓ Pending product decision: "+20 XP each" on the grow card vs US-5.3.1-02 (connections earn no XP).
+
+## [2026-11-22] feat | Opportunities toolbar selects follow Figma
+
+- Every `/job-postings` toolbar select is now the Figma "GTH · Select" (`JobsMenu.jsx`, Default / Open / Active): sort pill on Matched, Saved and Applied ("Best match" / "Most recent", really reorders, kept in `?sort=`; defaults per Figma), and the Browse all filters (Location, Job type, Pay, Industry) instead of 28px chips. Removed the "Sorted by …" label and the chip variant. Option labels are ⚠️ ASSUMPTION (no open-menu frame).
+- Bug fixed: the Matched quick filters (80%+, Remote / Hybrid, Internships, Accra) did nothing; they now filter. With a filter on, the footer says "Showing N of M matches. Show all" (or "No matches for this filter yet.") instead of the drawn "That's all 6".
+- Backend gap: saved roles have no `savedAt` (sorted by the bookmark id's time meanwhile).
+
+## [2026-11-22] fix | Figma comparison, public data and recruiter
+
+- Compared all 370 frames in the wiki tables (103 `/data`, 267 recruiter) at 0.5x; diff columns updated to today. Fixed: recruiter `?modal=invite` opened "Invite a friend" on top of page dialogs (friend invite is now `?modal=invite-friend`; `RecruiterHelpPopover.jsx`, `RecruiterProfileMenu.jsx`); `/recruiter/messages?view=talent` frame showed the sign-in page (`MessagesFrame.jsx` skips the talent home API in demo); `/data` overview printed "<5" and "Median age null" before data arrived. Remaining >7% are live API data on `/data`, dialogs centred in taller frames, or old frames replaced by newer designs. Flagged: recruiter community pages show an older sidebar card than other recruiter pages.
+
+## [2026-11-22] fix | Apply flow label and visibility links
+
+- The apply preview said "STEP 1 OF 2" but "Continue application" submits and no step 2 exists (Figma draws none; the backend has no screening questions). Label is now "PREVIEW" (`talentJobsData.js` APPLY_COPY.step). Step 2 and screening questions are recorded in `missing-designs.md` and `backend-integration-gaps.md`.
+- "Edit visibility" now goes to one place from the job page and the Messages pre-apply dialog: `/profile?manage=1` (the Manage-what's-visible drawer in demo; signed in it forwards to Settings › Privacy).
+
+## [2026-11-22] fix | One rule for verified skills
+
+- Home hero and sidebar showed 10 (raw verification rows incl. a duplicate, games and a Career Buddy conversation), My Assessment "7 verified" (any non-self evidence), the assessment card "3 skills proven" (only the first 6 rows), Skills Lab 4. New `src/utils/verifiedSkills.js` (`countVerifiedSkills`, `countProvenSkills`, `isPlatformVerified`) following US-5.1.2-02: verified = distinct skills with a platform-assessment pass; proven = assessment or game evidence. Used by `talentHome.api.js`, `talentHomeLive.js`, `liveOverview.js` and the profile header stat (`talentProfileLive.js`; the profile's "Verified" group still lists Skills Lab game evidence for display). ✅ VERIFIED against the test account's real rows: 4 verified, 8 proven.
+
+## [2026-11-22] fix | Signed-in check of the talent app (phases 3 and 4)
+
+- Checked every talent page with a real test account. Fixed: Opportunities showed the Figma demo numbers for ~10 s while the live feed loaded (now skeletons only); notifications older than a week sat under "This week" (now "Earlier"); Playful notifications header showed drawn stickers when signed in; community milestone dialog said "Kofi" for everyone; Learning Saved / Certificates cards read "Course" (now the bookmark title); "1 role match" → "matches"; "1 days lit" → "1 day lit"; Settings › Language date example now today's date. Backend problems (bookmark re-save 500, localhost certificate links, verified-skill counts) added to `backend-integration-gaps.md`.
+
+## [2026-11-22] fix | Inspection pass, phase 9 (public data)
+
+- `/data`: outcomes loading crash fixed (no stories from the API); top-bar and 404 search now go to a region page or the matching directory; 500 "Try again" goes back to the failed page; freshness pill / suppression chips open on click; "Ask the data team" and footer Contact open email; landing and overview have one `<h1>`. Sidebar toggle and phone Live pill consolidated. Theme 8 canvas moved to `iErYj7O3ft6WAG2FBT6aEw`. Details in `wiki/public-data.md`. Pixel comparison not done.
+
+## [2026-11-22] fix | Inspection pass, phases 1, 2, 5, 6, 7, 8, 10, 11
+
+- One agent per phase checked every control (and Figma prototype links) on the public site and sign-in, profile and profile building, parent, recruiter, institution, agency, platform admin and the HTML emails. Details, destination tables and confidence tags are in each portal's wiki page (landing-site, talent-profile, talent-engagement-revamp, parent-wiring / parent-settings / parent-dashboard, recruiter-dashboard, institution, agency, admin, talent-emails, parent-emails).
+- Highlights: recruiter top bar now works on every `/recruiter/*` page; agency portal now renders SF Pro Rounded; institution `/institution/verify` is public again; all 38 emails link to real routes (`{{APP_URL}}`), new TE-13; landing footer wired with `#section` scrolling; parent settings Accessibility / Language / Change password; many log-only buttons wired across portals.
+- Components consolidated: landing FAQ item, job-card destinations, parent sidebar toggle and toast, recruiter top-bar panels, institution nav item, agency/institution persona card, admin settings nav, profile empty-state avatar.
+- Figma files moved: agency, institution and public-data canvases now live in `iErYj7O3ft6WAG2FBT6aEw` (same node ids); login / role picker / tutorial node ids in `onboarding-redesign.md` no longer exist.
+- New gaps and undesigned items merged into `backend-integration-gaps.md` (§1-§10, new §10 Emails) and `missing-designs.md` ("All portals (inspection 2026-11-22)"). Not covered: real-data checks for parent, recruiter, institution, agency and admin (no accounts), pixel comparisons where data was missing. Phase 9 (public data) still running.
+
+## [2026-11-22] feat | Club Events tab opens
+
+- The Events tab on the club page (demo and live) and post pages was inert: Figma draws the tab but no Events screen (searched the whole talent file: none), and clubs have no events API. It now opens an Events empty state ("No events yet" + "Back to the feed") on the club's own dashed empty card, now shared as `DashedEmptyCard` (`CommunityFeedParts.jsx`, also used by the empty feed). `EventsPanel` in `CommunityTabPanels.jsx`; `events` added to `COMMUNITY_TABS`. Owner page tabs stay inert (About / Members / Events have no owner panels). ✅ VERIFIED talent + recruiter club pages, no errors. Copy is ⚠️ ASSUMPTION.
+- Known, pre-existing: signed-out club demo URLs (`?joined=1`, no `demo=1`) redirect to /login once the shell's API calls return 401.
+
+## [2026-11-22] fix | Talent shell: one collapse button, one collapsed rail
+
+- The talent shell drew two different « collapse buttons: on the profile card (Home, Settings) and a different icon above the card (Opportunities, Messages, Wallet, Clubs, Skills Lab, Streak, Notifications, My Assessment). Now one button on the card's top-right corner on every page, working with both the `?collapsed=1` URL and pages' own `rail` state (`TalentDashboardShell.jsx`).
+- Two collapsed rails existed: the newer icon rail with the Wallet tile (`TalentRailHome`) and an older one without Wallet (`TalentRailCollapsed`, deleted). Every page now collapses to `TalentRailHome`. ✅ VERIFIED on Home, Opportunities, Wallet (button position identical, collapse works, no errors).
+
+## [2026-11-21] fix | Destinations for the remaining talent controls
+
+- 27 of 29 log-only / inert controls across Home, Career Buddy, Notifications, Opportunities, Wallet, Learning, Streak, My Assessment, Skills Lab and Clubs now lead somewhere (per-page details in each feature wiki page's "Control destinations (2026-11-21)" section). Figma prototype links were read for every frame involved: only Career Buddy "Maximize" (→ expanded Career Buddy) and Wallet "See payouts" (→ escrow) are linked in Figma; the rest follow existing app patterns or are ⚠️ assumptions, listed in `missing-designs.md` P3. Not wired: the demo post's "View replies" links (no drawn replies). ✅ VERIFIED in the browser.
+
+## [2026-11-21] feat | Home: smoother edit mode, save hearts on matched roles
+
+- **Edit home:** every layout change (Customize / Done, move, hide, show, add, reset) now runs as a View Transition (`src/utils/smoothLayout.js`, used by `TabsHomeLayoutStore.js` and the edit toggles): cards glide to their new place, new pieces fade in (320ms eased, timings in `index.css`). The dashed edit frame is now an outline, so cards no longer grow 8px on entering edit mode, and the card wrapper keeps the same tree in and out of edit mode (no remount). Browsers without View Transitions or with reduced motion change instantly. ✅ VERIFIED: 5 transitions, 0 failures, card size unchanged, no errors.
+- **Matched to you:** the heart on each match card was a plain icon. It is now a save toggle: signed in, it saves / unsaves through `/guidance/bookmarks` (same as Opportunities; live cards carry `live`, `saved`, `bookmarkId`); demo toggles on the card. Saved = the green heart on a light green circle (no saved state is drawn). ✅ VERIFIED (demo toggle).
+- **More for you:** Verified skills "Manage skills" → `/profile/filling/skills` (same as the MyAssessment tab); "All badges" → the profile Badges card (`/profile#badges`; `ProfileCard` takes an `id`, the profile page scrolls to the hash).
+
+## [2026-11-21] fix | Profile menu Privacy / Terms
+
+- The talent profile menu's footer links "Privacy" and "Terms" only logged. They now open the shared `PrivacyPolicyModal` / `TermsModal` summaries (same as the site footer and the sign-up Done page) over the menu; "Got it", × or Escape closes both. While a pop-up is open the menu ignores its own outside-click, Escape and arrow-key handlers (`ProfileMenu.jsx`). There are no full Privacy / Terms pages yet (the pop-ups say "The full policy is coming soon"). ✅ VERIFIED in the browser, no errors.
+
+## [2026-11-21] fix | Journey map pop-ups on every stage; search focus ring
+
+- `/profile/engagement`: only Skills had a hover pop-up (the only stage with drawn copy). Now every stage opens it (`journeyData.js` `STAGE_TOOLTIP_TEXT` + `stageTooltip()`; `JourneyMapCanvas.jsx`): the stage's own icon, its milestone ("Counts towards Discoverable / Top 20% / Top Talent"), and Start / Continue / Edit by state. Stages near the left edge open the pop-up to the right; it stays inside the map. Skills keeps Figma's copy. ✅ VERIFIED (all 9 stages, no errors). Copy for the other stages is ⚠️ ASSUMPTION, listed in `missing-designs.md` P3.
+- Talent pages: the A11Y focus ring (`talentA11y.css`) landed on the bare text field inside the top-bar search box on click. Text fields are now exempt (they show focus through their box), and the top-bar search box border turns green on focus (`DashboardTopNav.jsx`). Buttons and links keep the keyboard ring. ✅ VERIFIED
+
+## [2026-11-21] style | Sidebars: slim scrollbar, pinned cards
+
+- New `.slim-scrollbar` class (`src/index.css`): 4px rounded thumb on a clear track. Applied to every portal sidebar / rail scroll area (talent, parent, recruiter workspace, dashboard, admin, agency, institution, collapsed rails); `DashboardSidebar` used to hide its bars entirely.
+- Talent and parent sidebars: profile card (with the collapse button) pinned at the top and the bottom card (public profile / "You're also a talent") pinned at the bottom; only the page links scroll (min ~120px). Below ~740px of window height the whole sidebar scrolls instead so nothing is cut off. ✅ VERIFIED at 900 / 760 / 700 / 520px, both looks, no errors.
+
+## [2026-11-21] fix | Talent app inspection pass (phases 3 and 4)
+
+- Five parallel passes over the talent chrome, `/home`, `/career-content`, `/job-postings`, `/messages`, `/notifications`, `/learning`, `/streak`, `/wallet`, `/settings`, `/community`, `/my-assessment` and `/skills-lab`, both looks, against Figma REST exports (no 429).
+- Shell: sidebar is now the same everywhere (Home, My Assessment, Opportunities, Wallet, Clubs, Messages, Skills Lab, My Learning, Profile); `?demo=1` is kept across navigation; demo URLs never call the talent API or redirect to /login (`talentHomeState.js`); search placeholder says clubs; top bar 90px; scroll area clears Ask Buddy.
+- Figma renamed Community → **Clubs** and My circle → **My crew**: copy updated across the area; "Create a club" placement and the Clubs | My crew switch follow the frames.
+- Fixes per page are in each feature wiki page's "Inspection (2026-11-21)" section: talent-home, talent-jobs, talent-messages, talent-notifications, talent-my-learning, talent-wallet, talent-settings, talent-community(-create), talent-my-circle, talent-assessment, talent-skills-lab.
+- New gaps added to `backend-integration-gaps.md` §3 and `missing-designs.md` (Talent); fixed inert items ticked there.
+- Not covered: live signed-in pages; Skills Lab game boards and their dialogs weren't click-tested; My crew right column not built.
+
+## [2026-11-21] feat | Talent sign-up states built from existing patterns
+
+- **Address step:** Region, District and Town/City now show their required error once left empty (same rule as the parent step; before, the errors only appeared after a submit, which the disabled button never allowed). Region error is new. `Select` gained an opt-in `onClose` (fires when the open list closes) so a searchable dropdown counts as visited. ✅ VERIFIED in the browser: no errors on first paint or while the list is open; each error appears on leaving empty and clears on picking/typing; no console errors.
+- **Contact lockout pop-up ("Something went wrong"):** Playful now gets the ink edge, hard shadow, HEADS UP sticker and stars; red medallion kept. Focused unchanged. ✅ VERIFIED (both looks, centred, no errors).
+- `missing-designs.md`: contact code states and address errors moved to Done; sign-up phone layouts removed (auth screens won't get mobile designs).
+
+## [2026-11-21] docs | Talent sign-up gaps audit (18+ and under-18)
+
+- Re-swept `/get-started`, `/login` and `/onboarding/talent/*` against the two handover docs.
+- `backend-integration-gaps.md` › Auth and onboarding: added role choice not saved, curriculum not collected, Review page data the app doesn't hold, the Done page's fixed "Phone and email verified" row, and the unconfirmed parent email for under-18s.
+- `missing-designs.md`: added the address error state, tutorial steps 2–4 copy, sign-up phone layouts, and P3 items (under-18 Done page wording, live Done page, kept Watch tutorial, Review Talent Score strip). The contact-code item now notes the modals are missing in both looks.
+
+## [2026-11-21] design | Step pop-up Playful spot illustrations
+
+- Exported from Figma (REST, SVG 1x): `talent-onboarding/step-dialog-spot-saved.svg` (green bookmark, Identity captured) and `step-dialog-spot-learning.svg` (open book, Address confirmed / Education recorded / Not quite yet; the three Figma copies are identical apart from sub-pixel rounding).
+- `StepDialogParts.jsx`: `DialogHero` now takes `spot`, `spotTop` (the spot's top in the designed card) and `padTop` (the card's top padding in code). In Playful it renders the 96px spot (80px on phones) with the three doodle stars anchored to it; `DialogStars` was removed (stars used to sit ~22px too high). Focused still shows the icon tile.
+- ✅ VERIFIED in the browser at 1440×900, Playful: spot at card x172 / y60, 67, 60, 69 and stars at (370,118), (346,150), (40,124) for all four pop-ups, exactly the design's positions; phone (375) checked visually; Focused unchanged; no console errors.
+
+## [2026-11-17] design | Step pop-ups get the Playful look; education grade fixes
+
+- **Identity captured, Address confirmed, Education recorded, Not quite yet** now use the shared `talentAuth/StepDialogParts.jsx`: rendered into `<body>` (the Not quite yet pop-up was off-centre inside the form column); Playful adds an ink edge + hard 4px shadow, a tilted gold sticker (SAVED! / HEADS UP) and three stars, and Playful button labels ("Nice! Next up: Contact", "Next up: Education", "I'm ready"). Focused is unchanged. ✅ VERIFIED (Not quite yet, both looks: centred, no errors). The other three need a backend session to reach and weren't screenshotted.
+- Playful spot illustrations: done 2026-11-21 (see that entry). The contact lockout pop-up has no Playful frame, so it is unchanged.
+- **Education:** choosing Primary School opens the "Not quite yet" pop-up straight away and locks Grade ("GTH starts at JHS"); University offers Years 5 and 6.
+- Backend gaps (`backend-integration-gaps.md` › Auth and onboarding): talent sign-up section added (school search 2-char minimum, no JHS schools in the directory, hard-coded grades and nationalities, test code, parent email rule, Keep me logged in, tutorial video, done page, Year 5/6 support unconfirmed).
+
+## [2026-11-17] fix | Ghana phone fields accept a leading 0 / pasted +233
+
+Contact (phone, WhatsApp) and parent info counted every digit, so "0503177216" (10 digits) failed "Enter a valid 9-digit Ghana number". `ghanaLocalDigits` (services/onboardingMappers.js) drops the trunk 0 or a pasted 233 country code; validation uses it, and on blur a complete number is tidied to its 9 local digits (0503177216 → 503177216). `toGhanaE164` already handled both for the API. ✅ VERIFIED: 0503177216 and +233 24 123 4567 are valid and tidied; 05031 still errors.
+
+## [2026-11-17] fix | Select menu flips above the field when there is no room below; local `.env` for sign-up
+
+- `ui/form/Select`: the menu always opened downward (`top-full`, max 340px), so near the bottom of the screen it was cut off by the scrolling form column. On open it now measures the visible area (viewport ∩ every overflow ancestor). If the menu doesn't fit below and there is more room above, it opens upward (`bottom-full`, shelf shadow flipped); its height is capped to the room it has (min 160px). It re-measures on scroll and resize, and the phone scroll-into-view only runs when it opens downward. Shared by every `Select` in the app. ✅ VERIFIED: Nationality on personal info at 1440×760 (opens up, fully visible), 1440×1200 and 390×760 (opens down, fully visible).
+- "Organization not found" on date of birth: there was no `.env`, so `VITE_TENANT_ORG_ID` was blank in `POST /v1/onboarding/start`. Local fix: copy `.env.example` to `.env` (gitignored) and restart Vite. ✅ VERIFIED (staging returns a session with the ID, the same 404 without it).
+
+## [2026-11-12] fix | Landing: "Hiring? See GTH for recruiters" (hero) and "See GTH for recruiters" (For everyone › Recruiters tab) now open `/get-started?role=recruiter` (role picker, Recruiter selected; `LANDING_ROUTES.getStartedRecruiter`). Figma draws no target, so this is ⚠️ ASSUMPTION, chosen by the product owner. The other For everyone tab buttons now lead to their role's sign-up too:
+
+- Students "Create my free profile" → `/get-started?role=talent`
+- Parents "Invite my parent" → `/get-started?role=parent`
+- Schools "Bring GTH to my school" → `/institution/sign-up`
+
+The routes are in `LANDING_ROUTES`. The home FAQ link "Ask Career Buddy or email info@ghanatalenthub.com" was plain text and is now a `mailto:info@ghanatalenthub.com` link (`FaqSection.jsx`). How it works step 03 photo: the 300px-tall `object-cover` frame cropped the subject's head on wide single-column cards (≈600-1280px). The step now carries `imageFocus: 'top'`, so it renders with `object-top`.
+
+## [2026-11-17] design | Talent auth: under-18 pop-up, Figma fonts, error states — final pass
+
+- **"Almost There" pop-up** (under-18s, after date of birth) rebuilt from the frames in both looks. Playful: "FOR YOUR PARENT" sticker, stars, hearts illustration, ink edge. Focused: gold star, 3px pale green edge. It stays open until the user acts: Continue goes to Personal info, close or Esc stays on date of birth. It used to vanish after 1.2s. ⚠️ Figma's button says "Next up: Education" / "Continue To Education"; ours names Personal info, the real next step. The old bitmap crops (`almost-there-*.png`) are replaced with Figma SVGs (`almost-*.svg`). ✅ VERIFIED (both looks, flow).
+- **Fonts:** Figma draws the sign-up and login screens in SF Pro Rounded, with Focused headings in SF Pro Rounded Semibold and Playful headings in Bricolage. The bundled rounded font (styles/parent.css) now also applies under `[data-ui-style]`, and the step headings use `focused:font-sans`. ✅ VERIFIED.
+- **Error states:** fields whose helper icon is the green diamond now switch to a red diamond on error (`Field`). The education "A few fields need attention" card is a top-right toast on desktop, as drawn, and stays inline on phones. Contact, address and education error frames otherwise match (red edges, wording). ✅ VERIFIED.
+- Address, education and review checked side by side with their Focused frames: they match. Address keeps the 6-field layout from the later frames, while the default frame still shows the older 4 fields.
+- Under-18 date of birth now follows the latest frames (page 2431), at the product owner's request: full-width 698px field and Continue (replacing the 386 / 260 sizes from 2026-11-15), and the under-18 notice is a full-width cream card with an amber triangle, bold "One more step coming up" and one line of detail (`dob-minor-warning.svg`). ✅ VERIFIED (screenshot vs 8308:28544).
+- Lint clean; `npm run build` passes.
+
+## [2026-11-15] design | Panel tutorial a11y, login in both looks, parent info rebuilt, personal info field states
+
+- **A11y:** `OnboardingPanel` hid every layer, caller overlays included, under one `aria-hidden` wrapper. Only background layers 1-6 are hidden now. The step panels' tutorial buttons sit on their own non-decorative layer (`PanelStage decorative={false}`; the contact overlay has a second, visible layer). ✅ VERIFIED: each step's panel exposes only the tutorial button to assistive tech, and it opens with the keyboard on all six steps. Login, forgot password and recruiter panels expose only their tutorial button too.
+- **Login in both looks:** the "Focused · Login Screen" frame draws no style switch, so `/login` and `/forgot-password` open the style scope without the switch (`followsStyle` in `OnboardingNavbar`) and follow the look picked in sign-up. Focused: flat photos at the frame's centres; flat mint Data Protected chip, white compliance chip and soft score card; no sparkle, stars or brand sticker; plain WELCOME BACK pill; standard checkbox; soft field and sign-up card shadows. Corner dots are clipped inside the photos, and the tutorial label is hidden (circle only, as drawn). ✅ VERIFIED (screenshots, both looks).
+- **Parent info** rebuilt to the current frames: "06b Parent / Guardian" tag (amber pill / gold sticker + stars), "One More Thing", First + Last name, Relationship + Phone (SMS), full-width Email, blue "Your data is protected under Ghanaian law" card, full-width CTA, no white sheet, personal-info panel with the living-room photo. ⚠️ Deviation: Figma says one contact method is enough; email stays required (the opt-out notice is emailed and the backend rejects the step without it), and the helper and card copy say so. ✅ VERIFIED (screenshots, both looks).
+- **Personal info field states:** "Looks good" under first and last name once filled. Photos over 5MB are refused, with a red dashed slot and "File is too large — maximum size is 5MB". The photo slot is now Figma's dashed upload circle; the 86px slot art had been shrunk to a 16px dot inside the Upload button. ✅ VERIFIED.
+- Focused code pop-up states (code sent / expired / verified) checked against their frames: already matching.
+
+## [2026-11-15] design | Sign-up: Focused look matched to the "Focused ·" frames; Playful pop-ups; tutorial wiring
+
+- **Focused panels** (product owner: "change everything to match the Focused screens"). The Focused frames draw every panel photo flat (contact's green photo stays at -18deg) at their own centres, with flat white chips, soft shadows and no sparkles, arrows, snow dots or stars. `StageCard` / `PhotoCard` take `focused: { cx/cy | centerX/centerY, rotate? }` (flat by default under Focused). Positions come from the frames (date of birth, personal info, contact, welcome), and every Focused photo gets the softer frame shadow. Welcome cards: Focused flat (1,580 at 13.78/32.63, My Experience at 81.43/25.5) with soft shadows; Playful keeps tilt and hard ink shadows. ✅ VERIFIED (date of birth / personal info screenshots vs frames at 1728×1065).
+- **Look switch motion:** `.gth-mode-move` (index.css) glides left/top/width/transform/shadow over 520ms when the style switch flips; off for reduced motion. ✅ VERIFIED (photo mid-transition sampled).
+- **Sizes:** date of birth uses the 386px field and 260px Continue in both looks (under-18 frames; product owner picked these over the 18+ frames' 698px). Every other step's field, button and heading sizes are identical in both looks and match ours. The helper line and under-18 notice stay on one line on desktop and wrap left-aligned (icon pinned) on phones. The DOB field uses Figma's calendar glyph and the green diamond helper icon. ✅ VERIFIED.
+- **Pop-ups:** the code and verified dialogs get the Playful sticker, stars, ink edge, spot illustrations and "Sorted! Next up: Address"; the active Playful code box gets a green edge with a hard shadow. Legal dialogs, success page and welcome page Playful touches are logged below. ✅ VERIFIED (screenshots).
+- **Tutorial:** the watch-tutorial buttons drawn in the step panels had no click handler. `TalentOnboardingPanel` now opens `LoginTutorialModal` and hands `open` to the in-art buttons through `talentTutorialContext`. Steps view: steps 2-4 get icons (🎂 📝 👪, ⚠️ ASSUMPTION; Figma only draws step 1's 🎓). Inactive chapter numbers get the ink edge (Focused keeps the pale one). ✅ VERIFIED (opens on date of birth, personal info, contact, address, education, parent info).
+- **Toast:** dismissing during the slide-in left the toast mounted and invisible (the slide-in's finish reset the phase). Fixed in `ui/Toast`; a press anywhere closes the welcome card in both looks. ✅ VERIFIED.
+- ⚠️ Open: the panel art is `aria-hidden`, so its tutorial buttons are clickable but hidden from screen readers. The login Focused frames exist but login stays one look (earlier product-owner decision).
+
+## [2026-11-15] fix | Talent welcome toast on the shared toast system; short-screen clipping on welcome + login
+
+- **Welcome toast:** "Welcome to GTH, Student!" was a one-off element drawn inside the welcome panel art. It now uses `ui/Toast` with a new `variant="welcome-card"` that keeps its original look (309px, #f8f8f4, pale green edge, green check / title / X). It gets the system's slide motion and scrim, and the Playful ink edge and hard shadow. It sits below the nav at the top right, so it also shows on phones, and auto-dismisses after 3s (Playful: 6s minimum and pauses on hover, as for all toasts). `WelcomeToast` removed from `TalentWelcomePanelContent`. It appears 1.5s after the page loads (`TOAST_DELAY_MS`, product owner: "so the user actually notices it"). ✅ VERIFIED (screenshot, no page errors; not present at load or after 1s, present at 2s).
+- **Short screens:** the welcome and login content columns centred with `items-center` inside an `overflow-y-auto` box. When the content was taller than the box, centring pushed its top out of view where it couldn't be scrolled to. They now centre with `my-auto` on the inner column, which collapses to 0 when there's no room. ✅ VERIFIED at 1440×635 (heading 219px from the top, below the 91px nav).
+
+## [2026-11-15] design | Auth phase 3: policy dialogs, success page, welcome panel
+
+- **Policy dialogs** (`LegalModalShell`: Terms, Privacy, Data Processing): Playful adds a tilted gold "QUICK READ" sticker on the top-left corner, three stars on the intro banner, an ink edge on the banner icon tile, and the CTA "Got it, I accept" (only when the default label is used). Focused is unchanged. The dialog is now portaled to `<body>` at z-60: the sign-up layout's `isolate` section had put the nav above the scrim. ✅ VERIFIED (screenshots, both looks).
+- **Success page** (`OnboardingDonePage`) rebuilt to the current Focused and Playful success frames: 640px column, new stats (welcome bonus "+50 pts" / "+50 XP", badges earned, rank in Ghana), welcome-email banner, duotone icons (Focused) or sticker-style spot illustrations (Playful), "pts" vs "XP" pills, green gradient share card with a gold Copy link, one-line footer. Playful: ink-edged cards, "YOU'RE IN!" and "BOOST YOUR SCORE" stickers, tilted Gold Tier sticker, hero stars, Bricolage headings. Live mode still hides score, stats and points. ⚠️ ASSUMPTION: the confetti burst in the frames is not built. Old `done-*` icons replaced (`done-check`, `done-check-circle`, `done-stat-*`, `done-next-*`, `done-spot-*`, `done-verified-*`, `done-welcome-mail`, `done-chevron-right`). ✅ VERIFIED (screenshots, both looks).
+- **Welcome panel** (`TalentWelcomePanelContent`): "My Experience" card matched to Figma (hard 4px ink shadow, title/pencil/bar offsets, 30px Submit button with #224626 drop). The main photo keeps its Playful tilt in Focused (product owner): `StageCard` and `PhotoCard` now flatten in Focused only when a page gives explicit Focused geometry. ✅ VERIFIED (screenshot, Focused).
+
+## [2026-11-15] fix | All washi-tape strips removed from the auth screens
+
+Product owner: the plain tape strips read as empty rectangles. They are gone from the login panel, the tutorial modal and the sign-up step panels (`StageTape` deleted). Stars, stickers and the brand sticker stay.
+
+Verified: 0 tape-coloured elements on /login, with the tutorial open, and on /onboarding/talent/dob (Playful); no page errors; lint clean.
+
+## [2026-11-15] design | Auth phase 3 (in progress): tutorial modal, shared step panel looks, date of birth
+
+**Tutorial modal** (`LoginTutorialModal`, login = one look, Figma "Tutorial page" over login):
+
+- **Box:** ink border @55% and a hard 4px shadow.
+- **Decorations:** "WATCH ME · 3 MIN" gold sticker on the top edge and three doodle stars. The two tape strips drawn on the video's corners are left out (product owner).
+- **Video:** solid gold 68px play disc with an ink edge, centred; logo above, title below.
+- **Active chapter:** ink-edged number dot, 1.5px green row border, and a gold tilted "Playing" sticker.
+- **Fix:** focus now moves back into the dialog when Play switches to the step view (Esc and Tab escaped before).
+
+**Login panel:** the pink tape on the top-left photo was removed (product owner); the yellow bottom tape overlaps its frame edge.
+
+**Sign-up step panels** (`TalentPanelParts`):
+
+- **`StageCard`:** takes its position, size and tilt from CSS variables. The `focused:` variant swaps in the Focused-frame position with no tilt (`focused` prop); Playful keeps the tilted layout.
+- **`DataProtectedChip` / `GdpaBadge` / `AdultYouthCard`:** get `playful:` sticker looks (ink border, hard 3px shadow, tilt; GDPA gold).
+- **New:** `StageTape`, `StageStar` and `StageBrandSticker`, shown in Playful only.
+
+**Date of birth:**
+
+- **Panel:** Focused photo positions added; Playful tapes, stars and brand sticker added.
+- **Eyebrow:** new shared `StepEyebrow` (Focused pill / Playful gold sticker with stars).
+- **Spacing:** 71px above Continue on desktop, as drawn.
+
+**Header and backgrounds:**
+
+- `OnboardingHeader` label reads "COMPLETE" in Focused and "GOOD START" in Playful.
+- Step pages no longer paint white over the layout's cream (DOB, personal info, contact, address, education, done).
+
+**Percent kept as computed:** the frames show fixed numbers (12% at DOB); the app computes from the trail (14%).
+
+Verified by screenshot against both DOB frames; lint clean; no page errors.
+
+## [2026-11-15] design | Auth screens phase 2: role selection with Focused / Playful, the style switch on sign-up, auth footer
+
+**Product owner (2026-11-15):** sign-up screens have two looks (Playful = the original frames, Focused = the "Focused ·" copies `8308:*`), switched from the top bar as drawn. Login stays one look.
+
+**Switch and scope.** `OnboardingNavbar` exports `hasStyleModes(pathname)` (`/get-started`, `/onboarding/talent/*`). On those routes it renders `StyleSwitch inNav` and `UiStyleScope`, so the `playful:` / `focused:` variants apply. `/login` and every other onboarding route get neither. Verified: `/login` has no `data-ui-style` and no switch; `/onboarding/talent/dob` has both.
+
+**Role selection** (`GetStartedPage`, Playful `2153:13443` / Focused `8308:55896`):
+
+- **Eyebrow:** Playful = gold sticker (4deg, ink border, 2px ink shadow) with three doodle stars; Focused = the `#faf4e8` pill.
+- **Cards:**
+  - Playful: 1.5px borders with a hard 4px offset shadow (selected green @65%, others ink @45%, `#fffefc`). Phone rows get a 3px version (⚠️ ASSUMPTION, no phone frame).
+  - Focused selected card: 1px green border with a soft shadow, as drawn; this drops `Card`'s old green shelf.
+- **Talent benefits:** Playful starts "engagement with ai career buddy"; Focused "Free talent assessment". Parent / recruiter rows are the same in both.
+- **Footer:** new `components/shared/AuthFooter.jsx` (both looks): copyright, partner squares with "+246 partner companies", About · Privacy · Contact, and the 5px kente stripe (340px green/yellow/red thirds).
+  - Privacy opens the shared privacy dialog; Contact is mailto.
+  - About → `/` (⚠️ ASSUMPTION: there is no About page).
+
+**Figma inconsistency kept out:** the recruiter-selected frame labels the talent card "STUDENT/GRADUATE"; every other frame says "TALENT".
+
+**Verified** in Chromium at 1728×1117 (both looks) and 390:
+
+- Clicking "Focused" in the bar flips `data-ui-style` live.
+- Computed shadows: Focused selected `0 2px 8px … , 0 1px 2px …`; Playful selected `0 10px 24px rgba(56,116,64,.15), 4px 4px 0 rgba(56,116,64,.65)`; Playful others `… 4px 4px 0 rgba(28,42,33,.45)`.
+- Footer present in both looks; no page errors; lint clean.
+- Note: headless Chromium reports 1.5px borders as 1px even on a plain test box (rounding), so border widths were checked by class.
+
+## [2026-11-15] design | Auth screens get the Playful touches: phase 1, Login
+
+**Source.** Figma pages "onboarding screens-Talent 18 and abover" (`2093:6547`) and "onboarding-talents below 18 years" (`2431:46798`).
+
+- Every auth section now has its original frames with Playful touches (stickers, washi tape, doodle stars, ink borders with hard shadows) plus a later "Focused ·" copy (`8308:*`).
+- Product owner (2026-11-15): auth screens have **one** look, the original frames ("a touch of focused and playful"). There is no style switching on auth, and the Focused copies are ignored.
+
+**Phase 1, Login** (`2968:49708`):
+
+- **"WELCOME BACK":** gold sticker (`#ffd86b`, 1.2px ink border, 2px ink shadow, 4deg) with three doodle stars at Figma offsets from its centre.
+- **Checkbox:** new `Checkbox look="sticker"` (1.2px #ccc, 2px ink offset shadow; ticked state ⚠️ ASSUMPTION).
+- **Register card:** #fefefd, 1.5px ink @55%, radius 16. Its button is 38px tall, 23px sides, 14px Bold, person icon only.
+- **Right panel** (`TalentLoginPanelContent.jsx`):
+  - "Data Protected": mint, ink border, 3px ink shadow, 3deg; second line 12px Instrument Sans as drawn.
+  - Compliance chip: gold sticker, -3deg, sized to its text.
+  - Score card: 1.5px ink @55% border plus 4px ink @45% shadow.
+  - New: three washi tapes pinned to their photos (offsets from each photo's centre, so they hold on taller panels), three gold doodle stars, and the "🇬🇭 Built for Ghana's next gen" brand sticker (-4deg).
+- **Background** (`TalentOnboardingLayout`, all talent auth screens): cream gradient `#fbf6ea → #f4f6ec` plus the grid at 70%. The section is now `isolate`, so the z:-1 glows stay above it.
+- **Shared icon:** `GenzDoodleStar` added to `shared/assets.jsx`.
+- **Kept:** the Phone / Email switch (env `VITE_LOGIN_IDENTIFIER=both`; not in Figma).
+
+Verified in Chromium at 1728×1117, by eye against the Figma frame at the same scale: no page errors; checkbox ticks; phone 390 layout intact; lint clean.
+
+**Next phases:** role selection → talent 18+ steps (DOB, personal, contact + code, address, education, review, success) → under-18 additions (parent info). The DOB step frame also shows the same panel touches and a Focused / Playful switch in the top bar (open question).
+
+## [2026-11-15] fix | Login: the show-password eye now changes with the state
+
+The toggle did switch the field between masked and visible, but its icon followed whether the field had text (`login-eye-a` grey / `login-eye-b` dark, the same open eye), not the visibility.
+
+- **Masked:** the Figma open eye, unchanged.
+- **Revealed:** the same eye with a slash drawn over it, in the eye's colour. This matches `PasswordInput`'s Eye / EyeOff pair (the icon shows what the next click does).
+- ⚠️ ASSUMPTION: Figma draws only the masked state.
+
+Verified in Chromium: type password→text→password, `aria-label` "Show password"→"Hide password"→"Show password", `aria-pressed` false→true→false, slash only while revealed; no page errors.
+
+## [2026-11-15] fix | Get started (`/get-started`): centred on phones, no white strip, button band only when pinned, roomier mobile spacing
+
+- **Centring.** The section is a flex column one screen tall below md, and the content uses `my-auto`. It sits in the vertical middle when there is room and starts at the top (and scrolls) on short screens; `justify-center` would have pushed overflow above the top edge.
+- **White strip.** The section's min-height was `100vh - 160px`, but the header is 91px, so tall desktop windows showed an empty white strip (69px at 1920×1080). It is now `100dvh - 91px` (`- 53px` below md).
+- **Button band.** New `StickyActionBar` prop `surfaceWhenStuck`: the white background, hairline and blur show only while the bar is pinned to the bottom, i.e. while the content after it is below the fold. Used on this page only; the onboarding forms keep their always-on bar.
+- **Mobile spacing.**
+  - Column gap 12 → 20, padding 16 → 32 top and bottom, gutter 16 → 20.
+  - Heading block gap 8 → 12.
+  - Role cards gap 8 → 12, padding 12 → 16, inner text gap 2 → 4.
+
+Measured:
+
+| Viewport         | Space above / below              | Bar                                                  |
+| ---------------- | -------------------------------- | ---------------------------------------------------- |
+| 390×844          | 17 / 17                          | see-through                                          |
+| 430×932          | 79 / 79                          | see-through                                          |
+| 375×667, 320×480 | starts under the header, scrolls | white while pinned, see-through at its natural place |
+
+Document height = section bottom at every size, 834 to 1920 included. No page errors; lint clean.
+
+## [2026-11-14] fix | Coming soon: no empty cream strip below the page
+
+The bottom-left gold glow (`-bottom-[140px]`, blur 120) poked 140px below the green page because the root only clipped sideways (`overflow-x-clip`). That made the document taller than the page, with an empty cream strip to scroll into. The root now uses `overflow-clip`. Measured at 1914×950, 1440×900, 1024×768, 834×1112, 390×844 and 360×740: document height = page height, no sideways overflow. The page still scrolls where its content is taller than the window (1105px at 1914 wide).
+
+## [2026-11-14] fix | FAQ page: whole card toggles, sticky topic pills on phones and tablets, Buddy mascot centred
+
+- **Whole card toggles** (`FaqAnswers.jsx` `FaqItem`): a click anywhere on an FAQ card opens or closes it. The inner button keeps `aria-expanded` and keyboard use; its click bubbles to the card, so the handler runs once. A click that ends a text selection in the answer does not toggle, so answers can still be copied.
+- **Sticky topics below xl:** the pill row sticks under the fixed nav (`top 72 / md 88`) with a translucent backdrop. The "Browse by topic" label shows only on desktop (it is in the xl side card; the phone and tablet frames draw pills only). Tapping a topic now uses `smoothScrollTo` with an offset of nav + pill row + 16, so the group title lands below both bars (smooth on iOS too).
+- **Buddy mascot** (`FaqHelp.jsx`): the PNG (160×147) has its drawing at x 13–135, y 17–139 (centre 74, 78, not the canvas centre), so `object-cover` left it about 2px left and 1.5px low. It is now positioned so the drawing's centre lands exactly on the 46px circle's centre (measured 23.00, 23.00).
+
+Verified in Chromium:
+
+- **Card:** a click on the padding opens it; button click and Enter / Space toggle once; a click with the answer selected keeps it open.
+- **Topic bar:** stuck flush under the nav at 30% and 60% down the answers on a 390px phone.
+- **Topic tap:** the group title lands 16px below the bar at 834px.
+- **Label:** hidden at 390, visible at 1440.
+- No page errors; lint clean.
+
+## [2026-11-14] fix | Landing: FAQ open item shadow, closing-CTA sticker, story chips
+
+- **FAQ page items** (`FaqAnswers.jsx`, Figma 7797:31776): the open item had a green bar shadow (`0 6px 0 #387440`), copied from the home FAQ. Figma gives open and closed items the same grey hard shadow (`5px 5px 0 rgba(28,42,33,.2)`); only the fill changes, white when open and `#fffdf7` when closed. Checked against the product owner's Figma screenshot; the Figma tools were offline. The home FAQ (`home/FaqSection.jsx`) still uses the green bar and has not been re-checked.
+- **"NO CV NEEDED" sticker** on the closing CTA (`FinalCta.jsx`): on tablets it was placed at `left: 84.6%`. On cards narrower than about 780px the ~120px sticker ran past the card's clipped edge. It is now anchored right (`md:right-3`). Measured at 390 / 768 / 834 / 1024 / 1279 / 1440: never past the edge.
+- **Story timeline chips** (`stories/FeaturedStory.jsx`): the phone layout was a 2-column grid, so "3 recruiter views · Week 5" broke onto two lines. The chips now flow and wrap as whole pills (`flex-wrap`, `whitespace-nowrap`). One line at all six widths.
+- **FAQ search hint:** confirmed with an emulated Mac platform: the chip shows "⌘K" and ⌘K focuses the field. On Windows it shows "Ctrl K" and Ctrl+K works.
+
+## [2026-11-13] docs | New [missing-designs.md](missing-designs.md): handover to design
+
+Screens, states and controls the app needs but Figma does not draw, in three priorities:
+
+- **P1, features with no design:** Share my story, footer pages, parent dashboard destinations, recruiter profile / invoice / tour.
+- **P2, missing states:** opportunities sort / pay / no results, verification code lockout, game end states, community tabs, pipeline states, wallet errors, …
+- **P3, our stand-ins to confirm.**
+
+Gathered from this week's inspection and the "not drawn" notes across the wiki.
+
+## [2026-11-13] fix | FAQ page: Ctrl+K / ⌘K focuses the search; the contact cards lead somewhere
+
+- **Ctrl+K / ⌘K** anywhere on `/faq` focuses and selects the search field (`aria-keyshortcuts`). The hint chip reads "⌘K" on Mac and "Ctrl K" elsewhere (⚠️ ASSUMPTION: Figma draws ⌘K only). Search still has no results state (see missing-designs).
+- **"Start chat"** goes to the account's Career Buddy. Signed out: `/login?next=/profile/filling/career-buddy`. Signed in: talent → `/profile/filling/career-buddy`, recruiter → `/profile/filling/recruiter-buddy`, parent → `/parent?buddy=open`.
+- **"Send an email"** stays `mailto:info@ghanatalenthub.com`.
+- **"Open WhatsApp"** is `https://wa.me/<VITE_SUPPORT_WHATSAPP>` with a greeting, in a new tab. No support number exists anywhere (the parent help data's `+233 30 000 0000` is a placeholder), so until `VITE_SUPPORT_WHATSAPP` is set the button stays inert. The variable is added to `.env.example`.
+
+Verified in Chromium: Ctrl+K focuses the field at the top and after scrolling; Start chat → `/login?next=/profile/filling/career-buddy`; email href; no WhatsApp link without the variable; with it set, `https://wa.me/233200000000?text=…`, target `_blank`, rel `noopener noreferrer`.
+
+## [2026-11-13] fix | "Bring GTH to my school" goes to the institution sign-up and is drawn as Figma's sixth benefit row
+
+- **Where it goes.** Both copies follow `landing/shared/schoolSignUpPath.js`: For parents & schools › Schools (was `/get-started`, a dead end because the role picker has no school option) and home For everyone › Schools.
+  - Default → `/institution/sign-up` (11.1.1a, live).
+  - Signed-in school staff → `/institution`. Staff are recognised by `metadata.isPrimaryContact` / `institutionRole` only, not by `organizationId`, which students carry too.
+- **Look.** Figma 9553:246776 is not a filled button. It is a sixth row of the benefit list: green check tile plus 17px Medium `#1c2a21` text, 24px below the previous row. The section now renders it as that row, a link whose text underlines on hover or focus (`lp-ul-hover`, triggered from the whole row).
+- **Not checked:** the tablet (7815:297339) and mobile (7815:298503) frames; the row reuses the list's responsive sizes.
+
+Verified in Chromium: signed out → `/institution/sign-up`; fake signed-in staff profile → `/institution`; student profile → `/institution/sign-up`; home Schools tab → `/institution/sign-up`; same font, weight and colour as the row above, 24px gap; underline 0 at rest and 100% on hover or focus; no page errors.
+
+## [2026-11-13] fix | "Invite my parent" goes to the child's sign-up and matches Figma
+
+- **Where it goes.** The button speaks as the child, so both copies follow `landing/shared/inviteParentPath.js`: the For parents & schools button and the home For everyone › Parents tab (that tab went to the parent sign-up before).
+  - Signed out → `/get-started?role=talent`. Under-18s give a parent's contact at `/onboarding/talent/parent-info`, which sends the invite.
+  - Signed-in talent → `/settings/guardian?state=invite`. That form's send is not wired yet.
+  - Anyone else signed in → their own home.
+- **Parent link.** Added "Are you a parent? Sign up as a parent" → `/get-started?role=parent` under the button (⚠️ ASSUMPTION: not in Figma).
+- **Look.** The button was the green primary with an arrow. Figma 7797:29742 is the tertiary lg: `#e1eae2` fill, `#c1d4c4` border (1 top / 2 sides and bottom), `#165d3a` SF Pro Rounded Bold 16/24, radius 14, shadow `0 1px 2px rgba(27,36,44,.12)`, no icons. It now measures 56px tall as drawn (padding minus border, since Figma strokes sit inside).
+- **Width.** 190px against Figma's 203, because the landing site loads Nunito, not SF Pro Rounded (see the font note below).
+
+Verified in Chromium: both buttons → `/get-started?role=talent` signed out; parent link → `/get-started?role=parent`; colours, border, radius and height measured; no page errors.
+
+## [2026-11-13] docs | New [backend-integration-gaps.md](backend-integration-gaps.md): what runs without the backend, page by page (mock data, inert buttons, values not saved), from a sweep of every route plus spot checks; api.md "Not wired" marked stale
+
+## [2026-11-13] feat | Opportunities cards open the role, the heart saves it, and login carries on to the destination
+
+- **Card and heart.** On `/opportunities` the card title is a link stretched over the whole card (`::after`). It goes to `/job-postings?tab=browse&job=<id>`. The heart is a separate link above it: `/job-postings?tab=saved&save=<id>`. Signed out, both go through `/login?next=<destination>` (`utils/authNext.js` `loginThen`).
+- **Login.** `LoginPage` now follows `?next=` after the code step (`resolveNext`). It only follows a same-app path that fits the signed-in account's area: talent pages for talents, `/recruiter/…` for recruiters, and so on. Otherwise it goes to the usual home. Paths starting `//` and paths with control characters, whitespace or backslashes are refused.
+- **Saving after login.** `/job-postings` reads `?save=<id>` (`talentJobsState.pendingSave`). Once the live feed has loaded it saves that role through `toggleSave` if it isn't saved yet, then removes the key.
+- ⚠️ **Sample ids.** The landing roles are sample ids the backend doesn't have. Today `job` falls back to the Browse list (the existing unknown-id handling) and `save` is dropped. Both become real with a public jobs endpoint ([backend-integration-gaps.md](backend-integration-gaps.md)).
+
+Verified in Chromium, signed out: a click on the card body and a click on the heart go to the right `/login?next=…`. `resolveNext` passed 11 cases: talent→jobs kept; recruiter→talent page, talent→admin, `//`, `https://`, tab, newline and backslash all go home; no next goes home. A signed-out `/job-postings?save=…` drops the key. Not verified: a real sign-in, since no test account was used.
+
+## [2026-11-13] fix | Opportunities: real counts, working filters, sort menu, Load more only when there is more
+
+All of it runs on the 8 sample roles in the browser. There is no public jobs endpoint yet; see [backend-integration-gaps.md](backend-integration-gaps.md).
+
+- **Matching and counts.** `opportunitiesFilter.js` holds the one matching, sorting and counting logic. The heading ("N roles match your filters" / "No roles match your filters"), the type-chip counts and the sheet's "Show N roles" button all use it. They replace the fixed Figma numbers 312, 1580 and so on.
+- **Filters.** LEVEL / WORK STYLE / REGION now filter. Each sample role has `level` / `style` / `regions` / `payMin` / `payMax`, read off its card (⚠️ ASSUMPTION). A group with nothing ticked does not restrict. The pay bar is a two-handle slider (`?pay=min-max`, 0–15,000, default 2,000–8,000 as drawn); roles with no pay figure always pass. With the Figma-drawn defaults the page opens on 5 roles, not 8. The sheet's Reset also widens pay to the full range.
+- **Sort.** The "Sort: Best fit" chip opens a menu built on `FilterSelect` (now accepts a node icon and `chevron={false}`). The options are Best fit (featured first, then the drawn order), Highest pay and Company A–Z, stored as `?sort=`. ⚠️ ASSUMPTION: Figma draws the chip only.
+- **Load more.** It shows 8 roles at a time (the 8 cards Figma draws) and appears only when more match. It resets on any search, filter or sort change, and the cards keep the sorted order.
+
+Verified in Chromium: region ticks change the counts and the URL; the pay keys move the range; sort reorders A–Z correctly; Escape closes the menu; Load more was exercised at page size 3; no console errors.
+
+## [2026-11-13] fix | Opportunities search applies on Search, not while typing
+
+On `/opportunities` the query and location fields are now local drafts. Pressing Search (or Enter) writes `?q` / `?loc`, which filters the listing, closes the on-screen keyboard and scrolls smoothly to the listing (`#opportunities-listing`), stopping 16px below the fixed nav (`[data-landing-nav]`). The scroll uses the new `src/utils/smoothScrollTo.js`, a requestAnimationFrame animation, because iOS Safari only supports `scrollIntoView({ behavior: 'smooth' })` from 15.4. It re-measures the target each frame, stops if the user touches, scrolls or presses a key, and jumps straight there under prefers-reduced-motion. Back / forward still restore the fields from the URL. Verified in Chromium at 1440px: typing leaves the URL and the cards unchanged; Search sets `?q=design`, and the page scrolls from 0 to 665 over several frames, so the listing ends 120px from the top (nav 104 + 16). 🔶 LIKELY on iOS: not run in WebKit or on a device (WebKit is not installed).
+
+## [2026-11-11] docs | Screen inspection plan: wiki/inspection/ (README + one file per phase, 11 phases, 293 screens) and an interactive checklist page (https://claude.ai/artifact/2XYzEPjfCCJhBU39gdLTaC)
+
+Click maps generated for Phases 1-10 (262 screens, 2,941 controls) by clicking every visible control on a production build with `/api` answered 401 (no session). 532 controls showed no visible effect and 450 could not be tested automatically; both are flagged for checking by hand. 99 screens need a signed-in session, mostly Institution (28), Agency (30) and Platform admin (18), because their gates call the staging backend (`/api/*/me`). They were deliberately not probed signed in, so the clicks could not change staging data. The two email-token pages need a live link. Phase 11 (emails) is a list only.
+
 ## [2026-11-07] fix | Recruiter Settings: buttons that had no destination re-checked against the whole Figma file
 
 The Settings canvas draws no prototype links (all `ON_CLICK` reactions have a null target), so the other recruiter canvases and the repo were searched. Wired: Ask Hiring Assistant → recruiter AI chat; Compare plans / Upgrade / Change payment method → onboarding R05 / R06 (⚠️ ASSUMPTION); rail plan-card Upgrade → Plan and billing. Still not drawn anywhere: WhatsApp us, invoice download, Leave organisation, Preview as talent / View my recruiter profile, Privacy, Terms, Replay the tour. New `recruiter-settings-destinations.spec.js`. See [recruiter-settings.md](recruiter-settings.md).

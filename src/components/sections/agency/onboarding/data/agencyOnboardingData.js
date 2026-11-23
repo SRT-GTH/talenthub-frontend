@@ -167,7 +167,7 @@ const GATE_ACTIONS = (third, fourth) => [
     icon: 'userPlus',
     tint: '#ebf1ec',
     ink: '#2d5d33',
-    to: '/agency/settings?tab=analysts',
+    to: '/agency/settings/analysts',
   },
   {
     id: 'programme',
@@ -220,7 +220,7 @@ export const MOU_GATES = {
       title: 'We’re checking your documents',
       subtitle:
         'A reviewer picked up your application this morning. You’ll hear from us by Tuesday 20 October.',
-      action: { label: 'Contact support', to: '/agency/settings?tab=support' },
+      action: { label: 'Contact support', to: '/agency/mou/status?modal=help' },
     },
     actions: GATE_ACTIONS('Opens after approval', 'Publish after approval'),
     checklist: {
@@ -348,7 +348,7 @@ export const MOU_GATES = {
         icon: 'userPlus',
         tint: '#ebf1ec',
         ink: '#2d5d33',
-        to: '/agency/settings?tab=analysts',
+        to: '/agency/settings/analysts',
       },
       {
         id: 'programme',

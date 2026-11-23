@@ -13,16 +13,16 @@
 
 `/settings/*`, the profile menu and log out run on the API by default (`src/services/settings.api.js` → gateway `/api/settings`, backend `services/talentSettings.service.js`, srt-backend PR "talent settings and account"). **`?demo=1` shows the drawn mock** (Kofi, Figma values, nothing saved). The `?state=` keys still open the same dialogs on live pages.
 
-| Section | Live behaviour |
-| --- | --- |
-| Account | Real details. Saves name, phone, region and town. Email and date of birth are read-only (email change needs re-verification; date of birth sets under-18 rules). |
-| Profile and privacy | 4 visibility levels, "what recruiters see" toggles, companies to hide from. Block / unblock companies. Recruiter search and profile views respect blocks and hiding from an employer; "applied" / "hidden" / paused take the talent out of recruiter search (`isProfilePublic`). |
-| Notifications | 7 rows × In GTH / Email / SMS / WhatsApp, quiet hours, weekly summary, "Turn everything off for 24 hours" (real `pausedUntil`). Rows mirror the backend's legacy categories, so today's senders respect them. |
-| Accessibility / Appearance / Language | Saved on the account (`user.metadata.settings`). Appearance applies the saved style when "Same style on all my devices" is on. App copy is still English-only. |
-| Security | Real devices (one session per login), log one out / all others, change password (wrong-password error, optional log out of other devices). A logged-out token stops working within 60s. Two-step and Google sign-in are hidden (no backend). |
-| Data and account | Download my data (instant JSON file), pause profile, **Delete account = turn off**: nothing is deleted, the talent is logged out everywhere and hidden; logging back in turns it on (decided 2026-10-20). Verified-skills PDF hidden (no backend). |
-| Parent or guardian | 18+: "not needed" note. Under 18: parent email from onboarding + linked status. Changing the guardian and the approval toggles have no talent-side backend (read-only notes). |
-| Profile menu / log out | Real name, email, photo, profile % (same journey as the sidebar), application and saved-job counts, language. Log out ends the session on the server (and other devices if ticked). |
+| Section                               | Live behaviour                                                                                                                                                                                                                                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Account                               | Real details. Saves name, phone, region and town. Email and date of birth are read-only (email change needs re-verification; date of birth sets under-18 rules).                                                                                                                 |
+| Profile and privacy                   | 4 visibility levels, "what recruiters see" toggles, companies to hide from. Block / unblock companies. Recruiter search and profile views respect blocks and hiding from an employer; "applied" / "hidden" / paused take the talent out of recruiter search (`isProfilePublic`). |
+| Notifications                         | 7 rows × In GTH / Email / SMS / WhatsApp, quiet hours, weekly summary, "Turn everything off for 24 hours" (real `pausedUntil`). Rows mirror the backend's legacy categories, so today's senders respect them.                                                                    |
+| Accessibility / Appearance / Language | Saved on the account (`user.metadata.settings`). Appearance applies the saved style when "Same style on all my devices" is on. App copy is still English-only.                                                                                                                   |
+| Security                              | Real devices (one session per login), log one out / all others, change password (wrong-password error, optional log out of other devices). A logged-out token stops working within 60s. Two-step and Google sign-in are hidden (no backend).                                     |
+| Data and account                      | Download my data (instant JSON file), pause profile, **Delete account = turn off**: nothing is deleted, the talent is logged out everywhere and hidden; logging back in turns it on (decided 2026-10-20). Verified-skills PDF hidden (no backend).                               |
+| Parent or guardian                    | 18+: "not needed" note. Under 18: parent email from onboarding + linked status. Changing the guardian and the approval toggles have no talent-side backend (read-only notes).                                                                                                    |
+| Profile menu / log out                | Real name, email, photo, profile % (same journey as the sidebar), application and saved-job counts, language. Log out ends the session on the server (and other devices if ticked).                                                                                              |
 
 Not live yet: Help and support, Send feedback, Invite a friend (stay on screen only, by decision 2026-10-20).
 
@@ -108,3 +108,9 @@ Each section component receives `settings` (see `useTalentSettingsState`): `{ se
 - Streak card matches the Focused HM frame ("This week · 3 of 6 steps done" bar); Playful keeps the quest list as in its frames. Skill-gap text ("about 88") and Messages badge (3) already matched Figma — my earlier read of the preview was wrong.
 - Some settings copy/data in `helpData.js` and the section data files is invented and has not been audited against Figma.
 - Home tab bar wrap fixed (generated-content labels in `TabsParts.jsx`).
+
+## Inspection pass (2026-11-21)
+
+- `?demo=1` no longer calls the talent home API (`useTalentHomeState({ enabled: !base.demo })`), so the drawn mock opens without a session; the section nav and the unknown-section redirect keep `?demo=1`. ✅ VERIFIED
+- `/settings/help?demo=1` still calls `/support/cases` ("Your requests"; 401 without a session). 🔶 LIKELY harmless for signed-in users.
+- `/logged-out` always shows the mock "Kofi · 4 applications · 12-day streak" (`LoggedOutScreen.jsx` `SESSION`). ✅ VERIFIED

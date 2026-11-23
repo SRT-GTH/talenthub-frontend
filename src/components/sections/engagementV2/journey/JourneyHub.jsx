@@ -12,6 +12,8 @@ import JourneyMapCanvas from './JourneyMapCanvas.jsx';
 import JourneyMapList from './JourneyMapList.jsx';
 import JourneyRail from './JourneyRail.jsx';
 import MilestoneModal from './MilestoneModal.jsx';
+
+const SHARE_CARD_ROUTE = '/profile?card=pick';
 import ModePickerModal from './ModePickerModal.jsx';
 
 const log = debug('JourneyHub');
@@ -104,6 +106,12 @@ const JourneyHub = ({ defaults, children = null }) => {
           n={milestone}
           copy={milestoneModalFor(milestone, model)}
           onClose={closeMilestone}
+          onShare={() => {
+            // Figma draws no share flow from the milestone pop-ups (no prototype link on "Share it" / "Share my card").
+            // ⚠️ ASSUMPTION: the profile share-card builder (SC-01 "Pick a look"), the app's way to share a profile card.
+            log('milestone share ->', SHARE_CARD_ROUTE, { milestone });
+            navigate(SHARE_CARD_ROUTE);
+          }}
           onPrimary={(to) => navigate(to)}
         />
       ) : null}

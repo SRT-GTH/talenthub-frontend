@@ -9,6 +9,10 @@ import InstitutionPageHero from '../../components/sections/institution/Instituti
 import { useInstitutionState } from '../../components/sections/institution/institutionState.js';
 import { useInstitutionSession } from '../../components/sections/institution/useInstitutionSession.js';
 import {
+  REGION_DATA_TO,
+  regionDataPath,
+} from '../../components/sections/institution/institutionNav.js';
+import {
   ACCREDITATION,
   GATES,
 } from '../../components/sections/institution/onboarding/data/institutionOnboardingData.js';
@@ -177,7 +181,11 @@ const InstitutionAccreditationStatusPage = () => {
         }
         className={`[&_h1]:text-[22px] [&_h1]:leading-[28px] ${danger ? '!bg-[#c0392b]' : ''}`}
       />
-      <AgencyQuickActions actions={gate.actions} />
+      <AgencyQuickActions
+        actions={gate.actions.map((a) =>
+          a.to === REGION_DATA_TO ? { ...a, to: regionDataPath(session.institution.region) } : a
+        )}
+      />
       <AgencyChecklistCard
         {...gate.checklist}
         badge={view ? list.badge : 'Loading…'}

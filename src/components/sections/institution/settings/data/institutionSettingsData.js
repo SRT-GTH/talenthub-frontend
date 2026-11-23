@@ -22,8 +22,9 @@ export const SETTINGS_NAV = [
     icon: 'bell',
     to: '/institution/settings/notifications',
   },
-  // ⚠️ ASSUMPTION: Accessibility, Appearance and Security and sign-in are in the sub-nav but no frame draws them: rendered inert (aria-disabled).
-  { id: 'accessibility', label: 'Accessibility', icon: 'sliders', disabled: true },
+  // No frame draws these three tabs. Accessibility opens the top bar's accessibility panel (?modal=a11y, InstitutionTopPanels) ⚠️ ASSUMPTION;
+  // Appearance and Security and sign-in have no screen anywhere in the portal: rendered inert (aria-disabled).
+  { id: 'accessibility', label: 'Accessibility', icon: 'sliders', to: '?modal=a11y' },
   { id: 'appearance', label: 'Appearance', icon: 'star', disabled: true },
   {
     id: 'accreditation',

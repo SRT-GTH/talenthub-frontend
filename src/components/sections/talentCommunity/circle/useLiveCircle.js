@@ -18,7 +18,7 @@ export const useLiveCircle = ({ enabled }) => {
   const [state, setState] = useState({ status: enabled ? 'loading' : 'off' });
   const [overrides, setOverrides] = useState({}); // personId -> status after an action here
   const [requestIds, setRequestIds] = useState({}); // personId -> sent request id (for Undo)
-  const [accepted, setAccepted] = useState([]); // ids accepted on this screen (row shows "In your circle")
+  const [accepted, setAccepted] = useState([]); // ids accepted on this screen (row shows "In your crew")
   const [searchHits, setSearchHits] = useState(null);
   const alive = useRef(true);
 
@@ -85,7 +85,7 @@ export const useLiveCircle = ({ enabled }) => {
       total: state.connections?.total ?? 0,
       items: (state.connections?.items || []).map((c) => ({
         id: c.id,
-        connected: `Connected ${agoText(c.connectedAt)}`,
+        connected: `Linked up ${agoText(c.connectedAt)}`,
         region: c.region || '',
         muted: c.muted,
       })),
@@ -160,7 +160,7 @@ export const useLiveCircle = ({ enabled }) => {
     discover: state.discover,
     summary: state.summary,
     minor: state.discover?.audience === 'minor',
-    // "Start your circle" only when there is nothing yet: no connections, no invitations either way.
+    // "Start your crew" only when there is nothing yet: no connections, no invitations either way.
     empty: Boolean(state.discover?.empty) && received.length === 0 && sent.length === 0,
     received,
     sent,

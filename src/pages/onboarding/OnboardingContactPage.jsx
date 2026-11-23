@@ -4,7 +4,7 @@ import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
 import { getApiErrorMessage } from '../../services/apiErrors.js';
 import { getApiErrorCode } from '../../services/apiErrors.js';
 import { captureStep, verifyContactOtp, resendContactOtp } from '../../services/onboarding.api.js';
-import { toGhanaE164 } from '../../services/onboardingMappers.js';
+import { ghanaLocalDigits, toGhanaE164 } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, VerificationCode, StickyActionBar } from '../../components/ui/form';
 import Field from '../../components/ui/form/Field.jsx';
@@ -36,8 +36,12 @@ import {
 import otpSms from '../../assets/talent-onboarding/otp-sms.svg';
 import otpEmail from '../../assets/talent-onboarding/otp-email.svg';
 import otpHero from '../../assets/talent-onboarding/otp-hero.svg';
+import otpSpotPhone from '../../assets/talent-onboarding/otp-spot-phone-messages.svg';
+import otpSpotCertificate from '../../assets/talent-onboarding/otp-spot-certificate.svg';
+import { GenzDoodleStar } from '../../components/shared/assets.jsx';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
+import StepEyebrow from '../../components/sections/talentAuth/StepEyebrow.jsx';
 
 const log = debug('OnboardingContactPage');
 
@@ -221,26 +225,47 @@ const PhoneNumberInput = ({
 
 // ---- Eyebrow pill (step 03 / Contact Information) --------------------
 
-const ContactEyebrow = () => (
-  // Figma node 2385:38983. Single 1px border, leading 8px dot with halo,
-  // serif italic "03" + body label.
-  <span className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-2 rounded-[8px] border border-brand-green-light-active bg-[#FFFEFC] px-4 py-1">
-    <span
-      aria-hidden="true"
-      className="size-2 rounded-full border-[1.5px] border-success bg-brand-green-light-hover"
-      style={{ boxShadow: '0 0 4px 0 #006B3F' }}
-    />
-    <span className="font-heading text-[15px] font-semibold text-[#B5B5B5]">03</span>
-    <span
-      className="text-[12px] leading-[18px] text-brand-green"
-      style={{ letterSpacing: '0.2px' }}
-    >
-      Contact Information
-    </span>
+// Focused pill / Playful gold sticker with stars (StepEyebrow)
+const ContactEyebrow = () => <StepEyebrow number="03" label="Contact Information" />;
+
+// ---- OTP modal -------------------------------------------------------
+
+// Playful look for the code / verified dialogs: ink edge + hard 4px ink shadow (overrides the inline state outline and
+// shadow), a tilted gold sticker hanging off the top-left corner, and three doodle stars around the hero.
+const PLAYFUL_DIALOG =
+  'playful:[outline:none]! playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[0_16px_20px_rgba(28,42,33,0.1),4px_4px_0_rgba(28,42,33,0.45)]!';
+
+const DialogSticker = ({ children }) => (
+  <span
+    aria-hidden="true"
+    className="pointer-events-none absolute left-6 top-[-17px] hidden rotate-[5deg] whitespace-nowrap rounded-[8px] border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-3 py-1.5 text-[13px] font-bold uppercase tracking-[0.5px] text-[#1c2a21] shadow-[2px_2px_0_#1c2a21] playful:block max-sm:top-2 max-sm:left-4"
+  >
+    {children}
   </span>
 );
 
-// ---- OTP modal -------------------------------------------------------
+const DialogStars = () => (
+  <>
+    <GenzDoodleStar
+      size={18}
+      color="#C8951A"
+      className="absolute hidden playful:block"
+      style={{ right: 54, top: 116 }}
+    />
+    <GenzDoodleStar
+      size={11}
+      color="#C8951A"
+      className="absolute hidden playful:block"
+      style={{ right: 85, top: 148 }}
+    />
+    <GenzDoodleStar
+      size={12}
+      color="#387440"
+      className="absolute hidden playful:block"
+      style={{ left: 38, top: 122 }}
+    />
+  </>
+);
 
 const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockout }) => {
   // Self-contained state machine for the OTP modal. Owns:
@@ -367,6 +392,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
   //   default / soft-error → brand-green-light + message bubble
   //   escalated error      → pink (#f9ebea) + message bubble (red)
   //   expired              → cream (#faf4e8) + clock (amber)
+  const heroIsDefault = !isExpired && !(hasError && attemptsLeft <= 1);
   const heroVariant = isExpired
     ? {
         bg: '#faf4e8',
@@ -438,7 +464,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
       style={{ background: 'rgba(28, 42, 33, 0.7)' }}
     >
       <div
-        className="relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-9 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+        className={`relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-9 ${PLAYFUL_DIALOG} max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]`}
         style={{
           outline: `3px solid ${outlineColor}`,
           outlineOffset: '-3px',
@@ -446,6 +472,9 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
             '0 32px 80px rgba(0,0,0,0.14), 0 4px 0 rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)',
         }}
       >
+        <DialogSticker>Check your phone</DialogSticker>
+        <DialogStars />
+
         {/* Close */}
         <button
           type="button"
@@ -459,12 +488,25 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
         {/* Hero chip — bg + icon swap with modal state (default green /
             pink on hard-error / cream + clock on expired). */}
         <div className="flex flex-col items-center gap-3 text-center">
+          {/* Playful swaps the default hero tile for the phone-and-messages spot illustration; the
+              hard-error and expired tiles keep their colours so the state still reads at a glance. */}
           <span
-            className="flex size-16 items-center justify-center rounded-[10px]"
+            className={classNames(
+              'flex size-16 items-center justify-center rounded-[10px]',
+              heroIsDefault && 'playful:hidden'
+            )}
             style={{ background: heroVariant.bg, color: heroVariant.color }}
           >
             {heroVariant.icon}
           </span>
+          {heroIsDefault && (
+            <img
+              src={otpSpotPhone}
+              alt=""
+              aria-hidden="true"
+              className="hidden size-24 playful:block max-sm:size-20"
+            />
+          )}
 
           {/* Channel badges row */}
           <div className="flex items-center gap-1.5">
@@ -650,7 +692,7 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
     style={{ background: 'rgba(28, 42, 33, 0.7)' }}
   >
     <div
-      className="relative w-full max-w-[440px] rounded-[24px] bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+      className={`relative w-full max-w-[440px] rounded-[24px] bg-white px-8 py-8 ${PLAYFUL_DIALOG} max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]`}
       style={{
         outline: '3px solid #C1D4C4',
         outlineOffset: '-3px',
@@ -658,6 +700,9 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
           '0 24px 64px rgba(0,0,0,0.12), 0 4px 0 rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04)',
       }}
     >
+      <DialogSticker>Verified!</DialogSticker>
+      <DialogStars />
+
       <button
         type="button"
         onClick={onClose}
@@ -668,8 +713,14 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
       </button>
 
       <div className="flex flex-col items-center gap-3 text-center">
+        <img
+          src={otpSpotCertificate}
+          alt=""
+          aria-hidden="true"
+          className="hidden size-24 playful:block max-sm:size-20"
+        />
         <span
-          className="flex size-16 items-center justify-center rounded-[10px] bg-brand-green-light-hover"
+          className="flex size-16 items-center justify-center rounded-[10px] bg-brand-green-light-hover playful:hidden"
           style={{ boxShadow: '0 1px 1px rgba(27,36,44,0.12)' }}
         >
           <SuccessCheckIcon />
@@ -736,7 +787,8 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
         rightIcon={<ArrowRightIcon />}
         className="mt-5 w-full"
       >
-        Continue To Address
+        <span className="playful:hidden">Continue To Address</span>
+        <span className="hidden playful:inline">Sorted! Next up: Address</span>
       </Button>
 
       <p
@@ -811,7 +863,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
       style={{ background: 'rgba(28, 42, 33, 0.7)' }}
     >
       <div
-        className="relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+        className={`relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-8 ${PLAYFUL_DIALOG} max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]`}
         style={{
           outline: '3px solid #C0392B',
           outlineOffset: '-3px',
@@ -819,6 +871,12 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
             '0 32px 80px rgba(0,0,0,0.14), 0 4px 0 rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)',
         }}
       >
+        {/* Playful: no frame is drawn for this pop-up, so it takes the same pieces as the drawn Playful pop-ups (ink edge,
+            hard shadow, HEADS UP sticker as on "Not quite yet", doodle stars). The red medallion stays so the failure still
+            reads at a glance, like the code pop-up's error tiles. */}
+        <DialogSticker>Heads up</DialogSticker>
+        <DialogStars />
+
         {/* Red error medallion — 72px circle, 32px alert triangle, 2px
             halo. */}
         <div className="flex flex-col items-center gap-3 text-center">
@@ -987,8 +1045,9 @@ const OnboardingContactPage = () => {
   //   phone:    9-digit Ghana mobile (after +233 prefix), required.
   //   whatsapp: optional — must be 9 digits IF present.
   //   email:    standard local@host.tld, required.
-  const phoneDigits = phone.replace(/\D/g, '');
-  const whatsappDigits = whatsapp.replace(/\D/g, '');
+  // A leading 0 or a pasted +233 is fine: only the 9 local digits count.
+  const phoneDigits = ghanaLocalDigits(phone);
+  const whatsappDigits = ghanaLocalDigits(whatsapp);
   const isPhoneValid = phoneDigits.length === 9;
   const isWhatsappValid = whatsapp === '' || whatsappDigits.length === 9;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -1060,7 +1119,7 @@ const OnboardingContactPage = () => {
   };
 
   return (
-    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
+    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden">
       <OnboardingHeader currentKey="contact" />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
@@ -1074,7 +1133,7 @@ const OnboardingContactPage = () => {
               <ContactEyebrow />
 
               <h1
-                className="max-w-[554px] font-heading font-semibold text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
+                className="max-w-[554px] font-heading font-semibold focused:font-sans text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
                 style={{
                   fontSize: 'clamp(2.25rem, 5vw, 3.375rem)',
                   lineHeight: 1.1,
@@ -1103,7 +1162,11 @@ const OnboardingContactPage = () => {
                     trailingLabel="SMS verification"
                     value={phone}
                     onChange={setPhone}
-                    onBlur={markTouched('phone')}
+                    onBlur={() => {
+                      // Tidy to the 9 local digits once the number is complete (e.g. 0503177216 -> 503177216).
+                      if (ghanaLocalDigits(phone).length === 9) setPhone(ghanaLocalDigits(phone));
+                      markTouched('phone')();
+                    }}
                     error={phoneError}
                   />
                   <PhoneNumberInput
@@ -1112,7 +1175,11 @@ const OnboardingContactPage = () => {
                     trailingLabel="Optional"
                     value={whatsapp}
                     onChange={setWhatsapp}
-                    onBlur={markTouched('whatsapp')}
+                    onBlur={() => {
+                      if (ghanaLocalDigits(whatsapp).length === 9)
+                        setWhatsapp(ghanaLocalDigits(whatsapp));
+                      markTouched('whatsapp')();
+                    }}
                     error={whatsappError}
                     helperText={
                       whatsappError ? undefined : 'Leave blank if same as your phone number above'

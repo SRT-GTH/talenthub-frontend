@@ -145,7 +145,15 @@ const CommunityOwnerPage = () => {
       patch((c) => ({ ...c, reports: c.reports.filter((r) => r.id !== report.id) })),
     removeReport: (report) =>
       patch((c) => ({ ...c, reports: c.reports.filter((r) => r.id !== report.id) })),
-    remind: (mod) => log('remind', mod.id),
+    // Not linked in Figma and no remind endpoint yet: the row turns into "Reminder sent" and the flag is
+    // kept on the owner's club (session store) so it survives closing the dialog.
+    remind: (mod) => {
+      log('remind moderator (local only)', mod.id);
+      patch((c) => ({
+        ...c,
+        moderators: c.moderators.map((m) => (m.id === mod.id ? { ...m, reminded: true } : m)),
+      }));
+    },
     approve: (request) =>
       patch((c) => ({
         ...c,
@@ -260,7 +268,7 @@ const CommunityOwnerPage = () => {
   return (
     <CommunityFrame community={shell}>
       <div className="mx-auto flex w-full max-w-[1602px] flex-col gap-[20px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.39vw,24px)]">
-        {isRecruiter ? <ClubsSwitchRow rail={shell.rail} /> : null}
+        <ClubsSwitchRow rail={shell.rail} />
         {copy.banner ? (
           <Callout
             role="status"

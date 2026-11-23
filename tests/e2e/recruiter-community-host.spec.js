@@ -274,9 +274,10 @@ test('talent create wizard is unchanged (/community/create keeps community copy 
 }) => {
   await open(page, '/community/create?cat=software-engineering&step=basics&demo=1');
   await expect(
-    page.getByRole('dialog').getByRole('heading', { name: 'Start a community' })
+    page.getByRole('dialog').getByRole('heading', { name: 'Start a club' })
   ).toBeVisible();
-  await expectTexts(page, ['Community name']);
+  // Figma renamed Community → Clubs and My circle → My crew (wiki/log.md 2026-11-21).
+  await expectTexts(page, ['Club name']);
   await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(page).toHaveURL(/\/community(\?|$)/);
 });

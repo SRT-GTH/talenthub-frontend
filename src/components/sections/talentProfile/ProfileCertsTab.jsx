@@ -23,7 +23,7 @@ import { CARD_PLAIN, PAD, SHELF, TITLE, TITLE_SM } from './profileTabsStyles.js'
 
 const log = debug('ProfileCertsTab');
 
-const CertItem = ({ item }) => (
+const CertItem = ({ item, onEdit }) => (
   <li
     className={classNames(
       CARD_PLAIN,
@@ -56,8 +56,22 @@ const CertItem = ({ item }) => (
       </div>
     </div>
     <div className="flex shrink-0 flex-col items-end gap-[8px]">
-      <EditButton label={`Edit ${item.title}`} onClick={() => log('edit cert', item.key)} />
-      <HeadLink onClick={() => log('view credential', item.key)}>{item.action}</HeadLink>
+      <EditButton label={`Edit ${item.title}`} onClick={() => onEdit(item)} />
+      {/* "View credential ↗": the stored credential URL in a new tab; the demo certs carry none, so plain text. */}
+      {item.href ? (
+        <HeadLink
+          onClick={() => {
+            log('view credential', item.key, item.href);
+            window.open(item.href, '_blank', 'noopener,noreferrer');
+          }}
+        >
+          {item.action}
+        </HeadLink>
+      ) : item.action ? (
+        <span className="shrink-0 text-[13px] leading-[normal] font-semibold whitespace-nowrap text-[#387440]">
+          {item.action}
+        </span>
+      ) : null}
     </div>
   </li>
 );
@@ -170,7 +184,15 @@ const ProfileCertsTab = ({ profile }) => {
             )}
             <ul className="flex flex-col gap-[16px]">
               {CERTS_LIST.items.map((item) => (
-                <CertItem key={item.key} item={item} />
+                <CertItem
+                  key={item.key}
+                  item={item}
+                  onEdit={(it) => {
+                    // No edit frame on the profile: the Certs stage list edits each certificate. ⚠️ ASSUMPTION.
+                    log('edit cert -> /profile/filling/certs?state=list', it.key);
+                    navigate('/profile/filling/certs?state=list');
+                  }}
+                />
               ))}
             </ul>
           </ProfileCard>

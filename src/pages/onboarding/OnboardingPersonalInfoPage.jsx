@@ -8,6 +8,7 @@ import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
+import StepEyebrow from '../../components/sections/talentAuth/StepEyebrow.jsx';
 import {
   ArrowRightIcon,
   EyeIcon,
@@ -16,7 +17,6 @@ import {
   IdCardIcon,
   LoadingSpinner,
   LockIcon,
-  ProfilePlaceholderIcon,
   SummaryFlagIcon,
   SummaryIdIcon,
   SummaryPhotoIcon,
@@ -25,9 +25,18 @@ import {
 } from '../../components/shared/assets.jsx';
 import { debug } from '../../utils/debug.js';
 import uploadIcon from '../../assets/talent-onboarding/upload.svg';
+import uploadSlotError from '../../assets/talent-onboarding/upload-slot-error.svg';
 import rowCheckIcon from '../../assets/talent-onboarding/modal-row-check.svg';
 import modalCloseIcon from '../../assets/talent-onboarding/modal-close.svg';
 import identityCheckIcon from '../../assets/talent-onboarding/modal-identity-check.svg';
+import {
+  DialogHero,
+  DialogPortal,
+  DialogSticker,
+  LookLabel,
+  PLAYFUL_STEP_DIALOG,
+} from '../../components/sections/talentAuth/StepDialogParts.jsx';
+import spotSaved from '../../assets/talent-onboarding/step-dialog-spot-saved.svg';
 import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
 import { PersonalOverlayCards } from '../../components/sections/talentAuth/TalentPersonalInfoPanelContent.jsx';
 
@@ -63,7 +72,12 @@ const log = debug('OnboardingPersonalInfoPage');
 
 // ---- profile photo upload --------------------------------------------
 
-const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
+// Photos over this size are refused (the hint says "Max 5MB").
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
+// `rejected`: the last file picked was refused ({ name, size }): the round slot gets a dashed red ring and red upload
+// glyph, and the hint turns into the file name + "File is too large — maximum size is 5MB" (Figma field-state frame).
+const ProfilePhotoField = ({ file, previewUrl, onChange, rejected }) => {
   const inputRef = useRef(null);
 
   const handleClick = () => inputRef.current?.click();
@@ -86,17 +100,23 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
       </label>
 
       <div className="flex items-center gap-4">
-        {/* Round preview slot — Figma node 2329:3903 family. Cream-grey
-            placeholder with the avatar glyph; flips to the uploaded
-            image once a file is selected. */}
-        <span
-          className="flex size-[60px] shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#E6E6E6] bg-[#F2F2EE]"
-          aria-hidden="true"
-        >
-          {previewUrl ? (
-            <img src={previewUrl} alt="" className="size-full object-cover" />
+        {/* Round slot (72px, as drawn): mint dashed circle with an upload arrow until a photo is picked, then the
+            photo; red dashed circle + red arrow when the last file was refused. The slot art carries its own soft
+            drop, drawn on an 86px canvas, hence the offset. */}
+        <span className="relative size-[72px] shrink-0 max-md:size-[60px]" aria-hidden="true">
+          {previewUrl && !rejected ? (
+            <img
+              src={previewUrl}
+              alt=""
+              className="size-full rounded-full border border-[#E6E6E6] object-cover"
+            />
           ) : (
-            <ProfilePlaceholderIcon />
+            <img
+              src={rejected ? uploadSlotError : uploadIcon}
+              alt=""
+              draggable={false}
+              className="absolute left-[-9.7%] top-[-6.9%] block size-[119.4%] max-w-none"
+            />
           )}
         </span>
 
@@ -106,10 +126,19 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
             onClick={handleClick}
             className="inline-flex h-[34px] items-center gap-1.5 self-start rounded-[8px] border border-[#E6E6E6] bg-white px-3 text-[11px] max-lg:text-[12px] font-semibold text-[#575755] shadow-[0_2px_0_rgba(0,0,0,0.04)] transition-colors hover:bg-[#FAFAF8]"
           >
-            <img src={uploadIcon} alt="" draggable={false} className="size-4 shrink-0" />
             Upload photo
           </button>
-          {file ? (
+          {rejected ? (
+            <span
+              role="alert"
+              className="flex flex-col text-[10px] leading-tight text-danger max-lg:text-[12px]"
+            >
+              <span>
+                {rejected.name} ({Math.round(rejected.size / 1024)}KB)
+              </span>
+              <span>File is too large — maximum size is 5MB</span>
+            </span>
+          ) : file ? (
             <span className="text-[10px] max-lg:text-[12px] leading-tight text-brand-green">
               {file.name} ({Math.round(file.size / 1024)}KB)
             </span>
@@ -136,90 +165,101 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
 // ---- success modal ----------------------------------------------------
 
 const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
-  <div
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="identity-captured-title"
-    className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-    style={{ background: 'rgba(17, 17, 17, 0.70)' }}
-  >
-    <div className="relative w-full max-w-[440px] rounded-[24px] border-[3px] border-brand-green-light-active bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_40px_-6px_rgba(27,36,44,0.30),0_4px_4px_-2px_rgba(27,36,44,0.06)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Close"
-        className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full border border-[#E6E6E6] bg-white text-[#575755] transition-colors hover:bg-[#FAFAF8]"
+  <DialogPortal>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="identity-captured-title"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
+      style={{ background: 'rgba(17, 17, 17, 0.70)' }}
+    >
+      <div
+        className={`relative w-full max-w-[440px] rounded-[24px] border-[3px] border-brand-green-light-active bg-white px-8 py-8 ${PLAYFUL_STEP_DIALOG} max-sm:px-4 max-sm:pt-4 shadow-[0_24px_40px_-6px_rgba(27,36,44,0.30),0_4px_4px_-2px_rgba(27,36,44,0.06)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]`}
       >
-        <img src={modalCloseIcon} alt="" draggable={false} className="size-4" />
-      </button>
-
-      <div className="flex flex-col items-center gap-3 text-center">
-        <span className="flex size-14 items-center justify-center rounded-[10px] bg-brand-green-light-hover">
-          <img src={identityCheckIcon} alt="" draggable={false} className="size-7" />
-        </span>
-        <span
-          className="inline-flex items-center gap-1.5 rounded-[6px] border border-brand-green-light-active bg-brand-green-light px-3 py-1"
-          style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
+        <DialogSticker>Saved!</DialogSticker>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full border border-[#E6E6E6] bg-white text-[#575755] transition-colors hover:bg-[#FAFAF8]"
         >
-          <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-green" />
+          <img src={modalCloseIcon} alt="" draggable={false} className="size-4" />
+        </button>
+
+        <div className="flex flex-col items-center gap-3 text-center">
+          <DialogHero spot={spotSaved} spotTop={60} padTop={32}>
+            <span className="flex size-14 items-center justify-center rounded-[10px] bg-brand-green-light-hover">
+              <img src={identityCheckIcon} alt="" draggable={false} className="size-7" />
+            </span>
+          </DialogHero>
           <span
-            className="text-[11px] max-lg:text-[12px] font-medium leading-4 text-brand-green"
+            className="inline-flex items-center gap-1.5 rounded-[6px] border border-brand-green-light-active bg-brand-green-light px-3 py-1"
+            style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
+          >
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-green" />
+            <span
+              className="text-[11px] max-lg:text-[12px] font-medium leading-4 text-brand-green"
+              style={{ letterSpacing: '0.2px' }}
+            >
+              Profile section complete
+            </span>
+          </span>
+          <h2
+            id="identity-captured-title"
+            className="font-heading font-semibold text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
+            style={{ fontSize: 32, lineHeight: '34px' }}
+          >
+            Identity <span className="text-brand-green">captured.</span>
+          </h2>
+          <p
+            className="text-[12px] leading-[18px] text-[#959592]"
             style={{ letterSpacing: '0.2px' }}
           >
-            Profile section complete
-          </span>
-        </span>
-        <h2
-          id="identity-captured-title"
-          className="font-heading font-semibold text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
-          style={{ fontSize: 32, lineHeight: '34px' }}
+            Your personal information is saved and encrypted. Here&apos;s a summary of what we
+            stored.
+          </p>
+        </div>
+
+        <ul className="mt-5 flex flex-col gap-2 rounded-[14px] border border-brand-green-light-active bg-[#FBFDFB] p-3">
+          {summary.map((row) => (
+            <li key={row.label} className="flex items-center justify-between text-[12px] leading-5">
+              <span className="flex items-center gap-2 text-[#575755]">
+                {row.icon}
+                {row.label}
+              </span>
+              {row.value === '__uploaded__' ? (
+                <span className="inline-flex items-center gap-1 text-brand-green">
+                  <img src={rowCheckIcon} alt="" draggable={false} className="size-3 shrink-0" />
+                  Uploaded
+                </span>
+              ) : (
+                <span className="font-semibold text-[#111111]">{row.value}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        <Button
+          type="button"
+          variant="primary"
+          size="lg"
+          onClick={onContinue}
+          rightIcon={<ArrowRightIcon />}
+          className="mt-5 w-full"
         >
-          Identity <span className="text-brand-green">captured.</span>
-        </h2>
-        <p className="text-[12px] leading-[18px] text-[#959592]" style={{ letterSpacing: '0.2px' }}>
-          Your personal information is saved and encrypted. Here&apos;s a summary of what we stored.
+          <LookLabel focused="Continue To Contact Details" playful="Nice! Next up: Contact" />
+        </Button>
+
+        <p
+          className="mt-3 text-center text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
+          style={{ letterSpacing: '0.2px' }}
+        >
+          <span aria-hidden="true">·</span> Data encrypted at rest <span aria-hidden="true">·</span>{' '}
+          Ghana Data Protection Act compliant
         </p>
       </div>
-
-      <ul className="mt-5 flex flex-col gap-2 rounded-[14px] border border-brand-green-light-active bg-[#FBFDFB] p-3">
-        {summary.map((row) => (
-          <li key={row.label} className="flex items-center justify-between text-[12px] leading-5">
-            <span className="flex items-center gap-2 text-[#575755]">
-              {row.icon}
-              {row.label}
-            </span>
-            {row.value === '__uploaded__' ? (
-              <span className="inline-flex items-center gap-1 text-brand-green">
-                <img src={rowCheckIcon} alt="" draggable={false} className="size-3 shrink-0" />
-                Uploaded
-              </span>
-            ) : (
-              <span className="font-semibold text-[#111111]">{row.value}</span>
-            )}
-          </li>
-        ))}
-      </ul>
-
-      <Button
-        type="button"
-        variant="primary"
-        size="lg"
-        onClick={onContinue}
-        rightIcon={<ArrowRightIcon />}
-        className="mt-5 w-full"
-      >
-        Continue To Contact Details
-      </Button>
-
-      <p
-        className="mt-3 text-center text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
-        style={{ letterSpacing: '0.2px' }}
-      >
-        <span aria-hidden="true">·</span> Data encrypted at rest <span aria-hidden="true">·</span>{' '}
-        Ghana Data Protection Act compliant
-      </p>
     </div>
-  </div>
+  </DialogPortal>
 );
 
 // ---- options ----------------------------------------------------------
@@ -263,10 +303,19 @@ const OnboardingPersonalInfoPage = () => {
   const [showRetypePassword, setShowRetypePassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [rejectedPhoto, setRejectedPhoto] = useState(null);
   const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false);
 
   const handlePhotoSelect = (file) => {
     log('photo selected:', file.name, file.size);
+    if (file.size > MAX_PHOTO_BYTES) {
+      log('photo refused: over 5MB');
+      setRejectedPhoto({ name: file.name, size: file.size });
+      setProfilePhoto(null);
+      setPhotoPreview(null);
+      return;
+    }
+    setRejectedPhoto(null);
     setProfilePhoto(file);
     // URL.createObjectURL lets us preview without uploading. The URL is
     // session-scoped; revoke isn't strictly required since the page
@@ -384,7 +433,7 @@ const OnboardingPersonalInfoPage = () => {
   ];
 
   return (
-    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
+    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden">
       <OnboardingHeader currentKey="profile" />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
@@ -395,26 +444,11 @@ const OnboardingPersonalInfoPage = () => {
               className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
             >
-              {/* Eyebrow pill - Figma 8027:204537 family: 02 + "Build Your Profile" */}
-              <span className="inline-flex items-center gap-2 rounded-[8px] border border-[#c1d4c4] bg-[#fffefc] px-4 py-1 max-md:px-3 max-md:py-0.5">
-                <span
-                  aria-hidden="true"
-                  className="size-2 rounded-full border-[1.5px] border-[#1d7c4d] bg-[#e1eae2]"
-                  style={{ boxShadow: '0 0 4px 0 #006B3F' }}
-                />
-                <span className="font-heading text-[15px] font-semibold leading-[19px] text-[#b5b5b5]">
-                  02
-                </span>
-                <span
-                  className="text-[12px] leading-[18px] text-brand-green"
-                  style={{ letterSpacing: '0.2px' }}
-                >
-                  Build Your Profile
-                </span>
-              </span>
+              {/* Eyebrow: Focused pill / Playful gold sticker with stars */}
+              <StepEyebrow number="02" label="Build Your Profile" />
 
               <h1
-                className="font-heading font-semibold text-[#1c2a21] max-md:text-[28px]! max-md:leading-tight!"
+                className="font-heading font-semibold focused:font-sans text-[#1c2a21] max-md:text-[28px]! max-md:leading-tight!"
                 style={{
                   fontSize: 'clamp(2.125rem, 4vw, 3.375rem)',
                   lineHeight: 1.1,
@@ -436,12 +470,13 @@ const OnboardingPersonalInfoPage = () => {
 
               {/* Form grid — Profile Photo row spans both columns; the
                 remaining 4 rows place inputs left↔right. */}
-              <div className="grid w-full grid-cols-1 gap-x-5 gap-y-5 text-left md:grid-cols-2 max-md:gap-y-3">
+              <div className="grid w-full grid-cols-1 gap-x-5 gap-y-2 text-left md:grid-cols-2 max-md:gap-y-3">
                 <div className="md:col-span-2">
                   <ProfilePhotoField
                     file={profilePhoto}
                     previewUrl={photoPreview}
                     onChange={handlePhotoSelect}
+                    rejected={rejectedPhoto}
                   />
                 </div>
 
@@ -452,6 +487,8 @@ const OnboardingPersonalInfoPage = () => {
                   autoComplete="given-name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  verified={firstName.trim().length > 1}
+                  successText={firstName.trim().length > 1 ? 'Looks good' : undefined}
                   leftIcon={<UserIcon />}
                 />
                 <TextInput
@@ -470,6 +507,8 @@ const OnboardingPersonalInfoPage = () => {
                   autoComplete="family-name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                  verified={lastName.trim().length > 1}
+                  successText={lastName.trim().length > 1 ? 'Looks good' : undefined}
                   leftIcon={<UserIcon />}
                 />
                 <Select

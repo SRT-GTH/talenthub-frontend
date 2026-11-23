@@ -6,6 +6,7 @@ import {
 } from '../../../utils/education.js';
 import { entryKey, isPlaceholderSchool } from './educationEdit.js';
 import { workStyleRows } from './workStyle.js';
+import { countVerifiedSkills } from '../../../utils/verifiedSkills.js';
 
 /*
  * talentProfileLive.js (2026-10-18) - turns the real profile (services/talentProfile.api.js)
@@ -172,6 +173,9 @@ export const buildProfileData = (raw) => {
   });
   const groupRows = (g) => skills.filter((s) => s.group === g);
   const verified = groupRows('verified');
+  // The header stat uses the platform-verified rule (utils/verifiedSkills.js); the "Verified" group above also lists
+  // Skills Lab game evidence for display.
+  const verifiedSkillCount = countVerifiedSkills(list(raw?.verifications));
   const endorsed = groupRows('endorsed');
   const self = groupRows('self');
   const skillMeta = (s) =>
@@ -431,8 +435,8 @@ export const buildProfileData = (raw) => {
       stats: [
         { value: String(views?.uniqueViewers ?? 0), label: 'views this week' },
         {
-          value: String(verified.length),
-          label: verified.length === 1 ? 'verified skill' : 'verified skills',
+          value: String(verifiedSkillCount),
+          label: verifiedSkillCount === 1 ? 'verified skill' : 'verified skills',
         },
         { value: `${strengthPct}%`, label: 'profile strength' },
       ],

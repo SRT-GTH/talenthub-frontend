@@ -1,12 +1,12 @@
 # Agency portal — Theme 11 (`/agency/*`)
 
-Figma file `Bin8roWL8sloyc36IgFMuT`, canvas **Persona · Government bodies (Theme 11 · agencies)** `8605:395409` — 8 sections (G1–G6, G2b, G3b), 114 frames (112 screens + 2 SUPERSEDED v1 PDF pages). **Focused only.** No dedicated Theme 11 story doc exists: the Figma frames are the acceptance criteria.
+Figma file **Gh Design system / Government** `iErYj7O3ft6WAG2FBT6aEw` (moved out of the talent file `Bin8roWL8sloyc36IgFMuT`; ✅ VERIFIED 2026-11-22), canvas **Persona · Government bodies (Theme 11 · agencies)** `8605:395409` — 8 sections (G1–G6, G2b, G3b), 114 frames (112 screens + 2 SUPERSEDED v1 PDF pages). **Focused only.** No dedicated Theme 11 story doc exists: the Figma frames are the acceptance criteria.
 
 ## What it is
 
 A signed-in analyst portal for MoU holders (ministries / agencies). Persona in the frames: **Efua Owusu · Admin · Director, Research & Data · National Youth Authority (NYA)**. Home, sign-up + MoU verification, national data (Theme 8 views re-skinned in the agency shell, with Export CSV / Save query), demand & outcomes, saved queries, data requests (privileged, PM + DPO approval), briefing packs + A4 agency report, government programmes, settings and a public agency page. Counts under 5 are always `<5` (`formatCount` / `safeShare`, shared with Theme 8).
 
-⚠️ ASSUMPTION: **no real auth** — `useAgencySession()` returns a mock signed-in session (`data/agencyCoreData.js`).
+🪦 STALE (was: mock session). ✅ VERIFIED 2026-11-22: real auth — `AgencySessionProvider` reads `GET /api/agency/me`, `AgencyGate` sends signed-out visitors to `/login` and a temporary password to `/agency/set-password`; only `/agency/sign-up` is public. `?mou=` / `?quota=` overrides work in dev only.
 
 ## Architecture
 
@@ -188,3 +188,13 @@ Not verified: printed/PDF output (mocked), tablet 834 beyond the drawn frames, p
 - Settings: tabs are route segments (`analysts`, `api-keys`, `notifications`, `mou`, `audit-log`), `modal=invite|remove` + `at=<analyst>`, audit log `view=overview|downloads|requests|quota`, `kind=all|download|request`, `layout=grid`, `page=n`.
 
 Follow-up (2026-10-25, package B): `more=<key>~<value>,…` carries the drawer's extra filters (green chips in the filter row, cleared by Clear all); `region` may be a comma list on national and in the drawer (not on demand). 11.4.2d loading 8.3 → 1.6 % (the filter row wrapped to two rows while loading), 11.4.2p 6.3 → 3.3 % (embedded OutcomesDashboard: 30 px gap, 860/445 chart row, cards not stretched), 6f/6g compared and corrected (grab handle, 490 px tablet sheet, one-column fields below lg). Known: 6b/6c draw the page behind the drawer unfiltered; ours applies the URL immediately (needs a draft URL state), and the mock cannot reproduce "Show 1,284 talents".
+
+## Inspection (2026-11-22, phase 8)
+
+- **Font:** every agency frame is drawn in SF Pro Rounded; the portal rendered Nunito. `AgencyApp` now turns on the bundled face with `useScopedRoundedFont('data-agency-ui')` (selector added to `styles/parent.css`). ✅ VERIFIED (computed font, sign-up + mocked signed-in pages).
+- **Sign-up** (`/agency/sign-up`, the live flow is an access request reviewed by GTH admins, not the Figma email-code flow, so `?state=code-sent|wrong-code|email-verified` render the form): "Log In", "Log in instead" and "Go to sign in" now go straight to `/login` (were `/agency` → gate → `/login`); the logo is the shared `HomeLogoLink` (landing page / own home). Submitting with errors now focuses the first invalid field (it ran before the error marks rendered). "Already registered" dialog: title on one line directly above the body, 36px gap to the buttons (Figma); the panel chip grows instead of clipping "Names masked until they accept". ✅ VERIFIED
+- **Broken settings links:** `/agency/settings?tab=analysts` (home + MoU-gate quick actions) and `?tab=mou` (quota hero "Request more quota") opened the Agency profile tab: settings tabs are route segments, now `/agency/settings/analysts` and `/agency/settings/mou`. Pending-gate "Contact support" (unused by the page today) → `?modal=help` (the chrome Help panel with the support address). ✅ VERIFIED (mocked session)
+- **Failed loads:** home "National view snapshot" / "Next step" and the MoU status checklist badge said "Loading…" forever when the API failed; they now say the data could not be loaded. ✅ VERIFIED (mocked 503)
+- **Figma prototype links (G1):** MoU upload → documents list → status pending (→ approved after a timeout); needs-info "Upload document" and not-approved "Start an appeal" → documents list; approved "Start the tour" → welcome modal → tour 1 → 2 → 3. The app matches all of them. No other G1 control has a link.
+- **Persona card:** agency and institution rails now share one `PersonaCard` (named export of `AgencyPersonaCard.jsx`); `InstitutionPersonaCard` is a thin adapter.
+- Not checked with a real account: every signed-in page beyond the chrome, home, MoU status and settings (staging had no test agency login; a mocked `/agency/me` was used, every other API call failed on purpose).

@@ -29,14 +29,16 @@ const ManageModerators = ({ moderators, showTitle = true, onRemind }) => {
                 <Button
                   variant="tertiary"
                   size="lg"
-                  disabled={reminded.includes(mod.id)}
+                  disabled={mod.reminded || reminded.includes(mod.id)}
                   aria-label={`${MANAGE_COPY.remind} ${mod.name}`}
                   onClick={() => {
                     setReminded((current) => [...current, mod.id]);
                     onRemind?.(mod);
                   }}
                 >
-                  {reminded.includes(mod.id) ? MANAGE_COPY.reminded : MANAGE_COPY.remind}
+                  {mod.reminded || reminded.includes(mod.id)
+                    ? MANAGE_COPY.reminded
+                    : MANAGE_COPY.remind}
                 </Button>
               ) : null
             }

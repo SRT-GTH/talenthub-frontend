@@ -187,6 +187,7 @@ export const GlyphTile = ({ name, size = 40, glyph = 21, className }) => {
 
 /* ---------- card shell with the standard head ---------- */
 export const ProfileCard = ({
+  id,
   title,
   link,
   onLink,
@@ -200,9 +201,10 @@ export const ProfileCard = ({
   children,
 }) => (
   <section
+    id={id}
     aria-label={title}
     className={classNames(
-      'flex min-w-0 flex-col gap-[16px] overflow-hidden rounded-[20px]',
+      'flex min-w-0 scroll-mt-[24px] flex-col gap-[16px] overflow-hidden rounded-[20px]',
       PAD,
       shelf ? SHELF : 'border border-[#e6e6e6]',
       tint ?? 'bg-white',

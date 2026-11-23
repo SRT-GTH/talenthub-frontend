@@ -16,8 +16,10 @@ import {
   JOBS_HEADER,
   JOB_TAB_LIST,
   MATCH_FILTERS,
-  SORTS,
+  TAB_SORT_DEFAULT,
+  TAB_SORT_OPTIONS,
 } from './talentJobsData.js';
+import JobsMenu from './JobsMenu.jsx';
 
 const log = debug('JobsChrome');
 const FACES = [face1, face2, face3, face4];
@@ -95,7 +97,8 @@ const HeaderDecor = () => (
   </div>
 );
 
-export const JobsHeader = ({ sticker }) => (
+// `decor={false}` drops the Playful header doodles (they carry counts) while the live feed loads.
+export const JobsHeader = ({ sticker, decor = true }) => (
   <div className="flex items-start justify-between gap-[24px]">
     <div className="flex min-w-0 flex-col gap-[3px]">
       <div className="flex flex-wrap items-center gap-[10px]">
@@ -108,12 +111,13 @@ export const JobsHeader = ({ sticker }) => (
         {JOBS_HEADER.subtitle}
       </p>
     </div>
-    <HeaderDecor />
+    {decor ? <HeaderDecor /> : null}
   </div>
 );
 
-/* Tab counts are generated content (data-count) so a label never wraps away from its number. */
-export const JobsTabs = ({ tab, onTab, matchedCount }) => (
+/* Tab counts are generated content (data-count) so a label never wraps away from its number.
+ * `hideCounts`: the live feed is still loading, so the demo counts must not show. */
+export const JobsTabs = ({ tab, onTab, matchedCount, hideCounts = false }) => (
   <nav
     aria-label="Job postings"
     className="no-scrollbar max-lg:[mask-image:linear-gradient(to_right,transparent,#000_12px,#000_calc(100%-24px),transparent)] -mb-px flex gap-[clamp(14px,1.9vw,32px)] overflow-x-auto border-b border-solid border-[#e1eae2]"
@@ -126,7 +130,7 @@ export const JobsTabs = ({ tab, onTab, matchedCount }) => (
           key={t.id}
           type="button"
           aria-current={on ? 'page' : undefined}
-          aria-label={`${t.label}, ${t.count}`}
+          aria-label={hideCounts ? t.label : `${t.label}, ${t.count}`}
           onClick={() => {
             log('tab ->', t.id);
             onTab(t.id);
@@ -137,16 +141,18 @@ export const JobsTabs = ({ tab, onTab, matchedCount }) => (
           )}
         >
           <span aria-hidden="true">{t.label}</span>
-          <span
-            aria-hidden="true"
-            data-count={t.count}
-            className={classNames(
-              'inline-flex h-[16px] min-w-[22px] items-center justify-center rounded-full px-[6px] text-[11px] font-bold after:content-[attr(data-count)] max-lg:text-[12px]',
-              on
-                ? 'bg-[#ffd86b] text-[#1c2a21] playful:bg-[#ffd86b]'
-                : 'bg-[#ebf1ec] text-[#2d5d33]'
-            )}
-          />
+          {hideCounts ? null : (
+            <span
+              aria-hidden="true"
+              data-count={t.count}
+              className={classNames(
+                'inline-flex h-[16px] min-w-[22px] items-center justify-center rounded-full px-[6px] text-[11px] font-bold after:content-[attr(data-count)] max-lg:text-[12px]',
+                on
+                  ? 'bg-[#ffd86b] text-[#1c2a21] playful:bg-[#ffd86b]'
+                  : 'bg-[#ebf1ec] text-[#2d5d33]'
+              )}
+            />
+          )}
           {on ? (
             <span className="absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-[#1c2a21]" />
           ) : null}
@@ -206,16 +212,19 @@ export const ViewToggle = ({ view, onView, dim }) => (
   </span>
 );
 
-/** The order a tab is shown in (fixed per tab, so a label rather than a menu; Browse all has a real sort menu). */
-export const SortSelect = ({ label, dim }) => (
-  <span
-    className={classNames(
-      'inline-flex h-[34px] shrink-0 items-center gap-[4px] whitespace-nowrap rounded-full bg-[#f6f8f5] px-[14px] font-sans text-[12.5px] leading-[normal] font-medium text-[#595959] max-lg:text-[12px]',
-      dim ? 'opacity-45' : null
-    )}
-  >
-    Sorted by {label.toLowerCase()}
-  </span>
+/* Matched / Saved / Applied sort pill (Figma "GTH · Select"); the choice lives in `?sort=` (absent = the tab's default). */
+export const TabSortMenu = ({ jobs, value, dim }) => (
+  <JobsMenu
+    align="right"
+    dim={dim}
+    label={TAB_SORT_OPTIONS.find((o) => o.id === value).label}
+    value={value}
+    options={TAB_SORT_OPTIONS}
+    onChange={(id) => {
+      log('sort', { tab: jobs.tab, sort: id });
+      jobs.update({ sort: id === TAB_SORT_DEFAULT[jobs.tab] ? null : id });
+    }}
+  />
 );
 
 export const AlertsButton = ({ onClick }) => (
@@ -247,7 +256,7 @@ export const MatchToolbar = ({ jobs, dim }) => {
       </div>
       <div className="flex flex-wrap items-center gap-[10px]">
         <ViewToggle view={jobs.view} dim={dim} onView={(v) => jobs.update({ view: v })} />
-        <SortSelect label={SORTS[jobs.tab]} dim={dim} />
+        <TabSortMenu jobs={jobs} value={jobs.sort ?? TAB_SORT_DEFAULT.matched} dim={dim} />
         <AlertsButton onClick={() => jobs.update({ modal: 'alerts' })} />
       </div>
     </div>

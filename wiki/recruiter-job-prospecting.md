@@ -7,37 +7,37 @@
 
 Diff % = our screenshot vs the Figma export (`recmp`, viewport 1728 wide, whole frame; 2026-11-04). `✅ VERIFIED` (measured, not eyeballed). Residual 2–8 % is `🔶 LIKELY` mostly the SF Pro Rounded font not being loaded, anti-aliasing and the browser-toolbar strip; Messages talent view (M4/M5) and the filled schedule steps (AP5/8/9) are the highest, see "Known gaps".
 
-| Code | Frame                       | Figma node   | URL                                                                                                        | Diff |
-| ---- | --------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------- | ---- |
-| H1   | New user                    | `7249:73882` | `/recruiter/home?view=setup`                                                                               | 2.7% |
-| H2   | Existing a                  | `8063:45341` | `/recruiter/home?view=setup&user=existing&actionsMenu=elena-sterling&hoveredAction=mark-as-accepted`       | 3.9% |
-| H3   | Existing b                  | `8193:78567` | `/recruiter/home?view=setup&user=existing&actionsMenu=marcus-jensen`                                       | 3.8% |
-| H4   | Existing c                  | `8193:79434` | `/recruiter/home?view=setup&user=existing&actionsMenu=leila-wong`                                          | 3.8% |
-| H5   | Existing d                  | `8193:80078` | `/recruiter/home?view=setup&user=existing&actionsMenu=arthur-blair`                                        | 3.8% |
-| TS   | Talent search               | `7249:74283` | `/recruiter/talent-search`                                                                                 | 5.0% |
-| JT1  | Templates All               | `7249:75046` | `/recruiter/job-templates`                                                                                 | 3.2% |
-| JT2  | Templates filter pill       | `7249:75464` | `/recruiter/job-templates?category=design`                                                                 | 1.9% |
-| JP1  | Postings All                | `7249:75818` | `/recruiter/job-postings`                                                                                  | 1.6% |
-| JP2  | Postings Draft              | `7249:76277` | `/recruiter/job-postings?status=draft`                                                                     | 1.2% |
-| JP3  | Postings card menu          | `7249:76638` | `/recruiter/job-postings?menu=senior-ux-designer`                                                          | 1.6% |
-| JP4  | Postings menu hover         | `7249:77110` | `/recruiter/job-postings?menu=senior-ux-designer&menuItem=duplicate`                                       | 1.6% |
-| JP5  | Closing confirmation        | `7249:77582` | `/recruiter/job-postings?modal=close-posting&posting=senior-ux-designer`                                   | 2.5% |
-| JS1  | Screening criteria          | `7249:78066` | `/recruiter/job-screening`                                                                                 | 2.8% |
-| JS2  | Screening dropdown hover    | `7249:78533` | `/recruiter/job-screening?dropdown=experience&dropdownItem=2-5`                                            | 2.9% |
-| AP1  | Pipeline                    | `7249:79017` | `/recruiter/application-pipeline`                                                                          | 2.9% |
-| AP2  | Pipeline job dropdown hover | `7249:79474` | `/recruiter/application-pipeline?sidebar=collapsed&dropdown=job-posting&forceHover=senior-ux-designer`     | 2.7% |
-| AP3  | Schedule empty 1            | `7249:79940` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview`                               | 3.9% |
-| AP4  | Schedule empty 2            | `7249:80546` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview&interviewers=open`             | 3.8% |
-| AP5  | Schedule filled 1           | `7249:81163` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview&state=filled&format=online`    | 5.5% |
-| AP6  | Cancel interview confirm    | `7249:81797` | `/recruiter/application-pipeline?sidebar=collapsed&modal=cancel-interview`                                 | 2.7% |
-| AP7  | Schedule confirm            | `7249:82258` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-confirmation`                            | 3.0% |
-| AP8  | Schedule filled 2           | `7249:82719` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview&state=filled&format=in-person` | 5.5% |
-| AP9  | Schedule filled 3           | `7249:83356` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview&state=filled&format=phone`     | 5.4% |
-| M1   | Recruiter dropdown          | `7249:83993` | `/recruiter/messages`                                                                                      | 3.8% |
-| M2   | Message dropdown a          | `7249:84379` | `/recruiter/messages?rail=collapsed&menu=thread&compareMenu=talent-side&forceHover=mute`                   | 3.0% |
-| M3   | Message dropdown b          | `7249:84775` | `/recruiter/messages?rail=collapsed&tab=unread&menu=thread&forceHover=mute`                                | 2.8% |
-| M4   | Talents messages a          | `7249:85147` | `/recruiter/messages?view=talent`                                                                          | 7.2% |
-| M5   | Talents messages b          | `7249:85536` | `/recruiter/messages?view=talent&menu=thread&forceHover=mute`                                              | 7.4% |
+| Code | Frame                       | Figma node   | URL                                                                                                        | Diff % (2026-11-22)                                                                |
+| ---- | --------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| H1   | New user                    | `7249:73882` | `/recruiter/home?view=setup`                                                                               | 2.7                                                                                |
+| H2   | Existing a                  | `8063:45341` | `/recruiter/home?view=setup&user=existing&actionsMenu=elena-sterling&hoveredAction=mark-as-accepted`       | 3.9                                                                                |
+| H3   | Existing b                  | `8193:78567` | `/recruiter/home?view=setup&user=existing&actionsMenu=marcus-jensen`                                       | 3.8                                                                                |
+| H4   | Existing c                  | `8193:79434` | `/recruiter/home?view=setup&user=existing&actionsMenu=leila-wong`                                          | 3.8                                                                                |
+| H5   | Existing d                  | `8193:80078` | `/recruiter/home?view=setup&user=existing&actionsMenu=arthur-blair`                                        | 3.8                                                                                |
+| TS   | Talent search               | `7249:74283` | `/recruiter/talent-search`                                                                                 | 3.8                                                                                |
+| JT1  | Templates All               | `7249:75046` | `/recruiter/job-templates`                                                                                 | 3.7                                                                                |
+| JT2  | Templates filter pill       | `7249:75464` | `/recruiter/job-templates?category=design`                                                                 | 2.6                                                                                |
+| JP1  | Postings All                | `7249:75818` | `/recruiter/job-postings`                                                                                  | 2.3                                                                                |
+| JP2  | Postings Draft              | `7249:76277` | `/recruiter/job-postings?status=draft`                                                                     | 1.9                                                                                |
+| JP3  | Postings card menu          | `7249:76638` | `/recruiter/job-postings?menu=senior-ux-designer`                                                          | 2.4                                                                                |
+| JP4  | Postings menu hover         | `7249:77110` | `/recruiter/job-postings?menu=senior-ux-designer&menuItem=duplicate`                                       | 2.4                                                                                |
+| JP5  | Closing confirmation        | `7249:77582` | `/recruiter/job-postings?modal=close-posting&posting=senior-ux-designer`                                   | 17.4 (superseded: lighter scrim and old sidebar; the current dialog is JM-10, 3.5) |
+| JS1  | Screening criteria          | `7249:78066` | `/recruiter/job-screening`                                                                                 | 3.2                                                                                |
+| JS2  | Screening dropdown hover    | `7249:78533` | `/recruiter/job-screening?dropdown=experience&dropdownItem=2-5`                                            | 3.3                                                                                |
+| AP1  | Pipeline                    | `7249:79017` | `/recruiter/application-pipeline`                                                                          | 4.8                                                                                |
+| AP2  | Pipeline job dropdown hover | `7249:79474` | `/recruiter/application-pipeline?sidebar=collapsed&dropdown=job-posting&forceHover=senior-ux-designer`     | 2.7                                                                                |
+| AP3  | Schedule empty 1            | `7249:79940` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview`                               | 3.9                                                                                |
+| AP4  | Schedule empty 2            | `7249:80546` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview&interviewers=open`             | 3.8                                                                                |
+| AP5  | Schedule filled 1           | `7249:81163` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview&state=filled&format=online`    | 5.5                                                                                |
+| AP6  | Cancel interview confirm    | `7249:81797` | `/recruiter/application-pipeline?sidebar=collapsed&modal=cancel-interview`                                 | 2.7                                                                                |
+| AP7  | Schedule confirm            | `7249:82258` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-confirmation`                            | 3.0                                                                                |
+| AP8  | Schedule filled 2           | `7249:82719` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview&state=filled&format=in-person` | 5.5                                                                                |
+| AP9  | Schedule filled 3           | `7249:83356` | `/recruiter/application-pipeline?sidebar=collapsed&modal=schedule-interview&state=filled&format=phone`     | 5.4                                                                                |
+| M1   | Recruiter dropdown          | `7249:83993` | `/recruiter/messages`                                                                                      | 12.5 (superseded by the R-MSG inbox)                                               |
+| M2   | Message dropdown a          | `7249:84379` | `/recruiter/messages?rail=collapsed&menu=thread&compareMenu=talent-side&forceHover=mute`                   | 13.0 (superseded by the R-MSG inbox)                                               |
+| M3   | Message dropdown b          | `7249:84775` | `/recruiter/messages?rail=collapsed&tab=unread&menu=thread&forceHover=mute`                                | 5.5                                                                                |
+| M4   | Talents messages a          | `7249:85147` | `/recruiter/messages?view=talent`                                                                          | 6.4                                                                                |
+| M5   | Talents messages b          | `7249:85536` | `/recruiter/messages?view=talent&menu=thread&forceHover=mute`                                              | 6.7                                                                                |
 
 Home frames sit at `?view=setup` because bare `/recruiter/home` now renders the Recruiter dashboard (built by another session from the "Recruiter - Dashboard" page, see [recruiter-dashboard.md](recruiter-dashboard.md)).
 
@@ -74,3 +74,7 @@ Home frames sit at `?view=setup` because bare `/recruiter/home` now renders the 
 - "Reshedule interview" is spelled as drawn in Figma (typo kept).
 - A live signed-in pipeline (real data, drag, API) was not tested; everything is mock.
 - Frame contents were compared by diff % plus a look at worst cells, not every string re-checked after the final edits.
+
+## Figma compare (2026-11-22)
+
+Diff column re-measured. Method: 0.5x Figma exports vs a Playwright screenshot at the frame's size (viewport = frame height − 52 for the Safari toolbar on recruiter frames; no toolbar on /data), compared at the export's resolution, whole frame. 2–4 % = font metrics; dialogs read higher because Figma centres them in the taller frame. `✅ VERIFIED` (measured 2026-11-22). Superseded frames read high: JP5 17.4 % (lighter scrim and the old Joel sidebar; the current close dialog is JM-10, 3.5 %), M1 / M2 12–13 % (`/recruiter/messages` now renders the newer R-MSG inbox). Not changed.

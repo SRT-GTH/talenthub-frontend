@@ -5,15 +5,34 @@ import { FaqChatIcon, FaqMessageIcon } from './FaqIcons.jsx';
 import { FAQ_HELP } from './FaqData.js';
 import buddyMascot from '../../../../assets/landing/career-buddy-mascot.png';
 import { debug } from '../../../../utils/debug.js';
+import { Link } from 'react-router-dom';
+import { isLoggedIn, logoHomePath } from '../../../../services/auth.api.js';
+import { loginThen } from '../../../../utils/authNext.js';
 
 const log = debug('FaqHelp');
+
+// Mascot placement in its 46px circle: image 160x147 scaled to 46px tall; content centre (74, 78) moved to the circle centre (23, 23).
+const MASCOT = (() => {
+  const box = 46;
+  const k = box / 147;
+  return { w: 160 * k, h: box, left: box / 2 - 74 * k, top: box / 2 - 78 * k };
+})();
 
 /* Card tile (48x48): Career Buddy = mint circle + mascot (46px), Email = gold r14 + message, WhatsApp = peach r14 + chat; 1.5px ink border on the last two. */
 const Tile = ({ id }) => {
   if (id === 'buddy') {
     return (
       <span className="flex size-12 items-center justify-center rounded-full bg-[#ebf1ec]">
-        <img src={buddyMascot} alt="" className="size-[46px] rounded-full object-cover" />
+        {/* The mascot PNG (160x147) is not centred in its canvas: its visible part spans x 13–135, y 17–139, so its middle is
+            (74, 78) not (80, 73.5). Scale the image to the 46px height and offset it so that middle lands on the circle's centre. */}
+        <span className="relative size-[46px] overflow-hidden rounded-full">
+          <img
+            src={buddyMascot}
+            alt=""
+            className="absolute max-w-none"
+            style={{ width: MASCOT.w, height: MASCOT.h, left: MASCOT.left, top: MASCOT.top }}
+          />
+        </span>
       </span>
     );
   }
@@ -28,13 +47,47 @@ const Tile = ({ id }) => {
   );
 };
 
+/*
+ * Destinations (product owner, 2026-11-13; Figma draws none):
+ *   Start chat     -> the account's Career Buddy: talent /profile/filling/career-buddy, recruiter /profile/filling/recruiter-buddy,
+ *                     parent /parent?buddy=open; signed out -> log in, then the talent Buddy (utils/authNext.js)
+ *   Send an email  -> mailto (FaqData href)
+ *   Open WhatsApp  -> https://wa.me/<VITE_SUPPORT_WHATSAPP> in a new tab. ⚠️ No support number exists yet: until the env var is
+ *                     set the button stays inert (logged) rather than pointing at an invented number.
+ */
+const TALENT_BUDDY = '/profile/filling/career-buddy';
+const buddyPath = () => {
+  if (!isLoggedIn()) return loginThen(TALENT_BUDDY);
+  const home = logoHomePath();
+  if (home === '/home') return TALENT_BUDDY;
+  if (home === '/recruiter/home') return '/profile/filling/recruiter-buddy';
+  if (home === '/parent') return '/parent?buddy=open';
+  return home;
+};
+const WHATSAPP_NUMBER = String(import.meta.env.VITE_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
+const whatsappHref = WHATSAPP_NUMBER
+  ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi GTH, I need help with ')}`
+  : null;
+
 const CtaButton = ({ card }) => {
-  const onClick = () => log('help cta clicked', { id: card.id, href: card.href ?? 'inert' });
+  const href = card.id === 'whatsapp' ? whatsappHref : card.href;
+  const onClick = () =>
+    log('help cta clicked', {
+      id: card.id,
+      href: href ?? (card.id === 'whatsapp' ? 'inert: VITE_SUPPORT_WHATSAPP not set' : 'inert'),
+    });
   if (card.id === 'buddy') {
+    const to = buddyPath();
     return (
-      <Button size="sm" rightIcon={<ArrowRightIcon />} className="w-fit" onClick={onClick}>
-        {card.cta}
-      </Button>
+      <Link
+        to={to}
+        onClick={() => log('help cta: start chat ->', to)}
+        className="w-fit no-underline"
+      >
+        <Button size="sm" rightIcon={<ArrowRightIcon />} className="w-fit" tabIndex={-1}>
+          {card.cta}
+        </Button>
+      </Link>
     );
   }
   const button = (
@@ -43,13 +96,19 @@ const CtaButton = ({ card }) => {
       size="md"
       className="w-fit !rounded-[14px] !px-[34px] !py-[14px]"
       onClick={onClick}
-      tabIndex={card.href ? -1 : undefined}
+      tabIndex={href ? -1 : undefined}
     >
       {card.cta}
     </Button>
   );
-  return card.href ? (
-    <a href={card.href} className="w-fit no-underline">
+  const external = href?.startsWith('http');
+  return href ? (
+    <a
+      href={href}
+      onClick={onClick}
+      className="w-fit no-underline"
+      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    >
       {button}
     </a>
   ) : (

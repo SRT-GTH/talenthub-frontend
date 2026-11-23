@@ -123,53 +123,102 @@ const EmailForm = ({ email, setEmail, isError, onSubmit }) => (
   </form>
 );
 
+/*
+ * Share actions (⚠️ ASSUMPTION: Figma draws the link row and chips but no behaviour, inspection 2026-11-21).
+ * Copy link copies the referral link and says "Copied" for 2s; WhatsApp / X open their share pages in a new tab;
+ * Instagram / Snapchat have no web share URL, so they use the phone's share sheet (navigator.share) or copy the link.
+ * ⚠️ The link itself is the sample from Figma until the waitlist API returns a real referral link.
+ */
+const shareUrl = () => `https://${CS_JOINED.shareLink}`;
+const SHARE_TEXT = 'Join me on Ghana Talent Hub';
+const SHARE_TARGETS = {
+  WhatsApp: () => `https://wa.me/?text=${encodeURIComponent(`${SHARE_TEXT} ${shareUrl()}`)}`,
+  X: () =>
+    `https://twitter.com/intent/tweet?text=${encodeURIComponent(SHARE_TEXT)}&url=${encodeURIComponent(shareUrl())}`,
+};
+const copyShareLink = async () => {
+  try {
+    await navigator.clipboard.writeText(shareUrl());
+    log('share link copied');
+    return true;
+  } catch (err) {
+    log.error('copy failed:', err);
+    return false;
+  }
+};
+
 /* Success card (CS-02, 7797:18480): 640x337 r28 white; green check tile (56, 2px ink ring), title Bricolage 38/600, copy 16/24, share link row, share chips, "+50 SPOTS PER FRIEND" sticker. */
-const JoinedCard = ({ name, local }) => (
-  <div
-    className={classNames(
-      'relative flex w-full max-w-[640px] flex-col items-center gap-3 rounded-[28px] border-[1.4px] border-[#1c2a21]/[.32] bg-white px-5 py-6 text-center md:px-7',
-      CARD_SHADOW
-    )}
-  >
-    <span className="flex size-14 items-center justify-center rounded-full border-2 border-[#1c2a21] bg-[#387440] text-white">
-      <CsCheckIcon size={26} />
-    </span>
-    <h2 className="m-0 font-heading text-[clamp(28px,calc(20px+1vw),38px)] font-semibold leading-[1.2] text-[#111]">
-      {`You’re on the list, ${name}.`}
-    </h2>
-    <p className="m-0 max-w-[560px] font-sans text-[16px] leading-[24px] text-[#595959]">
-      {`We’ll email ${local}@… the day GTH opens. You’re number 1,243. Share your link to move up.`}
-    </p>
-    <div className="flex w-full max-w-[560px] items-center justify-between gap-[10px] rounded-[16px] bg-[#f1ede2] py-[10px] pl-4 pr-[10px]">
-      <span className="min-w-0 truncate text-[15px] leading-[19.8px] text-[#1c2a21] [font-family:'JetBrains_Mono',ui-monospace,SFMono-Regular,Menlo,monospace]">
-        {CS_JOINED.shareLink}
+const JoinedCard = ({ name, local }) => {
+  const [copied, setCopied] = useState(false);
+  const onCopy = async () => {
+    if (await copyShareLink()) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+  const onShare = async (s) => {
+    const target = SHARE_TARGETS[s];
+    if (target) {
+      log('share ->', s);
+      window.open(target(), '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (navigator.share) {
+      try {
+        log('share sheet for', s);
+        await navigator.share({ title: 'Ghana Talent Hub', text: SHARE_TEXT, url: shareUrl() });
+        return;
+      } catch (err) {
+        log('share sheet closed / failed:', err?.name);
+        return;
+      }
+    }
+    log('no share sheet, copying link for', s);
+    onCopy();
+  };
+  return (
+    <div
+      className={classNames(
+        'relative flex w-full max-w-[640px] flex-col items-center gap-3 rounded-[28px] border-[1.4px] border-[#1c2a21]/[.32] bg-white px-5 py-6 text-center md:px-7',
+        CARD_SHADOW
+      )}
+    >
+      <span className="flex size-14 items-center justify-center rounded-full border-2 border-[#1c2a21] bg-[#387440] text-white">
+        <CsCheckIcon size={26} />
       </span>
-      <Button
-        size="sm"
-        className="shrink-0"
-        onClick={() => log('copy link clicked (inert: no behaviour drawn)')}
-      >
-        {CS_JOINED.copy}
-      </Button>
+      <h2 className="m-0 font-heading text-[clamp(28px,calc(20px+1vw),38px)] font-semibold leading-[1.2] text-[#111]">
+        {`You’re on the list, ${name}.`}
+      </h2>
+      <p className="m-0 max-w-[560px] font-sans text-[16px] leading-[24px] text-[#595959]">
+        {`We’ll email ${local}@… the day GTH opens. You’re number 1,243. Share your link to move up.`}
+      </p>
+      <div className="flex w-full max-w-[560px] items-center justify-between gap-[10px] rounded-[16px] bg-[#f1ede2] py-[10px] pl-4 pr-[10px]">
+        <span className="min-w-0 truncate text-[15px] leading-[19.8px] text-[#1c2a21] [font-family:'JetBrains_Mono',ui-monospace,SFMono-Regular,Menlo,monospace]">
+          {CS_JOINED.shareLink}
+        </span>
+        <Button size="sm" className="shrink-0" onClick={onCopy} aria-live="polite">
+          {copied ? 'Copied' : CS_JOINED.copy}
+        </Button>
+      </div>
+      <ul className="m-0 flex list-none flex-wrap items-center justify-center gap-2 p-0">
+        {CS_JOINED.share.map((s) => (
+          <li key={s}>
+            <button
+              type="button"
+              onClick={() => onShare(s)}
+              className="cursor-pointer rounded-full border border-[#e7e7e7] bg-white px-[10px] py-1 font-sans text-[13px] font-semibold leading-[15.5px] text-[#1c2a21]"
+            >
+              {s}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <span className="absolute -top-6 right-5 -rotate-[5deg] whitespace-nowrap rounded-[8px] border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-[11px] py-[5px] font-sans text-[12px] font-bold leading-[14.3px] tracking-[0.4px] text-[#1c2a21] shadow-[2px_2px_0_#1c2a21]">
+        {CS_JOINED.sticker}
+      </span>
     </div>
-    <ul className="m-0 flex list-none flex-wrap items-center justify-center gap-2 p-0">
-      {CS_JOINED.share.map((s) => (
-        <li key={s}>
-          <button
-            type="button"
-            onClick={() => log('share chip clicked (inert: no behaviour drawn)', { s })}
-            className="cursor-pointer rounded-full border border-[#e7e7e7] bg-white px-[10px] py-1 font-sans text-[13px] font-semibold leading-[15.5px] text-[#1c2a21]"
-          >
-            {s}
-          </button>
-        </li>
-      ))}
-    </ul>
-    <span className="absolute -top-6 right-5 -rotate-[5deg] whitespace-nowrap rounded-[8px] border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-[11px] py-[5px] font-sans text-[12px] font-bold leading-[14.3px] tracking-[0.4px] text-[#1c2a21] shadow-[2px_2px_0_#1c2a21]">
-      {CS_JOINED.sticker}
-    </span>
-  </div>
-);
+  );
+};
 
 /* Trust row (7797:17116): 4 overlapping 30px avatars (-10 gap, 2px #1e4a27 ring) + 14/500 copy. Default state only. */
 const Trust = () => (

@@ -3,8 +3,12 @@
  * Playful 7715:8..). The three seed goals are the ones drawn in GO-02. The select option lists are NOT drawn in Figma (only the
  * closed fields are), so they hold exactly the values the frames show elsewhere (cards, edit modal, delete preview).
  */
+import { AREAS } from '../interests/interestsData.js';
+
 export const GOAL_TYPES = ['Full-time job', 'Contract', 'Postgraduate study'];
-export const GOAL_INDUSTRIES = ['Fintech'];
+// Industry is required, but Figma only shows "Fintech": the other options are the nine interest areas (Interests stage) so a
+// talent outside tech can save a goal ⚠️ ASSUMPTION (option list not drawn).
+export const GOAL_INDUSTRIES = ['Fintech', ...AREAS.map((a) => a.label)];
 export const GOAL_TIMELINES = ['Within 6 months', 'Within 1 year', 'From Sep 2027'];
 export const GOAL_PLACES = [
   'Accra only',
@@ -64,6 +68,18 @@ export const EMPTY_GOAL = {
 };
 
 export const NOTES_MAX = 200;
+
+/*
+ * Required-field messages for the add / edit goal dialog, shown under the field (shared form Field error row, as on the
+ * talent sign-up steps) after a save attempt. Figma draws no error state for this dialog ⚠️ ASSUMPTION (copy follows
+ * the app's "Please select a ..." / "Enter ..." wording).
+ */
+export const GOAL_REQUIRED_MESSAGES = {
+  title: 'Enter the role or opportunity you want',
+  type: 'Please select an opportunity type',
+  industry: 'Please select an industry',
+  when: 'Please select when you want to start',
+};
 export const STAGE_DONE_IDS = [
   'avatar',
   'interests',

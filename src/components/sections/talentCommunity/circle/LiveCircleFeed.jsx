@@ -13,11 +13,11 @@ const log = debug('LiveCircleFeed');
 
 /* US-5.3.1-04 audiences. Minors can't post in public. */
 const AUDIENCES = [
-  { value: 'connections', label: 'My Connections', note: 'Only people in your circle' },
+  { value: 'connections', label: 'My Connections', note: 'Only people in your crew' },
   {
     value: 'communities',
     label: 'My Communities',
-    note: 'Your circle and people in your communities',
+    note: 'Your crew and people in your clubs',
   },
   { value: 'public', label: 'Public', note: 'Anyone on GTH' },
   { value: 'private', label: 'Only me', note: 'Nobody else sees it' },
@@ -61,11 +61,11 @@ const Composer = ({ minor, onPosted }) => {
   };
   return (
     <section
-      aria-label="Share with your circle"
+      aria-label="Share with your crew"
       className={classNames(CARD, 'flex flex-col gap-[12px] p-[20px] max-sm:p-[14px]')}
     >
       <label htmlFor={textId} className="font-sans text-[14px] font-semibold text-[#1c2a21]">
-        Share an update with your circle
+        Share an update with your crew
       </label>
       <textarea
         id={textId}
@@ -172,7 +172,7 @@ const PostCard = ({ post }) => {
 };
 
 /*
- * LiveCircleFeed — "From your circle" on the API (US-5.3.1-04, Figma NW-09 without the drawn mock data): a composer with the
+ * LiveCircleFeed — "From your crew" on the API (US-5.3.1-04, Figma NW-09 without the drawn mock data): a composer with the
  * required purpose and the audience, then posts from the talent's connections (and My Communities posts from people who share
  * a community), newest first, 20 at a time. Props: minor (no Public), onDiscover() for the empty state, show(toast).
  */
@@ -226,14 +226,14 @@ const LiveCircleFeed = ({ minor, onDiscover, show }) => {
       text:
         out?.moderation?.status === 'pending_review'
           ? 'Posted! It’ll go live after a quick check'
-          : 'Posted to your circle',
+          : 'Posted to your crew',
     });
   };
 
   return (
     <div className="flex min-w-0 flex-col gap-[20px]">
       <div className="flex flex-col gap-[4px]">
-        <h2 className={classNames(HEADING, 'text-[24px] leading-[30px]')}>From your circle</h2>
+        <h2 className={classNames(HEADING, 'text-[24px] leading-[30px]')}>From your crew</h2>
         <p className="m-0 font-sans text-[14px] text-[#595959]">
           Updates from the people you’ve linked up with.
         </p>

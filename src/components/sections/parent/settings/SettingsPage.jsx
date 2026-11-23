@@ -1,5 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
+import SettingsAccessibility from '../../talentSettings/SettingsAccessibility.jsx';
+import SettingsLanguage from '../../talentSettings/SettingsLanguage.jsx';
 import SettingsLayout from '../../talentSettings/SettingsLayout.jsx';
 import ParentFrame from '../ParentFrame.jsx';
 import AccountTab from './AccountTab.jsx';
@@ -21,7 +23,7 @@ const log = debug('ParentSettings');
  *   ?tab=account|roles|notifications|security|data     PS-01 … PS-05
  *   ?modal=logout                                      PS-06 over the Account tab · ?state=logged-out PS-06b
  *   ?tab=data&modal=close-account[&confirm=CLO]        PS-07 over Data and account · ?state=closed PS-07b
- * ⚠️ ASSUMPTION: Accessibility and Language and data (nav items with no parent frame) only log.
+ *   ?tab=accessibility|language                        ⚠️ ASSUMPTION: no parent frame, so these reuse the talent sections (ST-04 / ST-05) inside the same layout
  */
 const TABS = {
   account: AccountTab,
@@ -29,6 +31,8 @@ const TABS = {
   notifications: NotificationsTab,
   security: SecurityTab,
   data: DataTab,
+  accessibility: SettingsAccessibility,
+  language: SettingsLanguage,
 };
 
 const SettingsPage = () => {
@@ -70,6 +74,7 @@ const SettingsPage = () => {
         onLogout={() => st.update({ modal: 'logout' })}
       >
         <Tab
+          settings={{ state: st.sectionState, update: st.update }}
           onRoles={() => goTab('roles')}
           onManage={() => navigate('/parent/wards')}
           onClose={() => st.update({ modal: 'close-account', confirm: null })}

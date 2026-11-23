@@ -106,8 +106,12 @@ const OrderItem = ({ item }) => {
  * The page itself marks the About card (`ProfileOverviewTab` -> AboutCard `reading`); this renders the
  * "Reading order" pop-over and the bottom player bar. Frontend-only: no speech — the controls log (no backend).
  */
+// Reading speed: same steps as the pitch player (ProfilePitchAccessibility). Figma draws only "1×". ⚠️ ASSUMPTION.
+const SPEEDS = ['1×', '1.25×', '1.5×', '2×'];
+
 const ProfileReadAloud = ({ profile }) => {
   const [playing, setPlaying] = useState(true);
+  const [speed, setSpeed] = useState(Math.max(0, SPEEDS.indexOf(AX_ALOUD.speed)));
   const main = useAxMeasure(mainRect);
 
   useEffect(() => {
@@ -188,13 +192,18 @@ const ProfileReadAloud = ({ profile }) => {
         <span aria-hidden="true" className="h-px min-w-0 flex-1 max-sm:hidden" />
         <button
           type="button"
-          onClick={() => log('speed clicked (no backend)')}
+          aria-label={`Reading speed ${SPEEDS[speed]}`}
+          onClick={() => {
+            const n = (speed + 1) % SPEEDS.length;
+            log('speed', SPEEDS[n]);
+            setSpeed(n);
+          }}
           className={classNames(
             'shrink-0 cursor-pointer rounded-full border border-[rgba(255,255,255,0.4)] bg-transparent px-[10px] py-[4px] text-[12.5px] leading-[15px] font-bold text-white',
             FOCUS
           )}
         >
-          {AX_ALOUD.speed}
+          {SPEEDS[speed]}
         </button>
         <button
           type="button"

@@ -7,7 +7,7 @@ import Button from '../components/ui/Button.jsx';
 import StickyActionBar from '../components/ui/form/StickyActionBar.jsx';
 import { COMPACT_PRIMARY_BUTTON } from '../components/ui/form/mobileScale.js';
 import WavyDivider from '../components/shared/WavyDivider.jsx';
-import { ArrowRightIcon, LoadingSpinner } from '../components/shared/assets.jsx';
+import { ArrowRightIcon, GenzDoodleStar, LoadingSpinner } from '../components/shared/assets.jsx';
 import studentDefault from '../assets/entry/role-student-default.svg';
 import studentSelected from '../assets/entry/role-student-selected.svg';
 import parentDefault from '../assets/entry/role-parent-default.svg';
@@ -16,6 +16,9 @@ import recruiterDefault from '../assets/entry/role-recruiter-default.svg';
 import recruiterSelected from '../assets/entry/role-recruiter-selected.svg';
 import { AUTH_ROUTES } from '../constants/authRoutes.js';
 import { debug } from '../utils/debug.js';
+import { classNames } from '../utils/classNames.js';
+import { useUiStyle } from '../hooks/useUiStyle.js';
+import AuthFooter from '../components/shared/AuthFooter.jsx';
 import gridBg from '../assets/getStarted/grid.jpg';
 
 const log = debug('GetStartedPage');
@@ -34,6 +37,14 @@ const log = debug('GetStartedPage');
 // Per-role benefit lists straight from Figma roles frames (8027:201634 talent).
 const TALENT_BENEFITS = [
   'Free talent assessment',
+  'Verified Profile',
+  'Smart Job Matching',
+  'Career Guidance',
+];
+
+// Playful Talent row (Figma 2153:13443), verbatim incl. lower case
+const TALENT_BENEFITS_PLAYFUL = [
+  'engagement with ai career buddy',
   'Verified Profile',
   'Smart Job Matching',
   'Career Guidance',
@@ -63,6 +74,7 @@ const ROLES = [
     ctaLabel: 'Continue as a Talent',
     loaderLabel: 'Setting Things Up', // Figma 8027:201877 casing
     benefits: TALENT_BENEFITS,
+    playfulBenefits: TALENT_BENEFITS_PLAYFUL,
     iconDefault: studentDefault, // Figma 8027:200876 / selected 8027:201850 (2153:11455 / 11555)
     iconSelected: studentSelected,
     // Destination = the role's sign-up entry (single source of truth).
@@ -167,8 +179,25 @@ const BackgroundOrbs = () => (
   </div>
 );
 
+/* Playful card edges (Figma 2153:13443 "GTH CARDS"): 1.5px border + hard 4px offset shadow over a soft drop. Selected = green,
+   others = ink @55%. Focused keeps Card's own look (8308:55896). `!` beats Card's state / hover shelves. */
+// Focused selected card (Figma 8308:55896): 1px green border + soft shadow only, no green shelf (Card's default selected look
+// comes from the older role frames)
+const FOCUSED_CARD_SELECTED =
+  'focused:border! focused:border-brand-green! focused:shadow-[0_2px_8px_rgba(28,42,33,0.04),0_1px_2px_rgba(28,42,33,0.04)]!';
+const PLAYFUL_CARD_SELECTED =
+  'playful:border-[1.5px]! playful:border-brand-green! playful:shadow-[0_10px_24px_rgba(56,116,64,0.15),4px_4px_0_rgba(56,116,64,0.65)]!';
+const PLAYFUL_CARD =
+  'playful:border-[1.5px]! playful:border-[rgba(28,42,33,0.55)]! playful:bg-[#fffefc]! playful:shadow-[0_10px_24px_rgba(28,42,33,0.06),4px_4px_0_rgba(28,42,33,0.45)]!';
+// Phone rows: same edges, smaller shadow (no phone frame is drawn: ⚠️ ASSUMPTION)
+const PLAYFUL_ROW_SELECTED =
+  'playful:border-[1.5px] playful:border-brand-green playful:shadow-[3px_3px_0_rgba(56,116,64,0.65)]';
+const PLAYFUL_ROW =
+  'playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[3px_3px_0_rgba(28,42,33,0.45)]';
+
 const GetStartedPage = () => {
   log('mount');
+  const { uiStyle } = useUiStyle();
   const navigate = useNavigate();
   // `?role=recruiter` opens a role selected (Figma R00 7374:904 for the recruiter), `&state=loading` adds the loader (7374:1147); no key = nothing selected, as before.
   const [selectedRole, setSelectedRole] = useState(() => {
@@ -207,166 +236,214 @@ const GetStartedPage = () => {
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-160px)] max-md:min-h-[calc(100dvh-53px)] overflow-clip bg-white">
-      <BackgroundOrbs />
+    // Phones: the section is a flex column one screen tall and the content takes `my-auto`, so it sits in the vertical middle when
+    // there is room and simply starts at the top (and scrolls) on short screens. `justify-center` would push overflowing content
+    // above the top edge, where it can't be scrolled to.
+    <div className="flex min-h-[calc(100dvh-91px)] flex-col max-md:min-h-[calc(100dvh-53px)]">
+      <section className="relative flex-1 max-md:flex max-md:flex-col overflow-clip bg-white">
+        <BackgroundOrbs />
 
-      <div className="relative mx-auto flex max-w-[951px] flex-col items-center gap-16 px-6 py-16 md:py-24 max-md:gap-3 max-md:px-4 max-md:py-4">
-        {/* Inner content column: header + cards + benefits (gap-24) */}
-        <div className="flex w-full flex-col items-center gap-6 max-md:gap-3">
-          {/* ---- header ------------------------------------------------ */}
-          <div className="flex flex-col items-center gap-6 text-center max-md:gap-2">
-            {/* Eyebrow pill */}
-            <span className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-1.5 rounded-[10px] border border-accent-light-active bg-accent-light px-6 py-2.5">
-              <span
-                aria-hidden="true"
-                className="size-2 rounded-full border-[1.5px] border-warning bg-accent-light shadow-[inset_0_0_4px_#E8A832]"
-              />
-              <span className="text-[12px] leading-[18px] tracking-[0.2px] text-neutral-darker">
-                Ghana&apos;s next generation is ready.
+        <div className="relative mx-auto flex max-w-[951px] flex-col items-center gap-16 px-6 py-16 md:py-24 max-md:my-auto max-md:w-full max-md:gap-5 max-md:px-5 max-md:py-8">
+          {/* Inner content column: header + cards + benefits (gap-24) */}
+          <div className="flex w-full flex-col items-center gap-6">
+            {/* ---- header ------------------------------------------------ */}
+            <div className="flex flex-col items-center gap-6 text-center max-md:gap-3">
+              {/* Eyebrow. Focused (8308:55896): pale #faf4e8 pill. Playful (2153:13443 "genz:sticker · step"): gold sticker tilted
+                4deg, 1.2px ink border, hard 2px ink shadow, three doodle stars around it (offsets from the sticker's centre). */}
+              <span className="relative inline-flex">
+                <span className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-1.5 rounded-[10px] border border-accent-light-active bg-accent-light px-6 py-2.5 playful:rotate-[4deg] playful:rounded-[8px] playful:border-[1.2px] playful:border-[#1c2a21] playful:bg-[#ffd86b] playful:shadow-[2px_2px_0_#1c2a21]">
+                  <span
+                    aria-hidden="true"
+                    className="size-2 rounded-full border-[1.5px] border-warning bg-accent-light shadow-[inset_0_0_4px_#E8A832]"
+                  />
+                  <span className="text-[12px] leading-[18px] tracking-[0.2px] text-neutral-darker playful:text-[#1c2a21]">
+                    Ghana&apos;s next generation is ready.
+                  </span>
+                </span>
+                <GenzDoodleStar
+                  size={16}
+                  color="#C8951A"
+                  className="absolute hidden playful:block"
+                  style={{ left: 'calc(50% + 129.5px)', top: 'calc(50% - 35px)' }}
+                />
+                <GenzDoodleStar
+                  size={10}
+                  color="#C8951A"
+                  className="absolute hidden playful:block"
+                  style={{ left: 'calc(50% + 151.5px)', top: 'calc(50% - 17px)' }}
+                />
+                <GenzDoodleStar
+                  size={9}
+                  color="#387440"
+                  className="absolute hidden playful:block"
+                  style={{ left: 'calc(50% - 141.5px)', top: 'calc(50% - 13px)' }}
+                />
               </span>
-            </span>
 
-            {/* Headline */}
-            <h1
-              className="font-heading max-w-[792px] font-semibold tracking-[-0.01em] text-black max-md:text-[24px]! max-md:leading-tight!"
-              style={{ fontSize: 'clamp(2.25rem, 5vw, 3.375rem)', lineHeight: 1.1 }} // Figma 54/59.4 Bricolage 600
+              {/* Headline */}
+              <h1
+                className="font-heading focused:font-sans max-w-[792px] font-semibold tracking-[-0.01em] text-black max-md:text-[24px]! max-md:leading-tight!"
+                style={{ fontSize: 'clamp(2.25rem, 5vw, 3.375rem)', lineHeight: 1.1 }} // Figma 54/59.4 Bricolage 600
+              >
+                <span>Let&apos;s </span>
+                <span className="text-accent">set things</span>
+                <span> up just for </span>
+                <span className="text-accent">you.</span>
+              </h1>
+
+              {/* Sub-copy */}
+              <p className="max-w-[720px] px-2 text-[16px] max-md:text-[14px] leading-6 max-md:leading-5 tracking-[0.2px] text-[#737373]">
+                Your GTH experience is shaped around your role. Pick one to get started.
+              </p>
+
+              {/* Decorative wavy divider */}
+              <WavyDivider />
+            </div>
+
+            {/* ---- role cards -------------------------------------------- */}
+            <div
+              role="radiogroup"
+              aria-label="Choose your role"
+              className="grid w-full grid-cols-1 gap-6 max-md:hidden md:grid-cols-3 md:gap-[30px]"
             >
-              <span>Let&apos;s </span>
-              <span className="text-accent">set things</span>
-              <span> up just for </span>
-              <span className="text-accent">you.</span>
-            </h1>
+              {ROLES.map((role) => (
+                <Card
+                  key={role.id}
+                  icon={<RoleIcon role={role} selected={selectedRole === role.id} />}
+                  tag={role.tag}
+                  headline={role.headline}
+                  headlineVariant="heading"
+                  description={role.description}
+                  selected={selectedRole === role.id}
+                  onClick={() => setSelectedRole(role.id)}
+                  onKeyDown={(e) => handleRadioKeys(e, role.id)}
+                  data-role={role.id}
+                  role="radio"
+                  aria-checked={selectedRole === role.id}
+                  aria-pressed={undefined}
+                  tabIndex={(selectedRole ?? ROLES[0].id) === role.id ? 0 : -1}
+                  aria-label={`${role.tag}: ${role.headline}`}
+                  // Figma 8027:200660: with a role chosen the other cards dim.
+                  className={classNames(
+                    hasSelection &&
+                      selectedRole !== role.id &&
+                      'opacity-55 hover:opacity-100 focus-visible:opacity-100',
+                    selectedRole === role.id
+                      ? `${FOCUSED_CARD_SELECTED} ${PLAYFUL_CARD_SELECTED}`
+                      : PLAYFUL_CARD
+                  )}
+                />
+              ))}
+            </div>
+            {/* ---- phones: compact role rows (3 fit above the CTA bar) ---- */}
+            <div
+              role="radiogroup"
+              aria-label="Choose your role"
+              className="flex w-full flex-col gap-3 md:hidden"
+            >
+              {ROLES.map((role) => {
+                const selected = selectedRole === role.id;
+                return (
+                  <button
+                    key={role.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    aria-label={`${role.tag}: ${role.headline}`}
+                    onClick={() => setSelectedRole(role.id)}
+                    className={classNames(
+                      'flex w-full items-center gap-3 rounded-[12px] border p-4 text-left transition-colors',
+                      selected
+                        ? 'border-brand-green bg-brand-green-light'
+                        : 'border-[#E7E7E7] bg-white',
+                      selected ? PLAYFUL_ROW_SELECTED : PLAYFUL_ROW
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-[#F2F2EE] text-content-tertiary [&>svg]:size-6"
+                    >
+                      <RoleIcon
+                        role={role}
+                        selected={selected}
+                        className="size-10 rounded-[10px]"
+                      />
+                    </span>
+                    <span className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="text-[12px] font-semibold uppercase leading-4 tracking-[0.6px] text-brand-green">
+                        {role.tag}
+                      </span>
+                      <span className="text-[16px] font-semibold leading-5 text-black">
+                        {role.headline}
+                      </span>
+                      <span className="text-[13px] leading-[18px] text-[#737373]">
+                        {role.description}
+                      </span>
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className={`flex size-5 shrink-0 items-center justify-center rounded-full border-[1.5px] ${
+                        selected ? 'border-brand-green' : 'border-[#CCCCCC]'
+                      }`}
+                    >
+                      {selected && <span className="size-2.5 rounded-full bg-brand-green" />}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
 
-            {/* Sub-copy */}
-            <p className="max-w-[720px] px-2 text-[16px] max-md:text-[14px] leading-6 max-md:leading-5 tracking-[0.2px] text-[#737373]">
-              Your GTH experience is shaped around your role. Pick one to get started.
-            </p>
-
-            {/* Decorative wavy divider */}
-            <WavyDivider />
-          </div>
-
-          {/* ---- role cards -------------------------------------------- */}
-          <div
-            role="radiogroup"
-            aria-label="Choose your role"
-            className="grid w-full grid-cols-1 gap-6 max-md:hidden md:grid-cols-3 md:gap-[30px]"
-          >
-            {ROLES.map((role) => (
-              <Card
-                key={role.id}
-                icon={<RoleIcon role={role} selected={selectedRole === role.id} />}
-                tag={role.tag}
-                headline={role.headline}
-                headlineVariant="heading"
-                description={role.description}
-                selected={selectedRole === role.id}
-                onClick={() => setSelectedRole(role.id)}
-                onKeyDown={(e) => handleRadioKeys(e, role.id)}
-                data-role={role.id}
-                role="radio"
-                aria-checked={selectedRole === role.id}
-                aria-pressed={undefined}
-                tabIndex={(selectedRole ?? ROLES[0].id) === role.id ? 0 : -1}
-                aria-label={`${role.tag}: ${role.headline}`}
-                // Figma 8027:200660: with a role chosen the other cards dim.
-                className={
-                  hasSelection && selectedRole !== role.id
-                    ? 'opacity-55 hover:opacity-100 focus-visible:opacity-100'
-                    : undefined
+            {/* ---- "what you would get" benefits bar --------------------- */}
+            {selectedRoleData && (
+              <BenefitsBar
+                benefits={
+                  // Playful Talent copy differs (2153:13443): "engagement with ai career buddy" leads instead of "Free talent assessment"
+                  uiStyle === 'playful' && selectedRoleData.playfulBenefits
+                    ? selectedRoleData.playfulBenefits
+                    : selectedRoleData.benefits
                 }
               />
-            ))}
+            )}
           </div>
-          {/* ---- phones: compact role rows (3 fit above the CTA bar) ---- */}
+
+          {/* ---- CTA + login link ------------------------------------- */}
           <div
-            role="radiogroup"
-            aria-label="Choose your role"
-            className="flex w-full flex-col gap-2 md:hidden"
+            aria-live="polite"
+            className="flex w-full flex-col items-center gap-2 max-md:contents"
           >
-            {ROLES.map((role) => {
-              const selected = selectedRole === role.id;
-              return (
-                <button
-                  key={role.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  aria-label={`${role.tag}: ${role.headline}`}
-                  onClick={() => setSelectedRole(role.id)}
-                  className={`flex w-full items-center gap-3 rounded-[12px] border p-3 text-left transition-colors ${
-                    selected
-                      ? 'border-brand-green bg-brand-green-light'
-                      : 'border-[#E7E7E7] bg-white'
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-[#F2F2EE] text-content-tertiary [&>svg]:size-6"
-                  >
-                    <RoleIcon role={role} selected={selected} className="size-10 rounded-[10px]" />
-                  </span>
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="text-[12px] font-semibold uppercase leading-4 tracking-[0.6px] text-brand-green">
-                      {role.tag}
-                    </span>
-                    <span className="text-[16px] font-semibold leading-5 text-black">
-                      {role.headline}
-                    </span>
-                    <span className="text-[13px] leading-[18px] text-[#737373]">
-                      {role.description}
-                    </span>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className={`flex size-5 shrink-0 items-center justify-center rounded-full border-[1.5px] ${
-                      selected ? 'border-brand-green' : 'border-[#CCCCCC]'
-                    }`}
-                  >
-                    {selected && <span className="size-2.5 rounded-full bg-brand-green" />}
-                  </span>
-                </button>
-              );
-            })}
+            <StickyActionBar bleed={20} surfaceWhenStuck>
+              <Button
+                variant="primary"
+                size="lg"
+                disabled={!hasSelection}
+                leftIcon={isLoading ? <LoadingSpinner /> : undefined}
+                rightIcon={isLoading ? undefined : <ArrowRightIcon />}
+                onClick={handleContinue}
+                className={`w-full ${COMPACT_PRIMARY_BUTTON}`}
+                aria-busy={isLoading}
+              >
+                {isLoading
+                  ? (selectedRoleData?.loaderLabel ?? 'Setting things up')
+                  : selectedRoleData
+                    ? selectedRoleData.ctaLabel
+                    : 'Select a role to continue'}
+              </Button>
+            </StickyActionBar>
+
+            <p className="flex items-center gap-1 py-2 max-md:py-1 text-[14px] max-md:text-[13px] leading-6 max-md:leading-5 tracking-[0.1px] text-[#737373]">
+              Already have an account?
+              <Link
+                to="/login"
+                className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
+              >
+                Log in instead
+              </Link>
+            </p>
           </div>
-
-          {/* ---- "what you would get" benefits bar --------------------- */}
-          {selectedRoleData && <BenefitsBar benefits={selectedRoleData.benefits} />}
         </div>
-
-        {/* ---- CTA + login link ------------------------------------- */}
-        <div aria-live="polite" className="flex w-full flex-col items-center gap-2 max-md:contents">
-          <StickyActionBar bleed={16}>
-            <Button
-              variant="primary"
-              size="lg"
-              disabled={!hasSelection}
-              leftIcon={isLoading ? <LoadingSpinner /> : undefined}
-              rightIcon={isLoading ? undefined : <ArrowRightIcon />}
-              onClick={handleContinue}
-              className={`w-full ${COMPACT_PRIMARY_BUTTON}`}
-              aria-busy={isLoading}
-            >
-              {isLoading
-                ? (selectedRoleData?.loaderLabel ?? 'Setting things up')
-                : selectedRoleData
-                  ? selectedRoleData.ctaLabel
-                  : 'Select a role to continue'}
-            </Button>
-          </StickyActionBar>
-
-          <p className="flex items-center gap-1 py-2 max-md:py-1 text-[14px] max-md:text-[13px] leading-6 max-md:leading-5 tracking-[0.1px] text-[#737373]">
-            Already have an account?
-            <Link
-              to="/login"
-              className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
-            >
-              Log in instead
-            </Link>
-          </p>
-        </div>
-      </div>
-    </section>
+      </section>
+      <AuthFooter />
+    </div>
   );
 };
 

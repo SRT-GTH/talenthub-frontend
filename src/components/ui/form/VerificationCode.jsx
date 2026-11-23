@@ -36,7 +36,9 @@ const log = debug('VerificationCode');
 
 const BOX_STATE_CLASSES = {
   default: 'bg-white border-2 border-[#cccccc] shadow-[0_3px_0_0_rgba(191,191,191,0.8)]',
-  active: 'bg-white border-2 border-brand-green-light-active shadow-[0_3px_0_0_rgba(34,70,38,0.8)]',
+  // Playful (talent sign-up scope only): green edge + hard green offset shadow.
+  active:
+    'bg-white border-2 border-brand-green-light-active shadow-[0_3px_0_0_rgba(34,70,38,0.8)] playful:border-brand-green playful:shadow-[0_10px_12px_rgba(56,116,64,0.15),4px_4px_0_rgba(56,116,64,0.65)]',
   error: 'bg-white border-2 border-danger-light-active shadow-[0_3px_0_0_rgba(146,43,33,1)]',
   disabled: 'bg-brand-green-light border-2 border-[#cccccc] shadow-none cursor-not-allowed',
 };

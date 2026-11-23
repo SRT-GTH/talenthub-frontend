@@ -219,3 +219,59 @@
 - Where does "Upload my CV" open from (J-03 "How do you want to add your work?")?
 - Personality: standalone routes vs the Career Buddy conversation.
 - Live data vs mocks per stage (the old stages use static mocks).
+
+## Inspection (2026-11-21, phase 2)
+
+Milestone pop-ups' Figma links read (J-04 / J-06 / J-07, Focused): only Close and the primary button are linked; "Share it" / "Share my card" have none. ✅ VERIFIED in the browser.
+
+| Control                                            | Now leads to                                                                |
+| -------------------------------------------------- | --------------------------------------------------------------------------- |
+| Milestone "Share it" / "Share my card"             | `/profile?card=pick` (share-card builder) ⚠️ ASSUMPTION                     |
+| Profile complete "Edit bio"                        | `/profile?edit=about` (the bio is professionalBio, edited by Edit About) ⚠️ |
+| Interests "See all 142 in Opportunities"           | `/job-postings` ⚠️                                                          |
+| Personality result "Retake quiz" (demo)            | `?step=quiz&q=7` (same as Start the quiz); live already restarted           |
+| Portfolio "Paste a link"                           | add-project dialog with Link 1 focused ⚠️                                   |
+| Certs "Credential link" / "Badge link" with no URL | plain text (was a dead button); with a URL still opens it                   |
+
+Still log-only: avatar "Edit name" (not drawn), skills "Edit skill" / "Ask a colleague" (not drawn), CV review "Edit" on certificates (not drawn).
+
+Signed-in check (test talent account, 2026-11-21): every stage page loaded its live data with no console errors, but the stage top bar said "Kofi A." / "KA" and the journey Career Buddy card said "Nice work, Kofi." for a real user. `EngagementTopNav` now shows the stored user's name and initials when signed in and no name is passed (signed out keeps the demo talent); `JourneyRail` greets the talent by first name. ✅ VERIFIED (no "Kofi" left on /profile/engagement or the stages when signed in). The Pitch stage's "Hi, I'm Kofi…" text is the labelled Example card, not a leak.
+
+## Signed-in save check (test talent account, 2026-11-22)
+
+Each stage dialog was saved with a small change, re-read after a reload (and from `GET /profiles/me`), then put back. ✅ VERIFIED unless noted.
+
+| Stage       | Change saved and re-read                                                                | Reverted                                                                                              |
+| ----------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Avatar      | skin Cocoa → Mahogany (Save outfit · finish avatar)                                     | yes                                                                                                   |
+| Interests   | picked Creative Arts + Media, added the specific "Embroidery"                           | yes (the three onboarding interests untouched)                                                        |
+| Skills      | Add skill dialog "Tie and dye"                                                          | yes (removed through the API: the stage has no delete, "Edit skill" is log-only)                      |
+| Work        | Edit role → Location "Kumasi"                                                           | yes                                                                                                   |
+| Portfolio   | Edit project → Your role                                                                | **not stored**: the PATCH sends `role`, `GET /profiles/me` never returns it (backend drops the field) |
+| Certs       | Edit certificate → Credential ID                                                        | yes                                                                                                   |
+| Goals       | Edit goal → type / industry / when / note                                               | yes (restored `desiredCareers` + `careerGoals`)                                                       |
+| Pitch       | Write → Review and publish (`professionalBio`)                                          | yes                                                                                                   |
+| CV          | only the "file not supported" state (a real CV would write parsed items to the profile) | —                                                                                                     |
+| Personality | page and result load; a retake was not run (it replaces the snapshot)                   | —                                                                                                     |
+
+Fixed in this pass:
+
+- **Avatar** (`AvatarPage.jsx`): the name tag under the avatar said "KofiA_23" for every signed-in talent (provider seed); it now shows the talent's name ("Ama G.", `currentUserLabel`). The stage bar said "1 of 9 done · 11%" for everyone; signed in it now shows the real journey (`useLiveJourney` + `buildStageSegments`).
+- **Skills** (`SkillsPage.jsx`, `skillsData.withVerifications`, `talentProfile.api.fetchSkillVerifications`): every live skill showed "Self-reported" ("Verified 0") although the talent has 4 platform-verified skills; the stage now reads `GET /engagement/skills/verifications/me` and marks those skills Verified (with "Verified 20 Oct"), same rule as Home / My Assessment (`utils/verifiedSkills.js`).
+- **Goals** (`goalsData.js`): Industry is required but its only option was "Fintech", so a goal outside tech could not be saved. Options are now Fintech + the nine interest areas ⚠️ ASSUMPTION (list not drawn).
+- **Interests** (`InterestCard.jsx`): every area's "Add a specific" placeholder gave the tech examples; only Technology keeps them, the others read "Type a specific in <area>" ⚠️.
+
+Found, not fixed:
+
+- Interests written by onboarding / Career Buddy (`category: entrepreneurial | hobby`) match no area, so the stage shows "0 selected" while the journey counts it done (data written by another surface; the mapper keeps them untouched).
+- ~~Avatar demo look while loading, Pitch chooser over a saved pitch, Skills not "Shown first", Goals red-only fields~~: fixed 2026-11-22, see below.
+
+## Follow-up fixes (2026-11-22)
+
+Checked in the browser signed out (demo URLs) and signed in (test talent account); no test data changed. ✅ VERIFIED unless noted.
+
+- **Skills** (`skillsData.verifiedFirst`, `SkillsPage.jsx`): the "Your skills" list shows platform-verified skills first (the `verified` flag from `withVerifications`, rule in `utils/verifiedSkills.js`), then the rest, each group in its existing order. Display only: the profile lists are still saved in their own order. Demo order unchanged (the two drawn verified skills were already first). Signed in: profile order Sewing, Pattern cutting, Canva, Embroidery, Python, … now shows Python, Public speaking, Team leadership, UI/UX design (the 4 verified), then Sewing, ….
+- **Goals** (`goalsData.GOAL_REQUIRED_MESSAGES`, `GoalsDialogs.jsx`): a save with missing required fields shows the shared form `Field` error row (red alert icon + text, `role="alert"`, wired with `aria-describedby`) under each one: "Enter the role or opportunity you want", "Please select an opportunity type / an industry / when you want to start". Copy ⚠️ ASSUMPTION (Figma draws no error state). Messages clear as each field is filled; focus goes to the first missing field (it used to target the dialog title for the role field).
+- **Pitch** (`PitchPage.jsx`): signed in, once the profile and video-pitch loads settle, an existing pitch opens on its review (published) screen: the video pitch if there is one (⚠️ ASSUMPTION: video wins when both exist), else the saved written pitch (Your written pitch card with Edit / Delete, footer "Continue"; Continue on an unchanged text does not re-save). "Loading your pitch…" shows instead of the chooser while the loads run. Edit / Replace lead to the Record / Upload / Write tabs. Demo unchanged (opens on the chooser).
+- **Avatar** (`AvatarPage.jsx`, `AvatarHero.jsx`, `AvatarPanel.jsx`): signed in, while the saved avatar loads the showcase, the name tag and the step body show `SkeletonBlock` placeholders (with a screen-reader "Loading your avatar…" status), undo / shuffle are inert and Next stays disabled, instead of the demo look. ⚠️ ASSUMPTION: no loading frame in Figma; engagement v2 had no skeleton yet, `SkeletonBlock` is the app's shared one. Demo unchanged.
+- Not fixed, seen during the check: the avatar stage bar shows the drawn "1 of 9 done · 11%" until the live journey arrives (`/profiles/journey` returned 500 on one load).

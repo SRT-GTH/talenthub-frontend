@@ -19,7 +19,8 @@ const log = debug('ParentTopBar');
  * ParentTopBar — "GTH · Top bar" as the parent screens draw it (Figma `Nav` 10034:2874, 87 high, white, 1px #e7e7e7 under, shadow 0 1 1 rgba(27,36,44,.12)): logo 71 x 66 + search field 553 wide
  * ("Search opportunities, skills, communities..." with the ⌘K badge), the "Parent view" ink chip, help / notifications / messages (red count badges) / EN / accessibility, and the profile chip "Emma M.".
  * Props: bell (count, default 5), messages (count, default 4), name, onBell (toggles the notifications panel, PN-01), bellOpen (aria-expanded of the bell).
- * ⚠️ ASSUMPTION: the icons, search and profile chip only log (the parent shell has no pop-ups drawn). The Parent view chip sits where the frames put it (58.33% + 23px) and is hidden under 1536px
+ * Help → /parent/help; EN → Settings › Language and data; Accessibility → Settings › Accessibility; the profile chip → Settings › Account (⚠️ ASSUMPTION: the parent file draws no
+ * pop-ups for these, so each opens the settings page that holds them). Search and messages only log: the parent file draws no search results and no parent inbox. The Parent view chip sits where the frames put it (58.33% + 23px) and is hidden under 1536px
  * (measured: from 1280 to about 1500px it overlapped the Help icon; at 1536px it clears it by 15px). PD-05 prints the profile as "Emma A." (a Figma typo); every screen here says "Emma M.".
  */
 
@@ -117,7 +118,10 @@ const ParentTopBar = ({
           <button
             type="button"
             aria-label="EN, language: English"
-            onClick={() => log('language')}
+            onClick={() => {
+              log('language -> settings');
+              navigate('/parent/settings?tab=language');
+            }}
             className="flex h-[36px] cursor-pointer items-center gap-[7px] rounded-[99px] border-0 bg-[#f8fafc] py-[8px] pr-[10px] pl-[12px] max-md:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             <img src={globeIcon} alt="" className="size-[16px]" />
@@ -126,13 +130,20 @@ const ParentTopBar = ({
             </span>
             <img src={chevronSmall} alt="" className="size-[14px]" />
           </button>
-          <IconButton label="Accessibility" size={38}>
+          <IconButton
+            label="Accessibility"
+            size={38}
+            onClick={() => navigate('/parent/settings?tab=accessibility')}
+          >
             <img src={a11yIcon} alt="" className="size-[20px]" />
           </IconButton>
         </div>
         <button
           type="button"
-          onClick={() => log('profile menu')}
+          onClick={() => {
+            log('profile chip -> settings');
+            navigate('/parent/settings');
+          }}
           aria-label={`Account menu, ${name}`}
           className="flex cursor-pointer items-center gap-[7px] rounded-[10px] border border-solid border-[#c1d4c4] bg-[#fffefc] px-[16px] py-[8px] max-sm:px-[10px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >

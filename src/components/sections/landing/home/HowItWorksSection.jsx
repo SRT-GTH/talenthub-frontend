@@ -367,7 +367,8 @@ const HowItWorksSection = () => {
               <img
                 src={STEP_IMAGES[step.image]}
                 alt=""
-                className="h-[300px] w-full rounded-[20px] object-cover"
+                // fixed 300px height: wide single-column cards crop top and bottom, so a photo can pick its anchor
+                className={`h-[300px] w-full rounded-[20px] object-cover ${step.imageFocus === 'top' ? 'object-top' : ''}`}
               />
               <div className="flex flex-1 flex-col items-start gap-2 px-2">
                 <h3 className="m-0 font-heading text-[22px] font-semibold leading-[27.5px] text-[#1c2a21]">

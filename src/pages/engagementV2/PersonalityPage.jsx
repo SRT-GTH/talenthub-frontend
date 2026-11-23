@@ -405,7 +405,15 @@ const PersonalityPage = () => {
         <PersonalityResult
           view={live ? buildBigFiveResultView(result.data, person) : null}
           showNote={!live}
-          onRetake={live ? restartQuiz : () => log('retake quiz (demo: no destination)')}
+          onRetake={
+            live
+              ? restartQuiz
+              : () => {
+                  // Demo: back to the drawn quiz question, the same place "Start the quiz" opens.
+                  log('retake quiz (demo) -> step=quiz&q=7');
+                  update({ step: 'quiz', q: 7, answer: null });
+                }
+          }
           onSave={() => {
             log('save and continue ->', nextStage);
             navigate(nextStage);

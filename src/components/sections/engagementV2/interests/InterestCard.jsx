@@ -72,7 +72,12 @@ const SpecificsEditor = ({ area, specifics, onAdd, onRemove }) => {
             id={inputId}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="e.g. Mobile development, Cloud infrastructure, Cybersecurity"
+            placeholder={
+              // Figma draws the Technology card only; its tech examples read wrong in every other area
+              area.id === 'technology'
+                ? 'e.g. Mobile development, Cloud infrastructure, Cybersecurity'
+                : `Type a specific in ${area.label}` // ⚠️ ASSUMPTION: copy for the undrawn areas
+            }
             className={`h-[51px] w-full min-w-0 rounded-[10px] border border-solid border-[#ccc] bg-white px-4 pl-5 font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#1c2a21] shadow-[4px_4px_0_rgba(28,42,33,.45),0_10px_24px_rgba(28,42,33,.06)] placeholder:text-[#595959] ${FOCUS_RING}`}
           />
         </div>

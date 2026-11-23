@@ -165,15 +165,15 @@ const HeroSection = () => {
                 {HERO_PRIMARY_CTA}
               </Button>
             </Link>
-            {/* Not linked in Figma: kept inert (logged) until the recruiter page exists. */}
-            <button
-              type="button"
-              onClick={() => log('recruiters link clicked (inert, no target in Figma)')}
-              className="inline-flex cursor-pointer items-center gap-[6px] self-start md:self-center border-0 bg-transparent p-0 font-sans text-[15px] font-semibold leading-[18px] text-white lp-ul focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffd86b]"
+            {/* Not linked in Figma: opens the role picker with Recruiter already selected. */}
+            <Link
+              to={LANDING_ROUTES.getStartedRecruiter}
+              onClick={() => log('cta: recruiters link ->', LANDING_ROUTES.getStartedRecruiter)}
+              className="inline-flex cursor-pointer items-center gap-[6px] self-start md:self-center border-0 bg-transparent p-0 font-sans text-[15px] font-semibold leading-[18px] text-white no-underline lp-ul focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffd86b]"
             >
               {HERO_RECRUITER_LINK}
               <Fi20ArrowRight className="size-4 text-white" />
-            </button>
+            </Link>
           </div>
 
           <div className="flex w-full flex-col items-start gap-[14px] md:w-auto md:flex-row md:items-center">

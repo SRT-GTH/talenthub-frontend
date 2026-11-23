@@ -9,11 +9,13 @@ import { useCircleVariantData } from './useCircleVariantData.js';
 /*
  * CircleProfileHero — Figma `Profile hero` (NW-06 connected / NW-06b not connected): a 120px cover (flat #dce7de; Playful: the
  * #2e6436 → #7dba4b gradient), the 120px avatar overlapping it (4px white ring), name 28/33 + degree chip (+ the yellow
- * "OPEN TO INTERNSHIPS" sticker in Playful), tagline, location + mutual faces + "{n} in his circle", and the actions.
- *   connected      → Message (primary) · "In your circle" chip · Follow (soft) · "…"
+ * "OPEN TO INTERNSHIPS" sticker in Playful), tagline, location + mutual faces + "{n} in their crew", and the actions.
+ *   connected      → Message (primary) · "In your crew" chip · "…" (talent NW-06 and recruiter RC-NW06 draw no Follow here;
+ *                    `showFollowWhenConnected` brings it back)
  *   not connected  → Link up (primary) · Follow (soft) · Message (soft)
  * Props: person, profile, degree ('1st' | '2nd'), connected (bool), pending (bool, link-up sent), following (bool), onLinkUp(),
- * onMessage(), onFollow(). ⚠️ The name sits over the cover as drawn (dark on the Playful gradient: low contrast in Figma itself).
+ * onMessage(), onFollow(), onMore() (the "…" button: opens the person's crew menu). The follow button reads "Learn from" (NW-06b, the My crew rename of Follow: it adds the
+ * person to the "Learning from" tab, no request is sent); the recruiter copy keeps "Follow". ⚠️ The name sits over the cover as drawn (dark on the Playful gradient: low contrast in Figma itself).
  */
 const CircleProfileHero = ({
   person,
@@ -27,6 +29,7 @@ const CircleProfileHero = ({
   onFollow,
   showFollowWhenConnected = true,
   showMore,
+  onMore,
   invited,
   onAccept,
   onIgnore,
@@ -108,13 +111,14 @@ const CircleProfileHero = ({
               </span>
               {onFollow && showFollowWhenConnected && (
                 <CircleButton tone="soft" aria-pressed={following} onClick={onFollow}>
-                  {following ? COPY.following : COPY.follow}
+                  {following ? COPY.following : (COPY.learnFrom ?? COPY.follow)}
                 </CircleButton>
               )}
               {(showMore ?? Boolean(onFollow)) && (
                 <button
                   type="button"
                   aria-label={`More for ${person.name}`}
+                  onClick={onMore}
                   className={classNames(
                     'flex size-[38px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-solid border-[#e7e7e7] bg-white p-0 text-[#595959] max-lg:size-[44px]',
                     'playful:border-[rgba(28,42,33,0.35)]',
@@ -154,7 +158,7 @@ const CircleProfileHero = ({
               )}
               {onFollow && (
                 <CircleButton tone="soft" aria-pressed={following} onClick={onFollow}>
-                  {following ? COPY.following : COPY.follow}
+                  {following ? COPY.following : (COPY.learnFrom ?? COPY.follow)}
                 </CircleButton>
               )}
               {onMessage && (

@@ -48,35 +48,41 @@ const OutcomesStoriesSection = ({ stories, loading = false, base = DATA_BASE }) 
           ))}
         </ul>
       </section>
-      <PublicCard
-        id="outcomes-stories-mobile"
-        title={OUTCOME_STORY_COPY.mobileStoriesTitle}
-        hint={OUTCOME_STORY_COPY.mobileStoriesHint}
-        className="md:hidden"
-        bodyClassName="px-[16px] pb-[16px]"
-      >
-        <div className="flex flex-col gap-[12px]">
-          <img
-            src={first.photo}
-            alt=""
-            width="324"
-            height="170"
-            loading="lazy"
-            className="h-[170px] w-full rounded-[12px] object-cover"
-          />
-          <p className="m-0 text-[16px] leading-[19px] font-semibold text-[#1c2a21]">
-            {first.title}
-          </p>
-          <p className="m-0 text-[13px] leading-[16px] font-semibold text-[#387440]">
-            <Link to={`${base}/outcomes/stories/${first.id}`} className="text-inherit no-underline">
-              Read story →
-            </Link>
-            <span aria-hidden="true">&nbsp; · &nbsp;</span>
-            <span className="sr-only">, </span>
-            {stories.length - 1} more stories
-          </p>
-        </div>
-      </PublicCard>
+      {/* The phone card needs a first story; while the dashboard is loading with none published yet it is left out (no crash). */}
+      {first ? (
+        <PublicCard
+          id="outcomes-stories-mobile"
+          title={OUTCOME_STORY_COPY.mobileStoriesTitle}
+          hint={OUTCOME_STORY_COPY.mobileStoriesHint}
+          className="md:hidden"
+          bodyClassName="px-[16px] pb-[16px]"
+        >
+          <div className="flex flex-col gap-[12px]">
+            <img
+              src={first.photo}
+              alt=""
+              width="324"
+              height="170"
+              loading="lazy"
+              className="h-[170px] w-full rounded-[12px] object-cover"
+            />
+            <p className="m-0 text-[16px] leading-[19px] font-semibold text-[#1c2a21]">
+              {first.title}
+            </p>
+            <p className="m-0 text-[13px] leading-[16px] font-semibold text-[#387440]">
+              <Link
+                to={`${base}/outcomes/stories/${first.id}`}
+                className="text-inherit no-underline"
+              >
+                Read story →
+              </Link>
+              <span aria-hidden="true">&nbsp; · &nbsp;</span>
+              <span className="sr-only">, </span>
+              {stories.length - 1} more stories
+            </p>
+          </div>
+        </PublicCard>
+      ) : null}
     </>
   );
 };

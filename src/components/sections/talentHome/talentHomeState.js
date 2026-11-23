@@ -168,7 +168,9 @@ export const useTalentHomeState = ({ enabled = true } = {}) => {
       ? params.get('state')
       : asEmma
         ? 'discoverable'
-        : params.has('copyPreview')
+        : // `?demo=1` (any talent page's design frames): the drawn shell, never the API — so a signed-out
+          // design check is not sent to /login by the shell's home call.
+          params.has('copyPreview') || params.get('demo') === '1'
           ? 'day1'
           : null;
   const navigate = useNavigate();

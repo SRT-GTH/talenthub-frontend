@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
 import { COMPACT_PRIMARY_BUTTON } from '../../components/ui/form/mobileScale.js';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
-import { ArrowRightIcon, LoadingSpinner } from '../../components/shared/assets.jsx';
+import { ArrowRightIcon, GenzDoodleStar, LoadingSpinner } from '../../components/shared/assets.jsx';
 import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
 import { WelcomePanelArt } from '../../components/sections/talentAuth/TalentWelcomePanelContent.jsx';
+import Toast from '../../components/ui/Toast.jsx';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingWelcomePage');
@@ -25,20 +26,34 @@ const log = debug('OnboardingWelcomePage');
 
 // ---- left column primitives -------------------------------------------
 
+// "Talent" eyebrow. Focused: mint pill, 1px green inset outline, radius 5, padding 4/12.
+// Playful: gold sticker tilted 4deg (1.2px ink border, hard 2px ink shadow, 12px ink text) with three doodle stars,
+// placed from the sticker's edges like the sign-up step eyebrows.
 const TalentTag = () => (
-  // "Talent" eyebrow pill — Figma node 2858:24046 family.
-  // "Talent" eyebrow pill — Figma node 2858:24046 family.
-  // bg #EBF1EC, 1px #387440 inset outline, radius 5, padding 4/12.
-  <span
-    className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-1 rounded-[5px] bg-brand-green-light px-3 py-1"
-    style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
-  >
-    <span
-      className="text-[10px] max-lg:text-[12px] font-medium leading-4 text-brand-green"
-      style={{ letterSpacing: '0.2px' }}
-    >
-      Talent
+  <span className="relative inline-flex">
+    <span className="inline-flex items-center gap-1 rounded-[5px] bg-brand-green-light px-3 py-1 outline-1 -outline-offset-1 outline-brand-green max-md:px-3 max-md:py-0.5 playful:rotate-[4deg] playful:rounded-[8px] playful:border-[1.2px] playful:border-[#1c2a21] playful:bg-[#ffd86b] playful:px-[18px] playful:py-1 playful:shadow-[2px_2px_0_#1c2a21] playful:outline-0">
+      <span className="text-[10px] font-medium leading-4 tracking-[0.2px] text-brand-green max-lg:text-[12px] playful:text-[12px] playful:text-[#1c2a21]">
+        Talent
+      </span>
     </span>
+    <GenzDoodleStar
+      size={16}
+      color="#C8951A"
+      className="absolute hidden playful:block"
+      style={{ left: 'calc(100% + 9px)', top: -12 }}
+    />
+    <GenzDoodleStar
+      size={10}
+      color="#C8951A"
+      className="absolute hidden playful:block"
+      style={{ left: 'calc(100% + 31px)', top: 6 }}
+    />
+    <GenzDoodleStar
+      size={9}
+      color="#387440"
+      className="absolute hidden playful:block"
+      style={{ left: -21, top: 10 }}
+    />
   </span>
 );
 
@@ -73,16 +88,20 @@ const STEPS = [
 
 // ---- page -------------------------------------------------------------
 
+const TOAST_DELAY_MS = 1500;
+
 const OnboardingWelcomePage = () => {
   log('mount');
   const navigate = useNavigate();
-  const [showToast, setShowToast] = useState(true);
+  // The welcome toast waits a beat after the page loads (TOAST_DELAY_MS) so it is noticed, not lost in the first paint.
+  const [showToast, setShowToast] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Auto-dismiss the success toast 3s after entry (Figma title:
-    // "toast message-3seconds").
-    const id = setTimeout(() => setShowToast(false), 3000);
+    const id = setTimeout(() => {
+      log('welcome toast shown after', TOAST_DELAY_MS, 'ms');
+      setShowToast(true);
+    }, TOAST_DELAY_MS);
     return () => clearTimeout(id);
   }, []);
 
@@ -98,12 +117,13 @@ const OnboardingWelcomePage = () => {
   return (
     <section className="relative flex w-full flex-1 min-h-0 overflow-hidden">
       {/* Left content column — scrolls independently within the fixed shell */}
-      <div className="flex flex-1 min-h-0 items-center max-md:items-start justify-center max-lg:relative max-lg:z-10 overflow-y-auto no-scrollbar px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
-        <div className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center max-md:gap-3">
+      <div className="flex flex-1 min-h-0 items-start justify-center max-lg:relative max-lg:z-10 overflow-y-auto no-scrollbar px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+        {/* my-auto centres when there is room; on short screens it collapses to 0 so the top never clips. */}
+        <div className="my-auto flex w-full max-w-[554px] flex-col items-center gap-6 text-center max-md:gap-3">
           <TalentTag />
 
           <h1
-            className="font-heading font-semibold text-[#1c2a21] max-md:text-[28px]! max-md:leading-tight!"
+            className="font-heading font-semibold focused:font-sans text-[#1c2a21] max-md:text-[28px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2.125rem, 4vw, 3.375rem)',
               lineHeight: 1.1,
@@ -244,10 +264,23 @@ const OnboardingWelcomePage = () => {
       <TalentOnboardingPanel
         variant="simple"
         bgColor="#FFFEFC"
-        centerContent={
-          <WelcomePanelArt showToast={showToast} onCloseToast={() => setShowToast(false)} />
-        }
+        centerContent={<WelcomePanelArt />}
       />
+      {/* Welcome toast: the shared toast system in its "welcome-card" look; auto-dismisses 3s after entry (the design
+          names it "toast message - 3 seconds"). Sits just below the nav, over the right panel's top-right corner. */}
+      {showToast && (
+        <Toast
+          variant="welcome-card"
+          title="Welcome to GTH, Student!"
+          body="Taking you to your personalized setup"
+          duration={3000}
+          offsetClassName="top-[115px]! right-12! max-md:top-[68px]! max-md:right-4!"
+          onDismiss={() => {
+            log('welcome toast dismissed');
+            setShowToast(false);
+          }}
+        />
+      )}
     </section>
   );
 };

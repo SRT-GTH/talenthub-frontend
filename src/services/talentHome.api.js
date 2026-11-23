@@ -3,6 +3,7 @@ import { STORAGE_KEYS } from '../constants/storageKeys.js';
 import { debug } from '../utils/debug.js';
 import { notifyXpChanged } from './xp.api.js';
 import { fetchWeeklyQuests } from './quests.api.js';
+import { countVerifiedSkills } from '../utils/verifiedSkills.js';
 
 const log = debug('talentHome.api');
 
@@ -151,7 +152,8 @@ const buildHomeData = (r, pendingSet) => {
     matches: { total: opps?.total ?? 0, items: opps?.matches || [] },
     applications: { total: apps?.total ?? apps?.count ?? 0, items: apps?.applications || [] },
     notifications: { unread: notifs?.unreadCount ?? 0, items: notifs?.notifications || [] },
-    verifiedSkills: verifs?.total ?? 0,
+    // Distinct platform-verified skills (utils/verifiedSkills.js), not the raw row total (one row per attempt/game).
+    verifiedSkills: countVerifiedSkills(verifs?.rows || verifs?.verifications || []),
     // Profile views this week (company level on the free tier); null if it failed.
     views: activity || null,
     readiness: r.readiness ?? null,

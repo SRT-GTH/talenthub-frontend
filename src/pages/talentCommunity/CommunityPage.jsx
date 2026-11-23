@@ -27,6 +27,7 @@ import CommunityPostCard from '../../components/sections/talentCommunity/Communi
 import {
   AboutPanel,
   MembersPanel,
+  EventsPanel,
 } from '../../components/sections/talentCommunity/CommunityTabPanels.jsx';
 import {
   COMMUNITY_PAGE_FACES,
@@ -59,7 +60,7 @@ const CommunityPageDemo = () => {
   const navigate = useNavigate();
   const membership = useCommunityMembership();
   const content = useCommunityContent();
-  const { base, isRecruiter, pageCopy: COMMUNITY_PAGE_COPY } = content;
+  const { base, pageCopy: COMMUNITY_PAGE_COPY } = content;
   const { canonicalId, detail } = useMemo(
     () => content.resolveDetail(communityId),
     [content, communityId]
@@ -135,7 +136,6 @@ const CommunityPageDemo = () => {
       id: 'events',
       label: COMMUNITY_PAGE_COPY.tabs.events,
       count: detail.eventsCount,
-      inert: true,
     },
   ];
   const posts = detail.posts.filter((post) => {
@@ -187,11 +187,13 @@ const CommunityPageDemo = () => {
   let main = feed;
   if (tab === 'about') main = <AboutPanel detail={detail} />;
   else if (tab === 'members') main = <MembersPanel detail={detail} />;
+  else if (tab === 'events') main = <EventsPanel onFeed={() => update({ tab: null })} />;
 
   return (
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1602px] flex-col gap-[20px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.39vw,24px)]">
-        {isRecruiter ? <ClubsSwitchRow rail={community.rail} /> : null}
+        {/* "Clubs | My crew" switch: every club screen draws it above the hero (talent C-04 … C-17, recruiter RC-C04 …). */}
+        <ClubsSwitchRow rail={community.rail} />
         <CommunityHero
           detail={detail}
           joined={joined}

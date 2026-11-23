@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import useScopedRoundedFont from '../../../../hooks/useScopedRoundedFont.js';
 import DashboardShell from '../../dashboard/DashboardShell.jsx';
@@ -9,6 +10,7 @@ import { useRecruiterHelpPanels } from './useRecruiterHelpPanels.jsx';
 import { useRecruiterHelpState } from './useRecruiterHelpState.js';
 import {
   RECRUITER_ARTICLE_DATA,
+  RECRUITER_ASSISTANT_ROUTE,
   RECRUITER_HS_CONTACTS,
   RECRUITER_HS_COPY,
   RECRUITER_HS_FAQ,
@@ -46,6 +48,21 @@ const RecruiterHelpSupportSection = () => {
   useScopedRoundedFont('data-recruiter-ui', true);
   const state = useRecruiterHelpState();
   const panels = useRecruiterHelpPanels();
+  const navigate = useNavigate();
+  const { update } = state;
+  /* "Talk to us" rows: Ask Hiring Assistant -> the recruiter AI chat (as the Help pop-over's), Email us -> the contact form (?help=contact, R-HP-05).
+     "Call us" is a tel: link. WhatsApp support stays log-only: no WhatsApp number is drawn or in the repo. */
+  const data = useMemo(
+    () => ({
+      ...PAGE_DATA,
+      onContact: (id) => {
+        log('contact row', id);
+        if (id === 'buddy') navigate(RECRUITER_ASSISTANT_ROUTE);
+        else if (id === 'email') update({ help: 'contact', q: null });
+      },
+    }),
+    [navigate, update]
+  );
   useEffect(() => {
     log('mount', { help: state.help, q: state.q });
   }, [state.help, state.q]);
@@ -55,7 +72,7 @@ const RecruiterHelpSupportSection = () => {
       <div className="w-full py-[32px] pr-[clamp(16px,3.24vw,56px)] pl-[clamp(16px,2.3vw,40px)] max-md:py-[12px]">
         <HelpSupportPage
           settings={state}
-          data={PAGE_DATA}
+          data={data}
           requests={recruiterRequests()}
           ContactView={RecruiterContactView}
         />

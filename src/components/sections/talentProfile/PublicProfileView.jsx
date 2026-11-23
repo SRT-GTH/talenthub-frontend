@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { useUiStyle } from '../../../hooks/useUiStyle.js';
 import { debug } from '../../../utils/debug.js';
@@ -141,6 +142,7 @@ const MatchCard = () => {
 
 const JoinCard = () => {
   const j = PUBLIC_RAIL.join;
+  const navigate = useNavigate();
   return (
     <section
       aria-label={j.title}
@@ -162,7 +164,11 @@ const JoinCard = () => {
       <Button
         variant="primary"
         size="sm"
-        onClick={() => log('create recruiter account (no backend)')}
+        onClick={() => {
+          // Figma links nothing; the recruiter sign-up flow starts at /onboarding/recruiter. ⚠️ ASSUMPTION.
+          log('create recruiter account -> /onboarding/recruiter');
+          navigate('/onboarding/recruiter');
+        }}
       >
         {j.cta}
       </Button>

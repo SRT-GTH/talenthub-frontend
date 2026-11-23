@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { debug } from '../utils/debug.js';
+import gridBg from '../assets/getStarted/grid.jpg';
 import pageEllipseTl from '../assets/hero/page-ellipse-tl.svg';
 import pageEllipseBr from '../assets/hero/page-ellipse-br.svg';
 
@@ -27,7 +28,17 @@ const TalentOnboardingLayout = () => {
 
   return (
     <div className="flex flex-1 min-h-0 flex-col">
-      <section className="relative flex flex-1 min-h-0 overflow-hidden">
+      {/* Playful auth background (Figma 2968:49708 / 2236:830): cream gradient #fbf6ea → #f4f6ec with the faint grid at 70%.
+          `isolate` keeps the z:-1 glows and grid above this background instead of behind it. */}
+      <section className="relative isolate flex flex-1 min-h-0 overflow-hidden bg-[linear-gradient(180deg,#fbf6ea_0%,#f4f6ec_100%)]">
+        <img
+          src={gridBg}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="pointer-events-none absolute inset-0 size-full object-cover opacity-70"
+          style={{ zIndex: -1 }}
+        />
         {/* ── TL green glow (Figma 2165:22442) ── */}
         {/* Soft green ambient ellipse, bleeds off-screen from the top-left corner */}
         <div

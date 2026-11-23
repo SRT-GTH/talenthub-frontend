@@ -5,6 +5,7 @@
  * bottom (skillsFromProfile / skillsToProfile). The Skills Lab hub copy (LAB_*) is still static.
  */
 
+import { isPlatformVerified } from '../../../../utils/verifiedSkills.js';
 import endorserJavascript1 from '../../../../assets/engagement-v2/skills/endorser-javascript-1.png';
 import endorserJavascript2 from '../../../../assets/engagement-v2/skills/endorser-javascript-2.png';
 import endorserJavascript3 from '../../../../assets/engagement-v2/skills/endorser-javascript-3.png';
@@ -418,3 +419,44 @@ export const mergeSavedSkills = (rows, profile) => {
     return { ...r, source: match.source };
   });
 };
+
+/*
+ * Live rows carry `verified: false` from the profile lists; the Verified badge comes from the verification rows (one rule app-wide,
+ * utils/verifiedSkills.js: a platform-assessment pass). Matches by skill name, case-insensitive; `verifiedOn` = "20 Oct".
+ */
+export const withVerifications = (rows, verifications = []) => {
+  const byKey = new Map();
+  for (const v of verifications) {
+    if (!isPlatformVerified(v)) continue;
+    const key = String(v?.skillKey || v?.skill || v?.name || '')
+      .trim()
+      .toLowerCase();
+    if (key && !byKey.has(key)) byKey.set(key, v);
+  }
+  if (!byKey.size) return rows;
+  return rows.map((r) => {
+    const v = byKey.get(
+      String(r.name || '')
+        .trim()
+        .toLowerCase()
+    );
+    if (!v) return r;
+    const at = v.verifiedAt ? new Date(v.verifiedAt) : null;
+    const verifiedOn =
+      at && !Number.isNaN(at.getTime())
+        ? at.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+        : '';
+    return { ...r, verified: true, verifiedOn };
+  });
+};
+
+/*
+ * Display order for the "Your skills" list: the hero promises verified skills are "shown first", so rows with the
+ * platform Verified badge (set by withVerifications, rule in utils/verifiedSkills.js) come first, then the rest, each
+ * group keeping its existing order (stable). Display only: the profile lists are saved in their own order.
+ * The demo MOCK_SKILLS already list the two verified skills first, so the drawn order is unchanged.
+ */
+export const verifiedFirst = (rows = []) => [
+  ...rows.filter((r) => r.verified),
+  ...rows.filter((r) => !r.verified),
+];

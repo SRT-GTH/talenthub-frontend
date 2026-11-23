@@ -174,3 +174,14 @@ With a real staff session and no `?role=` override, the Site copy and Product na
 - Top bar shows "Ama O." where Figma draws "Nana A." (Figma inconsistency). Super Admin nav also shows "Observability" (real build, not in Figma).
 - Settings → Roles/Staff 7.8.7 are mock pages; real pages need add-only lines plus a backend Content Editor role (decision pending).
 - AgencyDialog uses 16px gutters vs 12px drawn; Ask Buddy FAB y offset differs slightly.
+
+## Inspection pass (phase 10, 2026-11-22)
+
+- Figma prototype links in the Government file admin frames carry `NAVIGATE` reactions with `destinationId: null` (sign-in, staff home quick actions, work rows, nav items): the designer left them unlinked, so destinations come from the app. `✅ VERIFIED` (REST node JSON of 7.0.1a and 7.0.2a).
+- Sign-in "Ask your Super Admin" now opens a notice `/admin/sign-in?state=setup` (copy built from the card text and the locked notice; ⚠️ ASSUMPTION, not drawn). `✅ VERIFIED`
+- `AdminConfirmDialog` no longer draws an empty white secondary button when no `secondary` label is passed (the sign-in notices showed one). `✅ VERIFIED`
+- Sign-in "Trust this device for 12 hours" no longer forced onto two lines (Figma draws one line). `✅ VERIFIED`
+- Sidebar "Open handbook" / "Open guide" opens the Help panel (`?modal=help`, and closes the phone drawer) instead of doing nothing (⚠️ ASSUMPTION: the handbook is an internal site). `✅ VERIFIED`
+- Settings nav card is one component, `settings/AdminSettingsNav.jsx`, used by the real `AdminSettingsShell` and the 7.8 `SettingsMockShell`. The mock nav's seven non-mock items now open the real Settings screens of the same name (Notification templates → `/admin/comms/templates`), and its Log out ends the session like the real one. `✅ VERIFIED`
+- Kept as decided before: the locked / expired notices have one "Close" (Figma's red "Contact a Super Admin" / "Ask for a new link" have nowhere to go) and their body copy follows the real backend causes, not the Figma text. `🔶 LIKELY` acceptable.
+- The real-data pages were only checked with a fake staff session and stubbed empty API answers; they need a signed-in pass with real data (see the phase report). `❓ NEEDS-CLARIFICATION`

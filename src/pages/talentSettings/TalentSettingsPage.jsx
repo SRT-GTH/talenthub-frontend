@@ -74,7 +74,8 @@ const TalentSettingsPage = ({ sectionParam }) => {
   // Live by default (`?demo=1` keeps the drawn mock): every section reads and saves through `settings.live`.
   const live = useLiveSettings({ enabled: !base.demo });
   const settings = live ? { ...base, live } : base;
-  const home = useTalentHomeState();
+  // `?demo=1` never calls the talent API (a design-QA visit without a session is not sent to /login).
+  const home = useTalentHomeState({ enabled: !base.demo });
   const liveShell = !base.demo && Boolean(home?.live);
 
   useEffect(() => {
@@ -92,7 +93,7 @@ const TalentSettingsPage = ({ sectionParam }) => {
   }, [settings.section, settings.state]);
 
   if (sectionParam && !SETTINGS_SECTIONS.includes(sectionParam)) {
-    return <Navigate to="/settings/account" replace />;
+    return <Navigate to={`/settings/account${base.demo ? '?demo=1' : ''}`} replace />;
   }
 
   const Body = SECTION_BODIES[settings.section];
@@ -110,7 +111,11 @@ const TalentSettingsPage = ({ sectionParam }) => {
         {settings.section === 'help' ? (
           <HelpSupportPage settings={settings} />
         ) : (
-          <SettingsLayout settings={settings}>
+          <SettingsLayout
+            settings={settings}
+            // `?demo=1` (drawn mock) stays on while moving between sections.
+            hrefFor={(item) => `/settings/${item.id}${base.demo ? '?demo=1' : ''}`}
+          >
             {live && live.status !== 'ready' ? (
               <LiveSettingsStatus live={live} />
             ) : Body ? (

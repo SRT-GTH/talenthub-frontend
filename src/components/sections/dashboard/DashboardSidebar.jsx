@@ -231,7 +231,7 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
       >
         {toggleButton}
 
-        <div className="flex min-h-0 flex-col items-center gap-[20px] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex min-h-0 flex-col items-center gap-[20px] slim-scrollbar overflow-y-auto">
           {/* Avatar puck — 3px brand ring + "New" badge (7025:86127) */}
           <div className="relative flex flex-col items-center justify-center gap-[16px] rounded-[1000px] border-[3px] border-[#468438] bg-white p-[6px]">
             <span
@@ -381,13 +381,14 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
               }}
             />
           </div>
-          <button
-            type="button"
-            onClick={() => log('continue setup clicked (no destination wired yet)')}
-            className="font-sans text-[11px] max-lg:text-[12px] leading-[13px] tracking-[0.2px] text-[#70706e] hover:text-brand-green focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          {/* "Continue setup" -> the recruiter home's setup view (the Prospecting canvas "Get ready" checklist, /recruiter/home?view=setup). */}
+          <Link
+            to="/recruiter/home?view=setup"
+            onClick={() => log('continue setup -> /recruiter/home?view=setup')}
+            className="no-underline font-sans text-[11px] max-lg:text-[12px] leading-[13px] tracking-[0.2px] text-[#70706e] hover:text-brand-green focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             {SIDEBAR_PROFILE.continueLabel}
-          </button>
+          </Link>
         </div>
 
         {/* Stats strip */}
@@ -412,7 +413,7 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
           public-profile card are shrink-0, so a short viewport scrolls the nav instead of silently clipping either
           card. `justify-between` pins the public-profile card to the bottom like Figma's space-between frame. */}
       <div className="flex min-h-0 w-full flex-1 flex-col justify-between gap-[50px] px-[8px]">
-        <nav className="flex min-h-0 flex-col items-start gap-[12px] overflow-y-auto pt-[6px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <nav className="flex min-h-0 flex-col items-start gap-[12px] slim-scrollbar overflow-y-auto pt-[6px]">
           <div className="flex w-full shrink-0 flex-col items-start gap-[4px]">
             {navItems.map((item) => (
               <ExpandedNavItem key={item.id} item={item} onNavigate={handleNavigate} />

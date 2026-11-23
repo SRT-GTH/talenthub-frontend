@@ -5,6 +5,8 @@ import parentGuardianShield from '../../assets/onboarding/parent-guardian-shield
 import { classNames } from '../../utils/classNames.js';
 import { getNavAuthCta } from '../../constants/authRoutes.js';
 import { debug } from '../../utils/debug.js';
+import StyleSwitch from '../ui/StyleSwitch.jsx';
+import UiStyleScope from './UiStyleScope.jsx';
 
 const log = debug('OnboardingNavbar');
 
@@ -58,12 +60,34 @@ const CREATE_ACCOUNT_CLASSES = classNames(
 const PARENT_FLOW_B_STEP =
   /^\/onboarding\/parent-invited-(identity|verification|contact|security|link-ward|consent)$/;
 
+/*
+ * Talent sign-up screens come in two looks, Focused and Playful (Figma pages 2093:6547 / 2431:46798: the original frames are
+ * Playful, the "Focused ·" copies 8308:* are Focused), switched from the top bar as drawn. On these routes the bar shows
+ * the StyleSwitch and opens the style scope (UiStyleScope puts data-ui-style on <html> while mounted, so `playful:` /
+ * `focused:` classes apply only here). Login and forgot-password also come in both looks (the "Focused · Login Screen"
+ * frame) but draw no switch: they follow the look picked during sign-up (stored preference).
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export const hasStyleModes = (pathname) =>
+  pathname === '/get-started' || pathname.startsWith('/onboarding/talent');
+const followsStyle = (pathname) => pathname === '/login' || pathname === '/forgot-password';
+
 const OnboardingNavbar = () => {
   const { pathname } = useLocation();
   const cta = getNavAuthCta(pathname);
   const showCreate = cta.mode === 'signin';
   const showParentPill = PARENT_FLOW_B_STEP.test(pathname);
-  log('render; pathname:', pathname, 'cta:', cta, 'parentPill:', showParentPill);
+  const styleModes = hasStyleModes(pathname);
+  log(
+    'render; pathname:',
+    pathname,
+    'cta:',
+    cta,
+    'parentPill:',
+    showParentPill,
+    'styleModes:',
+    styleModes
+  );
 
   return (
     <header
@@ -86,6 +110,8 @@ const OnboardingNavbar = () => {
           />
         </HomeLogoLink>
 
+        <UiStyleScope enabled={styleModes || followsStyle(pathname)} />
+        {styleModes ? <StyleSwitch inNav className="ml-auto mr-6 max-md:mr-3" /> : null}
         {/* ⚠️ ASSUMPTION: Figma draws the pill INSTEAD of "Log In" on these screens; the Log In link is kept next to it so a parent with an account can still sign in. */}
         {showParentPill ? (
           <span

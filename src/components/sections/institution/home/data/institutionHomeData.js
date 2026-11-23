@@ -87,8 +87,9 @@ export const QUICK_ACTIONS = {
       icon: 'map',
       tint: '#eaeffb',
       ink: '#244a9f',
-      // ⚠️ ASSUMPTION: no regional-data page is drawn; the class-outcomes page of Progress is the nearest "how do we compare" screen.
-      to: '/institution/progress/class-outcomes',
+      // ⚠️ ASSUMPTION: no regional-data page is drawn in the institution frames; the public region dashboard (/data/regions/<region>, Theme 8)
+      // is the app's regional data. Resolved by the page from the session's region.
+      to: '{regionData}',
     },
     {
       id: 'staff',

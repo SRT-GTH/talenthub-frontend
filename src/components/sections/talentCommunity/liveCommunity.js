@@ -30,7 +30,7 @@ const KIND_LABEL = {
 export const formatCount = (n) => Number(n || 0).toLocaleString('en-US');
 export const membersLabel = (n) => `${formatCount(n)} ${n === 1 ? 'member' : 'members'}`;
 export const coverFor = (c) => COVERS[c?.coverKey] || COVERS[c?.slug] || DEFAULT_COVER;
-const activityOf = (c) => (c.memberCount < 25 ? 'New community' : 'Public');
+const activityOf = (c) => (c.memberCount < 25 ? 'New club' : 'Public');
 
 const PALETTE = ['#387440', '#c8951a', '#2f5d8a', '#8a3b5d', '#5b4a8a', '#3b7a78'];
 
@@ -214,7 +214,7 @@ export const toDetail = (c, { posts = [], people = [], catalogue = [] } = {}) =>
     id: c.slug,
     apiId: c.id,
     name: `#${c.name}`,
-    sticker: `${category || 'Community'} · ${c.visibility === 'public' ? 'Public' : 'Private'}`,
+    sticker: `${category || 'Club'} · ${c.visibility === 'public' ? 'Public' : 'Private'}`,
     members: c.memberCount,
     membersLabel: membersLabel(c.memberCount),
     activity: activityOf(c),
@@ -256,7 +256,7 @@ export const toDetail = (c, { posts = [], people = [], catalogue = [] } = {}) =>
       rules: c.rules || [],
       moderators: moderators.length
         ? moderators
-        : [{ name: 'GTH Community Team', role: 'Ghana Talent Hub', avatar: DEFAULT_COVER }],
+        : [{ name: 'GTH Club Team', role: 'Ghana Talent Hub', avatar: DEFAULT_COVER }],
       facts: [
         { id: 'created', icon: 'calendar', label: 'Created', value: createdLabel(c.createdAt) },
         { id: 'language', icon: 'globe', label: 'Language', value: c.language || 'English' },

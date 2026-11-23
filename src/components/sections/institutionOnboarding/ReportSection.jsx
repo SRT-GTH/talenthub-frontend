@@ -33,7 +33,7 @@ const log = debug('ReportSection');
  * Route:   /onboarding/institution/report
  * Layout:  InstitutionOnboardingLayout — NO right panel (added to exclusion list)
  * Back:    /onboarding/institution/confirm
- * Next:    Institution Dashboard (external, mock-only)
+ * Next:    Institution Dashboard (/institution, the Theme 11 portal)
  *
  * Figma nodes referenced:
  *   3052:74319  main loading frame
@@ -757,7 +757,9 @@ const ReportSection = () => {
     if (isDashboardLoading) return;
     log('go to institution dashboard clicked');
     setIsDashboardLoading(true);
-    // The institution dashboard is not built yet.
+    // The loading label shows (Figma "Loading Institution Dashboard") while the portal's lazy chunk loads; the portal sends a
+    // signed-out visitor to /login and back.
+    navigate('/institution');
   };
 
   if (!saved.bulkOperationId) {

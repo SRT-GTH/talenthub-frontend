@@ -4,6 +4,8 @@ import photoPen from '../../../../assets/landing/page-hero-how-it-works.webp';
 import photoStudents from '../../../../assets/landing/stories-feature-photo.webp';
 import photoTable from '../../../../assets/landing/features-preview-photo.webp';
 import { LpBIcon } from './LpBIcons.jsx';
+import { inviteParentPath } from '../shared/inviteParentPath.js';
+import { schoolSignUpPath } from '../shared/schoolSignUpPath.js';
 import { AccentTitle, CARD_SHADOW, Chip, GreenButton, SectionHead, Sticker } from './LpBParts.jsx';
 import {
   AUDIENCE_PANELS,
@@ -33,6 +35,13 @@ const ForEveryoneSection = () => {
   const [leaving, setLeaving] = useState(false);
   const timer = useRef(null);
   const panel = AUDIENCE_PANELS[shown];
+  // Parents tab: "Invite my parent" is the child's button, so it follows the session (signed out -> talent sign-up)
+  // Schools tab: institution sign-up, or the portal for signed-in school staff
+  const panelTo = panel.invitesParent
+    ? inviteParentPath()
+    : panel.bringsSchool
+      ? schoolSignUpPath()
+      : panel.to;
 
   useEffect(() => {
     log('mount, active tab:', active);
@@ -149,7 +158,10 @@ const ForEveryoneSection = () => {
               <div>
                 <GreenButton
                   bordered
-                  onClick={() => log('cta click (inert):', panel.cta)}
+                  to={panelTo}
+                  onClick={() =>
+                    log(panelTo ? 'cta ->' : 'cta click (inert):', panel.cta, panelTo || '')
+                  }
                   className="max-md:w-full"
                 >
                   {panel.cta}

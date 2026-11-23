@@ -71,7 +71,16 @@ const AssessmentOverviewPage = () => {
 
   let body;
   if (recruiter) {
-    body = <RecruiterView data={RECRUITER_VIEW} onExit={() => update({ view: null })} />;
+    // The preview is demo-only, so "Exit preview" returns to the demo overview it was opened from (not the live one).
+    body = (
+      <RecruiterView
+        data={RECRUITER_VIEW}
+        onExit={() => {
+          log('exit recruiter preview -> demo overview');
+          update({ view: null, demo: true });
+        }}
+      />
+    );
   } else {
     let inner;
     const overview = liveOverview?.overview ?? ASSESSMENT_OVERVIEW;

@@ -87,6 +87,8 @@ const Tabs = ({ tabs, active, onChange }) => {
 };
 
 const CardAction = ({ action }) => {
+  // `done`: a reminder button (no endpoint yet; nothing is stored) that confirms in place once pressed.
+  const [done, setDone] = useState(false);
   if (action.kind === 'primary') {
     return (
       <HubButton
@@ -105,11 +107,20 @@ const CardAction = ({ action }) => {
       tone="secondary"
       size="lg"
       to={action.to ?? undefined}
-      disabled={action.disabled}
-      onClick={action.to ? undefined : () => log('card action (no destination)', action.label)}
+      disabled={action.disabled || done}
+      onClick={
+        action.to
+          ? undefined
+          : action.done
+            ? () => {
+                log('reminder set (local only)', action.done);
+                setDone(true);
+              }
+            : () => log('card action (no destination)', action.label)
+      }
       className={classNames('w-full', action.disabled && 'cursor-not-allowed opacity-50')}
     >
-      {action.label}
+      <span role={action.done ? 'status' : undefined}>{done ? action.done : action.label}</span>
     </HubButton>
   );
 };

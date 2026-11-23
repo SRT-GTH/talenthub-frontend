@@ -80,7 +80,7 @@ const CommunityBrowseLive = ({ community }) => {
     log('state', { status: browse.status, n: cards.length, total: browse.total, cat, q, view });
   }, [browse.status, cards.length, browse.total, cat, q, view]);
 
-  const pickedNote = basedOnNote(browse.basedOn) ?? 'The most-joined communities on GTH right now';
+  const pickedNote = basedOnNote(browse.basedOn) ?? 'The most-joined clubs on GTH right now';
 
   const onJoin = async (c) => {
     log('join', c.id);
@@ -139,7 +139,7 @@ const CommunityBrowseLive = ({ community }) => {
   if (browse.status === 'error') {
     body = (
       <LiveError
-        message="Couldn’t load communities. Check your connection and try again."
+        message="Couldn’t load clubs. Check your connection and try again."
         onRetry={browse.reload}
       />
     );
@@ -151,7 +151,7 @@ const CommunityBrowseLive = ({ community }) => {
           title={COPY.pickedTitle}
           note={COPY.loadingNote}
         />
-        <BrowseGrid gap="wide" aria-busy="true" aria-label="Loading communities">
+        <BrowseGrid gap="wide" aria-busy="true" aria-label="Loading clubs">
           {Array.from({ length: BROWSE_PICKED }, (_, i) => (
             <CommunityCardSkeleton key={i} />
           ))}
@@ -199,6 +199,7 @@ const CommunityBrowseLive = ({ community }) => {
           icon={CommunityUsersIcon}
           title={COPY.yourCommunities}
           sticker={`${mine.length} joined`}
+          create
         />
         <BrowseGrid>
           {mine.map((c) => renderCard(c))}
@@ -219,11 +220,17 @@ const CommunityBrowseLive = ({ community }) => {
               icon={CommunityUsersIcon}
               title={COPY.yourCommunities}
               sticker={`${mine.length} joined`}
+              create
             />
             <BrowseGrid>{mine.map((c) => renderCard(c))}</BrowseGrid>
           </>
         ) : null}
-        <BrowseSectionHead icon={CommunityTargetIcon} title={COPY.pickedTitle} note={pickedNote} />
+        <BrowseSectionHead
+          icon={CommunityTargetIcon}
+          title={COPY.pickedTitle}
+          note={pickedNote}
+          create={!mine.length}
+        />
         <BrowseGrid>
           {picked.map((c) => renderCard(c))}
           {picked.length < BROWSE_PICKED ? (

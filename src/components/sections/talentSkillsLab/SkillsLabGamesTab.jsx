@@ -249,8 +249,9 @@ const SkillsLabGamesTab = () => {
   }, [hub.live, mine, games]);
 
   const open = (game) => {
-    log('open game', game.id);
-    navigate(`/skills-lab/games/${game.id}`);
+    // the drawn mock hub (`?demo=1`) opens the game in demo too (no live XP / result posting for mock cards)
+    log('open game', game.id, { live: hub.live });
+    navigate(`/skills-lab/games/${game.id}${hub.live ? '' : '?demo=1'}`);
   };
   const skillGames = games.filter((g) => g.skill);
   const personalityGames = games.filter((g) => !g.skill);

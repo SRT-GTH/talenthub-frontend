@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Button from '../../ui/Button.jsx';
-import { ArrowRightIcon } from '../../shared/assets.jsx';
+import { ArrowRightIcon, GenzDoodleStar } from '../../shared/assets.jsx';
 import logo from '../../../assets/entry/tut-video-logo.png';
 import playHeader from '../../../assets/entry/tut-play-header.svg';
 import closeIcon from '../../../assets/entry/tut-close.svg';
 import infoIcon from '../../../assets/entry/tut-info.svg';
-import playCircle from '../../../assets/entry/tut-play-circle.svg';
 import chevBack from '../../../assets/entry/tut-chevron-back.svg';
 import chevNext from '../../../assets/entry/tut-chevron-next.svg';
 import { classNames } from '../../../utils/classNames.js';
@@ -35,22 +34,32 @@ const log = debug('LoginTutorialModal');
  * skip chapters (video view) / steps (steps view).
  */
 
+// `icon`: the picture on each step card in the steps view. Figma only draws step 1 (the cap);
+// ⚠️ ASSUMPTION: steps 2-4 use matching emoji picked for their topic.
 const CHAPTERS = [
   {
     time: '0:00',
     title: 'Choose your role',
     desc: 'Student, Parent, or Recruiter picking the right one',
+    icon: '🎓',
   },
-  { time: '0:42', title: 'Date of birth', desc: 'How age determines your experience on GTH' },
+  {
+    time: '0:42',
+    title: 'Date of birth',
+    desc: 'How age determines your experience on GTH',
+    icon: '🎂',
+  },
   {
     time: '1:15',
     title: 'Your details',
     desc: 'Name, contact, location, and education building your profile',
+    icon: '📝',
   },
   {
     time: '2:10',
     title: "If you're under 18",
     desc: 'The parent contact step and why your account is still live straight away',
+    icon: '👪',
   },
 ];
 
@@ -76,6 +85,36 @@ const Img = ({ src, w, h, className }) => (
     draggable={false}
     className={className}
   />
+);
+
+/*
+ * Playful touches on the tutorial (login = one look): "WATCH ME · 3 MIN" sticker on the top edge (-4deg) and three doodle stars.
+ * The two tape strips drawn on the video's corners are left out (product owner, 2026-11-15). Offsets from the nearest modal edge.
+ */
+const TutorialDecor = () => (
+  <>
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute right-[96px] top-[-27px] z-20 -rotate-[4deg] whitespace-nowrap rounded-[8px] border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-3 py-1.5 text-[13px] font-bold leading-normal tracking-[0.5px] text-[#1c2a21] shadow-[2px_2px_0_#1c2a21] max-sm:right-4"
+    >
+      WATCH ME · 3 MIN
+    </span>
+    <GenzDoodleStar
+      size={18}
+      color="#C8951A"
+      className="pointer-events-none absolute right-[43.5px] top-[-15.5px] z-20"
+    />
+    <GenzDoodleStar
+      size={11}
+      color="#C8951A"
+      className="pointer-events-none absolute right-[66.5px] top-[12.5px] z-20"
+    />
+    <GenzDoodleStar
+      size={12}
+      color="#387440"
+      className="pointer-events-none absolute bottom-[49.5px] left-[-9.5px] z-20"
+    />
+  </>
 );
 
 const Header = ({ onClose, titleId }) => (
@@ -116,18 +155,21 @@ const VideoView = ({ active, setActive, onPlay, onDone }) => (
           src={logo}
           alt=""
           aria-hidden="true"
-          className="absolute left-1/2 top-[32%] w-[12.8%] -translate-x-1/2 "
+          className="absolute left-1/2 top-[12%] w-[12.8%] -translate-x-1/2"
           draggable={false}
         />
         <button
           type="button"
           onClick={onPlay}
           aria-label="Play tutorial video"
-          className="absolute left-1/2 top-[40%] flex size-[60px] -translate-x-1/2 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white max-sm:size-12"
+          // Figma 2968:52875 "div.vid-play-circle": 68px gold disc, 1.5px ink border, hard 3px ink shadow, ink play glyph
+          className="absolute left-1/2 top-1/2 flex size-[68px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[1.5px] border-[#1c2a21] bg-[#ffd86b] shadow-[3px_3px_0_#1c2a21] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white max-sm:size-12"
         >
-          <Img src={playCircle} w={60} h={60} className="size-full" />
+          <svg aria-hidden="true" viewBox="0 0 22 22" className="size-[22px]">
+            <path d="M7 5L19 11L7 17V5Z" fill="#1C2A21" />
+          </svg>
         </button>
-        <div className="absolute inset-x-0 top-[70%] flex flex-col items-center gap-2 text-center">
+        <div className="absolute inset-x-0 top-[68%] flex flex-col items-center gap-2 text-center">
           <p className="font-heading text-[19px] font-semibold leading-[23.75px] tracking-[-0.026em] text-white/70 max-sm:text-[16px]">
             Ghana Talent Hub
           </p>
@@ -155,7 +197,7 @@ const VideoView = ({ active, setActive, onPlay, onDone }) => (
                   aria-current={on ? 'true' : undefined}
                   className={classNames(
                     'flex h-[51px] w-full items-center gap-4 rounded-[10px] border px-[10px] text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green max-sm:gap-2',
-                    on ? 'border-[#c1d4c4] bg-[#ebf1ec]' : 'border-transparent'
+                    on ? 'border-[1.5px] border-brand-green bg-[#ebf1ec]' : 'border-transparent'
                   )}
                 >
                   <span
@@ -171,8 +213,8 @@ const VideoView = ({ active, setActive, onPlay, onDone }) => (
                     className={classNames(
                       'flex shrink-0 items-center justify-center rounded-full',
                       on
-                        ? 'size-6 bg-brand-green text-[9px] font-bold text-white'
-                        : 'size-7 border border-[#c1d4c4] bg-[#ebf1ec] text-[15px] font-semibold text-[#142916]'
+                        ? 'size-6 border-[1.2px] border-[#1c2a21] bg-brand-green text-[9px] font-bold text-white shadow-[2px_2px_0_#1c2a21]'
+                        : 'size-7 border-[1.2px] border-[#1c2a21] bg-[#ebf1ec] font-heading text-[15px] font-semibold text-[#142916] focused:border focused:border-[#c1d4c4]'
                     )}
                   >
                     {i + 1}
@@ -196,7 +238,7 @@ const VideoView = ({ active, setActive, onPlay, onDone }) => (
                     </span>
                   </span>
                   {on && (
-                    <span className="shrink-0 rounded-full bg-brand-green px-2.5 py-0.5 text-[10px] font-medium leading-3 text-white">
+                    <span className="shrink-0 rotate-[4deg] rounded-[8px] border border-[#1c2a21] bg-[#ffd86b] px-2.5 py-0.5 text-[12px] font-medium leading-normal tracking-[0.4px] text-[#1c2a21] shadow-[2px_2px_0_#1c2a21]">
                       Playing
                     </span>
                   )}
@@ -254,7 +296,7 @@ const StepsView = ({ step, setStep, onDone }) => {
                 'radial-gradient(circle at 50% 35%, rgba(56,116,64,0.12), transparent 70%)',
             }}
           >
-            {step === 0 && <span className="mb-8 text-[48px] leading-none max-sm:mb-0">🎓</span>}
+            <span className="mb-8 text-[48px] leading-none max-sm:mb-0">{c.icon}</span>
             <span className="absolute bottom-3 left-3 right-3 text-center text-[10px] font-bold uppercase tracking-[1px] text-[#2a5730]">
               {c.title}
             </span>
@@ -365,6 +407,18 @@ export default function LoginTutorialModal({ isOpen, onClose, initialView = 'vid
     };
   }, [isOpen, initialView]);
 
+  // Switching video -> steps unmounts the focused Play button; put focus back inside the dialog so Esc / Tab keep working.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const raf = requestAnimationFrame(() => {
+      if (!dialogRef.current?.contains(document.activeElement)) {
+        log('view changed, refocusing dialog', view);
+        dialogRef.current?.querySelector(FOCUSABLE)?.focus();
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [isOpen, view]);
+
   if (!isOpen) return null;
 
   const onKeyDown = (e) => {
@@ -404,30 +458,35 @@ export default function LoginTutorialModal({ isOpen, onClose, initialView = 'vid
       className="fixed inset-0 z-50 flex items-center justify-center bg-[#1c2a21]/70 p-4 max-sm:p-2"
     >
       <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        onKeyDown={onKeyDown}
         className={classNames(
-          'flex max-h-full w-full flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_64px_rgba(0,0,0,0.3)]',
+          'relative flex max-h-full w-full flex-col',
           view === 'video' ? 'max-w-[600px]' : 'max-w-[680px]'
         )}
       >
-        <Header onClose={close} titleId={titleId} />
-        {view === 'video' ? (
-          <VideoView
-            active={chapter}
-            setActive={setChapter}
-            onPlay={() => {
-              log('play -> steps view');
-              setView('steps');
-            }}
-            onDone={close}
-          />
-        ) : (
-          <StepsView step={step} setStep={setStep} onDone={close} />
-        )}
+        <TutorialDecor />
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          onKeyDown={onKeyDown}
+          className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[24px] border-[1.5px] border-[rgba(28,42,33,0.55)] bg-white shadow-[0_14px_16px_rgba(28,42,33,0.08),4px_4px_0_rgba(28,42,33,0.45)]"
+        >
+          <Header onClose={close} titleId={titleId} />
+          {view === 'video' ? (
+            <VideoView
+              active={chapter}
+              setActive={setChapter}
+              onPlay={() => {
+                log('play -> steps view');
+                setView('steps');
+              }}
+              onDone={close}
+            />
+          ) : (
+            <StepsView step={step} setStep={setStep} onDone={close} />
+          )}
+        </div>
       </div>
     </div>,
     document.body

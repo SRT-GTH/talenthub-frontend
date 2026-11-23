@@ -66,6 +66,9 @@ export const PARENTS = {
     { n: '3', title: 'You’re in the loop', body: 'See progress, flag fixes and opt out any time.' },
   ],
   cta: 'Invite my parent',
+  // ⚠️ ASSUMPTION: not drawn in Figma. The parent's own way in, under the child's "Invite my parent" button.
+  parentLead: 'Are you a parent?',
+  parentLink: 'Sign up as a parent',
 };
 
 export const SCHOOLS = {

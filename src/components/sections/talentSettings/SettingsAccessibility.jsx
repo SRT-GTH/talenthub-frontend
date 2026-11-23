@@ -170,7 +170,11 @@ const SettingsAccessibility = ({ settings }) => {
           {error}
         </p>
       ) : null}
-      <div className="flex items-start gap-[20px] max-xl:flex-col">
+      {/* Same marker as every other settings section (tests and the parent Settings reuse rely on it). */}
+      <div
+        className="flex items-start gap-[20px] max-xl:flex-col"
+        data-settings-section="accessibility"
+      >
         <div className="flex w-full min-w-0 flex-1 flex-col gap-[20px]">
           <SettingsACard title={A11Y_READING.title} desc={A11Y_READING.desc}>
             <div className="flex flex-col gap-[12px] border-t border-[rgba(28,42,33,0.08)] py-[14px]">

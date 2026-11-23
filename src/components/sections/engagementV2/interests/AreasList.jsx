@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import InterestCard from './InterestCard.jsx';
 import RailCard from './InterestsRail.jsx';
@@ -6,6 +7,25 @@ import { CARD, CHIP_LINE, FOCUS_RING, HEADING_FONT } from './interestsStyles.js'
 import * as Icons from './interestsIcons.jsx';
 
 const log = debug('AreasList');
+
+// "See all … in Opportunities": Figma draws no destination; the Opportunities list (Matched to you) is where these
+// roles live. ⚠️ ASSUMPTION.
+const OPPORTUNITIES_ROUTE = '/job-postings';
+const SeeAllRoles = () => {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        log('see all roles ->', OPPORTUNITIES_ROUTE);
+        navigate(OPPORTUNITIES_ROUTE);
+      }}
+      className={`min-h-[24px] cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440] max-lg:text-[12px] ${FOCUS_RING}`}
+    >
+      See all {ROLE_MATCH_TOTAL} in Opportunities
+    </button>
+  );
+};
 
 /*
  * AreasList (IN-02..IN-05 left column): "Your interests" header + "N areas" chip, one InterestCard per area, the dashed-green
@@ -67,13 +87,7 @@ const AreasList = ({ areas, openId, onToggleOpen, onAddSpecific, onRemoveSpecifi
             Roles matching your interests right now
           </h3>
         </div>
-        <button
-          type="button"
-          onClick={() => log('see all roles (destination not drawn in Figma)')}
-          className={`min-h-[24px] cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440] max-lg:text-[12px] ${FOCUS_RING}`}
-        >
-          See all {ROLE_MATCH_TOTAL} in Opportunities
-        </button>
+        <SeeAllRoles />
       </div>
       <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-3">
         {ROLE_MATCHES.map((r) => (

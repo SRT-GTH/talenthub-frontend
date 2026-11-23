@@ -79,8 +79,13 @@ const LabFlowScreen = ({ flow, frame }) => {
   const { t } = useLabText();
   const modal = params.get('modal');
   /* Launched from the engagement Skills lab (?from=engagement): exits return there instead of the standalone hub. */
+  // the drawn mock (`?demo=1`) goes back to the mock hub
   const hubPath =
-    params.get('from') === 'engagement' ? '/profile/filling/skills?view=lab' : '/skills-lab';
+    params.get('from') === 'engagement'
+      ? '/profile/filling/skills?view=lab'
+      : params.get('demo') === '1'
+        ? '/skills-lab?demo=1'
+        : '/skills-lab';
 
   const setModal = (value) => {
     const next = new URLSearchParams(params);
@@ -141,9 +146,8 @@ const LabFlowScreen = ({ flow, frame }) => {
       <LabResultsDialog
         result={attempt.result}
         onClose={() => navigate(hubPath)}
-        onSecondary={() =>
-          id === 'fail' || id === 'tough' ? attempt.restart() : navigate(hubPath)
-        }
+        // secondary = "Back to Skills Lab" (pass / fail) or "Retake now" (tough run only)
+        onSecondary={() => (id === 'tough' ? attempt.restart() : navigate(hubPath))}
         onPrimary={() => {
           if (id === 'verified' || id === 'perfect') navigate('/profile');
           else if (id === 'tough') navigate('/learning');

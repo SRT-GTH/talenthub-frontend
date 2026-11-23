@@ -7,6 +7,19 @@
 
 export const INSTITUTION_BASE = '/institution';
 
+/* "See regional data": the public Theme 8 region dashboard of the institution's region (/data/regions/<slug>; no region -> the regions index). */
+export const regionDataPath = (region) => {
+  const slug = String(region || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+region$/, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug ? `/data/regions/${slug}` : '/data/regions';
+};
+/* Quick-action `to` placeholder resolved by the pages with regionDataPath(session.institution.region). */
+export const REGION_DATA_TO = '{regionData}';
+
 export const PRIMARY_NAV = [
   { id: 'home', label: 'Home', to: INSTITUTION_BASE, icon: 'home' },
   {

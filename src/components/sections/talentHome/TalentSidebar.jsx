@@ -15,6 +15,7 @@ import {
   TALENT_NAV_SECONDARY,
   getTalentProfile,
   getTalentSidebarData,
+  withDemoFlag,
 } from './talentShellData.js';
 import PublicProfileCard from './TalentPublicProfileCard.jsx';
 import SwitchSpaceMenu from '../parent/switch/SwitchSpaceMenu.jsx';
@@ -220,15 +221,16 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
   const select = (item) => {
     log('nav select:', item.id);
     if (item.route) {
-      if (pathname !== item.route) navigate(item.route);
+      if (pathname !== item.route) navigate(withDemoFlag(item.route));
     } else if (item.tab && pathname !== '/home') {
       // Off the home screen (e.g. /notifications) Home / My Assessment must route back to /home.
-      navigate(item.tab === 'home' ? '/home' : `/home?tab=${item.tab}`);
+      navigate(withDemoFlag(item.tab === 'home' ? '/home' : `/home?tab=${item.tab}`));
     } else if (item.tab) home?.update?.({ tab: item.tab === 'home' ? null : item.tab });
     else log('nav: no destination wired yet:', item.id);
   };
 
-  const mainItems = data.wallet ? withWalletItem(TALENT_NAV_MAIN) : TALENT_NAV_MAIN;
+  // Every current Figma sidebar draws Wallet between Opportunities and Clubs (re-read 2026-11-21), on every page.
+  const mainItems = withWalletItem(TALENT_NAV_MAIN);
   const navBadge = (id) => data.badges[id];
   const labels = persona ? { ...data.labels, ...persona.labels } : data.labels;
   const withLabel = (item) => (labels?.[item.id] ? { ...item, label: labels[item.id] } : item);
@@ -237,7 +239,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
     return (
       <div
         className={classNames(
-          'flex w-[72px] shrink-0 flex-col items-center gap-[16px] overflow-y-auto bg-white px-[8px] py-[16px]',
+          'slim-scrollbar flex w-[72px] shrink-0 flex-col items-center gap-[16px] overflow-y-auto bg-white px-[8px] py-[16px]',
           shelf && 'playful:bg-transparent',
           className
         )}
@@ -287,7 +289,10 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
   return (
     <div
       className={classNames(
-        'flex w-[clamp(240px,17.53vw,303px)] shrink-0 flex-col items-center gap-[40px] overflow-y-auto bg-white py-[22px]',
+        // Profile card pinned at the top (the shell's collapse button sits on it), public-profile card pinned at the
+        // bottom; only the page links between them scroll. The links keep at least ~2.5 rows; on screens too short for
+        // that the whole sidebar scrolls instead.
+        'slim-scrollbar flex min-h-0 w-[clamp(240px,17.53vw,303px)] shrink-0 flex-col items-center gap-[40px] overflow-y-auto bg-white py-[22px]',
         data.navGap && '!gap-[24px]',
         shelf && 'playful:bg-transparent',
         className
@@ -446,10 +451,11 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
       ) : null}
 
       {/* Navigation + public profile */}
-      <div className="flex min-h-px w-full flex-1 flex-col items-start gap-[16px] pl-[clamp(14px,1.27vw,22px)] pr-[clamp(10px,0.7vw,12px)]">
+      <div className="flex min-h-0 w-full flex-1 flex-col items-start gap-[16px] pl-[clamp(14px,1.27vw,22px)] pr-[clamp(10px,0.7vw,12px)]">
         <div
           className={classNames(
-            'flex w-full flex-col gap-[12px] pt-[6px]',
+            // Scroll room: 6px right gutter for the slim bar, 6px bottom so the active pill's hard shadow isn't clipped.
+            'slim-scrollbar flex min-h-[120px] w-full flex-1 flex-col gap-[12px] overflow-y-auto pt-[6px] pr-[6px] pb-[6px]',
             data.navGap && '!gap-[6px]'
           )}
         >

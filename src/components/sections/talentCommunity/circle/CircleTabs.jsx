@@ -3,21 +3,26 @@ import { FOCUS_RING } from './circleStyles.js';
 import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
- * CircleTabs — Figma `Tabs` (Discover · Invitations · 3 · Circle · 128 · Following · 46): 14px labels, 10/14/12/14 padding, the
+ * CircleTabs — Figma `Tabs` (Discover · Invitations · 3 · Crew · 128 · Learning from · 46): 14px labels, 10/14/12/14 padding, the
  * selected tab is green (#387440, 600) with a 2px underline on the full-width #e7e7e7 rule.
  * Props: active ('discover' | 'feed' | 'invitations' | 'circle' | 'following'), counts ({ invitations, circle, following }), onSelect(id),
- * withFeed (live: the "From your circle" feed, US-5.3.1-04).
+ * withFeed (live: the "From your crew" feed, US-5.3.1-04).
  */
 const CircleTabs = ({ active, counts, onSelect, withFeed = false }) => {
-  const { copy: COPY } = useCircleVariantData();
+  const { copy: COPY, isRecruiter } = useCircleVariantData();
+  // Talent (My crew update) reads "Learning from"; the recruiter network frames keep "Following" (their copy spreads the talent tabs).
+  const tabName = (id) =>
+    id === 'following' && isRecruiter
+      ? (COPY.tabs.followingRecruiter ?? 'Following')
+      : COPY.tabs[id];
   const labelOf = (id) =>
     id === 'discover' || id === 'feed' || counts[id] === false
-      ? COPY.tabs[id]
-      : `${COPY.tabs[id]} · ${counts[id]}`;
+      ? tabName(id)
+      : `${tabName(id)} · ${counts[id]}`;
   return (
     <div
       role="tablist"
-      aria-label={COPY.tablistLabel ?? 'My circle'}
+      aria-label={COPY.tablistLabel ?? 'My crew'}
       className="no-scrollbar -mx-[12px] flex gap-[6px] overflow-x-auto border-b border-solid border-[#e7e7e7] px-[12px] md:mx-0 md:px-0"
     >
       {/* Following stays hidden on the live screen until Follow is specified (US-5.3.1-01 Q5). */}

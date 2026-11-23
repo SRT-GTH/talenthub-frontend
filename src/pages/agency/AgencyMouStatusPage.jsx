@@ -135,12 +135,16 @@ const AgencyMouStatusPage = () => {
   const session = useAgencySession();
   const status = session.mou.status;
   const [view, setView] = useState(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let live = true;
     agencyMou()
       .then((v) => live && setView(v))
-      .catch((err) => log('mou failed', err?.response?.status));
+      .catch((err) => {
+        log('mou failed', err?.response?.status);
+        if (live) setFailed(true);
+      });
     return () => {
       live = false;
     };
@@ -185,7 +189,7 @@ const AgencyMouStatusPage = () => {
       <AgencyQuickActions actions={gate.actions} />
       <AgencyChecklistCard
         {...gate.checklist}
-        badge={view ? list.badge : 'Loading…'}
+        badge={view ? list.badge : failed ? 'Could not load' : 'Loading…'}
         pct={view ? list.pct : 0}
         items={view ? list.items : []}
         headingId="mou-status-checks"

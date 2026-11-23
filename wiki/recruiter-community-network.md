@@ -6,20 +6,20 @@ Figma file `OHG2xsfCCskT8xEn356njv`, canvas `10026:36840` "Recruiter - Community
 
 Diff = `framecmp` (focused-only copy, viewport = frame height − 52). "Before" = the talent page served at the recruiter URL (talent shell, talent copy; a few before-numbers were blank cold loads, so unreliable).
 
-| Frame                                         | URL (prefix `/recruiter/community`)                     | Diff before → after |
-| --------------------------------------------- | ------------------------------------------------------- | ------------------- |
-| RC-NW01 Grow `10194:30390`                    | `?view=circle`                                          | 9.1 → 5.7           |
-| RC-NW02 Connect · add a note `10194:31065`    | `?view=circle&modal=connect&person=abena-owusu&draft=1` | 45.6\* → 11.6\*\*   |
-| RC-NW03 Request sent `10194:31758`            | `?view=circle&state=sent`                               | 7.6 → 4.5           |
-| RC-NW04 Invitations `10194:32437`             | `?view=circle&tab=invitations&state=accepted`           | 4.1 → 4.5           |
-| RC-NW05 Connections `10194:32931`             | `?view=circle&tab=circle&menu=yaw-darko`                | 3.5 → 3.4           |
-| RC-NW06 Profile · connected `10194:33426`     | `/people/yaw-darko`                                     | 5.5 → 2.0           |
-| RC-NW06b not connected `10194:33917`          | `/people/yaw-darko?state=not-connected`                 | 5.4 → 2.0           |
-| RC-NW07 Endorse · alternative `10194:34407`   | `/people/yaw-darko?modal=endorse`                       | 14.0 → 3.3          |
-| RC-NW08 Recommend · alternative `10194:34913` | `/people/yaw-darko?modal=recommend`                     | 14.0 → 3.3          |
-| RC-NW09 Feed `10194:35419`                    | `?view=circle&tab=feed`                                 | 3.6 → 3.1           |
-| RC-NW10 Under 18 `10194:35875`                | `?view=circle&state=minor`                              | 6.6 → 10.0\*\*\*    |
-| RC-NW11 Empty `10194:36508`                   | `?view=circle&state=empty`                              | 5.1 → 6.6\*\*\*\*   |
+| Frame                                         | URL (prefix `/recruiter/community`)                                    | Diff % (2026-11-22)                |
+| --------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------- |
+| RC-NW01 Grow `10194:30390`                    | `?view=circle&rail=collapsed`                                          | 5.7                                |
+| RC-NW02 Connect · add a note `10194:31065`    | `?view=circle&modal=connect&person=abena-owusu&draft=1&rail=collapsed` | 11.6 (dialog centring) \* \*\*     |
+| RC-NW03 Request sent `10194:31758`            | `?view=circle&state=sent&rail=collapsed`                               | 4.5                                |
+| RC-NW04 Invitations `10194:32437`             | `?view=circle&tab=invitations&state=accepted&rail=collapsed`           | 4.6                                |
+| RC-NW05 Connections `10194:32931`             | `?view=circle&tab=circle&menu=yaw-darko&rail=collapsed`                | 3.4                                |
+| RC-NW06 Profile · connected `10194:33426`     | `/people/yaw-darko?rail=collapsed`                                     | 2.0                                |
+| RC-NW06b not connected `10194:33917`          | `/people/yaw-darko?state=not-connected&rail=collapsed`                 | 2.0                                |
+| RC-NW07 Endorse · alternative `10194:34407`   | `/people/yaw-darko?modal=endorse&rail=collapsed`                       | 3.3                                |
+| RC-NW08 Recommend · alternative `10194:34913` | `/people/yaw-darko?modal=recommend&rail=collapsed`                     | 3.3                                |
+| RC-NW09 Feed `10194:35419`                    | `?view=circle&tab=feed&rail=collapsed`                                 | 3.1                                |
+| RC-NW10 Under 18 `10194:35875`                | `?view=circle&state=minor&rail=collapsed`                              | 10.0 (notice drawn in flow) \*\*\* |
+| RC-NW11 Empty `10194:36508`                   | `?view=circle&state=empty&rail=collapsed`                              | 6.6 \*\*\*\*                       |
 
 \* blank cold load. \*\* Figma centres the dialog in the Safari-inclusive frame, we centre it in the viewport. \*\*\* the Hidden-from-recruiters notice is drawn in flow (see assumptions) so everything below shifts about 100px. \*\*\*\* Figma's right rail is cut off by the frame edge; we draw the normal two columns.
 The shell (top bar "Kofi A." vs "Joel K.", search placeholder, rail "New" tag, Ask Buddy FAB) is the lead's DashboardShell and accounts for most of the 3-5 % floor.
@@ -55,3 +55,7 @@ Hover/active states, Playful (not applicable), real keyboard walkthrough beyond 
 ## Checks
 
 `tests/e2e/recruiter-community-network.spec.js` (12 tests). Responsive audit 320 / 390 / 1024 / 1440 over all 12 URLs: no horizontal scroll, no text under 12px below lg, no page errors (the shell's `/copy/bundle` API 500s are ignored). Targets under 24px remain only at ≥ lg where Figma draws them (20px × dismiss, 17px text links).
+
+## Figma compare (2026-11-22)
+
+Diff column re-measured. Method: 0.5x Figma exports vs a Playwright screenshot at the frame's size (viewport = frame height − 52 for the Safari toolbar on recruiter frames; no toolbar on /data), compared at the export's resolution, whole frame. 2–4 % = font metrics; dialogs read higher because Figma centres them in the taller frame. `✅ VERIFIED` (measured 2026-11-22). The URLs now carry `&rail=collapsed` because every frame draws the icon rail; without it NW01 / NW02 / NW03 read 9.1 / 13.2 / 9.4 %. With the rail expanded the recruiter community pages show an older "Joel Adade Kofie · Getting started" sidebar card while the other recruiter pages show the "Kwame Asante · Pro" workspace card. `❓ NEEDS-CLARIFICATION` (shell, not changed here).

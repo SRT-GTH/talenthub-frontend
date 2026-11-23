@@ -46,8 +46,10 @@ const TalentLearningPage = () => {
 const TalentLearningBody = ({ learning }) => {
   const data = useLearningData();
   // Shell (sidebar, top nav, bell): the talent's live home data, as on /home and /notifications.
-  // Demo mode keeps the Figma shell (learning state, stateKey 'top').
-  const home = useTalentHomeState();
+  // Demo mode keeps the Figma shell (learning state, stateKey 'top') and never calls the talent API,
+  // so a design-QA visit without a session is not sent to /login.
+  const demoMode = learning.demo || learning.empty || learning.loading;
+  const home = useTalentHomeState({ enabled: !demoMode });
   const shellHome = useMemo(
     () => (data.live ? { ...home, update: learning.update } : learning),
     [data.live, home, learning]
@@ -108,7 +110,7 @@ const TalentLearningBody = ({ learning }) => {
   return (
     <DashboardShell role="talent" activeNav="learning" talentHome={shellHome}>
       <UiStyleScope enabled />
-      <div className="flex flex-col gap-[clamp(12px,0.926vw,16px)] pl-[clamp(12px,2.315vw,40px)] pr-[clamp(12px,3.241vw,56px)] py-[clamp(12px,1.2vw,20px)]">
+      <div className="flex flex-col gap-[clamp(12px,0.926vw,16px)] pl-[clamp(12px,2.315vw,40px)] pr-[clamp(12px,3.241vw,56px)] py-[clamp(12px,1.852vw,32px)]">
         {renderBody()}
       </div>
       {learning.toast === 'saved' && <LearningSavedToast learning={learning} />}

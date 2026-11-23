@@ -82,7 +82,10 @@ const LearningEmptyState = ({ learning }) => {
           variant="tertiary"
           size="lg"
           className="!text-[#1c2a21]"
-          onClick={() => log('click', 'ask career buddy (no route wired yet)')}
+          onClick={() => {
+            log('click', 'ask career buddy: open chat');
+            learning.update({ new: 'chat' });
+          }}
         >
           {EMPTY.buddy}
         </Button>

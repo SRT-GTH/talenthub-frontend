@@ -21,13 +21,14 @@ const log = debug('AdminSignInForm');
  * "Continue to 2-step sign-in" until the form is valid) · "New staff member?" divider · set-up card with "Ask your Super Admin".
  * Props: onSubmit({ email, password, trust }), error (server message shown under the password), busy (request in flight).
  * The work-email domain is only enforced when VITE_ADMIN_STAFF_DOMAIN is set (the backend decides who is staff).
- * "Forgot password?" opens the normal password reset; "Ask your Super Admin" has no destination drawn: it logs the intent only.
+ * "Forgot password?" opens the normal password reset; "Ask your Super Admin" has no destination drawn: it calls onAskSuperAdmin, which opens
+ * the "set-up link" notice (?state=setup).
  */
 
 const LABEL =
   'inline-flex items-baseline gap-px text-[14px] max-md:text-[13px] font-medium leading-6 tracking-[0.2px] text-content-primary';
 
-const AdminSignInForm = ({ onSubmit, error = null, busy = false }) => {
+const AdminSignInForm = ({ onSubmit, onAskSuperAdmin, error = null, busy = false }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
@@ -143,7 +144,7 @@ const AdminSignInForm = ({ onSubmit, error = null, busy = false }) => {
           label="Trust this device for 12 hours"
           checked={trust}
           onChange={(e) => setTrust(e.target.checked)}
-          labelClassName="max-w-[120px] text-[12px] font-medium leading-[15px] text-[#70706e]"
+          labelClassName="text-[12px] font-medium leading-[15px] text-[#70706e]"
         />
       </div>
 
@@ -174,7 +175,10 @@ const AdminSignInForm = ({ onSubmit, error = null, busy = false }) => {
             <AgencyButton
               size="sm"
               leftIcon={<img src={userSvg} alt="" width={20} height={20} className="shrink-0" />}
-              onClick={() => log('ask your super admin (no destination drawn)')}
+              onClick={() => {
+                log('ask your super admin: open the set-up notice');
+                onAskSuperAdmin?.();
+              }}
             >
               Ask your Super Admin
             </AgencyButton>

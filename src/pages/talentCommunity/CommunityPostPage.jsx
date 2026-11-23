@@ -32,6 +32,7 @@ import {
 } from '../../components/sections/talentCommunity/communityPageStyles.js';
 import { debug } from '../../utils/debug.js';
 import CommunityPostLive from './live/CommunityPostLive.jsx';
+import { shareLink } from './live/shareLink.js';
 
 const log = debug('CommunityPostPage');
 
@@ -47,11 +48,8 @@ const CommunityPostDemo = () => {
   const { communityId, postId } = useParams();
   const navigate = useNavigate();
   const content = useCommunityContent();
-  const { base, isRecruiter, pageCopy: COMMUNITY_PAGE_COPY, postDetail: POST_DETAIL } = content;
-  const { canonicalId, detail } = useMemo(
-    () => content.resolveDetail(communityId),
-    [content, communityId]
-  );
+  const { base, pageCopy: COMMUNITY_PAGE_COPY, postDetail: POST_DETAIL } = content;
+  const { detail } = useMemo(() => content.resolveDetail(communityId), [content, communityId]);
   const [extra, setExtra] = useState(0);
   const [toast, setToast] = useState(Boolean(community.pending));
   const [filter, setFilter] = useState(COMMUNITY_PAGE_COPY.filters[0]);
@@ -75,28 +73,30 @@ const CommunityPostDemo = () => {
       id: 'events',
       label: COMMUNITY_PAGE_COPY.tabs.events,
       count: detail.eventsCount,
-      inert: true,
     },
   ];
   const back = communityHref(base, `/${communityId}`);
+  // The drawn post page is the joined view: going back keeps `?joined=1` so the demo feed (not the live page) opens.
+  const backFeed = `${back}?joined=1`;
   const onMore = () => community.update({ modal: 'report' });
 
   return (
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1506px] flex-col gap-[20px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)]">
-        {isRecruiter ? <ClubsSwitchRow rail={community.rail} /> : null}
+        <ClubsSwitchRow rail={community.rail} />
         <CommunityHero
           detail={detail}
           joined
           faces={COMMUNITY_PAGE_FACES}
           onLeave={() => community.update({ modal: 'leave' })}
-          onShare={() => log('share community', canonicalId)}
-          onInvite={() => log('invite friends', canonicalId)}
+          // Same as the community page: no share screen is drawn, so Share / Invite share (or copy) the community link.
+          onShare={() => shareLink(back, detail.name)}
+          onInvite={() => shareLink(back, detail.name)}
         />
         <CommunityTabs
           tabs={tabs}
           active="feed"
-          onChange={(id) => navigate(id === 'feed' ? back : `${back}?joined=1&tab=${id}`)}
+          onChange={(id) => navigate(id === 'feed' ? backFeed : `${backFeed}&tab=${id}`)}
         />
         <div className="flex flex-col gap-[24px] xl:flex-row xl:items-start">
           <aside className={`order-2 flex shrink-0 flex-col gap-[20px] xl:order-1 ${SIDE_LEFT}`}>
@@ -110,7 +110,7 @@ const CommunityPostDemo = () => {
                 filter={filter}
                 onFilter={(label) => {
                   setFilter(label);
-                  navigate(back);
+                  navigate(backFeed);
                 }}
                 sort={COMMUNITY_PAGE_COPY.sort}
               />
@@ -121,8 +121,9 @@ const CommunityPostDemo = () => {
                   tone="expanded"
                   commentsActive
                   post={{ ...open, comments: open.comments + extra }}
-                  onOpen={() => navigate(back)}
+                  onOpen={() => navigate(backFeed)}
                   onMore={onMore}
+                  onShare={(p) => shareLink(`${back}/post/${p.id}`, p.author.name)}
                 >
                   <PostComments onCount={setExtra} />
                 </CommunityPostCard>
@@ -133,6 +134,7 @@ const CommunityPostDemo = () => {
                   post={post}
                   onOpen={(p) => navigate(`${back}/post/${p.id}?joined=1`)}
                   onMore={onMore}
+                  onShare={(p) => shareLink(`${back}/post/${p.id}`, p.author.name)}
                 />
               ))}
             </div>
@@ -147,7 +149,7 @@ const CommunityPostDemo = () => {
       <CommunityDialogs
         community={community}
         communityName={detail.name}
-        onLeft={() => navigate(back, { replace: true })}
+        onLeft={() => navigate(`${back}?demo=1`, { replace: true })}
       />
     </CommunityFrame>
   );

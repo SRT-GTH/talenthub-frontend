@@ -13,9 +13,21 @@ const log = debug('HelpGuides');
  * cards in three columns (300 wide, gap 16, white r24, p20, 56px spot art, 15/600 title over a 12.5 line); right (360) the mint "Talk to the GTH parent team" card (#ebf1ec, r24, p22, 64px art, 16/600 title,
  * 12.5 line, "Chat on WhatsApp" primary, "Report a concern" secondary).
  * Props: onReport() — "Report a concern" (the page opens PH-03).
- * ⚠️ ASSUMPTION: the search filters the six topics by title and text as you type; a topic card without a designed article, "Chat on WhatsApp" and the search only log (Figma draws no destination); "Report a concern" opens the report dialog.
+ * ⚠️ ASSUMPTION: the search filters the six topics by title and text as you type; a topic card without a designed article opens the screen where that job is done (TOPIC_TO); "Chat on WhatsApp" opens wa.me when VITE_SUPPORT_WHATSAPP is set; "Report a concern" opens the report dialog.
  * Layout: the contact card sits right from 1280px, above the topics below that; the topic grid is 3 / 2 / 1 columns.
  */
+// Topics with no designed article open the screen where that job is done (⚠️ ASSUMPTION: the Parents file draws only the opting-out article).
+const TOPIC_TO = {
+  flagging: '/parent/wards',
+  certificates: '/parent/review?tab=certificates',
+  evaluating: '/parent/evaluate',
+  wallets: '/parent/wallets',
+  'turns-18': '/parent/wards',
+};
+
+// Same support line as the public FAQ (FaqHelp.jsx): wa.me only once VITE_SUPPORT_WHATSAPP is set; until then the button stays inert rather than invent a number.
+const WHATSAPP_NUMBER = String(import.meta.env.VITE_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
+
 const CARD =
   'rounded-[24px] border border-solid border-[#e7e7e7] bg-white shadow-[0_5px_17px_rgba(28,42,33,0.03)]';
 
@@ -61,8 +73,9 @@ const HelpGuides = ({ onReport }) => {
                   <button
                     type="button"
                     onClick={() => {
-                      if (ARTICLES[t.id]) navigate(`/parent/help/${t.id}`);
-                      else log('topic (no page designed yet):', t.id);
+                      const to = ARTICLES[t.id] ? `/parent/help/${t.id}` : TOPIC_TO[t.id];
+                      log('topic', t.id, '->', to);
+                      if (to) navigate(to);
                     }}
                     className={`flex w-full cursor-pointer flex-col items-start gap-[8px] p-[20px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] ${CARD}`}
                   >
@@ -91,7 +104,20 @@ const HelpGuides = ({ onReport }) => {
           <p className="m-0 font-sans text-[12.5px] leading-[1.45] text-[#575755]">
             {contact.text}
           </p>
-          <ParentButton onClick={() => log('Chat on WhatsApp (no destination drawn)')}>
+          <ParentButton
+            onClick={() => {
+              log(
+                'Chat on WhatsApp',
+                WHATSAPP_NUMBER ? 'wa.me' : 'inert: VITE_SUPPORT_WHATSAPP not set'
+              );
+              if (WHATSAPP_NUMBER)
+                window.open(
+                  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi GTH, I need help with ')}`,
+                  '_blank',
+                  'noopener,noreferrer'
+                );
+            }}
+          >
             {contact.whatsapp}
           </ParentButton>
           <ParentButton variant="secondary" onClick={onReport}>

@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { saveJob, unsaveJob } from '../../../services/talentJobs.api.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
 import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
 import Button from '../../ui/Button.jsx';
@@ -20,6 +23,7 @@ import {
   TalentHomeIndustryTelecomIcon,
   TalentHomeJobReadinessLockIcon,
   TalentHomeMatchHeartIcon,
+  SavedHeartIcon,
   TalentHomeNoteInfoIcon,
   TalentHomePrivacyLockIcon,
   TalentHomeSpotJobsIllustration,
@@ -45,6 +49,14 @@ import { COMPANIES } from './talentHomeCoreData.js';
 import { HomeCardChrome } from './EditHomePanel.jsx';
 import { useHomeLayout } from './TabsHomeLayoutStore.js';
 import { CardSkeleton, ShimmerStyle } from './TalentHomeStates.jsx';
+import CircleButton from '../talentCommunity/circle/CircleButton.jsx';
+import { CircleUsersIcon } from '../talentCommunity/circle/circleIcons.jsx';
+// The home card's own Figma photos (the My circle exports crop and name these people differently).
+import crewAbenaPhoto from '../../../assets/talent-home/home/crew-suggestion-abena-owusu.png';
+import crewYawPhoto from '../../../assets/talent-home/home/crew-suggestion-yaw-darko.png';
+import crewEfuaPhoto from '../../../assets/talent-home/home/crew-suggestion-efua-asante.png';
+import crewEsiFace from '../../../assets/talent-home/home/crew-invite-esi-quaye.png';
+import crewNanaYawFace from '../../../assets/talent-home/home/crew-invite-nana-yaw-mensah.png';
 
 const log = debug('HomeColumns');
 
@@ -136,6 +148,57 @@ const SectionTitle = ({ parts }) => (
 
 // ---- Match cards -------------------------------------------------------------------------
 
+/*
+ * Save (heart) on a match card. Signed in with a live card: saves / unsaves through the same bookmarks API as
+ * Opportunities (the role then shows under Opportunities › Saved). Demo: toggles on the card only.
+ * Saved: the green heart on a light green circle (no saved state is drawn; there is no filled heart icon).
+ */
+const SaveHeart = ({ card }) => {
+  const [saved, setSaved] = useState(Boolean(card.saved));
+  const [bookmarkId, setBookmarkId] = useState(card.bookmarkId ?? null);
+  const [busy, setBusy] = useState(false);
+  const toggle = async () => {
+    if (busy) return;
+    const next = !saved;
+    log('save toggle', { id: card.id, next, live: Boolean(card.live) });
+    setSaved(next);
+    if (!card.live || !isLoggedIn()) return;
+    setBusy(true);
+    try {
+      if (next) {
+        const res = await saveJob({ id: card.id, title: card.title });
+        setBookmarkId(res?._id ?? res?.id ?? null);
+      } else if (bookmarkId) {
+        await unsaveJob(bookmarkId);
+        setBookmarkId(null);
+      }
+    } catch (err) {
+      log.error('save failed, rolling back', err?.response?.status);
+      setSaved(!next);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <button
+      type="button"
+      aria-pressed={saved}
+      aria-label={saved ? `Remove ${card.title} from saved` : `Save ${card.title}`}
+      onClick={toggle}
+      className={classNames(
+        '-m-[6px] flex size-[30px] shrink-0 cursor-pointer items-center justify-center rounded-full border-0 p-0 transition-[background-color,transform] duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-brand-green',
+        saved ? 'bg-[#e2f1e4]' : 'bg-transparent hover:bg-[#f1f1ee]'
+      )}
+    >
+      {saved ? (
+        <SavedHeartIcon className="size-[18px]" />
+      ) : (
+        <TalentHomeMatchHeartIcon className="size-[18px]" />
+      )}
+    </button>
+  );
+};
+
 const MatchCard = ({ card, variant, viewRole, onGate }) => {
   const go = useGo();
   const label = card.cta ?? viewRole.viewRole;
@@ -166,7 +229,7 @@ const MatchCard = ({ card, variant, viewRole, onGate }) => {
               </span>
               <span className="text-[12px] font-medium text-[#595959]">{card.scoreLabel}</span>
             </span>
-            <TalentHomeMatchHeartIcon className="size-[18px]" />
+            <SaveHeart card={card} />
           </>
         ) : (
           <Chip
@@ -732,9 +795,120 @@ const RecruiterCard = ({ data, onSeeAll }) => (
   </section>
 );
 
+// ---- People to link up with (Top Talent / complete demo frames) ---------------------------------
+// Figma "GTH · Crew suggestions" card: an invitations strip (2 faces, "3 people want to link up with you", Review) over
+// three suggestion cards with Link up. Demo data in the shape of GET /circle/discover (invitationsPreview + suggestions);
+// every control opens the matching My circle screen (circleState.js URL contract).
+const CIRCLE_ROUTE = '/community?view=circle';
+const CREW = {
+  title: 'People to link up with',
+  link: 'My crew',
+  invitations: {
+    faces: [
+      { id: 'esi-quaye', photo: crewEsiFace },
+      { id: 'nana-yaw-mensah', photo: crewNanaYawFace },
+    ],
+    title: '3 people want to link up with you',
+    names: 'Esi Quaye, Nana Yaw Mensah and 1 more',
+  },
+  people: [
+    {
+      id: 'abena-owusu',
+      name: 'Abena Owusu',
+      why: 'Both in Data Science Ghana',
+      photo: crewAbenaPhoto,
+    },
+    { id: 'yaw-darko', name: 'Yaw Darko', why: 'Same course at Ashesi', photo: crewYawPhoto },
+    {
+      id: 'efua-asante',
+      name: 'Efua Asante',
+      why: 'Both learning JavaScript',
+      photo: crewEfuaPhoto,
+    },
+  ],
+  note: 'Picked from your clubs, school and skills. Only people you share something with.',
+};
+
+const CrewCard = () => {
+  const go = useGo();
+  return (
+    <section
+      aria-label={CREW.title}
+      className={classNames(
+        'flex flex-col gap-[14px] rounded-[24px] bg-white',
+        CARD_PAD,
+        CARD_SOFT
+      )}
+    >
+      <CardHead
+        tile={<CircleUsersIcon className="size-[17px] text-[#387440]" />}
+        title={CREW.title}
+        link={CREW.link}
+        onLink={() => go(`${CIRCLE_ROUTE}&tab=circle`, 'crew: my crew')}
+      />
+      <div className="flex flex-wrap items-center gap-[12px] rounded-[14px] bg-[#f1f6f2] py-[10px] pr-[10px] pl-[14px] playful:border playful:border-solid playful:border-[#1c2a21] playful:bg-[#fff4d6]">
+        <span aria-hidden="true" className="flex shrink-0 items-center">
+          {CREW.invitations.faces.map((face, i) => (
+            <Photo
+              key={face.id}
+              src={face.photo}
+              size={32}
+              className={classNames('border-2 border-solid border-white', i > 0 && '-ml-[10px]')}
+            />
+          ))}
+        </span>
+        <span className="flex min-w-[160px] flex-1 flex-col gap-[2px]">
+          <span className="text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
+            {CREW.invitations.title}
+          </span>
+          <span className="text-[13px] leading-[16px] text-[#595959]">
+            {CREW.invitations.names}
+          </span>
+        </span>
+        <button
+          type="button"
+          onClick={() => go(`${CIRCLE_ROUTE}&tab=invitations`, 'crew: review invitations')}
+          className="inline-flex min-h-[56px] shrink-0 cursor-pointer items-center justify-center rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.3)] bg-white px-[32px] py-[14px] text-[16px] leading-[24px] font-bold tracking-[0.1px] text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] active:translate-y-[2px] max-lg:min-h-[48px] max-lg:px-[20px]"
+        >
+          Review
+        </button>
+      </div>
+      <ul className="m-0 grid list-none gap-[12px] p-0 sm:grid-cols-3">
+        {CREW.people.map((person) => (
+          <li
+            key={person.id}
+            className="flex min-w-0 flex-col items-center gap-[6px] rounded-[16px] border border-solid border-[#e6e8e4] bg-white px-[12px] pt-[16px] pb-[14px] text-center playful:border-[1.5px] playful:border-[#1c2a21] playful:shadow-[0_3px_0_rgba(28,42,33,0.9)]"
+          >
+            <Photo src={person.photo} size={56} />
+            <span className="max-w-full truncate text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
+              {person.name}
+            </span>
+            <span className="max-w-full text-[12px] leading-[14px] text-[#595959]">
+              {person.why}
+            </span>
+            <CircleButton
+              aria-label={`Link up with ${person.name}`}
+              onClick={() =>
+                go(
+                  `${CIRCLE_ROUTE}&modal=connect&person=${person.id}`,
+                  `crew: link up ${person.id}`
+                )
+              }
+              className="mt-[10px] w-full min-h-[52px] py-[12px]"
+            >
+              Link up
+            </CircleButton>
+          </li>
+        ))}
+      </ul>
+      <p className="m-0 text-[12px] leading-[14px] text-[#6b6b6b]">{CREW.note}</p>
+    </section>
+  );
+};
+
 // ---- Public ----------------------------------------------------------------------------------
 
-const LEFT_IDS = ['matched', 'applications', 'recent-activity'];
+const LEFT_IDS = ['matched', 'applications', 'recent-activity', 'crew'];
 const RIGHT_IDS = ['career-buddy', 'streak', 'job-readiness', 'recruiter-activity'];
 
 // A section whose data is still on the way shows the Figma loading skeleton
@@ -804,6 +978,8 @@ const HomeColumns = ({ home, content }) => {
     ) : (
       <ActivityCard data={content.activity} />
     ),
+    // Demo frames only: the live home has no circle data yet (the My circle screens load their own).
+    crew: home.content ? null : <CrewCard />,
     'career-buddy': <BuddyCard data={content.buddy} />,
     streak: content.streak ? <StreakCard data={content.streak} /> : null,
     'job-readiness': isPending(content.readiness) ? (

@@ -3,11 +3,14 @@ import { CircleCheckIcon } from './circleIcons.jsx';
 import { CARD, HEADING } from './circleStyles.js';
 
 /*
- * NetworkGrowCard — Figma `Grow your circle` right-rail card (named "Grow your network" on the recruiter canvas): title 18/21, an 8px
+ * NetworkGrowCard — Figma `Grow your crew` right-rail card (named "Grow your network" on the recruiter canvas): title 18/21, an 8px
  * progress bar (#edf0eb, fill #387440), "2 of 4 done · +20 pts each" (12/600 #785910) and four steps: a 22px circle (done = filled
  * #387440 with a white check, to do = white with a 1.5px #bfbfba ring), the title 12/600 (done = struck through at 55%) and the 12/17 note.
- * Props: grow ({ title, progress, doneCount, steps: [{ id, title, body, done }] }), onStep(id) (optional: the step becomes a button),
- * className. ⚠️ ASSUMPTION: the bar fill is doneCount / steps.length (Figma draws 190 of 378px = 2 of 4).
+ * Props: grow ({ title, progress, progressPlayful?, doneCount, steps: [{ id, title, body, done }] }), onStep(id) (optional: the step
+ * becomes a button), className. `progressPlayful` is the Playful line ("+20 XP each" vs Focused "+20 pts each"): both are in the DOM,
+ * one hidden by the `playful:` variant. Playful also rings the bar in 1px #1c2a21 and sets the Bricolage title at 18/22.
+ * Used by the talent My crew rail (NW-01 … NW-05, NW-10, NW-11) and the recruiter My network rail.
+ * ⚠️ ASSUMPTION: the bar fill is doneCount / steps.length (Figma draws 190 of 378px = 2 of 4).
  */
 const NetworkGrowCard = ({ grow, onStep, className }) => {
   const total = grow.steps.length || 1;
@@ -16,7 +19,10 @@ const NetworkGrowCard = ({ grow, onStep, className }) => {
       aria-labelledby="network-grow-title"
       className={classNames(CARD, 'flex flex-col gap-[20px] p-[20px]', className)}
     >
-      <h2 id="network-grow-title" className={classNames(HEADING, 'text-[18px] leading-[21px]')}>
+      <h2
+        id="network-grow-title"
+        className={classNames(HEADING, 'text-[18px] leading-[21px] playful:leading-[22px]')}
+      >
         {grow.title}
       </h2>
       <div
@@ -25,7 +31,7 @@ const NetworkGrowCard = ({ grow, onStep, className }) => {
         aria-valuemin={0}
         aria-valuemax={total}
         aria-valuenow={grow.doneCount}
-        className="h-[8px] w-full overflow-hidden rounded-[8px] bg-[#edf0eb]"
+        className="h-[8px] w-full overflow-hidden rounded-[8px] bg-[#edf0eb] playful:border playful:border-solid playful:border-[#1c2a21]"
       >
         <div
           className="h-full rounded-[8px] bg-[#387440]"
@@ -33,7 +39,14 @@ const NetworkGrowCard = ({ grow, onStep, className }) => {
         />
       </div>
       <p className="m-0 -mt-[6px] font-sans text-[12px] font-semibold leading-[14px] text-[#785910]">
-        {grow.progress}
+        {grow.progressPlayful ? (
+          <>
+            <span className="playful:hidden">{grow.progress}</span>
+            <span className="hidden playful:inline">{grow.progressPlayful}</span>
+          </>
+        ) : (
+          grow.progress
+        )}
       </p>
       <ul className="m-0 flex list-none flex-col gap-[20px] p-0">
         {grow.steps.map((step) => {

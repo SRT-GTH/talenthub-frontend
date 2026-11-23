@@ -333,7 +333,7 @@ const CourseDetail = ({ learning }) => {
                   {COURSE.insideMeta}
                 </span>
               </div>
-              <ol className="flex flex-col gap-0">
+              <ol className="flex flex-col gap-[clamp(6px,0.694vw,12px)]">
                 {COURSE.modules.map((m) => (
                   <ModuleRow key={m.n} module={m} onStart={startCourse} />
                 ))}

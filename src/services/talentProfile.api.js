@@ -107,3 +107,11 @@ export const uploadProfilePhoto = (file) => uploadProfileImage(file, 'profile_ph
 
 /* The banner across the top of the profile; the caller saves the url as profile.bannerImage. */
 export const uploadProfileBanner = (file) => uploadProfileImage(file, 'profile_banner');
+
+/** GET /engagement/skills/verifications/me → the talent's skill verification rows (one per attempt / game). */
+export const fetchSkillVerifications = async () => {
+  const data = unwrap(await api.get('/engagement/skills/verifications/me'));
+  const rows = Array.isArray(data) ? data : Array.isArray(data?.rows) ? data.rows : [];
+  log('skill verifications', rows.length);
+  return rows;
+};

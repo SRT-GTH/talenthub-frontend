@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CANDIDATES } from '../talentCandidateProfile/talentCandidateProfileData.js';
+import { debug } from '../../../utils/debug.js';
 import { MeatballMenuIcon } from '../jobPostings/jobPostingsIcons.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import illustration from '../../../assets/recruiter-messages/empty-conversation-illustration.png';
@@ -179,6 +182,8 @@ const RightEmpty = ({ state, onNavigate }) => {
   );
 };
 
+const log = debug('RecruiterThreadView');
+
 const RecruiterThreadView = ({
   conversation,
   archived,
@@ -191,6 +196,8 @@ const RecruiterThreadView = ({
   className,
 }) => {
   const navigate = useNavigate();
+  // Messages sent in this session, per conversation (mock: no messaging API is called; they go when the page reloads).
+  const [sent, setSent] = useState({});
   const shell = classNames(
     'flex h-full min-w-0 flex-1 flex-col rounded-[24px] border border-solid border-[#00522b]/10 bg-white px-[22px] pt-[18px] pb-[14px]',
     'max-lg:rounded-none max-lg:border-0 max-lg:px-[12px] max-lg:pt-0',
@@ -302,8 +309,18 @@ const RecruiterThreadView = ({
                   <ApplicationCard
                     key="application"
                     conversation={conversation}
-                    onPipeline={() => navigate('/recruiter/application-pipeline')}
-                    onProfile={() => navigate('/recruiter/talent-search')}
+                    /* The pipeline drawer and applicant profile of this candidate (Figma PL-03 / TS-19 are "opened from Messages");
+                       candidates without a drawn profile open talent search. */
+                    onPipeline={() =>
+                      navigate(`/recruiter/application-pipeline?drawer=${conversation.id}`)
+                    }
+                    onProfile={() =>
+                      navigate(
+                        CANDIDATES[conversation.id]
+                          ? `/recruiter/talent-search/${conversation.id}`
+                          : '/recruiter/talent-search'
+                      )
+                    }
                   />
                 ) : null;
               if (item.kind === 'note')
@@ -320,15 +337,33 @@ const RecruiterThreadView = ({
             })}
           </div>
         ))}
+        {(sent[conversation.id] ?? []).map((item, index) => (
+          <Bubble key={`sent-${index}`} item={item} />
+        ))}
       </div>
 
       <form
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={(event) => {
+          event.preventDefault();
+          const input = event.currentTarget.elements.message;
+          const text = input.value.trim();
+          log('send', { conversation: conversation.id, length: text.length });
+          if (!text) return;
+          setSent((all) => ({
+            ...all,
+            [conversation.id]: [
+              ...(all[conversation.id] ?? []),
+              { own: true, text, time: 'Just now' },
+            ],
+          }));
+          input.value = '';
+        }}
         className="mt-[16px] flex h-[62px] shrink-0 items-center justify-between gap-[16px] rounded-full border-[1.5px] border-solid border-[#c1d4c4] bg-white py-[12px] pr-[12px] pl-[20px]"
       >
         <input
           type="text"
           placeholder={COMPOSER.placeholder}
+          name="message"
           aria-label="Message"
           className="min-w-0 flex-1 border-0 bg-transparent p-0 font-sans text-[14px] leading-[18px] text-black outline-none placeholder:text-[#999]"
         />

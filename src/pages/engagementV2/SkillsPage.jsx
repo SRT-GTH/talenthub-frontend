@@ -22,7 +22,10 @@ import {
   skillFromDraft,
   skillsFromProfile,
   skillsToProfile,
+  verifiedFirst,
+  withVerifications,
 } from '../../components/sections/engagementV2/skills/skillsData.js';
+import { fetchSkillVerifications } from '../../services/talentProfile.api.js';
 import { useSkillsState } from '../../components/sections/engagementV2/skills/skillsState.js';
 import { GUTTER } from '../../components/sections/engagementV2/skills/skillsStyles.js';
 
@@ -56,6 +59,7 @@ const SkillsPage = () => {
   const loaded = load === 'ready';
   const [saveError, setSaveError] = useState('');
   const saveSeq = useRef(0);
+  const verificationsRef = useRef([]); // live: the talent's skill verification rows (Verified badges)
 
   useEffect(() => {
     log('mount', {
@@ -71,11 +75,19 @@ const SkillsPage = () => {
   useEffect(() => {
     if (!live) return undefined;
     let cancelled = false;
-    fetchMyProfile()
-      .then((profile) => {
+    // the Verified badges come from the verification rows (a failure there only leaves the badges off)
+    const verifs = fetchSkillVerifications().catch((err) => {
+      log.warn('verifications failed:', err?.response?.status || err?.message);
+      return [];
+    });
+    Promise.all([fetchMyProfile(), verifs])
+      .then(([profile, rowsV]) => {
         if (cancelled) return;
-        const rows = skillsFromProfile(profile);
-        log('profile skills loaded', rows.length);
+        verificationsRef.current = rowsV;
+        const rows = withVerifications(skillsFromProfile(profile), rowsV);
+        log('profile skills loaded', rows.length, {
+          verified: rows.filter((r) => r.verified).length,
+        });
         setSkills(rows);
         setLoad('ready');
       })
@@ -107,7 +119,9 @@ const SkillsPage = () => {
       fetchMyProfile()
         .then((profile) => {
           if (seq !== saveSeq.current) return;
-          setSkills((list) => mergeSavedSkills(list, profile));
+          setSkills((list) =>
+            withVerifications(mergeSavedSkills(list, profile), verificationsRef.current)
+          );
         })
         .catch((err) => log.error('re-read after save failed:', err?.message));
       return true;
@@ -159,6 +173,9 @@ const SkillsPage = () => {
 
   const hasSkills = skills.length > 0;
   const verifiedCount = skills.filter((s) => s.verified).length;
+  const ordered = hasSkills ? verifiedFirst(skills) : skills;
+  if (hasSkills)
+    log('list order: verified first', { verified: verifiedCount, total: skills.length });
   const statusText = load === 'error' ? LOAD_ERROR : saveError;
   const status = statusText ? (
     <p
@@ -209,7 +226,7 @@ const SkillsPage = () => {
       {status}
       {!loaded ? null : hasSkills ? (
         <SkillsListScreen
-          skills={skills}
+          skills={ordered}
           progressSticker={
             live ? `${verifiedCount} VERIFIED · ${skills.length - verifiedCount} TO GO` : undefined
           }

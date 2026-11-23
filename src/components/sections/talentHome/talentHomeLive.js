@@ -1,4 +1,5 @@
 import { CORE_CONTENT, HERO, JOURNEY_COPY } from './talentHomeCoreData.js';
+import { countProvenSkills, countVerifiedSkills } from '../../../utils/verifiedSkills.js';
 
 /*
  * talentHomeLive.js - turns the real /home data (services/talentHome.api.js)
@@ -80,6 +81,9 @@ export const stateKeyFor = (data) => {
 const matchCards = (items, complete) =>
   items.slice(0, 3).map((m, i) => ({
     id: m.opportunityId || m.id || String(i),
+    live: Boolean(m.opportunityId || m.id),
+    saved: Boolean(m.bookmarkId || m.isSaved),
+    bookmarkId: m.bookmarkId ?? null,
     initials: initials(m.organization),
     title: m.title,
     meta: [m.organization, m.location?.city, m.location?.type].filter(Boolean).join(' · '),
@@ -416,7 +420,7 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
       headline: [[`${greeting(now)}, `], [`${first}.`, true]],
       body: pending.matches
         ? `${data.applications.total ? `You have ${plural(data.applications.total, 'application')} in progress. ` : ''}Here’s what matters today.`
-        : `${data.matches.total ? `${plural(data.matches.total, 'role')} match your profile` : 'No roles match your profile yet'}${data.applications.total ? ` and you have ${plural(data.applications.total, 'application')} in progress` : ''}. Here’s what matters today.`,
+        : `${data.matches.total ? `${plural(data.matches.total, 'role')} ${data.matches.total === 1 ? 'matches' : 'match'} your profile` : 'No roles match your profile yet'}${data.applications.total ? ` and you have ${plural(data.applications.total, 'application')} in progress` : ''}. Here’s what matters today.`,
       stats: [
         {
           n: pending.views ? '…' : String(data.views?.uniqueViewers ?? 0),
@@ -721,10 +725,14 @@ export const buildAssessmentContent = (data) => {
       evidence: evidenceOf(v),
     };
   });
-  const verified = skillRows.filter((s) => s.evidence !== 'self').length;
+  // Verified = platform-assessment badges, proven = assessment or game evidence (utils/verifiedSkills.js).
+  const verified = countVerifiedSkills(a.verifications);
   const skillsEvidence = {
     title: 'Skills evidence',
     count: `${plural(skillRows.length, 'skill')} · ${verified} verified`,
+    total: skillRows.length,
+    verifiedCount: verified,
+    provenCount: countProvenSkills(a.verifications),
     intro: skillRows.length
       ? 'How each skill was proven. Recruiters see the same labels.'
       : 'No skills on your profile yet.',

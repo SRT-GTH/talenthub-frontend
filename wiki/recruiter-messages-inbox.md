@@ -13,19 +13,19 @@
 
 Diff % from `figma-tools/framecmp.mjs` (1728 wide, viewport = frame height − 52), 2026-11-07. `✅ VERIFIED`.
 
-| Code     | Frame                                 | Figma node  | URL                                     | Diff |
-| -------- | ------------------------------------- | ----------- | --------------------------------------- | ---- |
-| R-MSG-01 | Inbox · All (application thread open) | 10124:24387 | `/recruiter/messages`                   | 5.4  |
-| R-MSG-09 | Unread filter                         | 10124:24724 | `?tab=unread`                           | 2.3  |
-| R-MSG-11 | Empty inbox · first visit             | 10124:25334 | `?inbox=empty`                          | 2.3  |
-| R-MSG-02 | Applicants filter · auto-message      | 10124:25513 | `?tab=applicants`                       | 2.9  |
-| R-MSG-08 | Applicants · no new applications      | 10124:25799 | `?tab=applicants&inbox=none`            | 2.4  |
-| R-MSG-04 | Archived · toast with undo            | 10124:26317 | `?tab=applicants&toast=archived`        | 4.3  |
-| R-MSG-05 | Archived view · conversation open     | 10124:26615 | `?archived=1`                           | 4.7  |
-| R-MSG-07 | Archived view · empty                 | 10124:26918 | `?archived=1&inbox=empty`               | 1.8  |
-| R-MSG-06 | Unarchived · back in inbox (toast)    | 10124:27086 | `?toast=unarchived`                     | 6.5  |
-| R-MSG-02 | No message selected yet               | 10124:27435 | `?conversation=none`                    | 2.6  |
-| T-MSG-01 | Talent · Focused · Inbox (default)    | 10136:7507  | `?view=talent` (earlier talent screens) | n/a  |
+| Code     | Frame                                 | Figma node  | URL                                     | Diff % (2026-11-22)                                    |
+| -------- | ------------------------------------- | ----------- | --------------------------------------- | ------------------------------------------------------ |
+| R-MSG-01 | Inbox · All (application thread open) | 10124:24387 | `/recruiter/messages`                   | 5.4                                                    |
+| R-MSG-09 | Unread filter                         | 10124:24724 | `?tab=unread`                           | 2.4                                                    |
+| R-MSG-11 | Empty inbox · first visit             | 10124:25334 | `?inbox=empty`                          | 2.3                                                    |
+| R-MSG-02 | Applicants filter · auto-message      | 10124:25513 | `?tab=applicants`                       | 3.0                                                    |
+| R-MSG-08 | Applicants · no new applications      | 10124:25799 | `?tab=applicants&inbox=none`            | 2.4                                                    |
+| R-MSG-04 | Archived · toast with undo            | 10124:26317 | `?tab=applicants&toast=archived`        | 4.3                                                    |
+| R-MSG-05 | Archived view · conversation open     | 10124:26615 | `?archived=1`                           | 4.8                                                    |
+| R-MSG-07 | Archived view · empty                 | 10124:26918 | `?archived=1&inbox=empty`               | 1.8                                                    |
+| R-MSG-06 | Unarchived · back in inbox (toast)    | 10124:27086 | `?toast=unarchived`                     | 6.5                                                    |
+| R-MSG-02 | No message selected yet               | 10124:27435 | `?conversation=none`                    | 2.6                                                    |
+| T-MSG-01 | Talent · Focused · Inbox (default)    | 10136:7507  | `?view=talent` (earlier talent screens) | 7.0 (was 24.4 today: rendered the sign-in page; fixed) |
 
 Other keys: `conversation=<id>` (ama-boateng, akosua-quansah, julian-reed, kofi-amankwah, ella-mensah, sarah-jenkins), `menu=thread`, `thread=open` (below lg the thread is its own screen).
 
@@ -46,3 +46,7 @@ Tabs filter the list (Unread = rows with a count, Applicants = application threa
 
 - **T-MSG-01 (talent inbox, `10136:7507`)** is a talent-persona frame on this canvas. It was **not rebuilt**: the earlier `view=talent` screens still render the old design, and in the dev server `?view=talent` currently redirects to `/login` (talent shell needs a session), so no diff number is quoted. It needs its own pass.
 - Sort / refresh / search typing / Help me reply / send are inert (no frame draws a result); "Search talent" and "Post a job" navigate.
+
+## Figma compare (2026-11-22)
+
+Diff column re-measured. Method: 0.5x Figma exports vs a Playwright screenshot at the frame's size (viewport = frame height − 52 for the Safari toolbar on recruiter frames; no toolbar on /data), compared at the export's resolution, whole frame. 2–4 % = font metrics; dialogs read higher because Figma centres them in the taller frame. `✅ VERIFIED` (measured 2026-11-22). T-MSG-01 (`?view=talent`) was 24.4 %: the signed-out talent shell called the talent home API, got 401 and showed the sign-in page. `MessagesFrame.jsx` now calls `useTalentHomeState({ enabled: !messages.demo })`, so drawn frames never call it (the talent `/messages` frame URLs benefit too). `✅ VERIFIED` (7.0 %; the rest is the earlier talent sidebar).

@@ -3,7 +3,7 @@ import { CARD, HEADING } from './circleStyles.js';
 import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
- * CircleSidePanel — Figma `Your network` right-rail card: "Your circle" + three stat tiles (128 · 46 · 31) + the Buddy tip
+ * CircleSidePanel — Figma `Your network` right-rail card: "Your crew" + three stat tiles (128 · 46 · 31) + the Buddy tip
  * (#faf4e8, r14, Buddy avatar). Props: stats ({ inCircle, following, profileViews } — defaults to the summary block), className.
  */
 /* `tiles` ([{ value, label }]) replaces the three drawn stats on the live screen (no follow or profile-view counts yet). */

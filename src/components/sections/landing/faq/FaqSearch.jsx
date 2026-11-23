@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaqSearchIcon } from './FaqIcons.jsx';
 import { FAQ_HERO } from './FaqData.js';
 import { debug } from '../../../../utils/debug.js';
@@ -10,8 +10,28 @@ const log = debug('FaqSearch');
  * 20px search icon #595959, placeholder 16/400 #595959, "⌘K" hint chip (45x26, #f7f8f4, 1px #e7e7e7).
  * ⚠️ Figma draws only the field, no results state: typing is logged, nothing is filtered.
  */
+// Mac shows "⌘K" (as drawn); other systems show "Ctrl K" so the hint matches the keyboard (⚠️ ASSUMPTION: Figma draws ⌘K only).
+const IS_MAC =
+  typeof navigator !== 'undefined' &&
+  /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+
 const FaqSearch = () => {
   const [value, setValue] = useState('');
+  const inputRef = useRef(null);
+
+  // ⌘K / Ctrl+K anywhere on the page focuses the search field
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        log('shortcut: focus search');
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   return (
     <form
       role="search"
@@ -23,7 +43,9 @@ const FaqSearch = () => {
     >
       <FaqSearchIcon className="shrink-0 text-[#595959]" />
       <input
+        ref={inputRef}
         type="search"
+        aria-keyshortcuts={IS_MAC ? 'Meta+K' : 'Control+K'}
         value={value}
         onChange={(e) => {
           setValue(e.target.value);
@@ -34,7 +56,7 @@ const FaqSearch = () => {
         className="w-0 flex-1 border-0 bg-transparent p-0 text-left font-sans text-[16px] leading-[19px] text-[#1c2a21] outline-none placeholder:text-[#595959]"
       />
       <kbd className="hidden shrink-0 rounded-full border border-[#e7e7e7] bg-[#f7f8f4] px-3 py-[5px] font-sans text-[12px] font-semibold leading-[14.3px] text-[#1c2a21] md:inline-block">
-        {FAQ_HERO.searchHint}
+        {IS_MAC ? FAQ_HERO.searchHint : 'Ctrl K'}
       </kbd>
     </form>
   );

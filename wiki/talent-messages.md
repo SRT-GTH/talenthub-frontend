@@ -15,6 +15,15 @@ A signed-in talent on plain `/messages` sees their own recruiter conversations f
 - Notification links `/messages/:conversationId` open that conversation.
 - Still scripted (no backend): Help me reply (H-01…04), interview invite / confirm cards, confidential-company requests, language and accessibility extras.
 
+## Inspection fixes (2026-11-21)
+
+- ✅ VERIFIED The job proposal card is now the light card in every state (Figma component set "GTH · Job proposal card":
+  `#f8f8f4` + `#e6e6e6` hairline, white fact pills, white match box with green meter and gold sparkle, green primary
+  "View and apply" / "Pass on this role", Passing reasons box `#f2f5f4`, Applied strip `#e2f1e4`). It was a dark green
+  gradient for Pending / Passing / Applied, which the current Figma no longer draws.
+- ✅ VERIFIED Empty inbox "Check my visibility" → `/settings/privacy` and "Browse your matches" → `/job-postings` in the drawn
+  frame too (before: live inbox only). Before-you-apply "Edit visibility" → `/settings/privacy` (🔶 LIKELY destination).
+
 ## Decisions (owner, 2026-10-20)
 
 - Route `/messages`; sidebar + mobile nav Messages item and the top-nav messages icon open it (the icon may become a pop-up once the header designs are checked).

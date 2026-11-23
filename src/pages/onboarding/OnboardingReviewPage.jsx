@@ -33,6 +33,7 @@ import PrivacyPolicyModal from '../../components/shared/PrivacyPolicyModal.jsx';
 import DataProcessingConsentModal from '../../components/shared/DataProcessingConsentModal.jsx';
 import TermsAcceptedModal from '../../components/shared/TermsAcceptedModal.jsx';
 import { debug } from '../../utils/debug.js';
+import StepEyebrow from '../../components/sections/talentAuth/StepEyebrow.jsx';
 
 const log = debug('OnboardingReviewPage');
 
@@ -466,7 +467,12 @@ const ConsentCheckbox = ({ checked, onToggle, children }) => {
       <input type="checkbox" checked={checked} onChange={onToggle} className="sr-only peer" />
       <span
         aria-hidden="true"
-        className="relative mt-px inline-flex size-5 shrink-0 items-center justify-center rounded-[6px] transition-[background-color,border-color,box-shadow,transform] duration-100 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-green-light-active peer-focus-visible:ring-offset-2"
+        // Playful: ink offset shadow like the sticker checkbox (ticked = ink border, pressed to 1px)
+        className={`relative mt-px inline-flex size-5 shrink-0 items-center justify-center rounded-[6px] transition-[background-color,border-color,box-shadow,transform] duration-100 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-green-light-active peer-focus-visible:ring-offset-2 playful:border-[1.2px]! ${
+          checked
+            ? 'playful:border-[#1c2a21]! playful:shadow-[1px_1px_0_0_#1c2a21]!'
+            : 'playful:shadow-[2px_2px_0_0_#1c2a21]!'
+        }`}
         style={
           checked
             ? {
@@ -771,7 +777,7 @@ const OnboardingReviewPage = () => {
   };
 
   return (
-    <div className="relative mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar bg-white max-md:scroll-pb-28">
+    <div className="relative mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar max-md:scroll-pb-28">
       <OnboardingHeader currentKey="review" />
 
       <ReviewBackgroundOrbs />
@@ -780,35 +786,10 @@ const OnboardingReviewPage = () => {
         <div className="flex w-full max-w-[897px] flex-col gap-8 max-md:gap-4">
           {/* Hero */}
           <div className="flex flex-col items-center gap-4 text-center max-md:gap-2">
-            <span
-              className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-2 rounded-[8px] border px-4 py-1"
-              style={{ background: '#FFFEFC', borderColor: '#C1D4C4' }}
-            >
-              <span
-                aria-hidden="true"
-                className="size-2 rounded-full"
-                style={{
-                  background: '#E1EAE2',
-                  border: '1.5px solid #1D7C4D',
-                  boxShadow: '0 0 4px #006B3F',
-                }}
-              />
-              <span
-                className="font-heading font-semibold text-[#B5B5B5]"
-                style={{ fontSize: 15, lineHeight: 'normal' }}
-              >
-                07
-              </span>
-              <span
-                className="text-[12px] leading-[18px] text-brand-green"
-                style={{ letterSpacing: '0.2px' }}
-              >
-                Review &amp; terms
-              </span>
-            </span>
+            <StepEyebrow number="07" label="Review & terms" />
 
             <h1
-              className="font-heading font-semibold text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
+              className="font-heading font-semibold focused:font-sans text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
               style={{
                 fontSize: 'clamp(2.25rem, 5vw, 3.375rem)',
                 lineHeight: 1.1,
@@ -833,7 +814,7 @@ const OnboardingReviewPage = () => {
 
           {/* Summary card */}
           <div
-            className="relative w-full rounded-[24px] bg-white max-md:rounded-none max-md:border-0! max-md:shadow-none!"
+            className="relative w-full rounded-[24px] bg-white max-md:rounded-none max-md:border-0! max-md:shadow-none! playful:border-[1.5px]! playful:border-[rgba(28,42,33,0.55)]! playful:shadow-[0_10px_24px_rgba(28,42,33,0.06),4px_4px_0_rgba(28,42,33,0.45)]!"
             style={{
               boxShadow: '0 2px 8px -1px rgba(27,36,44,0.08), 0 2px 2px -1px rgba(27,36,44,0.04)',
               border: '1px solid rgba(0,0,0,0.04)',

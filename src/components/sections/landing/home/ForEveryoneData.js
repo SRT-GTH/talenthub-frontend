@@ -1,3 +1,5 @@
+import { LANDING_ROUTES } from '../../../../constants/landingRoutes.js';
+
 /* S7 For everyone copy — verbatim from Figma 7797:13315 (desktop) / 7815:269892 (tablet) / 7815:277709 (mobile).
  * The four tab panels are the component variants Tab=Students/Parents/Schools/Recruiters (7797:15692 / 15729 / 15766 / 15803), read from their renders. */
 
@@ -28,6 +30,7 @@ export const AUDIENCE_PANELS = {
       { id: 'buddy', text: 'Career Buddy guidance and mentorship tools' },
     ],
     cta: 'Create my free profile',
+    to: LANDING_ROUTES.getStartedTalent, // not linked in Figma: the role picker with Talent selected
     sticker: 'STUDENTS',
     stickerBg: '#ffd86b',
     photo: 'students',
@@ -42,6 +45,7 @@ export const AUDIENCE_PANELS = {
       { id: 'phone', text: 'Works with any phone, any network' },
     ],
     cta: 'Invite my parent',
+    invitesParent: true, // "Invite my parent" speaks as the child: route from inviteParentPath() at render (signed out -> talent sign-up)
     sticker: 'PARENTS',
     stickerBg: '#84cc16',
     photo: 'pen',
@@ -56,6 +60,7 @@ export const AUDIENCE_PANELS = {
       { id: 'ges', text: 'Free onboarding for GES schools' },
     ],
     cta: 'Bring GTH to my school',
+    bringsSchool: true, // not linked in Figma: route from schoolSignUpPath() at render (institution sign-up, or /institution for staff)
     sticker: 'SCHOOLS',
     stickerBg: '#f9c9b6',
     photo: 'table',
@@ -74,6 +79,7 @@ export const AUDIENCE_PANELS = {
       { id: 'companies', text: '250+ companies already hiring' },
     ],
     cta: 'See GTH for recruiters',
+    to: LANDING_ROUTES.getStartedRecruiter, // not linked in Figma: the role picker with Recruiter selected
     sticker: 'RECRUITERS',
     stickerBg: '#ffd86b',
     photo: 'pen',

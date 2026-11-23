@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import {
   ProfileMenuAccessibilityIcon,
@@ -17,6 +17,8 @@ import { Divider, MenuItem } from '../talentSettings/ProfileMenu.jsx';
 import avatarPortrait from '../../../assets/talent-settings/menu/kofi-avatar-portrait.svg';
 import { LogoutIcon, VerifyBadgeIcon } from './security/SettingsIcons.jsx';
 import { MENU_ACCOUNT } from './security/securityData.js';
+import PrivacyPolicyModal from '../../shared/PrivacyPolicyModal.jsx';
+import TermsModal from '../../shared/TermsModal.jsx';
 
 const log = debug('RecruiterProfileMenu');
 
@@ -26,13 +28,17 @@ const log = debug('RecruiterProfileMenu');
  * header (avatar, "Kwame Asante" + Verified, email, "Profile 100%" bar + "Top Recruiter"), View my recruiter profile, Preview as talent, View applicants 4, Saved talents 3 | Settings, Accessibility, Language English (GH) | Help and support,
  * Send feedback, Invite a friend +50pts | Log out | Privacy, Terms, "Keyboard: ↑ ↓ to move, Esc to close". There is no mode switch.
  * Rows: Settings / Accessibility / Language switch the Settings tab; Help and support = ?help=page, Send feedback = ?modal=feedback, Invite a friend = ?modal=invite (built by the help / dialogs builder); Log out = ?modal=logout.
- * ⚠️ ASSUMPTIONS (no destination is drawn): View my recruiter profile, Preview as talent, Privacy and Terms only close the menu (no recruiter profile page exists yet); View applicants -> /recruiter/application-pipeline; Saved talents -> /recruiter/talent-search.
+ * ⚠️ ASSUMPTIONS (no destination is drawn): View my recruiter profile -> Settings > Account; Privacy / Terms open the shared PrivacyPolicyModal / TermsModal (as the landing footer); Preview as talent only closes the menu (no recruiter profile page exists); View applicants -> /recruiter/application-pipeline; Saved talents -> /recruiter/talent-search.
  * Esc and an outside click close it; ArrowUp / ArrowDown / Home / End move between the rows. Props: settings (useRecruiterSettingsState()).
  */
 const RecruiterProfileMenu = ({ settings }) => {
   const navigate = useNavigate();
   const rootRef = useRef(null);
   const [hot, setHot] = useState('settings');
+  // Privacy / Terms open the shared legal summaries, as the landing footer does (no legal pages exist yet).
+  const [legal, setLegal] = useState(null);
+  const { pathname } = useLocation();
+  const onSettingsPage = pathname === '/recruiter/settings';
   const open = settings.get('menu') === 'open';
   const { update } = settings;
 
@@ -83,11 +89,26 @@ const RecruiterProfileMenu = ({ settings }) => {
     };
   }, [open, update]);
 
-  if (!open) return null;
+  const closeLegal = () => setLegal(null);
+  const legalModal =
+    legal === 'privacy' ? (
+      <PrivacyPolicyModal ctaLabel="Got it" onAccept={closeLegal} onClose={closeLegal} />
+    ) : legal === 'terms' ? (
+      <TermsModal ctaLabel="Got it" onAccept={closeLegal} onClose={closeLegal} />
+    ) : null;
+
+  if (!open) return legalModal;
 
   const me = MENU_ACCOUNT;
   const act = (id, patch) => {
     log('action', { id, patch });
+    // Off the Settings page (the menu is on every recruiter page's top bar) a Settings tab or the logout dialog opens /recruiter/settings.
+    if (!onSettingsPage && (patch.tab || patch.modal === 'logout')) {
+      const to = `/recruiter/settings?${new URLSearchParams(patch).toString()}`;
+      log('branch: not on Settings ->', to);
+      navigate(to);
+      return;
+    }
     update({ menu: null, ...patch });
   };
   const go = (id, to) => {
@@ -160,7 +181,8 @@ const RecruiterProfileMenu = ({ settings }) => {
           {item('profile', {
             icon: <ProfileMenuUserIcon className="size-[20px]" />,
             label: 'View my recruiter profile',
-            onActivate: () => noDestination('profile'),
+            // ⚠️ ASSUMPTION: no recruiter profile page is drawn; Settings > Account ("Personal details: how you appear to candidates", public recruiter profile) is the closest.
+            onActivate: () => act('profile', { tab: 'account' }),
           })}
           {item('preview', {
             icon: <ProfileMenuEyeIcon className="h-[19px] w-[20px]" />,
@@ -221,7 +243,7 @@ const RecruiterProfileMenu = ({ settings }) => {
           {item('invite', {
             icon: <ProfileMenuInviteIcon className="size-[20px]" />,
             label: 'Invite a friend',
-            onActivate: () => act('invite', { modal: 'invite' }),
+            onActivate: () => act('invite', { modal: 'invite-friend' }),
           })}
           <span
             aria-hidden="true"
@@ -245,14 +267,22 @@ const RecruiterProfileMenu = ({ settings }) => {
         <div className="flex w-full shrink-0 flex-wrap items-center gap-x-[12px] gap-y-[4px] px-[12px] pt-[6px] pb-[4px] font-sans text-[12px] text-[#595959]">
           <button
             type="button"
-            onClick={() => noDestination('privacy')}
+            onClick={() => {
+              log('open legal summary:', 'privacy');
+              setLegal('privacy');
+              update({ menu: null });
+            }}
             className="cursor-pointer border-0 bg-transparent p-0 font-medium max-lg:min-h-[24px] text-[#595959] underline decoration-solid underline-offset-[from-font] outline-none focus-visible:outline-2 focus-visible:outline-[#1c2a21]"
           >
             Privacy
           </button>
           <button
             type="button"
-            onClick={() => noDestination('terms')}
+            onClick={() => {
+              log('open legal summary:', 'terms');
+              setLegal('terms');
+              update({ menu: null });
+            }}
             className="cursor-pointer border-0 bg-transparent p-0 font-medium max-lg:min-h-[24px] text-[#595959] underline decoration-solid underline-offset-[from-font] outline-none focus-visible:outline-2 focus-visible:outline-[#1c2a21]"
           >
             Terms

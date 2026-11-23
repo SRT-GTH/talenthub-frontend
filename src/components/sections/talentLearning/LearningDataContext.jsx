@@ -179,12 +179,31 @@ export const LearningDataProvider = ({ learning, children }) => {
       const card = toCourseCard(c);
       cards[card.id] = card;
     });
-    // Enrolled courses missing from the catalogue page still need a card.
+    // Enrolled or saved courses missing from the catalogue page still need a card. The enrolment carries no
+    // course name (and the catalogue leaves out finished courses), so the bookmark's saved title names it.
+    const savedTitles = {};
+    state.bookmarks.forEach((b) => {
+      if (b.contentTitle) savedTitles[String(b.contentId)] = b.contentTitle;
+    });
     state.enrolments.forEach((e) => {
       const cid = String(e.courseId || '');
       if (cid && !cards[cid]) {
-        cards[cid] = toCourseCard({ _id: cid, title: e.courseName || 'Course' });
+        cards[cid] = toCourseCard({
+          _id: cid,
+          title: e.courseName || savedTitles[cid] || 'Course',
+        });
       }
+    });
+    state.bookmarks.forEach((b) => {
+      const cid = String(b.contentId || '');
+      if (cid && !cards[cid] && (!b.contentType || b.contentType === 'course')) {
+        cards[cid] = toCourseCard({ _id: cid, title: b.contentTitle || 'Course' });
+      }
+    });
+    log('cards built', {
+      catalogue: state.catalogue.length,
+      enrolments: state.enrolments.length,
+      untitled: Object.values(cards).filter((c) => c.title === 'Course').length,
     });
 
     const items = state.enrolments.map((e) => toProgressItem(e, cards[String(e.courseId)]));

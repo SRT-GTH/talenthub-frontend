@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
 import { debug } from '../../../utils/debug.js';
 import { HEADING, HubButton, HubChip, HubSticker, HubToggle } from './HubParts.jsx';
 import { LAB_ICONS } from './hubShared.js';
@@ -146,12 +147,19 @@ const Overview = ({ detail, t }) => {
 
 const Recruiters = ({ detail }) => {
   const Icon = ART_ICONS[detail.icon];
+  const navigate = useNavigate();
+  // "Preview" is not linked in Figma. It opens the drawn recruiter preview of the talent's results
+  // (My Assessment MA-07, whose own "Open Skills Lab" button links back to the Skills Lab hub).
+  const preview = () => {
+    log('preview recruiter view -> /my-assessment?view=recruiter');
+    navigate(withDemoFlag('/my-assessment?view=recruiter'));
+  };
   return (
     <Card label="What recruiters see" className="gap-[16px]">
       <div className="flex flex-wrap items-center gap-[10px]">
         <h2 className={H2}>What recruiters see when you pass</h2>
         <span className="min-w-0 flex-1" aria-hidden="true" />
-        <HubChip onClick={() => log('preview recruiter view')}>Preview</HubChip>
+        <HubChip onClick={preview}>Preview</HubChip>
       </div>
       <div className="flex flex-wrap items-center gap-[14px] rounded-[16px] bg-[#f8f8f4] p-[16px]">
         <span
@@ -185,61 +193,66 @@ const Recruiters = ({ detail }) => {
 const ROW_COLS =
   'sm:grid sm:grid-cols-[minmax(0,160px)_minmax(0,220px)_minmax(0,120px)_minmax(0,1fr)] sm:gap-x-[16px]';
 
-const Attempts = ({ detail }) => (
-  <Card label="Your attempts" className="gap-[12px]">
-    <h2 className={H2}>Your attempts</h2>
-    <div role="table" aria-label="Your attempts" className="flex flex-col">
-      <div role="row" className={classNames('max-sm:sr-only', ROW_COLS, 'py-[8px]')}>
-        {['Date', 'Result', 'Score', 'Status'].map((h) => (
-          <span
-            key={h}
-            role="columnheader"
-            className="font-sans text-[12.5px] leading-[15px] font-semibold text-[#595959]"
-          >
-            {h}
-          </span>
-        ))}
-      </div>
-      <hr className="m-0 mb-[12px] h-px border-0 bg-[#e7e7e7] max-sm:hidden" />
-      {detail.attempts.length === 0 ? (
-        <p className="m-0 font-sans text-[14px] leading-[17px] font-normal text-[#595959]">
-          {detail.attemptsEmpty}
-        </p>
-      ) : (
-        detail.attempts.map((row) => (
-          <div
-            role="row"
-            key={row.date}
-            className={classNames(
-              'flex flex-wrap items-center gap-x-[16px] gap-y-[4px] py-[10px] font-sans text-[14px] leading-[17px] text-[#1c2a21]',
-              ROW_COLS
-            )}
-          >
-            <span role="cell" className="font-medium">
-              {row.date}
+const Attempts = ({ detail }) => {
+  const navigate = useNavigate();
+  // "Resume" on an unfinished attempt continues the saved run, same place as the start card's "Resume lab".
+  const resume = () => {
+    log('attempt resume ->', detail.id);
+    navigate(`/skills-lab/lab/${detail.id}/play`);
+  };
+  return (
+    <Card label="Your attempts" className="gap-[12px]">
+      <h2 className={H2}>Your attempts</h2>
+      <div role="table" aria-label="Your attempts" className="flex flex-col">
+        <div role="row" className={classNames('max-sm:sr-only', ROW_COLS, 'py-[8px]')}>
+          {['Date', 'Result', 'Score', 'Status'].map((h) => (
+            <span
+              key={h}
+              role="columnheader"
+              className="font-sans text-[12.5px] leading-[15px] font-semibold text-[#595959]"
+            >
+              {h}
             </span>
-            <span role="cell">{row.result}</span>
-            <span role="cell" className="font-semibold">
-              {row.score}
-            </span>
-            <span role="cell">
-              {row.status === 'Resume' ? (
-                <HubChip
-                  onClick={() => log('attempt resume')}
-                  aria-label={`Resume ${detail.title}`}
-                >
-                  {row.status}
-                </HubChip>
-              ) : (
-                <HubChip>{row.status}</HubChip>
+          ))}
+        </div>
+        <hr className="m-0 mb-[12px] h-px border-0 bg-[#e7e7e7] max-sm:hidden" />
+        {detail.attempts.length === 0 ? (
+          <p className="m-0 font-sans text-[14px] leading-[17px] font-normal text-[#595959]">
+            {detail.attemptsEmpty}
+          </p>
+        ) : (
+          detail.attempts.map((row) => (
+            <div
+              role="row"
+              key={row.date}
+              className={classNames(
+                'flex flex-wrap items-center gap-x-[16px] gap-y-[4px] py-[10px] font-sans text-[14px] leading-[17px] text-[#1c2a21]',
+                ROW_COLS
               )}
-            </span>
-          </div>
-        ))
-      )}
-    </div>
-  </Card>
-);
+            >
+              <span role="cell" className="font-medium">
+                {row.date}
+              </span>
+              <span role="cell">{row.result}</span>
+              <span role="cell" className="font-semibold">
+                {row.score}
+              </span>
+              <span role="cell">
+                {row.status === 'Resume' ? (
+                  <HubChip onClick={resume} aria-label={`Resume ${detail.title}`}>
+                    {row.status}
+                  </HubChip>
+                ) : (
+                  <HubChip>{row.status}</HubChip>
+                )}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+    </Card>
+  );
+};
 
 const StartCard = ({ detail, t }) => {
   const { start } = detail;

@@ -47,8 +47,8 @@ const log = debug('TalentCandidateProfileSection');
  *   /recruiter/talent-search/ama-boateng                                    TS-19 10102:45118  applicant profile (Senior UX Designer)
  *   job=<jobId>  (optional) the job the match card is for; the list sends ?job=senior-product-engineer. Candidates keep their own match job (ama-boateng: senior-ux-designer).
  * Toast closing (button, timer or its action) removes `toast`. `invited` / `saved` / `pipeline` stay, so a reload shows the result without the toast.
- * Not drawn in Figma (⚠️ ASSUMPTION / not built): a profile for godfred-ansah or an unknown id (a "not available" state with a way back is shown); a menu for the applicant's "⋯" (the button logs only);
- * "Move to stage", "Share with my team", "Hide from my searches", "Report profile", "New list…" and the "2 of 12" next chevron (log only); "Copy profile link" copies the page URL, no toast is drawn.
+ * Not drawn in Figma (⚠️ ASSUMPTION / not built): a profile for godfred-ansah or an unknown id (a "not available" state with a way back is shown); the applicant's "⋯" and "Move to stage" open the pipeline card menu, "Open application" the pipeline drawer, the saved toast's action talent search;
+ * "Share with my team", "Hide from my searches", "Report profile", "New list…" and the "2 of 12" next chevron (log only); "Copy profile link" copies the page URL, no toast is drawn.
  * Navigation: Back → /recruiter/talent-search?job=… (applicant: /recruiter/messages), Message and "Open Conversation" → /recruiter/messages, "View in Pipeline" → /recruiter/application-pipeline.
  */
 const PHOTOS = { 'kofi-amankwah': photoKofiAmankwah, 'ama-boateng': photoAmaBoateng };
@@ -140,8 +140,9 @@ const TalentCandidateProfileSection = () => {
 
   const handleToggleMenu = (menuId) => {
     if (isApplicant) {
-      // ⚠️ not drawn: no overflow menu exists for an applicant.
-      log('branch: applicant overflow', { drawn: false });
+      // ⚠️ ASSUMPTION: no overflow menu is drawn for an applicant; the pipeline card's actions menu (same applicant) holds them.
+      log('branch: applicant overflow -> pipeline card menu');
+      navigate(`/recruiter/application-pipeline?menu=${candidate.id}`);
       return;
     }
     log('branch: toggle menu', menuId, 'was', menu);
@@ -195,9 +196,11 @@ const TalentCandidateProfileSection = () => {
           title={SAVE_MENU.toast.title}
           message={SAVE_MENU.toast.message(list.title)}
           actionLabel={SAVE_MENU.toast.action}
-          onAction={() =>
-            log('branch: view list', { listId: list.id, destination: 'none-in-figma' })
-          }
+          onAction={() => {
+            // ⚠️ ASSUMPTION: no saved-list screen is drawn; talent search (as the profile menu's "Saved talents").
+            log('branch: view list -> talent search', { listId: list.id });
+            leaveTo('/recruiter/talent-search');
+          }}
           onClose={() => set({ toast: '' })}
           placement={`${TOAST_PLACEMENT} ${SAVE_MENU.toast.width}`}
         />
@@ -272,8 +275,15 @@ const TalentCandidateProfileSection = () => {
             }}
             onOverflowSelect={handleOverflowSelect}
             onViewPipeline={() => navigate('/recruiter/application-pipeline')}
-            onMoveToStage={() => log('branch: move to stage', { drawn: false })}
-            onOpenApplication={() => log('branch: open application', { drawn: false })}
+            /* ⚠️ ASSUMPTION (not drawn on the profile): the pipeline's card menu ("Move to …") and candidate drawer (the application), as its own "Open application" row. */
+            onMoveToStage={() => {
+              log('branch: move to stage -> pipeline card menu');
+              navigate(`/recruiter/application-pipeline?menu=${candidate.id}`);
+            }}
+            onOpenApplication={() => {
+              log('branch: open application -> pipeline drawer');
+              navigate(`/recruiter/application-pipeline?drawer=${candidate.id}`);
+            }}
           />
         </div>
         <aside

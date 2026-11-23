@@ -77,7 +77,8 @@ export const SECONDARY_NAV_ITEMS = [
     collapsedIcon: icons.navProfile,
     // Figma V2.0 `notebook-pen` (7249:76151); `icon` stays for older consumers (phone More sheet, workspace rail).
     RecruiterIcon: SidebarProfileNotebookPenIcon,
-    // ⚠️ ASSUMPTION: Figma draws no destination or page for "Profile" (no recruiter profile route exists), so it has no `to`.
+    // ⚠️ ASSUMPTION: Figma draws no recruiter profile page; Settings > Account ("Personal details: how you appear to candidates", public recruiter profile) is the closest.
+    to: '/recruiter/settings?tab=account',
   },
 ];
 
@@ -86,7 +87,7 @@ export const TAB_BAR_IDS = ['home', 'talent-search', 'job-postings', 'messages']
 
 /* `active` is derived from the route (never hardcoded): an item is active on
    its own path and on any nested path beneath it, so nested
-   routes light up their parent. Items with no `to` (Community, Profile) stay inactive and do not navigate. */
+   routes light up their parent. Items with no `to` stay inactive and do not navigate (Profile's `to` carries a query, so it never lights up). */
 const markActive = (items, pathname) =>
   items.map((item) => ({
     ...item,

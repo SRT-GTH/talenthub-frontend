@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { jobDestinations } from '../opportunities/jobDestinations.js';
 import { LANDING_ROUTES } from '../../../../constants/landingRoutes.js';
 import { debug } from '../../../../utils/debug.js';
 import { LpBIcon } from './LpBIcons.jsx';
@@ -22,7 +24,10 @@ const log = debug('OpportunitiesSection');
  */
 const JobCard = ({ card }) => {
   const solid = card.tile === 'solid';
-  const handleCta = () => log('card cta (inert):', card.id, card.cta.label);
+  // Same target as the /opportunities job cards (opportunities/jobDestinations.js): the role in the talent jobs page, through
+  // log in when signed out. "Quick apply" opens the role too: applying happens there. ⚠️ ASSUMPTION, Figma draws no target.
+  const { open } = jobDestinations(card);
+  const handleCta = () => log('card cta ->', card.id, card.cta.label, open);
   return (
     <div className="flex w-[400px] flex-col gap-3 rounded-[26px] border-[1.2px] border-solid border-[#1c2a21]/[.22] bg-white p-[22px] shadow-[4px_4px_0_rgba(28,42,33,.14),0_8px_20px_rgba(28,42,33,.05)] transition-[border-color,box-shadow] duration-[250ms] ease-out hover:border-[#1c2a21] hover:shadow-[0_6px_0_#387440] motion-reduce:transition-none">
       <div className="flex items-center gap-3 max-md:flex-col max-md:items-stretch max-md:gap-[43px]">
@@ -79,22 +84,22 @@ const JobCard = ({ card }) => {
         ))}
       </div>
       {card.cta.primary ? (
-        <button
-          type="button"
+        <Link
+          to={open}
           onClick={handleCta}
-          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[18px] py-3 font-sans text-[16px] font-bold leading-6 tracking-[0.1px] text-white shadow-[0_4px_0_#224626]"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[18px] py-3 font-sans text-[16px] font-bold leading-6 tracking-[0.1px] text-white no-underline shadow-[0_4px_0_#224626]"
         >
           {card.cta.label}
           <LpBIcon name="arrowRight" size={20} />
-        </button>
+        </Link>
       ) : (
-        <button
-          type="button"
+        <Link
+          to={open}
           onClick={handleCta}
-          className="inline-flex cursor-pointer items-center justify-center rounded-[10px] border-2 border-solid border-[#c1d4c4] bg-[#e1eae2] px-[18px] py-3 font-sans text-[16px] font-bold leading-6 tracking-[0.1px] text-[#165d3a] shadow-[0_1px_2px_rgba(27,36,44,.12)]"
+          className="inline-flex cursor-pointer items-center justify-center rounded-[10px] border-2 border-solid border-[#c1d4c4] bg-[#e1eae2] px-[18px] py-3 font-sans text-[16px] font-bold leading-6 tracking-[0.1px] text-[#165d3a] no-underline shadow-[0_1px_2px_rgba(27,36,44,.12)]"
         >
           {card.cta.label}
-        </button>
+        </Link>
       )}
     </div>
   );

@@ -3,12 +3,11 @@ import ellipseCard1 from '../../../assets/hero/talent-panel-card-ellipse-1.svg';
 import verifiedCheck from '../../../assets/talent-onboarding/panel-verified-check.svg';
 import savedHeart from '../../../assets/talent-onboarding/panel-saved-heart.svg';
 import pencil from '../../../assets/talent-onboarding/panel-pencil.svg';
-import modalClose from '../../../assets/talent-onboarding/modal-close.svg';
 import bgGrid from '../../../assets/hero/talent-panel-bg-grid.png';
 import avatar1 from '../../../assets/hero/talent-panel-institution-avatar-1.jpg';
 import avatar2 from '../../../assets/hero/talent-panel-institution-avatar-2.jpg';
 import avatar3 from '../../../assets/hero/talent-panel-institution-avatar-3.jpg';
-import { PanelStage, StageCard, cq, fs, cardShadow } from './TalentPanelParts.jsx';
+import { PanelStage, StageCard, cq, fs } from './TalentPanelParts.jsx';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('TalentWelcomePanelContent');
@@ -32,8 +31,7 @@ const log = debug('TalentWelcomePanelContent');
  *   8027:202206 Verified profile      132.6 x 40             left 3.27 top 66.66
  *   8027:202212 My Experience rot +6.59 171.5 x 129.9 -> 23.2% ctr (80.35, 26.44)
  *   8027:202221 institution card      222.4 x 136.4          left 62.11 top 61.89
- *   8027:202239 toast (visible=false in Figma; the frame name says 3 seconds)
- *     309 x 66.4 at (374, 24.3)
+ * The welcome toast is not part of the art: the page shows it through ui/Toast (variant "welcome-card").
  * Glows: Ellipse 3 8027:202191 (gradient #e8a832 -> #c8951a, a .5, blur 200) and
  * Ellipse 4 8027:202192 (#c0392b a .5 blur 300); Figma blur R = CSS blur R/2.
  * Deviations (Figma text-box bugs): '1,580' stays on one line and the
@@ -52,12 +50,32 @@ export const WELCOME_PHOTO_CARDS = [
     aspect: '533.1 / 599.1',
     rotate: 4,
     borderColor: '#eedeb8',
+    focused: { cx: 49.76, cy: 48.21 }, // Focused frame: flat, centred a touch higher
     radius: 26,
     ellipse: ellipseCard1,
   },
 ];
 
-const FLOAT_SHADOW = () => `0 ${cq(8)} ${cq(32)} rgba(0,0,0,0.1), 0 ${cq(2)} 0 rgba(0,0,0,0.05)`;
+// Card shadows per look, from the frames: Playful = soft lift + hard 4px ink offset on the white cards, none on the
+// pills; Focused = a faint soft shadow. Passed as CSS variables so the focused: variant can swap them (inline
+// box-shadow can't be overridden by a class).
+const SOFT_SHADOW = () =>
+  `0 ${cq(2)} ${cq(4)} rgba(28,42,33,0.04), 0 ${cq(1)} ${cq(1)} rgba(28,42,33,0.04)`;
+const HARD_SHADOW = () =>
+  `0 ${cq(10)} ${cq(12)} rgba(28,42,33,0.06), ${cq(4)} ${cq(4)} 0 rgba(28,42,33,0.45)`;
+const MODE_SHADOW = '[box-shadow:var(--sh-p)] focused:[box-shadow:var(--sh-f)]';
+const modeShadow = (playful, focused) => ({ '--sh-p': playful, '--sh-f': focused });
+
+// Floating cards that sit tilted in Playful and flat (slightly elsewhere) in Focused; they glide between the two.
+const MODE_PLACE =
+  'gth-mode-move [left:var(--cp-x-p)] [top:var(--cp-y-p)] [transform:translate(-50%,-50%)_rotate(var(--cp-r-p))] focused:[left:var(--cp-x-f)] focused:[top:var(--cp-y-f)] focused:[transform:translate(-50%,-50%)]';
+const modePlace = (playful, focused) => ({
+  '--cp-x-p': `${playful.x}%`,
+  '--cp-y-p': `${playful.y}%`,
+  '--cp-r-p': `${playful.r}deg`,
+  '--cp-x-f': `${focused.x}%`,
+  '--cp-y-f': `${focused.y}%`,
+});
 
 const Glows = () => (
   <>
@@ -109,16 +127,14 @@ const Glows = () => (
 
 const JobsCard = () => (
   <div
-    className="absolute flex flex-col border border-[#fefcf5] bg-white"
+    className={`absolute flex flex-col border border-[#fefcf5] bg-white ${MODE_SHADOW} ${MODE_PLACE}`}
     style={{
-      left: '13.26%',
-      top: '33.14%',
+      ...modePlace({ x: 13.26, y: 33.14, r: 4.71 }, { x: 13.78, y: 32.63 }),
       width: cq(126.4),
       minHeight: cq(87.1),
       borderRadius: cq(18),
       padding: `${cq(14)} ${cq(24)}`,
-      transform: 'translate(-50%, -50%) rotate(4.71deg)',
-      boxShadow: FLOAT_SHADOW(),
+      ...modeShadow(HARD_SHADOW(), SOFT_SHADOW()),
     }}
   >
     <p
@@ -138,14 +154,14 @@ const JobsCard = () => (
 
 const SavedPill = () => (
   <div
-    className="absolute flex items-center border border-[#2a5730] bg-[#387440]"
+    className={`absolute flex items-center border border-[#2a5730] bg-[#387440] ${MODE_SHADOW}`}
     style={{
       left: '6.5%',
       top: '51.07%',
       gap: cq(7),
       padding: `${cq(6.75)} ${cq(14)}`,
       borderRadius: cq(10),
-      boxShadow: `0 ${cq(4)} 0 #2a5730, 0 ${cq(8)} ${cq(28)} rgba(56,116,64,0.25)`,
+      ...modeShadow('none', SOFT_SHADOW()),
     }}
   >
     <img
@@ -173,7 +189,6 @@ const VerifiedPill = () => (
       gap: cq(8),
       padding: `${cq(8)} ${cq(10)}`,
       borderRadius: cq(10),
-      boxShadow: FLOAT_SHADOW(),
     }}
   >
     <img
@@ -194,20 +209,18 @@ const VerifiedPill = () => (
 
 const ExperienceCard = () => (
   <div
-    className="absolute border border-[rgba(28,42,33,0.06)] bg-white"
+    className={`absolute border border-[rgba(28,42,33,0.06)] bg-white ${MODE_SHADOW} ${MODE_PLACE}`}
     style={{
-      left: '80.35%',
-      top: '26.44%',
+      ...modePlace({ x: 80.35, y: 26.44, r: 6.59 }, { x: 81.43, y: 25.5 }),
       width: cq(171.5),
       height: cq(129.9),
       borderRadius: cq(18),
-      transform: 'translate(-50%, -50%) rotate(6.59deg)',
-      boxShadow: FLOAT_SHADOW(),
+      ...modeShadow(HARD_SHADOW(), SOFT_SHADOW()),
     }}
   >
     <p
-      className="absolute font-bold text-[#1c2a21]"
-      style={{ left: cq(16), top: cq(12), fontSize: fs(14), lineHeight: cq(16.7) }}
+      className="absolute -translate-y-1/2 whitespace-nowrap font-bold text-[#1c2a21]"
+      style={{ left: cq(18), top: cq(21.3), fontSize: fs(14), lineHeight: 'normal' }}
     >
       My Experience
     </p>
@@ -216,18 +229,18 @@ const ExperienceCard = () => (
       alt=""
       draggable={false}
       className="absolute"
-      style={{ right: cq(14), top: cq(11), width: cq(15.7), height: cq(15.5) }}
+      style={{ left: cq(137.4), top: cq(15.8), width: cq(14), height: cq(14) }}
     />
     {[
-      { w: 132, top: 40, bg: '#f8f8f4' },
-      { w: 111.7, top: 52.9, bg: '#f8f8f4' },
-      { w: 79, top: 65.8, bg: '#ebf1ec' },
+      { left: 18, w: 136, top: 44, bg: '#f8f8f4' },
+      { left: 16.5, w: 113.5, top: 57, bg: '#f8f8f4' },
+      { left: 16.5, w: 80.3, top: 70, bg: '#ebf1ec' },
     ].map((bar) => (
       <span
         key={bar.top}
         className="absolute block rounded-full"
         style={{
-          left: cq(16),
+          left: cq(bar.left),
           top: cq(bar.top),
           width: cq(bar.w),
           height: cq(6),
@@ -236,16 +249,16 @@ const ExperienceCard = () => (
       />
     ))}
     <span
-      className="absolute flex items-center justify-center border-2 border-[#2a5730] bg-[#387440] font-bold text-white"
+      className="absolute flex items-center justify-center border-x-2 border-t border-b-2 border-[#2a5730] bg-[#387440] font-bold text-[#fef1e7]"
       style={{
-        left: cq(18.2),
-        top: cq(80),
-        width: cq(135),
-        height: cq(44.9),
+        left: cq(18),
+        top: cq(90.4),
+        width: cq(136),
+        height: cq(30),
         borderRadius: cq(10),
         fontSize: fs(12, 6),
         letterSpacing: '0.1px',
-        boxShadow: `0 ${cq(4)} 0 #2a5730`,
+        boxShadow: `0 ${cq(4)} 0 #224626`,
       }}
     >
       Submit
@@ -255,7 +268,7 @@ const ExperienceCard = () => (
 
 const InstitutionCard = () => (
   <div
-    className="absolute flex flex-col border border-[rgba(28,42,33,0.1)] bg-[#387440]"
+    className={`absolute flex flex-col border border-[rgba(28,42,33,0.1)] bg-[#387440] ${MODE_SHADOW}`}
     style={{
       left: '62.11%',
       top: '61.89%',
@@ -263,7 +276,10 @@ const InstitutionCard = () => (
       minHeight: cq(136.4),
       borderRadius: cq(20),
       padding: cq(18),
-      boxShadow: `0 ${cq(8)} ${cq(16)} ${cq(-2)} rgba(27,36,44,0.12), 0 ${cq(2)} ${cq(2)} ${cq(-1)} rgba(27,35,44,0.04)`,
+      ...modeShadow(
+        `0 ${cq(8)} ${cq(16)} ${cq(-2)} rgba(27,36,44,0.12), 0 ${cq(2)} ${cq(2)} ${cq(-1)} rgba(27,35,44,0.04)`,
+        `0 ${cq(5)} ${cq(11)} ${cq(-2)} rgba(27,36,44,0.06), 0 ${cq(2)} ${cq(2)} ${cq(-1)} rgba(27,35,44,0.04)`
+      ),
     }}
   >
     <span
@@ -301,64 +317,13 @@ const InstitutionCard = () => (
   </div>
 );
 
-export const WelcomeToast = ({ onClose }) => (
-  <div
-    role="status"
-    aria-live="polite"
-    className="pointer-events-auto absolute z-10 flex items-start border border-[#e1eae2] bg-[#f8f8f4]"
-    style={{
-      left: '50.6%',
-      top: '2.49%',
-      width: cq(309),
-      gap: cq(8),
-      padding: `${cq(10)} ${cq(16)}`,
-      borderRadius: cq(14),
-      boxShadow: cardShadow(),
-    }}
-  >
-    <img
-      src={verifiedCheck}
-      alt=""
-      draggable={false}
-      className="shrink-0"
-      style={{ width: cq(22.6), height: cq(22.6), marginTop: cq(11) }}
-    />
-    <div className="min-w-0 flex-1" style={{ padding: `0 ${cq(10)}` }}>
-      <p
-        className="font-semibold text-[#387440]"
-        style={{ fontSize: fs(14, 9), lineHeight: cq(24), letterSpacing: '0.2px' }}
-      >
-        Welcome to GTH, Student!
-      </p>
-      <p
-        className="text-[#575755]"
-        style={{ fontSize: fs(12, 8), lineHeight: cq(18), letterSpacing: '0.2px' }}
-      >
-        Taking you to your personalized setup
-      </p>
-    </div>
-    <button
-      type="button"
-      onClick={() => {
-        log('toast closed');
-        onClose?.();
-      }}
-      aria-label="Dismiss notification"
-      className="flex shrink-0 items-center justify-center text-[#387440]"
-      style={{ width: cq(20), height: cq(20), marginTop: cq(13) }}
-    >
-      <img src={modalClose} alt="" draggable={false} className="block size-full" />
-    </button>
-  </div>
-);
-
 /*
  * WelcomePanelArt - centre content of the shared panel's `simple` variant.
  * Fills the panel (absolute inset-0); glows are full-bleed, the cards live in
  * the stage.
  */
-export const WelcomePanelArt = ({ showToast = false, onCloseToast }) => {
-  log('render', { showToast });
+export const WelcomePanelArt = () => {
+  log('render');
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ containerType: 'size' }}>
       <div aria-hidden="true" className="absolute inset-0" style={{ containerType: 'inline-size' }}>
@@ -374,11 +339,6 @@ export const WelcomePanelArt = ({ showToast = false, onCloseToast }) => {
         <ExperienceCard />
         <InstitutionCard />
       </PanelStage>
-      {showToast && (
-        <PanelStage refH={WELCOME_REF_H} decorative={false}>
-          <WelcomeToast onClose={onCloseToast} />
-        </PanelStage>
-      )}
     </div>
   );
 };

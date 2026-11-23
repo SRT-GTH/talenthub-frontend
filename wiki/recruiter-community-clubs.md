@@ -15,25 +15,25 @@ The SAME page components serve both audiences. The variant comes from the URL (`
 
 "After" diffs were taken with the rail collapsed through the sidebar toggle for the frames that draw the icon rail (see Lead items). Before = the first run on the lead's foundation (loader screenshots excluded).
 
-| Frame                            | URL                                                                                  | Diff before → after |
-| -------------------------------- | ------------------------------------------------------------------------------------ | ------------------- |
-| RC-C01 browse `10194:18909`      | `/recruiter/community`                                                               | (loader) → 3.9%     |
-| RC-C02 filtered + menu `…:19075` | `/recruiter/community?menu=joined&cat=software-engineering`                          | 4.6 → 3.7%          |
-| RC-C03 all `…:19244`             | `/recruiter/community?view=all`                                                      | 4.8 → 3.1%          |
-| RC-C04 preview `…:19423`         | `/recruiter/community/frontend-devs-ghana?rail=collapsed`                            | 9.6 → 3.7%          |
-| RC-C05 just joined `…:19736`     | `…/frontend-devs-ghana?joined=1&welcome=1&rail=collapsed`                            | (loader) → 4.6%     |
-| RC-C07 post + comments `…:20114` | `…/frontend-devs-ghana/post/yaa-first-pr?rail=collapsed`                             | 8.2 → 6.2%          |
-| RC-C08 create post `…:20584`     | `…/frontend-devs-ghana?joined=1&modal=create&rail=collapsed`                         | 4.8 → 3.8%          |
-| RC-C10 report `…:20994`          | `…?joined=1&modal=report&rail=collapsed`                                             | (loader) → 6.6%     |
-| RC-C17 leave `…:21392`           | `…?joined=1&modal=leave&rail=collapsed`                                              | 8.1 → 6.5%          |
-| RC-C11 About `…:21770`           | `…?joined=1&tab=about&rail=collapsed`                                                | 6.8 → 3.7%          |
-| RC-C12 Members `…:22078`         | `…?joined=1&tab=members&rail=collapsed`                                              | 7.1 → 4.0%          |
-| RC-C13 pending `…:22405`         | `…?joined=1&pending=1&rail=collapsed`                                                | 9.5 → 5.2%          |
-| RC-C14 empty `…:22831`           | `/recruiter/community/agritech-innovators-ghana?joined=1&state=empty&rail=collapsed` | 7.6 → 4.0%          |
-| RC-C15 loading `…:23138`         | `/recruiter/community?state=loading`                                                 | 3.2 → 3.5%          |
-| RC-C16 no results `…:23383`      | `/recruiter/community?q=blockchain`                                                  | (loader) → 4.6%     |
-| RC-C09 milestone `…:23552`       | `/recruiter/community?modal=milestone&rail=collapsed`                                | 10.7 → 10.6%        |
-| RC-C06 feed `…:24251`            | `…/frontend-devs-ghana?joined=1&rail=collapsed`                                      | 9.3 → 4.6%          |
+| Frame                            | URL                                                                                  | Diff % (2026-11-22)                                    |
+| -------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| RC-C01 browse `10194:18909`      | `/recruiter/community`                                                               | 3.9                                                    |
+| RC-C02 filtered + menu `…:19075` | `/recruiter/community?menu=joined&cat=software-engineering`                          | 3.7                                                    |
+| RC-C03 all `…:19244`             | `/recruiter/community?view=all`                                                      | 3.1                                                    |
+| RC-C04 preview `…:19423`         | `/recruiter/community/frontend-devs-ghana?rail=collapsed`                            | 3.7                                                    |
+| RC-C05 just joined `…:19736`     | `…/frontend-devs-ghana?joined=1&welcome=1&rail=collapsed`                            | 4.6                                                    |
+| RC-C07 post + comments `…:20114` | `…/frontend-devs-ghana/post/yaa-first-pr?rail=collapsed`                             | 6.2                                                    |
+| RC-C08 create post `…:20584`     | `…/frontend-devs-ghana?joined=1&modal=create&rail=collapsed`                         | 3.8                                                    |
+| RC-C10 report `…:20994`          | `…?joined=1&modal=report&rail=collapsed`                                             | 6.6                                                    |
+| RC-C17 leave `…:21392`           | `…?joined=1&modal=leave&rail=collapsed`                                              | 6.5                                                    |
+| RC-C11 About `…:21770`           | `…?joined=1&tab=about&rail=collapsed`                                                | 3.7                                                    |
+| RC-C12 Members `…:22078`         | `…?joined=1&tab=members&rail=collapsed`                                              | 4.0                                                    |
+| RC-C13 pending `…:22405`         | `…?joined=1&pending=1&rail=collapsed`                                                | 5.2                                                    |
+| RC-C14 empty `…:22831`           | `/recruiter/community/agritech-innovators-ghana?joined=1&state=empty&rail=collapsed` | 4.0                                                    |
+| RC-C15 loading `…:23138`         | `/recruiter/community?state=loading`                                                 | 3.3                                                    |
+| RC-C16 no results `…:23383`      | `/recruiter/community?q=blockchain`                                                  | 4.6                                                    |
+| RC-C09 milestone `…:23552`       | `/recruiter/community?modal=milestone&rail=collapsed`                                | 10.6 (Figma draws the dialog over the onboarding chat) |
+| RC-C06 feed `…:24251`            | `…/frontend-devs-ghana?joined=1&rail=collapsed`                                      | 4.6                                                    |
 
 Remaining known diffs: shell (top bar reads "Kofi A." / "Search opportunities, skills, communities…" instead of "Joel K." / "Search talent, jobs and clubs…"; the Ask Assistant fab is drawn only on RC-C01 and shows on all of ours); dialogs sit centred in our viewport but Figma centres them as if the frame were 1117 high (C10 / C17 / C08 offset); RC-C09 Figma draws the dialog over a copied talent onboarding chat page ("Emma", "Hiring Assistant", Talent Profile Panel, not reproduced; ours is over the Clubs page); font metrics.
 

@@ -177,6 +177,8 @@ export const PAGE_GROUPS = [
   { id: 'today', label: 'Today', count: '4', squiggle: true },
   { id: 'yesterday', label: 'Yesterday', count: '2' },
   { id: 'earlier', label: 'This week', count: '3' },
+  // Live rows more than a week old (no Figma group; the drawn feed only goes back a week). ⚠️ ASSUMPTION: label.
+  { id: 'older', label: 'Earlier' },
 ];
 
 export const POPOVER_TABS = [
@@ -239,6 +241,8 @@ export const FEED_COPY = {
   unreadTitle: 'Unread',
   newSticker: '4 new',
   sort: 'Newest first',
+  sortOldest: 'Oldest first',
+  sortLabel: 'Sort notifications',
   markAllRead: 'Mark all read',
   railTitle: 'Show me',
   // Not in Figma (no error frame) ⚠️ ASSUMPTION.
@@ -275,6 +279,7 @@ export const COMING_UP = {
   when: '10:00 – 10:30 · Google Meet',
   primary: 'Add to calendar',
   secondary: 'Prep',
+  prepPrompt: 'Help me prep for my interview with Kudzo Ltd on Thursday at 10:00.',
 };
 
 export const PING_SETTINGS = {

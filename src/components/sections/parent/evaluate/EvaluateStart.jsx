@@ -12,7 +12,7 @@ const log = debug('EvaluateStart');
  * EvaluateStart — PE-01 "Evaluate · Choose ward and type" (Figma 10034:147583) and PE-01b "Continue where you left off" (10042:3332, `resume`): title + #999 sub, the "Start" card (r24, p22, gap 14):
  * "Who are you evaluating?" with two ward cards (Abena · 16 selected: #ebf1ec / #387440 border; Elliot · 15), "What kind of evaluation?" with four type rows (General evaluation selected), "Start evaluation".
  * With `resume` a card sits above it: eyebrow "CONTINUE WHERE YOU LEFT OFF", Abena's avatar, "General evaluation · Abena", "6 of 20 answered · saved automatically 2 days ago", a 6px progress bar (30 %), Discard + Continue and the one-per-ward note.
- * Ward and type are selectable (radio groups, arrow keys). ⚠️ ASSUMPTION: "Start evaluation", "Continue" and "Discard" only log (the question screens and the discard confirm are the next sections of the canvas).
+ * Ward and type are selectable (radio groups, arrow keys). "Start evaluation" / "Continue" open the questions; "Discard" opens the discard confirm (PE-02b) over the questions.
  */
 const WardOption = ({ ward, selected, onSelect }) => (
   <button
@@ -126,7 +126,11 @@ const EvaluateStart = ({ resume = false }) => {
               </div>
               <ParentButton
                 variant="secondary"
-                onClick={() => log('discard (confirm is the next section)')}
+                onClick={() => {
+                  // The drawn confirm ("Discard this evaluation?") lives on the questions page; Keep going resumes there, Discard comes back here without the draft.
+                  log('discard -> confirm dialog');
+                  navigate('/parent/evaluate/questions?state=discard');
+                }}
               >
                 Discard
               </ParentButton>

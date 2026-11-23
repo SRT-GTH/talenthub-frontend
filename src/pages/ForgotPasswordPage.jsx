@@ -46,6 +46,7 @@ export const PasswordResetShell = ({ children }) => {
       </div>
       <TalentOnboardingPanel
         photoCards={LOGIN_PHOTO_CARDS}
+        tutorialShowLabel={false}
         overlayContent={<LoginOverlayCards />}
         onWatchTutorial={() => setTutorialOpen(true)}
       />
@@ -69,7 +70,7 @@ export const ResetHeader = ({ eyebrow, line1, line2, children }) => (
       </span>
     )}
     <h1
-      className="font-heading font-semibold tracking-[-0.01em] max-md:text-[24px]! max-md:leading-tight!"
+      className="font-heading font-semibold focused:font-sans tracking-[-0.01em] max-md:text-[24px]! max-md:leading-tight!"
       style={{ fontSize: 'clamp(2rem, 4vw, 4rem)', lineHeight: 1.1 }}
     >
       <span className="block text-black">{line1}</span>

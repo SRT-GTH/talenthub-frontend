@@ -13,15 +13,26 @@ const log = debug('PublicTopBar');
  *   desktop >= xl  : h76, px40 — page title (18/600) · search 420 · freshness pill · Share · Download PDF
  *   tablet md..xl  : h77, px32 — title (16/700) · freshness pill · Share icon button · Download PDF (no search drawn)
  *   mobile < md    : h60, px16 — logo · "GTH" · Live pill · menu button (the section tabs sit in the page body, see PublicMobileTabs)
- * Props: title (the page's context label, e.g. "Home", "National snapshot"), freshness { label } , q / onSearch, onShare(), onDownload(), onMenu().
+ * Props: title (the page's context label, e.g. "Home", "National snapshot"), freshness { label } , q / onSearch, onSubmitSearch(text) (Enter in the
+ * search box; optional), onShare(), onDownload(), onMenu().
  * Without onDownload the "Download PDF" button is left out (pages that have no printable layout).
- * ⚠️ ASSUMPTION: the search box is a plain field that writes ?q= (no results page is drawn); the sections that use it read `q`.
+ * ⚠️ ASSUMPTION: the search box writes ?q= as you type (the directories filter on it); Enter calls onSubmitSearch, which the page chrome
+ * turns into a destination (publicDataSearch.js: region page or directory) because no results page is drawn.
  */
 
-export const FreshnessPill = ({ label = 'Updated 2 min ago · Live', tone, className }) => (
+/** size 'md' = the desktop / tablet freshness pill (h30, 13/16 500); 'sm' = the phone top bar's "Live" pill (h24, 12/14 600). */
+export const FreshnessPill = ({
+  label = 'Updated 2 min ago · Live',
+  tone,
+  size = 'md',
+  className,
+}) => (
   <span
     className={classNames(
-      'inline-flex h-[30px] shrink-0 items-center gap-[8px] rounded-full py-[7px] pr-[14px] pl-[12px] font-sans text-[13px] leading-[16px] font-medium whitespace-nowrap',
+      'inline-flex shrink-0 items-center rounded-full font-sans whitespace-nowrap',
+      size === 'sm'
+        ? 'h-[24px] gap-[6px] px-[10px] text-[12px] leading-[14px] font-semibold'
+        : 'h-[30px] gap-[8px] py-[7px] pr-[14px] pl-[12px] text-[13px] leading-[16px] font-medium',
       tone === 'maintenance' || tone === 'offline'
         ? 'bg-[#f2f2ee] text-[#1c2a21]'
         : 'bg-[#ebf1ec] text-[#2a5730]',
@@ -52,6 +63,7 @@ const PublicTopBar = ({
   freshness,
   q = '',
   onSearch,
+  onSubmitSearch,
   onShare,
   onDownload,
   onMenu,
@@ -71,6 +83,12 @@ const PublicTopBar = ({
             type="search"
             value={q}
             onChange={(e) => onSearch?.(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter' || !onSubmitSearch) return;
+              e.preventDefault();
+              log('search submit', { length: e.currentTarget.value.length });
+              onSubmitSearch(e.currentTarget.value);
+            }}
             placeholder="Search regions, partners, opportunities"
             aria-label="Search regions, partners, opportunities"
             className="min-w-0 flex-1 bg-transparent font-sans text-[14px] leading-[17px] text-[#1c2a21] outline-none placeholder:text-[#595959]"
@@ -116,10 +134,7 @@ const PublicTopBar = ({
           <img src={gthLogo} alt="" width="32" height="30" className="h-[30px] w-[32px]" />
           <span className="font-sans text-[16px] leading-[19px] font-bold text-[#1c2a21]">GTH</span>
         </Link>
-        <span className="inline-flex h-[24px] items-center gap-[6px] rounded-full bg-[#ebf1ec] px-[10px] font-sans text-[12px] leading-[14px] font-semibold text-[#2a5730]">
-          <span className="size-[8px] rounded-full bg-[#387440]" aria-hidden="true" />
-          Live
-        </span>
+        <FreshnessPill label="Live" size="sm" />
         <button
           type="button"
           onClick={onMenu}

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { apiMessage, completeInvite, inviteInfo } from '../services/institutionPortal.api.js';
+import { debug } from '../utils/debug.js';
+
+const log = debug('CompleteInvitePage');
 
 /*
  * /auth/complete-invite/:token — the link in an organisation's invite email (a school adding a student or a staff member, or any organisation adding a
@@ -55,6 +58,15 @@ const CompleteInvitePage = () => {
     try {
       setInfo(await inviteInfo(token));
     } catch (err) {
+      const status = err?.response?.status;
+      // A malformed or unknown token comes back as a 4xx without a readable message ("Request failed with status code 422"):
+      // show the same "not valid" screen as an unknown invite, with its way out to sign in.
+      if (status >= 400 && status < 500 && !err?.response?.data?.message) {
+        log('invite lookup rejected the token:', status);
+        setInfo({ valid: false, reason: 'not-found' });
+        return;
+      }
+      log.error('invite lookup failed:', status, err?.message);
       setLoadError(apiMessage(err));
     }
   }, [token]);
@@ -104,7 +116,10 @@ const CompleteInvitePage = () => {
       </p>
       {loadError ? (
         <p role="alert" className="m-0 text-[15px] text-[#902b20]">
-          We couldn’t open this invite. {loadError}
+          We couldn’t open this invite. {loadError}{' '}
+          <Link to="/login" className="font-semibold text-[#387440] underline">
+            Go to sign in
+          </Link>
         </p>
       ) : !info ? (
         <p className="m-0 text-[14px] text-[#595959]">Loading…</p>

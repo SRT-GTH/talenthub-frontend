@@ -67,8 +67,9 @@ export const FOOTER_LINKS = [
   { label: 'Partner directory', to: `${DATA_BASE}/partners` },
   { label: 'Opportunity directory', to: `${DATA_BASE}/opportunities` },
   { label: 'Monthly digest', modal: 'digest' },
-  // ⚠️ ASSUMPTION: Figma draws "Contact" with no destination; it is inert until a contact page exists.
-  { label: 'Contact', to: null },
+  // ⚠️ ASSUMPTION: Figma draws "Contact" with no destination and there is no contact page: it opens an email to GTH (same address as the
+  // agency / institution portals' contact links).
+  { label: 'Contact', href: 'mailto:info@ghanatalenthub.com' },
 ];
 
 /** The nav item id that is active for a pathname (longest matching prefix; Home only on the exact /data). */
@@ -91,3 +92,7 @@ export const activeNavId = (pathname) => {
 
 /** Where "Partner sign-in →" and "For partners / For recruiters" lead. ⚠️ ASSUMPTION: the existing sign-in page (Figma draws no destination). */
 export const PARTNER_SIGN_IN_ROUTE = '/login';
+
+/** "Ask the data team" on the methodology page. ⚠️ ASSUMPTION: GTH's contact address (no data-team address or contact page is drawn). */
+export const PUBLIC_DATA_QUESTIONS_HREF =
+  'mailto:info@ghanatalenthub.com?subject=Question%20about%20the%20public%20data';

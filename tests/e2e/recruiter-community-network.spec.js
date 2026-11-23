@@ -76,7 +76,7 @@ test('RC-NW01 discover: Clubs | My network switch, invitations preview, six peop
   await expect(page.getByPlaceholder('Search recruiters, mentors and companies')).toBeVisible();
   // The talent copy never leaks into the recruiter screen.
   const body = await page.locator('body').innerText();
-  expect(body).not.toContain('Your circle');
+  expect(body).not.toContain('Your crew');
   expect(body).not.toContain('Tip from Buddy');
   expect(errors).toEqual([]);
 });
@@ -314,7 +314,8 @@ test('talent screens are unchanged: My circle and Yaw Darko still draw the talen
   page,
 }) => {
   const errors = await open(page, '/community?view=circle&state=sent&rail=collapsed');
-  await expectTexts(page, ['Your circle', 'Tip from Buddy', 'Communities', 'My circle']);
+  // Figma renamed Community → Clubs and My circle → My crew (wiki/log.md 2026-11-21).
+  await expectTexts(page, ['Your crew', 'Tip from Buddy', 'Clubs', 'My crew']);
   await go(page, '/community/people/yaw-darko?rail=collapsed');
   await expect(page.getByRole('heading', { level: 1, name: 'Yaw Darko' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Endorse Figma' })).toBeVisible();

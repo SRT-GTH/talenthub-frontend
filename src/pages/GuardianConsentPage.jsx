@@ -1,10 +1,24 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   apiMessage,
   guardianConsentAnswer,
   guardianConsentInfo,
 } from '../services/institutionPortal.api.js';
+import { debug } from '../utils/debug.js';
+
+const log = debug('GuardianConsentPage');
+
+// A malformed or unknown token comes back as a 4xx without a readable message ("Request failed with status code 422").
+const BAD_LINK =
+  'Check that you opened the whole link from the text or email. If it still doesn’t work, ask the school to send it again.';
+const loadMessage = (err) => {
+  const status = err?.response?.status;
+  log.error('consent lookup failed:', status, err?.message);
+  return status >= 400 && status < 500 && !err?.response?.data?.message
+    ? BAD_LINK
+    : apiMessage(err);
+};
 
 /*
  * /guardian-consent/:token — public page a parent or guardian opens from the text or email a school sends for an under-18 on its roster.
@@ -26,7 +40,7 @@ const GuardianConsentPage = () => {
       setInfo(r);
       if (r.status === 'agreed' || r.status === 'declined') setAnswered(r.status);
     } catch (err) {
-      setError(apiMessage(err));
+      setError(loadMessage(err));
     }
   }, [token]);
 
@@ -60,6 +74,9 @@ const GuardianConsentPage = () => {
           <p role="alert" className="m-0 text-[15px] leading-[24px] text-[#4b5563]">
             {error}
           </p>
+          <Link to="/" className="text-[15px] font-semibold text-[#387440] underline">
+            Go to Ghana Talent Hub
+          </Link>
         </>
       ) : !info ? (
         <p className="m-0 text-[14px] text-[#595959]">Loading…</p>

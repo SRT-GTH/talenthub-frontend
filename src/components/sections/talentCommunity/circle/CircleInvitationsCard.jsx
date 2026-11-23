@@ -10,7 +10,8 @@ import { useCircleVariantData } from './useCircleVariantData.js';
  * Props: mode ('preview' | 'full'), received (rows still to answer: [{ id, ago, note }]), accepted (ids accepted this session),
  * sent ([{ id, ago }]), sub ('received' | 'sent'), onSub(sub), total (the "3" of See all / Received), onSeeAll(), onAccept(person),
  * onIgnore(person), onSayHi(person), xpFor (person id wearing the Playful "+5 XP" sticker).
- * ⚠️ ASSUMPTIONS: "Manage" is inert (no destination drawn); the Sent list (not drawn) reuses the row shape without buttons.
+ * ⚠️ ASSUMPTIONS: "Manage" (not linked in Figma) calls onManage — the page opens the Sent list, where pending
+ * link-ups are managed (the Received list is already on screen); the Sent list (not drawn) reuses the row shape without buttons.
  */
 const CircleInvitationsCard = ({
   mode,
@@ -27,6 +28,7 @@ const CircleInvitationsCard = ({
   people: peopleProp,
   onWithdraw,
   showManage = true,
+  onManage,
 }) => {
   const { copy: COPY, people: peopleData } = useCircleVariantData();
   const people = peopleProp ?? peopleData;
@@ -77,6 +79,7 @@ const CircleInvitationsCard = ({
           {showManage && (
             <button
               type="button"
+              onClick={onManage}
               className={`cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] font-semibold leading-[17px] text-[#387440] ${FOCUS_RING}`}
             >
               {COPY.manage}

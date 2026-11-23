@@ -5,7 +5,12 @@ import AdminNoticeDialog from '../../components/sections/admin/auth/AdminNoticeD
 import AdminSignInForm from '../../components/sections/admin/auth/AdminSignInForm.jsx';
 import AdminSignInLayout from '../../components/sections/admin/auth/AdminSignInLayout.jsx';
 import { useAdminState } from '../../components/sections/admin/adminState.js';
-import { logout, requestLoginOtp, resendLoginOtp, verifyLoginOtp } from '../../services/auth.api.js';
+import {
+  logout,
+  requestLoginOtp,
+  resendLoginOtp,
+  verifyLoginOtp,
+} from '../../services/auth.api.js';
 import { isStaffType, readStaffSession } from '../../services/adminSession.js';
 import { getApiErrorMessage } from '../../services/apiErrors.js';
 import { debug } from '../../utils/debug.js';
@@ -19,13 +24,15 @@ const log = debug('AdminSignInPage');
  *   /admin/sign-in?state=code       the 2-step code dialog over the form          (7.0.1b; only after a password was accepted)
  *   /admin/sign-in?state=locked     "Your staff account is locked" over the form  (7.0.1c)
  *   /admin/sign-in?state=expired    "This set-up link has expired" over the form  (7.0.1d)
+ *   /admin/sign-in?state=setup      "Ask your Super Admin for a set-up link" notice ("Ask your Super Admin" button; not drawn)
  *   ?next=/admin/...                where to go after signing in (set by the route guard)
  * Real flow: POST /auth/login (email + password) -> the code is emailed -> POST /auth/verify-otp -> token stored. Only staff accounts
  * (super_admin, senior_admin, support_agent, content_moderator) get in; anyone else is signed straight back out with a message.
  * A suspended account (403) shows the locked notice; 5 wrong codes do too.
  */
 
-const safeNext = (next) => (next && next.startsWith('/admin') && !next.startsWith('/admin/sign-in') ? next : '/admin');
+const safeNext = (next) =>
+  next && next.startsWith('/admin') && !next.startsWith('/admin/sign-in') ? next : '/admin';
 
 const AdminSignInPage = () => {
   const data = useAdminState();
@@ -57,7 +64,10 @@ const AdminSignInPage = () => {
       const status = err?.response?.status;
       log('login failed', status);
       if (status === 403) data.update({ state: 'locked' });
-      else setFormError(getApiErrorMessage(err, 'That email and password did not match a staff account.'));
+      else
+        setFormError(
+          getApiErrorMessage(err, 'That email and password did not match a staff account.')
+        );
     } finally {
       setBusy(false);
     }
@@ -77,13 +87,21 @@ const AdminSignInPage = () => {
       navigate(next, { replace: true });
       return { ok: true };
     } catch (err) {
-      return { ok: false, message: getApiErrorMessage(err, 'That code didn’t match. Check it and try again.') };
+      return {
+        ok: false,
+        message: getApiErrorMessage(err, 'That code didn’t match. Check it and try again.'),
+      };
     }
   };
 
   return (
     <AdminSignInLayout>
-      <AdminSignInForm onSubmit={submit} error={formError} busy={busy} />
+      <AdminSignInForm
+        onSubmit={submit}
+        onAskSuperAdmin={() => data.update({ state: 'setup' })}
+        error={formError}
+        busy={busy}
+      />
       {state === 'code' && email ? (
         <AdminCodeDialog
           email={email}
@@ -94,7 +112,7 @@ const AdminSignInPage = () => {
           onClose={closeDialog}
         />
       ) : null}
-      {state === 'locked' || state === 'expired' ? (
+      {state === 'locked' || state === 'expired' || state === 'setup' ? (
         <AdminNoticeDialog kind={state} onClose={closeDialog} />
       ) : null}
     </AdminSignInLayout>

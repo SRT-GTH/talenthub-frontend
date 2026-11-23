@@ -88,9 +88,11 @@ export const useGameV2Params = () => {
   const openModal = useCallback((kind) => update({ modal: kind }), [update]);
   const closeModal = useCallback(() => update({ modal: null }), [update]);
   const exit = useCallback(() => {
-    log('exit', gameId);
-    navigate(GAMES_TAB_URL);
-  }, [navigate, gameId]);
+    // a mock run (`?demo=1`) goes back to the mock Games tab, a live run to the live one
+    const demo = params.get('demo') === '1';
+    log('exit', gameId, { demo });
+    navigate(demo ? `${GAMES_TAB_URL}&demo=1` : GAMES_TAB_URL);
+  }, [navigate, gameId, params]);
   const finish = useCallback(
     (result) => {
       log('finish', gameId, result && Object.keys(result));

@@ -12,8 +12,10 @@ const log = debug('ShareYourStory');
  * ShareYourStory — "Section · Share yours" (Figma 7797:30825, 1728x390, gradient #eef4ea → #e3eedd, pad 100/96).
  * Card 1200x190 r36 (pad 40/48, gap 40, row): text (Bricolage 48/600 title, 17/26 body, max 620) + CTA block (button + 13/500 note);
  * "+100 XP" sticker rotated -6deg on the top edge. Tablet (7815:299677) and mobile (7815:300735): card stacks, title 30 / 32.
- * ⚠️ The CTA is inert here: Figma draws no destination for "Share my story".
+ * "Share my story": Figma draws no destination and the app has no story form, so it opens an e-mail to the help address printed in
+ * the footer with the subject filled in (⚠️ ASSUMPTION, inspection 2026-11-21; replace with a form when one is designed).
  */
+const SHARE_HREF = `mailto:info@ghanatalenthub.com?subject=${encodeURIComponent('My GTH story')}`;
 const ShareYourStory = () => {
   log('render');
   return (
@@ -33,14 +35,15 @@ const ShareYourStory = () => {
           </p>
         </div>
         <div className="flex flex-col gap-[10px]">
-          <Button
-            size="md"
-            rightIcon={<ArrowRightIcon />}
-            className="w-fit"
-            onClick={() => log('share my story clicked (inert: no destination in Figma)')}
+          <a
+            href={SHARE_HREF}
+            onClick={() => log('share my story ->', SHARE_HREF)}
+            className="w-fit no-underline"
           >
-            {SHARE_STORY.cta}
-          </Button>
+            <Button size="md" rightIcon={<ArrowRightIcon />} className="w-fit" tabIndex={-1}>
+              {SHARE_STORY.cta}
+            </Button>
+          </a>
           <span className="font-sans text-[13px] font-medium leading-[15.5px] text-[#595959]">
             {SHARE_STORY.note}
           </span>

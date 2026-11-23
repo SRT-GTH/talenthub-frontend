@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { smoothLayout } from '../../../utils/smoothLayout.js';
 import { debug } from '../../../utils/debug.js';
 import { DEFAULT_HOME_CARDS } from './talentHomeTabsData.js';
 
@@ -30,25 +31,37 @@ const patch = (id, fn, why) =>
     `${why} ${id}`
   );
 
+// Move `id` to sit where `toId` is (same section only; tray-only cards don't move).
+const moveNow = (id, toId) => {
+  const from = cards.findIndex((c) => c.id === id);
+  const to = cards.findIndex((c) => c.id === toId);
+  if (from < 0 || to < 0 || from === to || cards[from].section !== cards[to].section) return;
+  const next = cards.slice();
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  commit(next, `move ${id} ->`);
+};
+
+// Every change runs as a View Transition: the other cards glide to their new places instead of jumping.
 const store = {
   subscribe: (l) => {
     listeners.add(l);
     return () => listeners.delete(l);
   },
   getSnapshot: () => cards,
-  hide: (id) => patch(id, (c) => ({ ...c, state: 'hidden', fromUser: true }), 'hide'),
-  show: (id) => patch(id, (c) => ({ ...c, state: 'shown', fromUser: false }), 'show'),
-  add: (id) => patch(id, (c) => ({ ...c, state: 'shown', fromUser: false }), 'add'),
-  // Move `id` to sit where `toId` is (same section only; tray-only cards don't move).
-  move: (id, toId) => {
-    const from = cards.findIndex((c) => c.id === id);
-    const to = cards.findIndex((c) => c.id === toId);
-    if (from < 0 || to < 0 || from === to || cards[from].section !== cards[to].section) return;
-    const next = cards.slice();
-    const [item] = next.splice(from, 1);
-    next.splice(to, 0, item);
-    commit(next, `move ${id} ->`);
-  },
+  hide: (id) =>
+    smoothLayout(
+      () => patch(id, (c) => ({ ...c, state: 'hidden', fromUser: true }), 'hide'),
+      'hide'
+    ),
+  show: (id) =>
+    smoothLayout(
+      () => patch(id, (c) => ({ ...c, state: 'shown', fromUser: false }), 'show'),
+      'show'
+    ),
+  add: (id) =>
+    smoothLayout(() => patch(id, (c) => ({ ...c, state: 'shown', fromUser: false }), 'add'), 'add'),
+  move: (id, toId) => smoothLayout(() => moveNow(id, toId), 'move'),
   // Keyboard reorder: shift by one visible slot inside the same section.
   moveBy: (id, delta) => {
     const onPage = cards.filter((c) => c.state !== 'available');
@@ -56,7 +69,7 @@ const store = {
     const target = onPage[i + delta];
     if (target) store.move(id, target.id);
   },
-  reset: () => commit(fresh(), 'reset'),
+  reset: () => smoothLayout(() => commit(fresh(), 'reset'), 'reset'),
 };
 
 export const homeLayoutStore = store;

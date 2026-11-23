@@ -149,8 +149,16 @@ const PortfolioPage = () => {
   }, [live, ready, ps, target]);
 
   const closeModal = useCallback(() => ps.update({ modal: null, project: null }), [ps]);
+  const [focusLink, setFocusLink] = useState(false); // "Paste a link": the add dialog opens on Link 1
   const openAdd = () => {
     log('open add');
+    setFocusLink(false);
+    ps.update({ modal: 'add', state: empty ? null : 'list' });
+  };
+  // Figma draws no paste-a-link screen; the add-project dialog already has the link fields, so open it there.
+  const pasteLink = () => {
+    log('paste a link -> add dialog, focus Link 1');
+    setFocusLink(true);
     ps.update({ modal: 'add', state: empty ? null : 'list' });
   };
 
@@ -222,7 +230,7 @@ const PortfolioPage = () => {
             <>
               <EmptyState
                 onAdd={openAdd}
-                onPasteLink={() => log('paste a link (not drawn in Figma: inert)')}
+                onPasteLink={pasteLink}
                 onSkip={() => navigate(nextStageRoute('portfolio'))}
               />
               <SectionEyebrow>WHAT A STRONG PROJECT LOOKS LIKE</SectionEyebrow>
@@ -252,7 +260,13 @@ const PortfolioPage = () => {
       </main>
 
       {modal === 'add' ? (
-        <ProjectDialog mode="add" live={live} onClose={closeModal} onSave={save} />
+        <ProjectDialog
+          mode="add"
+          live={live}
+          focusLink={focusLink}
+          onClose={closeModal}
+          onSave={save}
+        />
       ) : null}
       {modal === 'edit' && target ? (
         <ProjectDialog

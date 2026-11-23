@@ -1,7 +1,7 @@
 import PsSectionHead from './PsSectionHead.jsx';
 import { SCHOOLS } from './ParentsSchoolsData.js';
-import { ArrowRightGlyph, CheckGlyph, ShieldGlyph } from './ParentsSchoolsIcons.jsx';
-import { LANDING_ROUTES } from '../../../../constants/landingRoutes.js';
+import { CheckGlyph, ShieldGlyph } from './ParentsSchoolsIcons.jsx';
+import { schoolSignUpPath } from '../shared/schoolSignUpPath.js';
 import { Link } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 
@@ -13,9 +13,14 @@ const log = debug('SchoolsSection');
  */
 const SchoolsSection = () => {
   const { dashboard } = SCHOOLS;
-  log('render');
+  // not linked in Figma: institution sign-up, or /institution for signed-in school staff
+  const schoolPath = schoolSignUpPath();
+  log('render', { schoolPath });
   return (
-    <section className="bg-[linear-gradient(180deg,#eef4ea_0%,#e3eedd_100%)] px-5 py-14 md:px-10 md:py-[72px] xl:px-24 xl:py-[100px]">
+    <section
+      id="schools"
+      className="bg-[linear-gradient(180deg,#eef4ea_0%,#e3eedd_100%)] px-5 py-14 md:px-10 md:py-[72px] xl:px-24 xl:py-[100px]"
+    >
       <div className="mx-auto flex max-w-[1536px] flex-col gap-5 md:gap-10">
         <PsSectionHead
           chip={SCHOOLS.chip}
@@ -97,17 +102,25 @@ const SchoolsSection = () => {
                   </span>
                 </li>
               ))}
+              {/* Figma 9553:246776 "Btn · Bring GTH to my school": drawn as a sixth benefit row (check tile + 17/Medium text), not a
+                  filled button. Same look as the rows above; the text underlines on hover / focus so it still reads as a link. */}
+              <li className="flex">
+                <Link
+                  to={schoolPath}
+                  onClick={() => log('cta: bring GTH to my school ->', schoolPath)}
+                  className="group flex items-center gap-3 rounded-[8px] text-[#1c2a21] no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#387440]"
+                >
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#387440] text-white">
+                    <span className="size-[15px]">
+                      <CheckGlyph />
+                    </span>
+                  </span>
+                  <span className="lp-ul-hover font-sans group-hover:bg-size-[100%_1px]! group-focus-visible:bg-size-[100%_1px]! text-[16px] font-medium leading-[19px] md:text-[17px] md:leading-[20.3px]">
+                    {SCHOOLS.cta}
+                  </span>
+                </Link>
+              </li>
             </ul>
-            <Link
-              to={LANDING_ROUTES.getStarted}
-              onClick={() => log('cta: bring GTH to my school')}
-              className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[10px] border-2 border-[#2a5730] bg-[#387440] px-5 font-sans text-[16px] font-bold tracking-[0.1px] text-[#fef1e7] no-underline shadow-[0_4px_0_#224626] md:w-fit md:px-6 xl:px-7"
-            >
-              {SCHOOLS.cta}
-              <span className="size-5 text-white">
-                <ArrowRightGlyph />
-              </span>
-            </Link>
           </div>
         </div>
       </div>

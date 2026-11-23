@@ -12,7 +12,7 @@ const log = debug('PreApplyDialog');
 /*
  * PreApplyDialog — T-MSG-06 "Before you apply" (Figma Playful 7420:3578 / Focused 8110:438016). Open with ?modal=pre-apply.
  * Props: open, onClose, onSubmit (Continue application -> the lead sets the job card to 'applied'), data (PRE_APPLY_PREVIEW),
- * onEditVisibility (optional; no destination is drawn, default logs only).
+ * onEditVisibility (optional; the page opens Settings › Profile and privacy).
  * Scrim #1c2a21 @45%. Focus trap, Esc and scrim click close (usePlayfulDialogA11y).
  * Heading font: Bricolage (Playful) / SF Rounded (Focused). Shadow differs per style as drawn.
  */
@@ -125,7 +125,7 @@ const PreApplyDialog = ({
                   <button
                     type="button"
                     onClick={() => {
-                      log('branch: edit visibility (no destination drawn)');
+                      log('branch: edit visibility');
                       onEditVisibility?.();
                     }}
                     className="inline-flex min-h-[24px] shrink-0 cursor-pointer items-center border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] tracking-[0.2px] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"

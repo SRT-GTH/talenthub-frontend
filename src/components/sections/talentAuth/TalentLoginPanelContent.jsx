@@ -6,11 +6,16 @@ import ellipseCard1 from '../../../assets/hero/talent-panel-card-ellipse-1.svg';
 import ellipseCard23 from '../../../assets/hero/talent-panel-card-ellipse-23.svg';
 import gthIcon from '../../../assets/entry/panel-shield-check.svg'; // Figma 8027:214229
 import sparkle26 from '../../../assets/hero/talent-panel-sparkle-26.svg';
+import ghanaFlag from '../../../assets/entry/login-ghana-flag.svg';
+import { GenzDoodleStar } from '../../shared/assets.jsx';
 
 const log = debug('TalentLoginPanelContent');
 
 /*
  * TalentLoginPanelContent - right-panel composition for the talent Login screen.
+ * Two looks (login follows the look picked during sign-up; no switch on the page): Playful = tilted photos, ink-edged
+ * stickers, stars and the brand sticker; Focused = the "Focused · Login Screen" frame: flat photos at their own
+ * centres, flat soft chips and score card, no doodles.
  * Figma: 8027:214133 (default) / 214479 / 214691 / 214903 -> panel 'Frame 150'
  * 8027:214198, 739 x 973. Rebuilt for the shared OnboardingPanel contract
  * (see TalentOnboardingPanel): nothing is sized in vw or viewport px.
@@ -31,6 +36,12 @@ const log = debug('TalentLoginPanelContent');
 const cq = (px) => `${((px / 739) * 100).toFixed(3)}cqw`;
 const fs = (px, floor = 6) => `max(${floor}px, ${cq(px)})`;
 
+// Corner dot grid sits INSIDE each photo, clipped by it (Figma: 223px circle at -75.84 / -69.88 on a 331.55px card).
+const CORNER_DOTS = {
+  cornerEllipseInside: true,
+  cornerEllipseStyle: { left: '-22.9%', top: '-21.1%', width: '67.3%' },
+};
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const LOGIN_PHOTO_CARDS = [
   {
@@ -42,6 +53,8 @@ export const LOGIN_PHOTO_CARDS = [
     aspectRatio: '1',
     borderColor: '#eedeb8',
     cornerEllipseSrc: ellipseCard1,
+    ...CORNER_DOTS,
+    focused: { centerX: '73.93%', centerY: '45.95%' }, // Focused frame: flat, own centre
   },
   {
     photo: photo2,
@@ -52,6 +65,8 @@ export const LOGIN_PHOTO_CARDS = [
     aspectRatio: '1',
     borderColor: '#ebc2bd',
     cornerEllipseSrc: ellipseCard23,
+    ...CORNER_DOTS,
+    focused: { centerX: '33.15%', centerY: '23.1%' },
   },
   {
     photo: photo3,
@@ -62,6 +77,8 @@ export const LOGIN_PHOTO_CARDS = [
     aspectRatio: '1',
     borderColor: '#c1d4c4',
     cornerEllipseSrc: ellipseCard23,
+    ...CORNER_DOTS,
+    focused: { centerX: '22.81%', centerY: '75.58%' },
   },
 ];
 
@@ -79,7 +96,7 @@ export const LoginOverlayCards = () => {
         src={sparkle26}
         alt=""
         draggable={false}
-        className="absolute block max-w-none"
+        className="absolute block max-w-none focused:hidden"
         style={{
           left: '36.1%',
           top: '45.2%',
@@ -89,16 +106,19 @@ export const LoginOverlayCards = () => {
         }}
       />
 
-      {/* Data Protected chip (8027:214214): 268x68 at (3.4%, 36.6%) */}
+      {/* Data Protected card (Playful, 2968:49789): mint, 1.2px ink border, hard 3px ink shadow, tilted 3deg;
+          box inset 36.56% / 60.45% / 55.02% / 2.9% of the panel. */}
       <div
-        className="absolute flex items-center border border-[#fffefc] bg-[#ebf1ec] drop-shadow-[0px_2px_1px_rgba(27,36,44,0.04)] drop-shadow-[0px_16px_12px_rgba(27,36,44,0.16)]"
+        className="gth-mode-move absolute flex items-center border-[1.2px] border-[#1c2a21] bg-[#ebf1ec] focused:left-[3.38%]! focused:border! focused:border-[#fffefc]! focused:shadow-[0_2px_1px_rgba(27,36,44,0.04),0_10px_8.5px_rgba(27,36,44,0.08)]! focused:[transform:none]!"
         style={{
-          left: '3.4%',
-          top: '36.6%',
-          width: '36.3%',
+          left: '2.9%',
+          top: '36.56%',
+          width: '36.65%',
           borderRadius: cq(13),
           gap: cq(9),
           padding: `${cq(14)} ${cq(16)}`,
+          transform: 'rotate(3deg)',
+          boxShadow: `${cq(3)} ${cq(3)} 0 #1c2a21`,
         }}
       >
         <div
@@ -109,22 +129,25 @@ export const LoginOverlayCards = () => {
           <p className="font-bold leading-none" style={{ fontSize: fs(12) }}>
             Data Protected
           </p>
-          <p className="leading-tight" style={{ fontSize: fs(10) }}>
+          <p className="font-ui leading-tight" style={{ fontSize: fs(12) }}>
             Encrypted · Never shared without consent
           </p>
         </div>
       </div>
 
-      {/* GDPA badge (8027:214227): 288x40 at (54.8%, 22.9%) */}
+      {/* GDPA badge (Playful sticker, 2968:49802): gold, 1.2px ink border, hard 3px ink shadow, tilted -3deg, icon +8deg;
+          box inset 21.45% / 6.81% / 72.96% / 55.54% of the panel. */}
       <div
-        className="absolute flex items-center border border-[rgba(28,42,33,0.06)] bg-white drop-shadow-[0px_8px_16px_rgba(0,0,0,0.1)]"
+        className="gth-mode-move absolute flex items-center border-[1.2px] border-[#1c2a21] bg-[#ffd86b] focused:top-[22.93%]! focused:border! focused:border-[rgba(28,42,33,0.06)]! focused:bg-white! focused:shadow-none! focused:[transform:none]!"
         style={{
-          left: '54.8%',
-          top: '22.9%',
-          width: '39%',
+          left: '55.54%',
+          top: '21.45%',
+          // sized to its text (Figma 37.65% wide): a fixed width cut the label off where the fallback font runs wider
           borderRadius: cq(10),
           gap: cq(8),
           padding: `${cq(8)} ${cq(10)}`,
+          transform: 'rotate(-3deg)',
+          boxShadow: `${cq(3)} ${cq(3)} 0 #1c2a21`,
         }}
       >
         <img
@@ -132,10 +155,10 @@ export const LoginOverlayCards = () => {
           alt=""
           draggable={false}
           className="shrink-0"
-          style={{ width: cq(14), height: cq(14) }}
+          style={{ width: cq(12), height: cq(12), transform: 'rotate(8deg)' }}
         />
         <p
-          className="truncate font-semibold tracking-[0.1px] text-[#387440]"
+          className="whitespace-nowrap font-semibold tracking-[0.1px] text-[#525252] focused:text-[#387440]"
           style={{ fontSize: fs(14) }}
         >
           Ghana Data Protection Act compliant
@@ -145,7 +168,7 @@ export const LoginOverlayCards = () => {
       {/* Welcome back card (8027:214234): inner 248x223 (bbox 270x248 at rot 6),
           centre (74.6%, 83.1%). Internal positions as % of the 248x223 card. */}
       <div
-        className="absolute"
+        className="gth-mode-move absolute focused:top-[81.86%]! focused:left-[76.09%]! focused:[transform:translate(-50%,-50%)]!"
         style={{
           left: '74.6%',
           top: '83.1%',
@@ -156,13 +179,13 @@ export const LoginOverlayCards = () => {
       >
         <div style={{ width: '100%', height: '100%' }}>
           <div
-            className="relative overflow-hidden bg-white"
+            // Playful (2968:49809): 1.5px ink @55% border + hard 4px ink @45% shadow over the soft drop
+            className="gth-mode-move relative overflow-hidden border-[1.5px] border-[rgba(28,42,33,0.55)] bg-white focused:border! focused:border-[rgba(28,42,33,0.1)]! focused:shadow-[0_2px_8px_rgba(28,42,33,0.04),0_1px_2px_rgba(28,42,33,0.04)]!"
             style={{
               width: '100%',
               height: '100%',
               borderRadius: cq(24),
-              boxShadow:
-                '0px 2px 2px -1px rgba(27,35,44,0.04), 0px 8px 16px -2px rgba(27,36,44,0.12)',
+              boxShadow: `0px 10px 24px 0px rgba(28,42,33,0.06), ${cq(4)} ${cq(4)} 0px 0px rgba(28,42,33,0.45)`,
             }}
           >
             {/* Top gradient bar — h = 4/223 = 1.79% */}
@@ -351,9 +374,42 @@ export const LoginOverlayCards = () => {
           </div>
         </div>
       </div>
+
+      {/* Playful touches: gold doodle stars and the brand sticker (the tape strips were removed at the product owner's request) */}
+      {LOGIN_STARS.map((s) => (
+        <GenzDoodleStar
+          key={s.id}
+          className="absolute focused:hidden"
+          style={{ left: s.x, top: s.y, width: cq(s.size), height: cq(s.size) }}
+        />
+      ))}
+      {/* "genz:sticker · brand" (8361:7458): cream, 1.2px ink border, hard 3px ink shadow, tilted -4deg */}
+      <div
+        className="absolute flex items-center whitespace-nowrap border-[1.2px] border-[#1c2a21] bg-[#fbf6ea] focused:hidden"
+        style={{
+          left: '20.46%',
+          top: '91.17%',
+          transform: 'translate(-50%, -50%) rotate(-4deg)',
+          gap: cq(8),
+          padding: `${cq(8)} ${cq(14)}`,
+          borderRadius: cq(10),
+          boxShadow: `${cq(3)} ${cq(3)} 0 #1c2a21`,
+        }}
+      >
+        <img src={ghanaFlag} alt="" draggable={false} style={{ width: cq(18), height: cq(18) }} />
+        <p className="font-bold leading-none text-[#1c2a21]" style={{ fontSize: fs(15) }}>
+          Built for Ghana&apos;s next gen
+        </p>
+      </div>
     </div>
   );
 };
+
+const LOGIN_STARS = [
+  { id: 'top-left', x: '9.34%', y: '4.11%', size: 22 },
+  { id: 'right', x: '86.47%', y: '60.64%', size: 14 },
+  { id: 'bottom', x: '44.52%', y: '90.44%', size: 18 },
+];
 
 // Default export kept so the page can import the content as a unit.
 export default function TalentLoginPanelContent() {

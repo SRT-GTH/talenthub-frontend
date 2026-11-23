@@ -326,13 +326,14 @@ test('RC-C09 milestone share: verified-employer copy, Esc closes', async ({ page
 
 test('talent Community is unchanged: same pages, talent copy and links', async ({ page }) => {
   const errors = await open(page, '/community?demo=1', 'Find your people');
-  await expectTexts(page, ['10 communities', 'Picked for you', 'Based on your skills']);
+  // Figma renamed Community → Clubs and My circle → My crew (wiki/log.md 2026-11-21).
+  await expectTexts(page, ['10 clubs', 'Picked for you', 'Based on your skills']);
   await expect(page.getByRole('link', { name: 'Frontend Devs Ghana' })).toHaveAttribute(
     'href',
     '/community/frontend-devs-ghana'
   );
   await open(page, '/community/frontend-devs-ghana?joined=1&demo=1', '#Frontend Devs Ghana');
-  await expectTexts(page, ['Invite friends', 'About this community', 'Achievement']);
+  await expectTexts(page, ['Invite friends', 'About this club', 'Achievement']);
   await expectCounts(page, ['1,240']);
   expect(errors).toEqual([]);
 });

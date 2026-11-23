@@ -1,4 +1,5 @@
 import { classNames } from '../../../../utils/classNames.js';
+import SkeletonBlock from '../../../ui/SkeletonBlock.jsx';
 import { ArrowLeftIcon, ArrowRightSmIcon } from '../../../shared/assets.jsx';
 import { AVATAR_TABS, FONT_SPACE, STAT_PILLS } from './avatarData.js';
 import { SHADOW_HARD, SHADOW_SOFT, StatPill, StepTabs } from './AvatarPieces.jsx';
@@ -8,13 +9,31 @@ import { SHADOW_HARD, SHADOW_SOFT, StatPill, StepTabs } from './AvatarPieces.jsx
  * "✓ n selected" chip on Extras / Outfit), the tab row, the step body, and the action card pinned to the bottom (Go back · primary ·
  * "Auto-saved …" line). Props: meta (STEP_META entry), step, selectedCount (null hides the chip), onTab(tabId), onBack, onNext, children,
  * notice (optional load / save failure message, shown above the "Auto-saved …" line as a role="status" line),
- * busy (true while a live profile has not loaded: the step body is inert and the primary button disabled).
+ * busy (true while a live profile has not loaded: the step body is inert and the primary button disabled),
+ * loading (signed in, saved avatar still loading: the step body is replaced by skeleton tiles, the app's SkeletonBlock,
+ * plus a screen-reader "Loading your avatar" status; Figma draws no loading state ⚠️ ASSUMPTION).
  * Chip placement (design px from the title top): Extras 27 / Outfit 86, right-aligned to the content edge.
  */
 const GRADIENT_TEXT = {
   backgroundImage: 'linear-gradient(188.377deg, rgb(254, 241, 231) 0%, rgb(232, 242, 237) 20.192%)',
 };
 const CHIP_TOP = { extras: 27, outfit: 86 };
+
+/* Loading placeholder for the step body: a label bar and two rows of option tiles (the shape every step body starts with). */
+const PanelSkeleton = () => (
+  <div className="flex flex-col gap-[16px]">
+    <p role="status" className="sr-only">
+      Loading your avatar…
+    </p>
+    <SkeletonBlock className="h-[14px] w-[40%] rounded-[6px]" />
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(64px,1fr))] gap-[8px] lg:grid-cols-5">
+      {Array.from({ length: 10 }, (_, i) => (
+        <SkeletonBlock key={i} className="aspect-square w-full rounded-[12px]" />
+      ))}
+    </div>
+    <SkeletonBlock className="h-[58px] w-full rounded-[10px]" />
+  </div>
+);
 
 const AvatarPanel = ({
   meta,
@@ -25,6 +44,7 @@ const AvatarPanel = ({
   onNext,
   notice = null,
   busy = false,
+  loading = false,
   children,
 }) => {
   const tall = meta.cardH === 150;
@@ -89,7 +109,7 @@ const AvatarPanel = ({
           inert={busy || undefined}
           aria-busy={busy || undefined}
         >
-          {children}
+          {loading ? <PanelSkeleton /> : children}
         </div>
       </div>
       <div className="flex-1" />

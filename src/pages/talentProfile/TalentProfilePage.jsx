@@ -104,6 +104,24 @@ const TalentProfilePage = () => {
     ensurePlayfulFont();
   }, []);
 
+  // "#badges" etc. (e.g. Home › More for you › All badges): scroll to that card once it has rendered (live data may
+  // still be loading, so retry briefly).
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id) return undefined;
+    let tries = 0;
+    const timer = setInterval(() => {
+      const el = document.getElementById(id);
+      tries += 1;
+      if (el) {
+        log('scroll to section', id);
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      if (el || tries > 20) clearInterval(timer);
+    }, 150);
+    return () => clearInterval(timer);
+  }, []);
+
   // Marks <html> while mounted so talentA11y.css (focus ring, reduced motion) covers portaled dialogs.
   useEffect(() => {
     document.documentElement.setAttribute('data-talent-home', '');

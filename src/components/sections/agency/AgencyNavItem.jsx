@@ -18,6 +18,8 @@ const log = debug('AgencyNavItem');
  * AgencyNavItem — "GTH-DASH · Nav item" of the agency rail (Figma 8597:398695 active / 8597:398696 inactive).
  * expanded: 255 x 44, px12 py10, gap 11, radius 10, icon 20 + label 14/24; active = #387440 fill, #ebf1ec label 500; inactive = #70706e 400.
  * rail (icon-only, ⚠️ ASSUMPTION: the agency frames draw no collapsed rail): the same 44px tile without the label.
+ * Shared by the institution rail (InstitutionNavItem passes its own `icons` map; same Figma nav item). Props: item, active, variant, onNavigate,
+ * icons ({ key: IconComponent }, default the agency set).
  */
 
 const NAV_ICONS = {
@@ -31,8 +33,14 @@ const NAV_ICONS = {
   trend: AgencyTrendUpIcon,
 };
 
-const AgencyNavItem = ({ item, active = false, variant = 'expanded', onNavigate }) => {
-  const Icon = NAV_ICONS[item.icon];
+const AgencyNavItem = ({
+  item,
+  active = false,
+  variant = 'expanded',
+  onNavigate,
+  icons = NAV_ICONS,
+}) => {
+  const Icon = icons[item.icon];
   const rail = variant === 'rail';
   return (
     <Link

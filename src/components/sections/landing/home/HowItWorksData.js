@@ -32,6 +32,8 @@ export const HOW_STEPS = [
     chip: 'Unlocks: Top Talent at 9 of 9',
     accent: '#f9c9b6',
     image: 'page-hero-opportunities',
+    // The subject's head sits at the very top of this 4:3 photo: anchor the crop there so wide cards keep her face.
+    imageFocus: 'top',
   },
 ];
 

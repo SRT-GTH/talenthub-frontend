@@ -44,6 +44,14 @@ Other nodes: `Sidebar · talent` `7740:11213`, `Nav` `8315:461634`, `GTH · Ask 
 
 Each section component receives `home` (see `useTalentHomeState`): `{ snapshot, stateKey, tab, loading, newUser, journeyMin, searchOpen, editOpen, a11yMode, update(patch) }`. Add fields to `SNAPSHOTS` only by appending; never rename. `update({ key: value })` edits the URL.
 
+## Inspection pass (2026-11-21, phase 3 area A)
+
+- **People to link up with** card (Figma "GTH · Crew suggestions", added to the Top Talent frames with My circle) is now on `/home?state=top|complete`, left column after Recent activity, both looks (`CrewCard` in `HomeColumns.jsx`, card id `crew` in `DEFAULT_HOME_CARDS`). Demo only: the live home hides it (no circle data on `/home` yet). "My crew" → `/community?view=circle&tab=circle`, "Review" → `…&tab=invitations`, "Link up" → `…&modal=connect&person=<id>`. Photos are the card's own Figma exports (`assets/talent-home/home/crew-*.png`; the My circle exports show different people under these names). `✅ VERIFIED` (screenshot vs Figma, both looks)
+- Sidebar (demo home states): Community shows the "3" badge every Home frame draws; the progress caption opens what it names ("Continue: Interests →" → interests stage, "Continue: Portfolio →" → portfolio stage, "260 pts to Level 6 →" → `/skills-lab?tab=games`, same as the live captions). Before: all three opened the journey map. `✅ VERIFIED`
+- Bell pop-up footer "Settings" → `/settings/notifications` (was log-only). `✅ VERIFIED`
+- Profile chip no longer treats Emma's `?menu=switch` as the profile menu being open. `✅ VERIFIED`
+- Kept on purpose: the Home frames label the nav "Opportunities" / "Clubs"; the app uses "Job Postings" / "Community" (the names of those pages' own frames). `🔶 LIKELY` intended
+
 ## Status (2026-10-17)
 
 | Piece                                                                                                        | Status                                                                                                                                                                        |
@@ -73,3 +81,11 @@ Each section component receives `home` (see `useTalentHomeState`): `{ snapshot, 
 ## Persona: Emma (`/home?as=emma`)
 
 A parent who is also a talent sees this same page with her own details (Figma Parents file, canvas 12, frames TC-01 / TC-02): `emmaPersona.js` supplies the profile, nav labels and content, and `home.persona` switches on the "My career" chip, the switch-space menu, the "Parent view · 4 to review →" link and the `SpaceBanner`. Kofi's states are unchanged. Details: [parent-spaces.md](parent-spaces.md).
+
+## Control destinations (2026-11-21)
+
+Prototype links read over REST on HM-03 `7730:5351`, HM-03a `7756:182819`, their Focused twins, HM-05 `7747:206563`, HM-06 `7741:3318`: "Review" (Evaluations), "All badges" and "Manage skills" carry no link. Searched every canvas (frame / section names: badge, achievement, trophy, evaluation) — no all-badges or evaluations screen exists; the only "Evaluations" design is the design-system card `GTH-DASH-016 · Evaluations` (`5992:102`), whose rows are test / interview results ("Frontend Skills Test 88%", "Communication Interview · Passed") and whose empty state says "Take a skills test or complete an interview to see your results here" / "Take a test".
+
+- ✅ VERIFIED Evaluations "Review" → `/my-assessment` (demo flag kept). 🔶 LIKELY from the design-system card; ⚠️ the demo rows name people (team lead / peer) and no person-to-person evaluation screen exists.
+- "All badges" → `/profile#badges` (coordinator) — kept: no badge screen in Figma.
+- "Manage skills" → `/profile/filling/skills` — kept, same as the My Assessment tab "Manage skills" (also unlinked in Figma).

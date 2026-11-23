@@ -48,7 +48,7 @@ const AgencySignUpPage = () => {
             contact you about it.
           </p>
           <Link
-            to="/agency"
+            to="/login"
             className="inline-flex min-h-[48px] w-fit items-center rounded-[14px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[28px] font-sans text-[16px] font-bold text-white no-underline shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             Go to sign in

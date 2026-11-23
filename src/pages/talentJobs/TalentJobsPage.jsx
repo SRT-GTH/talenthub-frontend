@@ -10,7 +10,7 @@ import JobsDialogs from '../../components/sections/talentJobs/JobsDialogs.jsx';
 import JobsScreen from '../../components/sections/talentJobs/JobsScreen.jsx';
 import { useTalentJobsState } from '../../components/sections/talentJobs/talentJobsState.js';
 import { useLiveJobs } from '../../components/sections/talentJobs/useLiveJobs.js';
-import { JOB_LIST } from '../../components/sections/talentJobs/talentJobsData.js';
+import { JOB_LIST, jobById } from '../../components/sections/talentJobs/talentJobsData.js';
 
 const log = debug('TalentJobsPage');
 
@@ -35,7 +35,13 @@ const TalentJobsPage = () => {
     // data.version: the data bindings were swapped
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlState, data, data.version]);
-  const newMatches = data.status === 'live' ? JOB_LIST.filter((j) => j.isNew).length : 2;
+  // The demo "2" only on the Figma demo; signed in it waits for the live feed (no badge while loading / on error).
+  const newMatches =
+    data.status === 'live'
+      ? JOB_LIST.filter((j) => j.isNew).length
+      : data.status === 'demo'
+        ? 2
+        : 0;
 
   useEffect(() => {
     ensurePlayfulFont();
@@ -50,6 +56,28 @@ const TalentJobsPage = () => {
   useEffect(() => {
     log('mount', { tab: jobs.tab, view: jobs.view, state: jobs.state, rail: jobs.rail });
   }, [jobs.tab, jobs.view, jobs.state, jobs.rail]);
+
+  // `?save=<id>` from the heart on /opportunities (after login): save that role once the live feed is in, then drop the key.
+  // An id the feed doesn't have (today: every landing sample role) is just dropped.
+  const { pendingSave, update: updateUrl } = urlState;
+  useEffect(() => {
+    if (!pendingSave || data.status === 'loading') return;
+    const job = data.status === 'live' ? jobById(pendingSave) : null;
+    if (job && !job.bookmarkId) {
+      log('saving role from a public page', pendingSave);
+      data.toggleSave(pendingSave);
+    } else {
+      log('pending save not applied', {
+        id: pendingSave,
+        status: data.status,
+        found: Boolean(job),
+        alreadySaved: Boolean(job?.bookmarkId),
+      });
+    }
+    updateUrl({ save: null });
+    // run once per pending id after the feed settles
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingSave, data.status]);
 
   return (
     <DashboardShell

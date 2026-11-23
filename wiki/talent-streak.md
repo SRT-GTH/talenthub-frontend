@@ -2,7 +2,6 @@
 
 Figma file `Bin8roWL8sloyc36IgFMuT`, canvas "Talent Streaks" `7532:2` (Playful `7533:*`, Focused `8110:21905…`). Mock data only (`talentStreakData.js`), shaped for an API.
 
-
 ## Live data (2026-10-20)
 
 Live by default for a signed-in talent: `GET /api/streak` (srt-backend `services/streaks.service.js`, rules in `utils/streaks.js`) through `useLiveStreak.js` — one cached request shared by the nav pill (DashboardTopNav), the pop-up (`?streak=open` shows the real card) and `/streak` (`streakPageState.js` → `streakLive`). `?demo=1`, `/streak?milestone=15` and the pop-up's other `?streak=` frames keep the drawn mock below.
@@ -38,3 +37,7 @@ Pop-up component set: `GTH · Streak pop-up` 7532:317 (Focused 8256:90621).
 - Leaderboard "You" stays 12 in S-08 as drawn.
 - Pop-up: Focused component-sheet twin (8256:90621) differs from the Focused S-frames; the S-frames were followed. Phone layout of the pop-up is our own (no Figma phone frames).
 - Not run: end-to-end suite, strict visual baseline, 390/320 screenshots of the pop-up beyond the responsive audit (40/40 pass).
+
+## Control destinations (2026-11-21)
+
+S-07 (`7534:1027`) has no prototype links on the "Any one of these keeps your flame alive" chips. They are now links to where each action is done (`counts.items[].to` in `talentStreakData.js`, demo flag kept): Finish a lesson / Pass a quick check → `/learning` (quick checks live inside lessons; the pop-up's "learn" action already goes there), Play a Skills Lab game → `/skills-lab?tab=games`, Complete an assessment → `/my-assessment`. ✅ VERIFIED in the browser; destinations ⚠️ ASSUMPTION (not drawn).

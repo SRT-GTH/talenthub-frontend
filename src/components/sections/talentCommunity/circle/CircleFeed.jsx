@@ -9,8 +9,8 @@ import { HEADING, STICKER } from './circleStyles.js';
 import { useCircleSplitGrid, useCircleVariantData } from './useCircleVariantData.js';
 
 /*
- * CircleFeed — Figma NW-09 "Feed · From your network": the title "From your circle" 28/33 (Playful: Bricolage + the "CHEER THEM ON"
- * sticker, 3°), the grey subtitle, then wins / updates / mentor posts on the left and the Your circle panel + "People to link up
+ * CircleFeed — Figma NW-09 "Feed · From your network": the title "From your crew" 28/33 (Playful: Bricolage + the "CHEER THEM ON"
+ * sticker, 3°), the grey subtitle, then wins / updates / mentor posts on the left and the Your crew panel + "People to link up
  * with" on the right. Props: store (useCircleStore()), statusFor(id), onLinkUp(person), onFollow(person), onSeeAll(), show(toast),
  * stats ({ inCircle }).
  * ⚠️ ASSUMPTION: "Congratulate" / "Say congrats" / the quick chips send a congratulation → toast (no backend yet).

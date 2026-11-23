@@ -98,3 +98,15 @@ Each section component receives `learning` (see `useTalentLearningState`): `{ vi
 Mapping lives in `learningMappers.js` (cover art picked by topic from the 8 Figma covers; duration / cost / certificate meta; gap chip "Builds N skills you're missing" ⚠️).
 
 **Backend gaps found** (not fixed here): no lesson content / quiz questions per module; `updateProgress` accepts any `moduleId` (progress can pass 100% with bogus ids); enrolments never move to `in_progress`; `enrol` stores `courseName: course.name` (courses have `title`, so it's undefined); certificate PDF / public verify link not implemented; `getEnrolmentHistory`'s doc says it includes course info but it doesn't (frontend joins the catalogue).
+
+## Inspection pass (2026-11-21)
+
+- `?demo=1` / `?empty=1` / `?loading=1` no longer call the talent home API (`useTalentHomeState({ enabled: !demoMode })` in `TalentLearningPage.jsx`), so design-QA URLs work without a session instead of redirecting to `/login`. ✅ VERIFIED
+- Page top/bottom padding is Figma's 32px (`py-[clamp(12px,1.852vw,32px)]`); the Playful header art no longer adds row height (`-mb-[13px]`, Figma lets it overflow the 68.9px row). Tabs now sit at y≈216 in both looks (Figma 213; the 3px is the shell's 91 vs 88px top bar). ✅ VERIFIED
+- Course detail module rows gap 12px and lesson-player module list gap 16px (both were 0; Figma auto-layout gaps). Diff vs the cached PNGs: lesson P 7.5→4.0 %, F 6.4→3.0 %; course P 6.1→4.4 %, F 4.4→2.4 %; hub F 6.6→4.3 %. ✅ VERIFIED
+- "Ask Career Buddy" CTAs now open the Career Buddy chat on the page (`?new=chat`, same panel as the Ask Buddy button): empty state, lesson player "Stuck? Ask Career Buddy" (send button / Enter), quick-check retry "Ask Career Buddy to explain it differently", Explore no-results. The typed question is not carried into the chat. ✅ VERIFIED
+- The SV-01 toast frame is drawn over Course detail: compare it with `?demo=1&view=course&toast=saved`, not `?toast=saved`. 🔶 LIKELY
+
+## Control destinations (2026-11-21)
+
+EX-04 (`7538:2872`) "Request this course" has no prototype link and there is no course-request endpoint. It follows the club "Request this club" pattern (`CommunityBrowseParts.jsx` NoResults): the button becomes a disabled "Request sent" for the visit; nothing is stored. ✅ VERIFIED (browser); ⚠️ ASSUMPTION for behaviour; backend gap: a course-request endpoint.

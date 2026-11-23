@@ -50,10 +50,10 @@ export const showingLabel = (purpose, total) => {
   return `Showing ${total} ${p.singular} post${total === 1 ? '' : 's'}`;
 };
 
-/** US-5.2.2-02 empty state, e.g. "No milestone posts in this community yet. Be the first to share one!" */
+/** US-5.2.2-02 empty state, e.g. "No milestone posts in this club yet. Be the first to share one!" */
 export const emptyPurposeText = (purpose) => {
   const p = PURPOSE_BY_VALUE[purpose];
   return p
-    ? `No ${p.singular.toLowerCase()} posts in this community yet. Be the first to share one!`
+    ? `No ${p.singular.toLowerCase()} posts in this club yet. Be the first to share one!`
     : null;
 };

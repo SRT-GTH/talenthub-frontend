@@ -38,3 +38,12 @@
 - The pop-over and the "?" button are hidden below lg by the shell, so the pop-over was not exercised at phone width.
 - Counters drawn with a wrong number ("152 / 600", "82 / 500", "0 / 1000") count live; every other string is verbatim.
 - Not verified: hover and focus states, a real screen reader, a live backend, a manual browser session (the Playwright MCP browser was busy; scripted specs and the audit stood in).
+
+## Inspection pass 2026-11-22 (phase 6) — top bar on every recruiter page
+
+- `recruiterSettings/help/useRecruiterTopBarPanels.jsx`: DashboardShell merges these defaults under a page's own `panels` on every `/recruiter/*` page (page values win). "?" → Help pop-over (`?help=page`), profile chip → Profile menu (`?menu=open`), bell / EN / accessibility → the dashboard pop-ups (`?panel=notifications|language|a11y`), messages icon → `/recruiter/messages` (new additive `panels.onMessages` on DashboardTopNav). Before, these were inert everywhere except Home (bell/EN/a11y), Settings, Job Postings and Help. ✅ VERIFIED (Playwright, pipeline / talent search / screening / messages / community / home)
+- Profile menu off Settings: Settings / Accessibility / Language rows and Log out open `/recruiter/settings?tab=…` / `?modal=logout`; "View my recruiter profile" → Settings › Account ⚠️ ASSUMPTION; Privacy / Terms open the shared PrivacyPolicyModal / TermsModal (landing footer pattern). "Preview as talent" still has no destination.
+- Rail "Profile" item → `/recruiter/settings?tab=account` ⚠️ ASSUMPTION (no recruiter profile page is drawn).
+- Notification pop-up actions: Shortlist / See pipeline → pipeline, See Details → pipeline `?stage=interview`, Search Talents → talent search, Settings → Settings › Notifications (`RECRUITER_NOTIFICATION_TARGETS`, ⚠️ ASSUMPTION; Figma links none). "See everything" / expand have no screen.
+- Help and support: Ask Hiring Assistant → recruiter AI chat, Email us → `?help=contact` (additive `data.onContact` on the talent HelpSupportPage). WhatsApp (no number) and the request row (no request view) stay log-only.
+- Known conflict: the Help pop-over search writes `q`, which is also talent search's committed query; opening Help on `/recruiter/talent-search` clears the search. 🔶 LIKELY harmless, not fixed.

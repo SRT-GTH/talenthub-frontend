@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { PublicIconSearch } from '../publicDataIcons.jsx';
+import { searchDestination } from '../publicDataSearch.js';
 import { PublicIconWarning } from '../ui/publicUiIcons.jsx';
 import { STATUS_PAGES, SERVICE_STATUS_PATH } from './data/statusData.js';
 import {
@@ -18,10 +19,12 @@ const log = debug('StatusMessage');
  * disc 72 (p18, icon 36) · eyebrow 13/600 +1.04 tracking #595959 · h1 36/43 600 -0.36 · message 17/26 #595959 (max 600) · actions (gap 12, pt 10).
  * Props
  *   kind      '404' | '500' | 'maintenance'   picks copy (data/statusData.js), icon disc and actions
- *   onRetry   fn()   500 "Try again" (default: reload the page)
+ *   onRetry   fn()   500 "Try again" (default: go back to the page that failed when there is one in this tab's history, else the national
+ *                    snapshot; reloading /data/error itself only redrew the same error page, ⚠️ ASSUMPTION: no retry target is drawn)
  *   onNotify  fn()   maintenance "Get notified when we’re back" (the page opens the digest dialog)
  *   onDownload fn()  maintenance "Download last snapshot (PDF)" (the page opens the download dialog)
- * Navigation: 404 primary -> /data, "Browse regions" -> /data/regions, the 404 search submits to /data?q=…  (⚠️ ASSUMPTION: no results page drawn).
+ * Navigation: 404 primary -> /data, "Browse regions" -> /data/regions, the 404 search goes where the top-bar search goes (publicDataSearch.js:
+ * region page or directory, ⚠️ ASSUMPTION: no results page drawn).
  * The title is the page's single <h1>.
  */
 
@@ -47,13 +50,19 @@ const StatusMessage = ({ kind = '404', onRetry, onNotify, onDownload }) => {
   const retry = () => {
     log('retry');
     if (onRetry) onRetry();
-    else window.location.reload();
+    else if ((window.history.state?.idx ?? 0) > 0) {
+      log('retry → back to the page that failed');
+      navigate(-1);
+    } else {
+      log('retry → national snapshot (no previous page)');
+      navigate('/data/overview');
+    }
   };
   const submitSearch = (event) => {
     event.preventDefault();
     const q = query.trim();
     log('search', { hasQuery: Boolean(q) });
-    navigate(q ? `/data?q=${encodeURIComponent(q)}` : '/data');
+    navigate(searchDestination(q));
   };
 
   let primary = go('/data');

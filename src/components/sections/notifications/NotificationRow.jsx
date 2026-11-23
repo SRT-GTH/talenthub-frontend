@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { useUiStyle } from '../../../hooks/useUiStyle.js';
@@ -17,7 +18,10 @@ const log = debug('NotificationRow');
  * Focused wording: the badge row says "pts" not "XP" (8110:662).
  *
  * Props: item (notificationsData row), unread (bool), variant, onRead(id), onAction(action) —
- * called after onRead when an action has a destination (`to`, from the backend actionUrl).
+ * called after onRead when an action has a destination (`to`, from the backend actionUrl),
+ * onSettings() — the page row's "More options" menu item "Notification settings".
+ * ⚠️ ASSUMPTION: Figma links nothing from "More options"; its small menu (Mark as read · Notification
+ * settings) reuses the two destinations the page already has (the check button, Settings › Notifications).
  */
 const BADGE_RING = '#ffffff';
 
@@ -95,7 +99,22 @@ const AvatarCluster = ({ item, size }) => {
   );
 };
 
-const NotificationRow = ({ item, unread, variant = 'popover', onRead, onAction }) => {
+const NotificationRow = ({ item, unread, variant = 'popover', onRead, onAction, onSettings }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const close = (e) => {
+      if (e.type === 'keydown' ? e.key === 'Escape' : !menuRef.current?.contains(e.target))
+        setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('keydown', close);
+    };
+  }, [menuOpen]);
   const { uiStyle } = useUiStyle();
   const page = variant === 'page';
   const focused = uiStyle !== 'playful';
@@ -195,7 +214,13 @@ const NotificationRow = ({ item, unread, variant = 'popover', onRead, onAction }
       {page && (
         <div className="flex shrink-0 items-start gap-[10px]">
           {/* Figma 7471:56008: hover quick actions (mark read / more), 32px circles */}
-          <span className="flex items-center gap-[10px] opacity-0 transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 max-md:hidden">
+          <span
+            className={classNames(
+              'relative flex items-center gap-[10px] transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 max-md:hidden',
+              menuOpen ? 'opacity-100' : 'opacity-0'
+            )}
+            ref={menuRef}
+          >
             <button
               type="button"
               aria-label="Mark as read"
@@ -208,10 +233,47 @@ const NotificationRow = ({ item, unread, variant = 'popover', onRead, onAction }
             <button
               type="button"
               aria-label="More options"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              onClick={() => {
+                log('more options', { id: item.id, open: !menuOpen });
+                setMenuOpen((o) => !o);
+              }}
               className="flex size-[32px] items-center justify-center rounded-full border border-solid border-[#c1d4c4] bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
             >
               <img src={actionMore} alt="" className="size-[15px]" />
             </button>
+            {menuOpen && (
+              <span
+                role="menu"
+                className="absolute right-0 top-[38px] z-20 flex w-[200px] flex-col rounded-[14px] border border-solid border-[#e1eae2] bg-white p-[6px] shadow-[0_10px_24px_rgba(28,42,33,0.12)]"
+              >
+                {[
+                  {
+                    id: 'read',
+                    label: 'Mark as read',
+                    disabled: !unread,
+                    run: () => onRead?.(item.id),
+                  },
+                  { id: 'settings', label: 'Notification settings', run: () => onSettings?.() },
+                ].map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    role="menuitem"
+                    disabled={m.disabled}
+                    onClick={() => {
+                      log('more options ->', m.id, item.id);
+                      setMenuOpen(false);
+                      m.run();
+                    }}
+                    className="rounded-[10px] px-[12px] py-[9px] text-left font-sans text-[13px] font-semibold leading-[16px] text-[#1c2a21] hover:bg-[#ebf1ec] focus-visible:outline-2 focus-visible:outline-brand-green disabled:opacity-45"
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </span>
+            )}
           </span>
           <span className="flex items-center gap-[10px] pt-[1px]">
             <span className="font-sans text-[12.5px] font-medium leading-[15px] text-[#737373]">

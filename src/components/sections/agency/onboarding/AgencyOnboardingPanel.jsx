@@ -152,7 +152,8 @@ const AgencyOnboardingPanel = ({ variant = 'details' }) => {
         style={{
           left: cq(L.chip.x),
           top: cq(L.chip.y),
-          width: cq(L.chip.w),
+          // the drawn width; a longer line (the "registered" chip) grows the pill instead of clipping it
+          minWidth: cq(L.chip.w),
           height: cq(40),
           gap: cq(8),
           padding: `0 ${cq(10)}`,

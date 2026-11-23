@@ -10,7 +10,8 @@ import checkMark from '../../assets/recruiter-dashboard/check-active.svg';
  *
  * Controlled or not: pass `open` + `onOpenChange` to drive it from the URL (the Figma "dropdown open" frames), otherwise it keeps its own state.
  * Props: label (the trigger text), icon (src), options [{ value, label, description, icon, tag }, or { kind: 'label', label } for a group heading], value, onChange(value), menuLabel, align ('left' | 'right'),
- * width (menu px, default 220), ariaLabel, open, onOpenChange, className, triggerClassName.
+ * width (menu px, default 220), ariaLabel, open, onOpenChange, className, triggerClassName, chevron (default true).
+ * `icon` may be an image src or a React node (e.g. an inline glyph component).
  */
 const FilterSelect = ({
   label,
@@ -26,6 +27,7 @@ const FilterSelect = ({
   onOpenChange,
   className,
   triggerClassName,
+  chevron = true,
 }) => {
   const [openState, setOpenState] = useState(false);
   const controlled = openProp !== undefined;
@@ -71,11 +73,15 @@ const FilterSelect = ({
           triggerClassName
         )}
       >
-        {icon ? (
+        {typeof icon === 'string' ? (
           <img src={icon} alt="" aria-hidden="true" className="size-[14px] shrink-0" />
-        ) : null}
+        ) : (
+          icon || null
+        )}
         <span>{label}</span>
-        <img src={chevronDown} alt="" aria-hidden="true" className="size-[14px] shrink-0" />
+        {chevron ? (
+          <img src={chevronDown} alt="" aria-hidden="true" className="size-[14px] shrink-0" />
+        ) : null}
       </button>
 
       {open ? (

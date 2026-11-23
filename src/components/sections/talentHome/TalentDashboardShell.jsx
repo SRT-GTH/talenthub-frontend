@@ -13,8 +13,6 @@ import { useTalentShellLive } from './useTalentShellLive.js';
 import { stateKeyFor } from './talentHomeLive.js';
 import DashboardTopNav from '../dashboard/DashboardTopNav.jsx';
 import TalentSidebar from './TalentSidebar.jsx';
-import TalentRailCollapsed from './TalentRailCollapsed.jsx';
-import toggleIcon from '../../../assets/notifications/rail/toggle.svg';
 import TalentMobileNav from './TalentMobileNav.jsx';
 import TalentRailHome from './TalentRailHome.jsx';
 import TalentShellOverlays from '../talentSettings/TalentShellOverlays.jsx';
@@ -44,7 +42,7 @@ const RAIL_ID_BY_NAV = {
  * Playful only (hidden in the Focused frames). The Ask Buddy FAB belongs to the Flows agent.
  *
  * Optional `rail` ('collapsed' | 'expanded'): the Notifications frames (7471:53182) draw the
- * 126px collapsed rail (TalentRailCollapsed) or the full sidebar from lg up. Omitted = the
+ * 126px collapsed rail (TalentRailHome, the same rail on every page) or the full sidebar from lg up. Omitted = the
  * original behaviour, byte-for-byte (home etc.). `onToggleRail` flips between the two; the
  * expanded state's « button is not in Figma (⚠️ ASSUMPTION — needed to get back).
  */
@@ -65,7 +63,6 @@ const TalentDashboardShell = ({
      prop (Notifications keeps its state). The « toggle is drawn on /home and /settings (Figma HMc / PM). */
   const urlRail = rail === undefined;
   const collapsedByUrl = urlRail && params.get('collapsed') === '1';
-  const showUrlToggle = urlRail && (!activeNav || activeNav === 'settings');
   const setCollapsed = (next) => {
     log('toggle ->', next ? 'collapsed' : 'expanded');
     const nextParams = new URLSearchParams(params);
@@ -209,18 +206,12 @@ const TalentDashboardShell = ({
               onToggle={() => setCollapsed(false)}
               className="hidden h-full lg:flex"
             />
-          ) : rail === 'collapsed' && chrome?.railHome ? (
-            /* Wallet (Figma "collapsed sidebar" frames) draws the newer icon rail with the Wallet tile, like Home / Settings. */
+          ) : rail === 'collapsed' ? (
+            /* Every page's collapsed rail is the newer icon rail with the Wallet tile (Figma "collapsed sidebar"
+               frames: Home, Settings, Wallet); the older rail without Wallet is no longer used here. */
             <TalentRailHome
               home={chrome}
               activeNav={activeNav}
-              activeId={railActiveId}
-              badges={railBadges}
-              onToggle={onToggleRail}
-              className="hidden h-full lg:flex"
-            />
-          ) : rail === 'collapsed' ? (
-            <TalentRailCollapsed
               activeId={railActiveId}
               badges={railBadges}
               onToggle={onToggleRail}
@@ -234,36 +225,21 @@ const TalentDashboardShell = ({
                 activeId={railActiveId}
                 activeNav={activeNav}
               />
-              {showUrlToggle && (
-                <button
-                  type="button"
-                  aria-label="Collapse sidebar"
-                  aria-expanded="true"
-                  onClick={() => setCollapsed(true)}
-                  className="absolute top-[32px] right-[22px] flex size-[28px] cursor-pointer items-center justify-center overflow-clip rounded-[8px] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-                >
-                  <TalentRailToggleChevronsIcon />
-                </button>
-              )}
-              {rail === 'expanded' && (
-                <button
-                  type="button"
-                  aria-label="Collapse sidebar"
-                  aria-expanded="true"
-                  onClick={() => {
-                    log('toggle -> collapsed');
-                    onToggleRail?.();
-                  }}
-                  className="absolute right-[14px] top-[6px] flex size-[28px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-                >
-                  <img
-                    src={toggleIcon}
-                    alt=""
-                    aria-hidden="true"
-                    className="h-[16px] w-[19px] rotate-180"
-                  />
-                </button>
-              )}
+              {/* One « collapse button for every talent page, always on the profile card's top-right corner
+                  (Figma HMc). URL-driven pages (?collapsed=1) and pages with their own rail state share it. */}
+              <button
+                type="button"
+                aria-label="Collapse sidebar"
+                aria-expanded="true"
+                onClick={() => {
+                  log('toggle -> collapsed', urlRail ? '(url)' : '(page rail)');
+                  if (urlRail) setCollapsed(true);
+                  else onToggleRail?.();
+                }}
+                className="absolute top-[32px] right-[22px] flex size-[28px] cursor-pointer items-center justify-center overflow-clip rounded-[8px] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              >
+                <TalentRailToggleChevronsIcon />
+              </button>
             </div>
           )}
           <TalentSidebar
@@ -278,7 +254,8 @@ const TalentDashboardShell = ({
             tabIndex={-1}
             className={classNames(
               'outline-none',
-              'min-h-0 min-w-0 flex-1 overflow-y-auto pb-[64px] max-md:pb-[24px] md:max-lg:pb-[104px]',
+              // Bottom room for the fixed Ask Buddy button (72px + 28px from the bottom), so the last cards scroll clear of it.
+              'min-h-0 min-w-0 flex-1 overflow-y-auto pb-[112px] max-md:pb-[24px] md:max-lg:pb-[104px]',
               mainClassName
             )}
           >

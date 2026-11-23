@@ -88,7 +88,14 @@ const SORTERS = {
     b.matchPercent - a.matchPercent,
 };
 
-const CandidateGrid = ({ keyPrefix, candidates, onViewProfile, onInviteToApply }) => (
+const CandidateGrid = ({
+  keyPrefix,
+  candidates,
+  onViewProfile,
+  onInviteToApply,
+  onSave,
+  onMore,
+}) => (
   // Figma lm=GRID: 3 x 432.33 + 2 x 16 = 1329
   <div className="grid w-full grid-cols-1 gap-[16px] max-md:gap-[10px] md:grid-cols-2 xl:grid-cols-3">
     {candidates.map((candidate) => (
@@ -98,6 +105,8 @@ const CandidateGrid = ({ keyPrefix, candidates, onViewProfile, onInviteToApply }
         avatarSrc={AVATARS[candidate.id]}
         onViewProfile={onViewProfile}
         onInviteToApply={onInviteToApply}
+        onSave={onSave}
+        onMore={onMore}
       />
     ))}
   </div>
@@ -172,6 +181,9 @@ const TalentSearchSection = () => {
 
   const goToProfile = (id) => navigate(`/recruiter/talent-search/${id}?${jobQuery}`);
   const goToInvite = (id) => navigate(`/recruiter/talent-search/${id}?modal=invite&${jobQuery}`);
+  // The card's heart / "…" open the profile's "Save to a list" popover (TS-14) / overflow menu (TS-16): the list draws neither on the card. ⚠️ ASSUMPTION
+  const goToSave = (id) => navigate(`/recruiter/talent-search/${id}?menu=save&${jobQuery}`);
+  const goToMore = (id) => navigate(`/recruiter/talent-search/${id}?menu=more&${jobQuery}`);
 
   const applySuggestion = (suggestion) => {
     log('branch: apply no-results suggestion', suggestion.id);
@@ -279,6 +291,8 @@ const TalentSearchSection = () => {
                 candidates={visibleCandidates}
                 onViewProfile={goToProfile}
                 onInviteToApply={goToInvite}
+                onSave={goToSave}
+                onMore={goToMore}
               />
               <TalentPoolInsightBanner
                 onViewReport={() => log('branch', { viewMarketReport: true, wired: false })}
@@ -288,6 +302,8 @@ const TalentSearchSection = () => {
                 candidates={visibleCandidates}
                 onViewProfile={goToProfile}
                 onInviteToApply={goToInvite}
+                onSave={goToSave}
+                onMore={goToMore}
               />
             </>
           ) : null}

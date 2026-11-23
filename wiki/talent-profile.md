@@ -118,3 +118,26 @@ Each section component receives `profile` (see `useTalentProfileState`): `{ tab,
 
 **Needs Figma access:** Focused P-02..P-06 reads; Playful by-eye pass of every frame; all 390/320 layouts (no phone frames — our own design); Playful SH-\* reads; SC-03..08.
 **Deviations:** share dialog centred in the viewport (Figma frame offset looks like an artefact); verbatim Figma typos kept ("Pay hope", "Taken. Someone got there first Try one of these:"); unused `ShareKofiAvatarIllustration` in `assets.jsx` can be deleted.
+
+## Control destinations (2026-11-21)
+
+P-01 (`7570:105`) prototype links: tabs, "See all 7/2/3 →", Read more, Preview as recruiter, pitch chip — "All 9 →" on the Badges card has none, and no all-badges screen exists in the file. "All 9 →" now opens the Skills Lab Verified tab (`/skills-lab?tab=verified`, demo flag kept), where the skill badges are earned. ⚠️ ASSUMPTION. ✅ VERIFIED (browser).
+
+## Inspection (2026-11-21, phase 2)
+
+Figma prototype links read for P-01, P-07 and P-10 (both styles): only the tabs, Preview as recruiter, Exit preview and Overview are linked; every control below has no Figma destination, so it follows an app pattern (⚠️ ASSUMPTION where marked). ✅ VERIFIED in the browser (each click lands where listed, no console errors).
+
+| Control                                                                                                                                | Now leads to                                                                                                                                                                                          |
+| -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Overview › Who's looking "See all →"                                                                                                   | `/notifications` (profile-view notifications land there) ⚠️                                                                                                                                           |
+| Header "Change photo", signed out                                                                                                      | file picker; the picked image previews in this tab only (signed in it still uploads)                                                                                                                  |
+| Empty profile (P-10): Change photo / pitch chip / headline / "+ What roles…" / Try a Skills Lab / Upload CV instead / Do the next step | file picker preview · `/profile/filling/pitch` · `/profile/filling/goals` (headline is built from the goal) · same · `/skills-lab` · `/profile/filling/cv` · next unticked step (headline → Goals) ⚠️ |
+| Portfolio tab: Edit project · link pills                                                                                               | `/profile/filling/portfolio?state=list` ⚠️ · live: opens the project URL in a new tab (was log-only even with a URL); demo pills (no URL) are plain labels                                            |
+| Certs tab: Edit cert · View credential ↗                                                                                               | `/profile/filling/certs?state=list` ⚠️ · live: opens credentialURL in a new tab (was log-only); demo (no URL) plain text                                                                              |
+| Public preview (PR-02): Copy link · Join GTH · Create recruiter account                                                                | copies the profile link and opens SH-02 "Link copied" · `/get-started` · `/onboarding/recruiter` ⚠️                                                                                                   |
+| AX-05 pitch: Re-record · Edit pitch                                                                                                    | `/profile/filling/pitch?mode=record&step=camera` · `/profile/filling/pitch` ⚠️                                                                                                                        |
+| AX-04 read aloud: speed                                                                                                                | cycles 1× / 1.25× / 1.5× / 2× (pitch player steps) ⚠️                                                                                                                                                 |
+
+Still log-only: recruiter-preview Shortlist / Download CV / Message (the recruiter's actions, shown for preview), read-aloud "Next section" (only the About section is drawn), Edit About chips "Make it punchier" / "Add a result" and Add experience "Help me write it" (AI, no backend), share modal "Anyone with the link" (options not drawn), pitch "Review captions" (not drawn).
+
+Consolidated: `ProfileEmptyState` now reuses `ProfileAvatar` + `CoverDoodles` (exported from `ProfileHeader.jsx`), `Tag` (`ProfileTabsUi.jsx`) and `SHELF` (`profileTabsStyles.js`) instead of its own copies.

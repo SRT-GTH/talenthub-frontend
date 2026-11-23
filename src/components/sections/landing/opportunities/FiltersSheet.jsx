@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import FilterGroups from './FilterGroups.jsx';
-import { RESULTS } from './OpportunitiesData.js';
+import { PAY, RESULTS } from './OpportunitiesData.js';
+import { filterJobs, rolesLabel } from './opportunitiesFilter.js';
 import { ArrowRightGlyph } from './OpportunitiesIcons.jsx';
 import { debug } from '../../../../utils/debug.js';
 
@@ -76,7 +77,9 @@ const FiltersSheet = ({ open, state, update }) => {
           </h2>
           <button
             type="button"
-            onClick={() => update({ level: [], style: [], region: [] })}
+            onClick={() =>
+              update({ level: [], style: [], region: [], pay: `${PAY.min}-${PAY.max}` })
+            }
             className="lp-ul cursor-pointer border-0 bg-transparent p-0 font-sans text-[15px] font-semibold leading-[17.9px] text-[#2e6336]"
           >
             {RESULTS.reset}
@@ -90,7 +93,8 @@ const FiltersSheet = ({ open, state, update }) => {
           onClick={close}
           className="inline-flex h-14 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[14px] border-2 border-[#2a5730] bg-[#387440] px-[34px] font-sans text-[16px] font-bold tracking-[0.1px] text-[#fef1e7] shadow-[0_4px_0_#224626]"
         >
-          {`${RESULTS.showPrefix} ${RESULTS.count} ${RESULTS.showSuffix}`}
+          {/* Figma "Show 312 roles": counts the roles the listing shows now */}
+          {`${RESULTS.showPrefix} ${rolesLabel(filterJobs(state).length)}`}
           <span className="size-5 text-white">
             <ArrowRightGlyph />
           </span>

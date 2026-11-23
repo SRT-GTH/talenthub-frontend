@@ -201,6 +201,7 @@ const CommunityBrowseDemo = () => {
           icon={CommunityUsersIcon}
           title={COPY.yourCommunities}
           sticker={`${mine.length} joined`}
+          create
         />
         <BrowseGrid>
           {mine.map((c) => renderCard(c))}
@@ -221,6 +222,7 @@ const CommunityBrowseDemo = () => {
           icon={CommunityTargetIcon}
           title={COPY.pickedTitle}
           note={COPY.pickedNote(picked.basedOn)}
+          create
         />
         <BrowseGrid>{picked.ids.map((id) => renderCard(byId[id]))}</BrowseGrid>
       </>

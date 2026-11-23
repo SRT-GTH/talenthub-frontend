@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { withDemoFlag } from '../talentHome/talentShellData.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { HEADING, HubButton } from '../talentSkillsLab/HubParts.jsx';
@@ -86,7 +87,14 @@ export const RecruiterView = ({ data = RECRUITER_VIEW, onExit }) => {
             <HubShieldIcon className="size-[14px] shrink-0" />
             {candidate.chip}
           </OvChip>
-          <HubButton tone="primary" size="sm" onClick={() => log('message (no destination drawn)')}>
+          {/* Not linked in Figma (MA-07). ⚠️ ASSUMPTION: in this preview the recruiter's "Message" shows
+              where a recruiter's message reaches the talent: their own Messages inbox. */}
+          <HubButton
+            tone="primary"
+            size="sm"
+            to={withDemoFlag('/messages')}
+            onClick={() => log('message -> /messages (where recruiter messages arrive)')}
+          >
             {candidate.message}
           </HubButton>
         </section>

@@ -58,3 +58,18 @@ Hairline `1px #1c2a21@.10` borders and soft shadow instead of ink `1.5px @.55` +
 6. Fonts: SF Pro Rounded is not installed on Windows, so text widths differ slightly from Figma renders there.
 7. Not wired (no screens exist): Opportunities, Messages, Skills Lab, My Learning tabs. `/community` is the recruiter-chrome page, so Community was **not** routed from the talent nav.
 8. **Phone appearance dial (2026-10-18, owner request).** On phones (< md) the Focused/Playful switch is a floating circle above the Ask Buddy button (`StyleDial.jsx`, rendered by `AskBuddyFab`): shows the current mode's icon, turns into ✕ when tapped and fans the two modes out (scale/translate with a soft overshoot, 45ms stagger; no motion under `prefers-reduced-motion`). Esc / outside tap closes. No Figma frame — ⚠️ ASSUMPTION. Its offset above the button must stay in sync with `AskBuddyFab`'s phone heights (54px, 42px below 700px tall).
+
+## Inspection fixes (2026-11-21)
+
+- ✅ VERIFIED The "Your ping settings" pills (Job matches, Recruiter DMs, …) open `/settings/notifications` (they were inert buttons); the pop-up footer "Settings" also opens it.
+- 🪦 STALE (see "Control destinations" below): ~~Still inert: "Newest first" sort pill, Coming up "Add to calendar" / "Prep".~~ "Add to calendar" is still inert.
+- There is no demo / URL state for the feed rows: signed out (or offline) the page shows the error state, so N-05 rows can only be compared with a session.
+
+## Control destinations (2026-11-21)
+
+Figma prototype read over REST (N-05 `7471:55841` / `8110:1796`): "Newest first" is linked only to its own `State=Open` select variant (no option list drawn); "Prep", "Add to calendar" and the row "⋯" carry no prototype link.
+
+- ✅ VERIFIED "Newest first" is a native select over the pill (same pattern as the club feed's "Newest" select, `CommunityFeedParts.jsx`) with Newest first / Oldest first; Oldest reverses the groups and rows. ⚠️ ASSUMPTION: "Oldest first" is the only other order.
+- ✅ VERIFIED Coming up "Prep" opens Career Buddy with a prompt (`COMING_UP.prepPrompt`), the same router-state hand-off as Home "Start mock interview" (`CareerBuddyIntroCard.jsx`); the prompt is sent by the live chat only. Sort and "⋯" were verified with a mocked `GET /api/notifications` (signed out the feed shows its error state).
+- ✅ VERIFIED Row "⋯" (page rows) opens a small menu: Mark as read · Notification settings (`/settings/notifications`). ⚠️ ASSUMPTION: menu items reuse the page's existing destinations; nothing is drawn.
+- Still inert: "Add to calendar" (no calendar integration), the feed row action "Prep with Buddy" (rows only follow backend `actionUrl`).

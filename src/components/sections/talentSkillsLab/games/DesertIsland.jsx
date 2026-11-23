@@ -4,6 +4,7 @@ import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import GameCompleteDialog from './personality/PersonalityDialog.jsx';
 import GameShell from './personality/PersonalityChrome.jsx';
+import { demoSearch, gamesTabPath } from '../skillsLabState.js';
 import {
   PgAnchorIcon,
   PgBatteryFullIcon,
@@ -154,9 +155,9 @@ const DesertIsland = ({ frame }) => {
 
   const next = () =>
     navigate(
-      `/skills-lab/games/${PLAY_ORDER[(PLAY_ORDER.indexOf(ISLAND.gameId) + 1) % PLAY_ORDER.length]}`
+      `/skills-lab/games/${PLAY_ORDER[(PLAY_ORDER.indexOf(ISLAND.gameId) + 1) % PLAY_ORDER.length]}${demoSearch()}`
     );
-  const arcade = () => navigate('/skills-lab?tab=games');
+  const arcade = () => navigate(gamesTabPath());
 
   const segments = ISLAND.parts.map((_, i) =>
     finished || i < part ? 'done' : i === part ? 'now' : 'todo'

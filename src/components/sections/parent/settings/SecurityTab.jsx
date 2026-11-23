@@ -12,6 +12,7 @@ import {
   StatusPill,
   TextAction,
 } from '../../talentSettings/SettingsBUi.jsx';
+import { ChangePasswordDialog } from '../../talentSettings/SettingsBSecurityDialogs.jsx';
 import ParentButton from '../ParentButton.jsx';
 import { SECURITY } from './data/settingsData.js';
 
@@ -26,12 +27,14 @@ const DEVICE_ICONS = {
 /*
  * SecurityTab — PS-04 "Settings · Security and sign-in (parent)" (Figma 10046:3404): Sign-in (password, two-step switch with the "On" chip, Google) and "Where you are logged in" (three devices, a
  * Log out link on the other two, "Log out of all other devices"). Logging a device out removes its row. Local state only.
- * ⚠️ ASSUMPTION: "Change password" and "Disconnect" only log (no dialog is drawn for them in this canvas).
+ * "Change password" opens the talent Settings change-password dialog (⚠️ ASSUMPTION: the parent canvas draws none; demo only, no API call — submitting closes it and, when ticked, logs the other devices out).
+ * ⚠️ ASSUMPTION: "Disconnect" only logs (no dialog is drawn for it).
  */
 const SecurityTab = () => {
   const { signIn, devices } = SECURITY;
   const [twoStep, setTwoStep] = useState(true);
   const [list, setList] = useState(devices.list);
+  const [pwOpen, setPwOpen] = useState(false);
 
   const logOut = (ids) => {
     log('log out devices', ids);
@@ -49,7 +52,10 @@ const SecurityTab = () => {
           control={
             <ParentButton
               variant="secondary"
-              onClick={() => log('change password (no dialog drawn)')}
+              onClick={() => {
+                log('change password -> dialog');
+                setPwOpen(true);
+              }}
             >
               {signIn.password.cta}
             </ParentButton>
@@ -122,6 +128,17 @@ const SecurityTab = () => {
           </div>
         ) : null}
       </GroupCard>
+      {pwOpen ? (
+        <ChangePasswordDialog
+          open
+          onClose={() => setPwOpen(false)}
+          onSubmit={({ logOutOthers }) => {
+            log('password changed (demo, no API)', { logOutOthers });
+            if (logOutOthers) logOut(list.filter((d) => !d.current).map((d) => d.id));
+            setPwOpen(false);
+          }}
+        />
+      ) : null}
     </div>
   );
 };

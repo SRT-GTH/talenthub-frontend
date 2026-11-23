@@ -57,7 +57,7 @@ export const REPORT_POST = {
     { id: 'spam', label: 'Spam or scam', sub: 'Fake jobs, pay-to-apply, phishing links' },
     { id: 'harassment', label: 'Harassment or hate', sub: 'Targeting a person or group' },
     { id: 'misleading', label: 'Misleading or false', sub: 'Fake credentials or claims' },
-    { id: 'inappropriate', label: 'Inappropriate content', sub: 'Not safe for a career community' },
+    { id: 'inappropriate', label: 'Inappropriate content', sub: 'Not safe for a career club' },
     { id: 'other', label: 'Something else', sub: 'Tell us more below' },
   ],
   fieldLabel: 'Anything else we should know?',
@@ -75,14 +75,14 @@ export const REPORT_POST = {
 export const LEAVE_COMMUNITY = {
   title: 'Leave {community}?',
   rows: [
-    'You’ll stop seeing posts and event invites from this community',
+    'You’ll stop seeing posts and event invites from this club',
     'Your posts and comments stay, with your name on them',
     'You can rejoin any time, no approval needed',
   ],
   alt: 'Just too many notifications? Mute it instead.',
   mute: 'Mute',
   stay: 'Stay',
-  leave: 'Leave community',
+  leave: 'Leave club',
 };
 
 export const MILESTONE_SHARE = {
@@ -95,7 +95,7 @@ export const MILESTONE_SHARE = {
   shareWith: 'Share with',
   audiences: [
     { id: 'connections', label: 'My connections', icon: 'users' },
-    { id: 'community', label: 'A community', icon: 'message', caret: true },
+    { id: 'community', label: 'A club', icon: 'message', caret: true },
     { id: 'public', label: 'Public', icon: 'globe' },
   ],
   preview: 'Preview',
@@ -218,33 +218,45 @@ export const COMMUNITY_BROWSE_COPY = {
   title: 'Find your people',
   subtitle:
     'Learn with people on the same path, get feedback on your work, and get noticed by recruiters.',
-  searchPlaceholder: 'Search communities…',
+  searchPlaceholder: 'Search clubs…',
+  searchAriaLabel: 'Search clubs',
+  categoriesAriaLabel: 'Club categories',
+  countLabel: (count) => `${count} clubs`,
+  // Talent "Create a club" (Focused: right of the title row · Playful: right of the first section heading).
+  createButton: 'Create a club',
   pickedTitle: 'Picked for you',
   pickedNote: (basedOn) => `Based on your skills: ${basedOn}`,
-  loadingNote: 'Finding communities that fit your skills…',
-  yourCommunities: 'Your communities',
-  allCommunities: 'All communities',
-  closest: 'Closest communities',
+  loadingNote: 'Finding clubs that fit your skills…',
+  loadingAriaLabel: 'Loading clubs',
+  yourCommunities: 'Your clubs',
+  allCommunities: 'All clubs',
+  closest: 'Closest clubs',
   friendsHere: '+ friends here',
   join: 'Join',
   joined: 'Joined',
+  // C-03 discover tile (same tile as the recruiter "Host a company club" one, talent copy).
   tiles: {
-    discoverTitle: 'Can’t find your people?',
-    discoverBody: 'Ask for a new community. 25 requests and we open it.',
-    discoverLink: 'Request a community',
+    hostTitle: 'Start your own club',
+    hostBody:
+      'Bring people together around a skill, a place or a cause. GTH checks it within 24 hours.',
+    hostLink: 'Create a club',
+    hostAlt: 'or request one: 25 asks opens it',
   },
   noResults: {
-    title: (term) => `No community for “${term}” yet`,
-    body: 'Ask us to start one. When 25 people ask, we open it and you become a founding member.',
+    title: (term) => `No club for “${term}” yet`,
+    body: 'Start it yourself and become its first moderator, or ask GTH to open it. When 25 people ask, we open it.',
     progress: (asked, needed) => `${asked} of ${needed} people have asked`,
-    request: 'Request this community',
-    clear: 'Clear search',
+    start: 'Start it yourself',
+    request: 'Request this club',
+    // C-16 draws no "Clear search" button: the search field clears the term.
+    clear: null,
   },
   results: {
-    showing: (count) => `Showing ${count} ${count === 1 ? 'community' : 'communities'} in`,
+    showing: (count) => `Showing ${count} ${count === 1 ? 'club' : 'clubs'} in`,
     clear: '· Clear',
   },
-  menu: { open: 'Open community', mute: 'Mute notifications', leave: 'Leave community' },
+  menu: { open: 'Open club', mute: 'Mute notifications', leave: 'Leave club' },
+  cardMenuAriaLabel: 'Club options',
   header: {
     friends: '9 friends are here',
     ask: 'Ask, share, get seen',
@@ -441,8 +453,8 @@ export const formatMembers = (count) =>
  *     The "Newest" select has no other option drawn (it is a one-option select). Trending/suggested topic chips link to the
  *     community search (`/community?q=<tag>`). The "Events" tab is drawn without a screen: it is inert.
  *   - Members tab: "Near you" = lives in Accra, search matches name / role / skills, Follow toggles Follow / Following,
- *     "Show more members" hides itself (only the six drawn members exist). The message button is inert (no talent messages route).
- *   - The hero "You + 1,239 others" on C-14 (24 members) and the per-frame card gaps (24 / 20 / 14) are Figma inconsistencies kept
+ *     "Show more members" hides itself (only the six drawn members exist). The message button opens the inbox (`/messages`).
+ *   - C-14 now reads "You + 23 others" (24 members; fixed in the Clubs update). The per-frame card gaps (24 / 20 / 14) are Figma inconsistencies kept
  *     as drawn: see `COMMUNITY_PAGE_RHYTHM` below.
  */
 import avatarMichael from '../../../assets/talent-community/page/michael-asante.jpg';
@@ -468,8 +480,8 @@ import emptyFeedSpot from '../../../assets/talent-community/page/empty-feed-spot
 export const COMMUNITY_PAGE_FACES = [avatarMichael, avatarAbigail, avatarRansford];
 
 export const COMMUNITY_PAGE_COPY = {
-  back: 'All communities',
-  join: 'Join community',
+  back: 'All clubs',
+  join: 'Join club',
   joined: 'Joined',
   invite: 'Invite friends',
   share: 'Share',
@@ -483,7 +495,7 @@ export const COMMUNITY_PAGE_COPY = {
     link: 'Link',
   },
   preview: {
-    title: 'You’re previewing this community',
+    title: 'You’re previewing this club',
     sub: 'Join to post, react, comment and see member-only resources.',
     join: 'Join',
   },
@@ -501,12 +513,12 @@ export const COMMUNITY_PAGE_COPY = {
   welcomeToast: 'You’re in! Say hi to 1,239 frontend devs',
   welcomeBonus: '+10 {xp}',
   card: {
-    about: 'About this community',
+    about: 'About this club',
     members: 'Members',
     activity: 'Activity',
     visibility: 'Visibility',
     moderatedBy: 'Moderated by',
-    related: 'Related communities',
+    related: 'Related clubs',
   },
   empty: {
     title: 'No posts yet. Be the first!',
@@ -520,7 +532,7 @@ export const COMMUNITY_PAGE_COPY = {
     art: emptyFeedSpot,
   },
   about: {
-    forTitle: 'What this community is for',
+    forTitle: 'What this club is for',
     rulesTitle: 'House rules',
     moderatorsTitle: 'Moderators',
     moderator: 'Moderator',
@@ -528,8 +540,8 @@ export const COMMUNITY_PAGE_COPY = {
   members: {
     search: 'Search 1,240 members',
     filters: ['All', 'Moderators', 'Near you', 'Open to work', 'Mentors'],
-    follow: 'Follow',
-    following: 'Following',
+    follow: 'Link up',
+    following: 'In your crew',
     more: 'Show more members',
   },
 };
@@ -680,12 +692,12 @@ const FRONTEND_ABOUT = {
       text: 'Frontend, careers and learning. Off-topic posts are removed.',
     },
     { title: 'Credit others', text: 'Link the original when you share someone’s work or code.' },
-    { title: 'No paid job ads', text: 'Real employers post on Job Postings. Never pay to apply.' },
+    { title: 'No paid job ads', text: 'Real employers post on Opportunities. Never pay to apply.' },
   ],
   moderators: [
     { name: 'Michael Asante', role: 'Frontend Lead · Hubtel', avatar: avatarMichael },
     { name: 'Akosua Quansah', role: 'Senior Engineer · mPharma', avatar: avatarAkosua },
-    { name: 'GTH Community Team', role: 'Ghana Talent Hub', avatar: thumbSoftwareEngineering },
+    { name: 'GTH Club Team', role: 'Ghana Talent Hub', avatar: thumbSoftwareEngineering },
   ],
   facts: [
     { id: 'created', icon: 'calendar', label: 'Created', value: 'March 2025' },
@@ -744,7 +756,7 @@ export const COMMUNITY_DETAILS = {
     eventsCount: '2',
     description:
       'For students and builders working on tech for Ghanaian farms: drones, market prices, cold chain and more.',
-    faces: 'You + 1,239 others',
+    faces: 'You + 23 others',
     previewFaces: 'Michael, Abigail + 3 people you know',
     collage: AGRITECH_COLLAGE,
     info: {

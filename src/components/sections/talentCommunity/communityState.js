@@ -25,7 +25,8 @@ const log = debug('communityState');
  *
  * The lead owns this file. Section agents may ADD derived fields but must not rename existing ones.
  */
-export const COMMUNITY_TABS = ['feed', 'about', 'members'];
+// 'events' opens the club's Events empty state (no events design or API yet).
+export const COMMUNITY_TABS = ['feed', 'about', 'members', 'events'];
 export const COMMUNITY_MODALS = ['create', 'report', 'leave', 'milestone', 'reclassify'];
 
 const pick = (value, allowed, fallback = null) => (allowed.includes(value) ? value : fallback);

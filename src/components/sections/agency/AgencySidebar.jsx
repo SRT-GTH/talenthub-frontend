@@ -32,7 +32,7 @@ const AgencySidebar = ({
     <nav
       aria-label="Agency"
       className={classNames(
-        'relative flex h-full flex-col overflow-x-hidden overflow-y-auto bg-white',
+        'slim-scrollbar relative flex h-full flex-col overflow-x-hidden overflow-y-auto bg-white',
         rail
           ? 'w-[80px] items-center gap-[16px] px-[8px] pt-[56px] pb-[24px]'
           : 'w-[303px] gap-[20px] px-[12px] pt-[56px] pb-[40px]',

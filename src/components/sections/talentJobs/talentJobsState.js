@@ -24,6 +24,8 @@ const log = debug('talentJobsState');
 export const JOB_TABS = ['matched', 'browse', 'saved', 'applied'];
 export const JOB_VIEWS = ['cards', 'list'];
 export const JOB_STATES = ['empty', 'loading', 'offline'];
+// `?sort=` on Saved / Applied (absent = the tab's Figma default: Saved best match, Applied most recent).
+export const JOB_SORTS = ['match', 'recent'];
 
 const pick = (value, allowed, fallback = null) => (allowed.includes(value) ? value : fallback);
 
@@ -36,6 +38,7 @@ export const useTalentJobsState = () => {
   const state = pick(params.get('state'), JOB_STATES);
   const rail = params.get('rail') === 'collapsed' ? 'collapsed' : 'expanded';
   const sub = params.get('sub');
+  const sort = pick(params.get('sort'), JOB_SORTS);
   const job = params.get('job');
   const apply = params.get('apply');
   const modal = params.get('modal');
@@ -49,7 +52,7 @@ export const useTalentJobsState = () => {
   const a11yParam = params.get('a11y') === '1';
 
   return useMemo(() => {
-    log('state', { tab, view, state, rail, sub, job, apply, modal });
+    log('state', { tab, view, state, rail, sub, sort, job, apply, modal });
     // Merge a patch into the query string (null/undefined/false removes a key).
     const update = (patch) => {
       const next = new URLSearchParams(params);
@@ -68,6 +71,7 @@ export const useTalentJobsState = () => {
       state,
       rail,
       sub,
+      sort,
       job,
       apply,
       modal,
@@ -80,6 +84,8 @@ export const useTalentJobsState = () => {
       a11yParam,
       update,
       searchOpen: params.get('search') === '1',
+      // `?save=<id>`: a save asked for from a public page (the heart on /opportunities), done once the live feed is in
+      pendingSave: params.get('save'),
       editOpen: false,
       loading: null,
       newUser: null,
@@ -93,6 +99,7 @@ export const useTalentJobsState = () => {
     state,
     rail,
     sub,
+    sort,
     job,
     apply,
     modal,

@@ -174,7 +174,7 @@ const StreakPageCalendar = (props) => {
         </h2>
         <img src={flameSm} alt="" aria-hidden="true" className="size-[14px]" />
         <span className="font-sans text-[12.5px] font-semibold leading-[15px] text-[#595959] max-lg:text-[13px]">
-          {`${built.litCount} days lit · ${built.missedCount} missed`}
+          {`${built.litCount} ${built.litCount === 1 ? 'day' : 'days'} lit · ${built.missedCount} missed`}
         </span>
       </div>
       <div className="flex flex-col gap-[6px]">

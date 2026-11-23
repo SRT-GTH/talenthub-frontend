@@ -129,7 +129,7 @@ const Landing = ({ wallet }) => {
         </section>
       </div>
       <div className="flex min-w-0 flex-col gap-[16px]">
-        <CreditMiniCard />
+        <CreditMiniCard onView={() => wallet.update({ tab: 'credit', stage: null })} />
       </div>
     </div>
   );
@@ -261,14 +261,14 @@ const Apply = ({ wallet }) => {
           <p className="m-0 font-sans text-[13px] leading-[1.2]">{a.estimate.text}</p>
           <p className="m-0 font-sans text-[13px] font-semibold leading-[1.2]">{a.estimate.note}</p>
         </GreenCard>
-        <CreditMiniCard />
+        <CreditMiniCard onView={() => wallet.update({ tab: 'credit', stage: null })} />
       </div>
     </div>
   );
 };
 
 /* W-22 "Application received" (Playful 8824:1835 / Focused 8824:469029), URL `?tab=financing&stage=received`. */
-const Received = () => {
+const Received = ({ wallet }) => {
   const r = FIN_RECEIVED;
   return (
     <div className={COLUMNS}>
@@ -302,7 +302,7 @@ const Received = () => {
         </div>
       </HeroCard>
       <div className="flex min-w-0 flex-col gap-[16px]">
-        <CreditMiniCard />
+        <CreditMiniCard onView={() => wallet.update({ tab: 'credit', stage: null })} />
       </div>
     </div>
   );
@@ -400,7 +400,12 @@ const Declined = ({ wallet }) => {
             {d.score}
           </WalletButton>
           <WalletButton
-            onClick={() => log('fund a smaller course (no destination in the prototype)')}
+            onClick={() => {
+              // Not linked in Figma: back to W-20 "Fund your training", whose "Courses you could fund"
+              // list is where a cheaper course is picked.
+              log('fund a smaller course -> financing start (course list)');
+              wallet.update({ stage: null });
+            }}
           >
             {d.smaller}
           </WalletButton>
@@ -426,7 +431,7 @@ const Declined = ({ wallet }) => {
 };
 
 /* W-24 "Financing · My loan" (Playful 8824:4086 / Focused 8824:471250), URL `?tab=financing&stage=loan`. */
-const Loan = () => {
+const Loan = ({ wallet }) => {
   const l = FIN_LOAN;
   return (
     <div className={COLUMNS}>
@@ -491,7 +496,7 @@ const Loan = () => {
             {l.upcoming.note}
           </p>
         </SideCard>
-        <CreditMiniCard />
+        <CreditMiniCard onView={() => wallet.update({ tab: 'credit', stage: null })} />
       </div>
     </div>
   );

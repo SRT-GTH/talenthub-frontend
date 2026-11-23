@@ -31,9 +31,17 @@ const log = debug('JobProposalCard');
  * The card is presentational: the lead owns `card.state` (see the wiring notes in the package report).
  * Width: fills the bubble column, capped at 540px (Pending: 400px, as drawn).
  */
-const DARK_CARD =
-  'bg-[linear-gradient(135deg,#142916_0%,#2a5730_100%)] text-white shadow-[0_8px_24px_rgba(31,69,38,0.18)]';
+// Every state of the component set is the same light card (off-white, hairline border); only the tag, the body and
+// the actions change per state.
 const LIGHT_CARD = 'border border-solid border-[#e6e6e6] bg-[#f8f8f4] text-[#1c2a21]';
+// Status tag colours per state: green for New / Applied, grey for the rest (Passing keeps ink text).
+const TAG_TONE = {
+  pending: 'bg-[#e2f1e4] text-[#27522e]',
+  applied: 'bg-[#e2f1e4] text-[#27522e]',
+  passing: 'bg-[#e6e6e6] text-[#1c2a21]',
+  passed: 'bg-[#e6e6e6] text-[#595959]',
+  closed: 'bg-[#e6e6e6] text-[#595959]',
+};
 
 const STATE_ALIASES = {
   pending: 'pending',
@@ -43,26 +51,22 @@ const STATE_ALIASES = {
   closed: 'closed',
 };
 
-const Fact = ({ children, icon, closed }) => (
-  <li
-    className={classNames(
-      'm-0 inline-flex items-center gap-[4px] rounded-full px-[10px] font-sans text-[12px] font-medium leading-[14px] tracking-[0.2px]',
-      closed
-        ? 'border border-solid border-[#e6e6e6] bg-white py-[5px] text-[#595959]'
-        : 'bg-white/12 py-[5px] text-white'
-    )}
-  >
+const Fact = ({ children, icon }) => (
+  <li className="m-0 inline-flex items-center gap-[4px] rounded-full border border-solid border-[#e6e6e6] bg-white px-[10px] py-[5px] font-sans text-[12px] font-medium leading-[14px] tracking-[0.2px] text-[#595959]">
     {icon ? <PinIcon className="size-[12px] shrink-0" /> : null}
     {children}
   </li>
 );
 
-const CardButton = ({ children, onClick, grow, className, ...rest }) => (
+const CardButton = ({ children, onClick, grow, primary, className, ...rest }) => (
   <button
     type="button"
     onClick={onClick}
     className={classNames(
-      'inline-flex min-h-[37px] cursor-pointer select-none items-center justify-center gap-[6px] whitespace-nowrap rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.3)] bg-white font-sans text-[14px] font-bold leading-[24px] tracking-[0.1px] text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)] transition-transform active:translate-y-[2px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white',
+      'inline-flex min-h-[37px] cursor-pointer select-none items-center justify-center gap-[6px] whitespace-nowrap rounded-[14px] border-2 border-solid font-sans text-[14px] font-bold leading-[24px] tracking-[0.1px] shadow-[0_4px_0_rgba(17,17,17,0.25)] transition-transform active:translate-y-[2px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
+      primary
+        ? 'border-[#27522e] bg-[#387440] text-white'
+        : 'border-[rgba(28,42,33,0.3)] bg-white text-[#1c2a21]',
       grow ? 'min-w-0 flex-1 px-[12px]' : 'shrink-0 px-[16px]',
       className
     )}
@@ -78,10 +82,10 @@ const ReasonChip = ({ label, selected, onToggle }) => (
     aria-pressed={selected}
     onClick={onToggle}
     className={classNames(
-      'inline-flex min-h-[24px] cursor-pointer items-center rounded-full px-[12px] py-[6px] font-sans text-[12px] font-medium leading-[14px] tracking-[0.2px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white',
+      'inline-flex min-h-[24px] cursor-pointer items-center rounded-full border border-solid px-[12px] py-[6px] font-sans text-[12px] font-medium leading-[14px] tracking-[0.2px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
       selected
-        ? 'bg-white text-[#2d5d33]'
-        : 'border border-solid border-white/50 bg-transparent text-white'
+        ? 'border-[#387440] bg-[#e2f1e4] text-[#27522e]'
+        : 'border-[#dee5e0] bg-white text-[#1c2a21]'
     )}
   >
     {label}
@@ -111,8 +115,6 @@ const JobProposalCard = ({
   }, [state, card?.selectedReason]);
 
   const closed = state === 'closed';
-  // Passed (7430:3242) shares Closed's light card; its header/role colours differ slightly (see below).
-  const light = closed || state === 'passed';
   const tag = state === 'pending' ? card.badge : card.statusLabel;
   const matchBlock =
     (state === 'pending' || state === 'applied' || state === 'passed') && card.matchPercent != null;
@@ -125,27 +127,20 @@ const JobProposalCard = ({
       className={classNames(
         'flex w-full flex-col gap-[12px] rounded-[16px] p-[16px] max-lg:p-[14px]',
         'max-w-[540px]', // T-MSG-01 draws the Pending instance 537px wide in the thread (component set: 400px)
-        light ? LIGHT_CARD : DARK_CARD
+        LIGHT_CARD
       )}
     >
       <header className="flex items-start gap-[12px]">
         <FarmerlineMarkIcon className="size-[44px] shrink-0 overflow-hidden rounded-[12px]" />
         <div className="flex min-w-0 flex-1 flex-col gap-[2px] pt-[2px]">
-          <p
-            className={classNames(
-              'm-0 flex items-center gap-[4px] font-sans text-[13px] font-medium leading-[16px] tracking-[0.2px]',
-              light ? 'text-[#1c2a21]' : 'text-white'
-            )}
-          >
+          <p className="m-0 flex items-center gap-[4px] font-sans text-[13px] font-medium leading-[16px] tracking-[0.2px] text-[#1c2a21]">
             <span className="min-w-0 truncate">{card.company} · Job proposal</span>
-            <ShieldCheckIcon
-              className={classNames('size-[13px] shrink-0', light && 'text-[#387440]')}
-            />
+            <ShieldCheckIcon className="size-[13px] shrink-0 text-[#387440]" />
           </p>
           <h3
             className={classNames(
               'm-0 font-sans text-[18px] font-semibold leading-[21px] tracking-[0.2px]',
-              closed ? 'text-[#595959]' : light ? 'text-[#1c2a21]' : 'text-white'
+              closed ? 'text-[#595959]' : 'text-[#1c2a21]'
             )}
           >
             {card.role}
@@ -155,7 +150,7 @@ const JobProposalCard = ({
           <span
             className={classNames(
               'mt-[10px] inline-flex shrink-0 items-center rounded-full px-[10px] py-[4px] font-sans text-[11px] max-lg:text-[12px] font-semibold leading-[13px] tracking-[0.2px]',
-              light ? 'bg-[#e6e6e6] text-[#595959]' : 'bg-white/16 text-white'
+              TAG_TONE[state]
             )}
           >
             {tag}
@@ -165,7 +160,7 @@ const JobProposalCard = ({
 
       <ul className="m-0 flex list-none flex-wrap gap-[6px] p-0">
         {card.tags.map((t, i) => (
-          <Fact key={t} icon={i === 0} closed={light}>
+          <Fact key={t} icon={i === 0}>
             {t}
           </Fact>
         ))}
@@ -174,19 +169,18 @@ const JobProposalCard = ({
       {matchBlock ? (
         <div
           className={classNames(
-            'flex flex-col gap-[8px] rounded-[12px] px-[12px] py-[10px]',
-            state === 'passed' ? 'border border-solid border-[#e6e6e6] bg-white' : 'bg-white/8'
+            'flex flex-col gap-[8px] rounded-[12px] border border-solid border-[#e6e6e6] bg-white px-[12px] py-[10px]'
           )}
         >
           <div className="flex items-center gap-[6px]">
-            <MatchSparkleIcon className="size-[14px] shrink-0 text-[#f3c84b]" />
+            <MatchSparkleIcon className="size-[14px] shrink-0 text-[#c8951a]" />
             <span className="font-sans text-[15px] font-semibold leading-[18px] tracking-[0.2px]">
               {card.matchPercent}% match
             </span>
             <span
               className={classNames(
                 'min-w-0 flex-1 text-right font-sans text-[12px] font-medium leading-[14px] tracking-[0.2px]',
-                state === 'passed' ? 'text-[#387440]' : 'text-white/75'
+                'text-[#387440]'
               )}
             >
               {card.skillsLabel}
@@ -198,16 +192,10 @@ const JobProposalCard = ({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={card.matchPercent}
-            className={classNames(
-              'h-[6px] w-full overflow-hidden rounded-full',
-              state === 'passed' ? 'bg-[#e6e6e6]' : 'bg-white/18'
-            )}
+            className={classNames('h-[6px] w-full overflow-hidden rounded-full', 'bg-[#e6e6e6]')}
           >
             <div
-              className={classNames(
-                'h-full rounded-full',
-                state === 'passed' ? 'bg-[#387440]' : 'bg-[#f3c84b]'
-              )}
+              className={classNames('h-full rounded-full', 'bg-[#387440]')}
               style={{ width: card.barWidth ?? `${card.matchPercent}%` }}
             />
           </div>
@@ -218,13 +206,14 @@ const JobProposalCard = ({
         <div className="flex gap-[8px]">
           <CardButton
             grow
+            primary
             onClick={() => {
               log('branch: view and apply');
               onApply?.(card);
             }}
           >
             View and apply
-            <ButtonArrowIcon className="size-[20px] shrink-0 text-[#387440]" />
+            <ButtonArrowIcon className="size-[20px] shrink-0 text-white" />
           </CardButton>
           <CardButton
             onClick={() => {
@@ -239,10 +228,10 @@ const JobProposalCard = ({
 
       {state === 'passing' ? (
         <>
-          <div className="flex flex-col gap-[8px] rounded-[12px] bg-white/8 p-[12px]">
+          <div className="flex flex-col gap-[8px] rounded-[12px] bg-[#f2f5f4] p-[12px]">
             <p
               id={`${card.id}-why`}
-              className="m-0 font-sans text-[14px] font-semibold leading-[17px] tracking-[0.2px] text-white"
+              className="m-0 font-sans text-[14px] font-semibold leading-[17px] tracking-[0.2px] text-[#1c2a21]"
             >
               {card.reasonsPrompt}
             </p>
@@ -263,13 +252,14 @@ const JobProposalCard = ({
                 />
               ))}
             </div>
-            <p className="m-0 font-sans text-[12px] leading-[14px] tracking-[0.2px] text-white/75">
+            <p className="m-0 font-sans text-[12px] leading-[14px] tracking-[0.2px] text-[#6b6b6b]">
               {card.reasonsNote}
             </p>
           </div>
           <div className="flex gap-[8px]">
             <CardButton
               grow
+              primary
               onClick={() => {
                 log('branch: pass on this role', { reason });
                 onPass?.(reason);
@@ -291,7 +281,7 @@ const JobProposalCard = ({
       ) : null}
 
       {state === 'applied' ? (
-        <div className="flex items-center gap-[8px] rounded-[10px] bg-white px-[14px] py-[9px] text-[#1c2a21]">
+        <div className="flex items-center gap-[8px] rounded-[10px] bg-[#e2f1e4] px-[14px] py-[9px] text-[#27522e]">
           <span className="inline-flex size-[20px] shrink-0 items-center justify-center rounded-full bg-[#387440] text-white">
             <AppliedTickIcon className="size-[12px]" />
           </span>
@@ -307,7 +297,7 @@ const JobProposalCard = ({
             className="inline-flex min-h-[24px] shrink-0 cursor-pointer items-center gap-[8px] border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] tracking-[0.2px] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             {card.applied.action}
-            <TrackArrowIcon className="size-[14px]" />
+            <TrackArrowIcon className="size-[14px] text-[#6b6b6b]" />
           </button>
         </div>
       ) : null}

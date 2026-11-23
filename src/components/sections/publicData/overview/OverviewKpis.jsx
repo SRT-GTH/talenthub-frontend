@@ -25,6 +25,9 @@ const OverviewKpis = ({ overview, loading = false }) => {
           noteShort={hero.noteShort}
           series={hero.series}
           seriesLabel="Registrations over the last 90 days, rising"
+          // The drawn loading frame keeps the last figures; on a first load there are none yet (the placeholder has no
+          // eyebrow), so the hero skeletons instead of printing the placeholder 0 as "<5".
+          loading={loading && !hero.eyebrow}
         />
       }
     >

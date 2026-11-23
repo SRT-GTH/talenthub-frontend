@@ -80,8 +80,9 @@ const STATUS_CLASS =
  *           read from the file). Both must be 15–120 s (videoPitch.api.js). Publish uploads the file (progress bar), then
  *           records it as the engagement's video pitch; the published dialog shows only after both calls succeed, and a
  *           failed submit keeps the uploaded url so a retry skips the upload.
- *   On load an existing video pitch is fetched and shown (real player) on the review screen, with Replace / Delete;
- *   "Watch my pitch" plays it. Every publish / delete refreshes the journey.
+ *   On load an existing pitch opens on its review (published) screen instead of the chooser: the video pitch (real player,
+ *   Replace / Delete) or, with no video, the saved written pitch (Edit / Delete); the footer reads "Continue" until it is
+ *   changed. Edit / Replace go back to the method tabs. "Watch my pitch" plays the video. Every publish / delete refreshes the journey.
  * Demo (signed out): the Write box starts with the sample pitch, Publish just flips the URL to the published step, and the
  * pitch file is mock data until one is recorded / chosen in this session (then its real name and size show).
  */
@@ -100,6 +101,9 @@ const PitchPage = () => {
   const [text, setText] = useState(live ? '' : PITCH_WRITTEN_SAMPLE);
   const [source, setSource] = useState(null); // 'write' | 'video': what Review and publish was opened from
   const [savedBio, setSavedBio] = useState(false); // live: professionalBio is saved (loaded or published here)
+  const [savedText, setSavedText] = useState(''); // live: the saved professionalBio text (unchanged = nothing to publish)
+  // live: the "open an existing pitch on its review screen" decision was made (demo: nothing to decide)
+  const [opened, setOpened] = useState(!live);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState(null);
   /* live: 'loading' | 'ready' | 'error'. Publish / delete only save once the profile loaded. */
@@ -121,11 +125,6 @@ const PitchPage = () => {
         log('loaded video pitch', { found: Boolean(video) });
         setPitchVideo(video);
         setVideoLoad('ready');
-        /* An existing pitch opens on its review screen (unless the talent is already somewhere else in the flow). */
-        if (video && latest.current.screen === 'choose') {
-          setSource('video');
-          latest.current.update({ step: 'review' });
-        }
       })
       .catch((err) => {
         if (cancelled) return;
@@ -157,6 +156,7 @@ const PitchPage = () => {
         if (bio.trim()) {
           setText((prev) => (prev.trim() ? prev : bio)); // never overwrite what the talent already typed
           setSavedBio(true);
+          setSavedText(bio.trim());
         }
         setLoad('ready');
       })
@@ -169,6 +169,24 @@ const PitchPage = () => {
       cancelled = true;
     };
   }, [live]);
+
+  /*
+   * Live: once both loads settle, an existing pitch opens on its review (published) screen instead of the chooser, unless
+   * the talent already moved somewhere else in the flow. The video pitch wins when both exist ⚠️ ASSUMPTION (the journey
+   * counts the video); otherwise a saved written pitch. Edit / Replace on that screen lead back to the method tabs.
+   */
+  const settled = load !== 'loading' && videoLoad !== 'loading';
+  useEffect(() => {
+    if (!live || !settled || opened) return;
+    const onChooser = latest.current.screen === 'choose';
+    const existing = pitchVideo ? 'video' : savedBio ? 'write' : null;
+    log('open existing pitch?', { existing, onChooser });
+    setOpened(true);
+    if (!existing || !onChooser) return;
+    setSource(existing);
+    latest.current.update({ step: 'review' });
+  }, [live, settled, opened, pitchVideo, savedBio]);
+  const resolving = live && screen === 'choose' && !opened;
 
   useEffect(() => {
     log('mount / screen', { screen });
@@ -292,8 +310,10 @@ const PitchPage = () => {
   const kind = source ?? (live && !file && !pitchVideo && text.trim() ? 'write' : 'video');
   const busy = saving || progress !== null;
   /* Live video review with nothing pending: the published pitch is what's shown (nothing new to publish). */
-  const showingPublished = live && kind === 'video' && !file && Boolean(pitchVideo);
   const reviewWritten = live && kind === 'write';
+  const showingPublished =
+    (live && kind === 'video' && !file && Boolean(pitchVideo)) ||
+    (reviewWritten && savedBio && text.trim() === savedText);
 
   const publishVideo = async () => {
     if (!file) {
@@ -365,6 +385,11 @@ const PitchPage = () => {
       return;
     }
     const bio = text.trim();
+    if (savedBio && bio === savedText) {
+      log('publish: written pitch unchanged, already published');
+      update({ step: 'published', modal: null });
+      return;
+    }
     if (!bio) {
       log('publish: empty written pitch, nothing saved');
       setNotice('Write your pitch before you publish it.');
@@ -376,6 +401,7 @@ const PitchPage = () => {
       await saveProfileFields({ professionalBio: bio });
       log('publish: professionalBio saved');
       setSavedBio(true);
+      setSavedText(bio);
       update({ step: 'published', modal: null });
     } catch (err) {
       log.error('save pitch failed:', err?.response?.status || err?.message);
@@ -419,6 +445,7 @@ const PitchPage = () => {
     try {
       await saveProfileFields({ professionalBio: '' });
       setSavedBio(false);
+      setSavedText('');
     } catch (err) {
       log.error('delete pitch failed:', err?.response?.status || err?.message);
       setNotice('We couldn’t delete your pitch. Try again in a moment.');
@@ -433,7 +460,14 @@ const PitchPage = () => {
   };
 
   let body;
-  if (screen === 'choose') body = <ChooseBody onPick={pickMode} />;
+  if (resolving)
+    /* Live: still checking for an existing pitch, so the chooser does not flash before its review screen. */
+    body = (
+      <p role="status" className="m-0 font-sans text-[15px] leading-[22px] text-[#595959]">
+        Loading your pitch…
+      </p>
+    );
+  else if (screen === 'choose') body = <ChooseBody onPick={pickMode} />;
   else if (screen === 'camera' || screen === 'recording')
     body = (
       <RecordBody

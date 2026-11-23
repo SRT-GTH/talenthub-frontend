@@ -371,7 +371,8 @@ export const PERSONALITY_DETAIL = {
   subtitle:
     'Measured on 14 Oct through the Personality quiz. Recruiters see your archetype and trait scores, never your answers.',
   // The Retake button is the cooldown pop-up trigger (MA-08, ?modal=retake on the overview).
-  retake: { label: 'Retake in 72 days', to: '?modal=retake' },
+  // Demo data only (live pages build their own retake), so keep the demo flag when the pop-up opens.
+  retake: { label: 'Retake in 72 days', to: '?demo=1&modal=retake' },
   archetype: {
     eyebrow: '1 OF 9 ARCHETYPES',
     lead: "You're ",
@@ -389,8 +390,8 @@ export const PERSONALITY_DETAIL = {
       { icon: 'calendar', text: '14 Oct 2026' },
       { icon: 'refresh', text: 'Retake from 25 Dec' },
     ],
-    // ⚠️ ASSUMPTION: destination (Skills Lab hub) is not drawn; the prototype link target is not in the frame.
-    link: { label: 'Prefer games? Play 3 to update', to: '/skills-lab' },
+    // ⚠️ ASSUMPTION: destination is not drawn; the Skills Lab Games tab is where the games are played.
+    link: { label: 'Prefer games? Play 3 to update', to: '/skills-lab?tab=games' },
   },
   traits: {
     title: 'Your six traits',
@@ -487,7 +488,7 @@ const OTHER_SKILLS = [
  * Skill evidence payloads. `ladder.rungs[].state`: done | current | next (a rung chip is free text: Done · You are here · Next ·
  * Quickest). `attempts.rows[].to` is the row's destination when Figma implies one (the chevron);
  * ⚠️ ASSUMPTION: Python Lab -> its lab page and Bug Hunt -> its game page (existing Skills Lab routes); the Career Buddy chat
- * row has no destination in the vault, so it is a button. `startTo` is where "Take the … assessment" goes:
+ * row opens the Career Buddy chat page, like the overview History row. `startTo` is where "Take the … assessment" goes:
  * ⚠️ ASSUMPTION: only the TypeScript full flow is drawn, so every start button opens it.
  */
 export const SKILL_EVIDENCE = {
@@ -572,7 +573,8 @@ export const SKILL_EVIDENCE = {
           title: 'Chat with Career Buddy',
           sub: 'Talked through a data cleaning project',
           chip: { label: 'AI-validated', tone: 'outline' },
-          to: null,
+          // Same place as the overview History "Chat with Career Buddy" row.
+          to: '/profile/filling/career-buddy',
         },
       ],
       empty: null,
@@ -675,7 +677,7 @@ export const SKILL_EVIDENCE = {
       empty: {
         title: 'No attempts yet',
         body: 'Prove Firebase in the way that suits you.',
-        secondary: { label: 'Chat with Buddy', to: null },
+        secondary: { label: 'Chat with Buddy', to: '/profile/filling/career-buddy' }, // same target as the live page
         primary: { label: 'Open Skills Lab', to: '/skills-lab' },
       },
     },
@@ -785,7 +787,8 @@ export const ASSESSMENT_LIBRARY = {
       name: 'React',
       meta: 'Retake from 2 Nov',
       body: 'You scored 64 on 3 Oct. Your Game-evidenced label stays.',
-      action: { label: 'Remind me', kind: 'secondary', to: null },
+      // Same idea as Skills Lab "Remind me" (SL-T3 "Reminder set" toast): the button confirms in place.
+      action: { label: 'Remind me', kind: 'secondary', to: null, done: 'Reminder set for 2 Nov' },
     },
     {
       id: 'figma',
@@ -1022,6 +1025,8 @@ export const ASSESSMENT_OVERVIEW = {
     games: [
       {
         id: 'react-speedrun',
+        // 🔶 Not linked in Figma (the rows only go to the hub there). React has no lab of its own (Skills Lab: "lab: false"); its language lab is the closest.
+        to: '/skills-lab/lab/javascript',
         name: 'React Speedrun',
         when: '8 May · 22 min',
         score: 91,
@@ -1030,6 +1035,8 @@ export const ASSESSMENT_OVERVIEW = {
       },
       {
         id: 'design-thinking-sprint',
+        // 🔶 Not linked in Figma (the rows only go to the hub there). Design thinking is practised in the UI/UX design lab.
+        to: '/skills-lab/lab/ui-ux-design',
         name: 'Design Thinking Sprint',
         when: '28 Apr · 15 min',
         score: 88,
@@ -1039,6 +1046,8 @@ export const ASSESSMENT_OVERVIEW = {
       {
         id: 'python-lab',
         name: 'Python Lab',
+        // The one row here that names a real lab: open its lab page (the others have no lab of their own yet).
+        to: '/skills-lab/lab/python',
         when: '12 May · 18 min',
         score: 84,
         top: 'Top 23%',
@@ -1046,6 +1055,8 @@ export const ASSESSMENT_OVERVIEW = {
       },
       {
         id: 'leadership-chess',
+        // 🔶 Not linked in Figma (the rows only go to the hub there). The Strategic thinking lab is the one played on a chess board.
+        to: '/skills-lab/lab/strategic-thinking',
         name: 'Leadership Chess',
         when: '3 May · 12 min',
         score: 76,
@@ -1073,7 +1084,7 @@ export const ASSESSMENT_OVERVIEW = {
         title: 'Skills Lab · JavaScript',
         sub: '7 of 8 · Verified',
         chip: { kind: 'game', label: 'Game-evidenced' },
-        to: 'skillsLab',
+        to: '/skills-lab/lab/javascript',
       },
       {
         id: 'sql',
@@ -1081,7 +1092,7 @@ export const ASSESSMENT_OVERVIEW = {
         title: 'Skills Lab · SQL',
         sub: '8 of 8 · Verified',
         chip: { kind: 'game', label: 'Game-evidenced' },
-        to: 'skillsLab',
+        to: '/skills-lab/lab/sql',
       },
       {
         id: 'da',

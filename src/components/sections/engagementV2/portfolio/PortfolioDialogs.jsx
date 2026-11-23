@@ -185,7 +185,15 @@ const toForm = (p) => ({
  * `live` (signed-in): the profile stores no project type, role or second link, so type / role turn optional and the
  * second link field is hidden (see projectToProfile in portfolioData.js).
  */
-export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete, live = false }) => {
+export const ProjectDialog = ({
+  mode,
+  project,
+  onClose,
+  onSave,
+  onDelete,
+  live = false,
+  focusLink = false,
+}) => {
   const isEdit = mode === 'edit';
   const initial = useMemo(
     () => (isEdit && project ? toForm(project) : emptyForm),
@@ -308,7 +316,8 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete, live =
       describedBy={`${rid}-sub`}
       onClose={onClose}
       maxWidth={820}
-      initialFocus={() => refs.current.title}
+      // "Paste a link" on the empty stage opens this dialog on Link 1.
+      initialFocus={() => (focusLink ? document.getElementById(`${rid}-l1`) : refs.current.title)}
     >
       <CloseButton onClick={onClose} className="top-[24px] right-[24px]" />
       <form

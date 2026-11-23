@@ -79,9 +79,11 @@ export const buildLiveOverview = (live, assessment) => {
   const latest = latestByType(assessment.results);
   const personalityDone = Boolean(latest.big_five || latest.riasec || latest.mbti);
   const skillsCount =
+    c.skillsEvidence.total ??
     c.skillsEvidence.skills.length +
-    (c.skillsEvidence.more ? parseInt(c.skillsEvidence.more, 10) || 0 : 0);
-  const verified = (c.skillsEvidence.skills || []).filter((s) => s.evidence !== 'self').length;
+      (c.skillsEvidence.more ? parseInt(c.skillsEvidence.more, 10) || 0 : 0);
+  // "Proven" counts every skill with assessment or game evidence (not just the 6 rows shown).
+  const verified = c.skillsEvidence.provenCount ?? 0;
   const gamesCount = (assessment.games || []).length;
   const aptitudeDone = APTITUDE.filter((t) => latest[t]).length;
 

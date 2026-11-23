@@ -19,7 +19,10 @@ const ICONS = {
 const SafetySection = () => {
   log('render');
   return (
-    <section className="relative isolate overflow-hidden bg-[#14301a] px-5 py-14 md:px-10 md:py-[72px] xl:px-24 xl:py-[100px]">
+    <section
+      id="child-safety"
+      className="relative isolate overflow-hidden bg-[#14301a] px-5 py-14 md:px-10 md:py-[72px] xl:px-24 xl:py-[100px]"
+    >
       <div className="pointer-events-none absolute -left-[200px] top-0 -z-10 size-[600px] rounded-full bg-[#c8951a]/[0.18] blur-[200px]" />
       <div className="mx-auto flex max-w-[1536px] flex-col gap-5 md:gap-10">
         <PsSectionHead

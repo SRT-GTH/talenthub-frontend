@@ -3,6 +3,7 @@ import FinalCta from './FinalCta.jsx';
 import LandingFooter from './LandingFooter.jsx';
 import LandingNav from './LandingNav.jsx';
 import useFitZoom from './useFitZoom.js';
+import useLandingHash from './useLandingHash.js';
 import { ensurePlayfulFont } from '../../../../utils/ensurePlayfulFont.js';
 
 /*
@@ -11,6 +12,7 @@ import { ensurePlayfulFont } from '../../../../utils/ensurePlayfulFont.js';
  */
 const LandingShell = ({ children, finalCta = true, ctaPhoto = false }) => {
   const zoom = useFitZoom();
+  useLandingHash();
   useEffect(() => {
     ensurePlayfulFont();
   }, []);

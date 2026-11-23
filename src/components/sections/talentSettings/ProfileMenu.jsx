@@ -23,6 +23,11 @@ import {
 import avatarPortrait from '../../../assets/talent-settings/menu/kofi-avatar-portrait.svg';
 import { TALENT_PROFILE } from '../talentHome/talentShellData.js';
 import { STORAGE_KEYS } from '../../../constants/storageKeys.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
+import { EMMA } from '../talentHome/emmaPersona.js';
+import emmaPhoto from '../../../assets/parent/emma.webp';
+import TermsModal from '../../shared/TermsModal.jsx';
+import PrivacyPolicyModal from '../../shared/PrivacyPolicyModal.jsx';
 
 const log = debug('ProfileMenu');
 
@@ -196,7 +201,11 @@ const storedAccount = () => {
 const ProfileMenu = ({ settings }) => {
   const navigate = useNavigate();
   // Live account figures (GET /settings/overview, cached); the drawn Kofi values with `?demo=1` or while loading.
-  const overview = useAccountOverview({ enabled: !settings.demo });
+  // Drawn (no API call): `?demo=1`, nobody signed in (the demo home states), or Emma's persona (`?as=emma`).
+  const query = new URLSearchParams(window.location.search);
+  const asEmma = query.get('as') === 'emma';
+  const drawn = settings.demo || asEmma || !isLoggedIn();
+  const overview = useAccountOverview({ enabled: !drawn });
   const me = overview?.account;
   const langId = overview?.preferences?.language?.language || 'en';
   const langLabel = (LANGUAGES.find((l) => toSettingsLang(l.id) === langId) || LANGUAGES[0]).label;
@@ -212,12 +221,30 @@ const ProfileMenu = ({ settings }) => {
         language: langId === 'en' ? 'English (GH)' : langLabel,
         langId,
       }
-    : settings.demo
-      ? { ...ACCOUNT, name: TALENT_PROFILE.name, photo: null, langId: 'en' }
-      : // Live, account still loading: the signed-in user's own name, never the demo person.
-        { ...ACCOUNT, ...storedAccount(), photo: null, langId: 'en' };
+    : asEmma
+      ? // Emma has no drawn profile menu: her own name and photo, and no email (none is drawn for her).
+        // Figures follow her home (5 of 9 stages = 56%, no applications yet); saved jobs are not drawn ("–").
+        {
+          ...ACCOUNT,
+          name: EMMA.profile.name,
+          email: '',
+          photo: emmaPhoto,
+          strength: 56,
+          tier: null,
+          applications: 0,
+          savedJobs: undefined,
+          langId: 'en',
+        }
+      : drawn
+        ? { ...ACCOUNT, name: TALENT_PROFILE.name, photo: null, langId: 'en' }
+        : // Live, account still loading: the signed-in user's own name, never the demo person.
+          { ...ACCOUNT, ...storedAccount(), photo: null, langId: 'en' };
   const cardRef = useRef(null);
   const rootRef = useRef(null);
+  // 'privacy' | 'terms' | null: the footer links open the shared legal summary pop-ups (same as the site footer).
+  const [legal, setLegal] = useState(null);
+  const legalRef = useRef(null);
+  legalRef.current = legal;
   const languageOpen = settings.menu === 'language';
   const [hot, setHot] = useState(languageOpen ? 'language' : 'settings');
 
@@ -241,6 +268,7 @@ const ProfileMenu = ({ settings }) => {
   // Esc + outside click close it (the chip toggles itself, so it is excluded from the outside test).
   useEffect(() => {
     const onKey = (event) => {
+      if (legalRef.current) return; // the legal pop-up handles its own Escape
       if (event.key === 'Escape') {
         log('branch: Escape closes');
         event.preventDefault();
@@ -248,6 +276,7 @@ const ProfileMenu = ({ settings }) => {
       }
     };
     const onDown = (event) => {
+      if (legalRef.current) return; // clicks inside the legal pop-up must not close the menu under it
       if (rootRef.current?.contains(event.target)) return;
       if (event.target.closest?.('[data-profile-chip]')) return;
       log('branch: outside click closes');
@@ -280,8 +309,13 @@ const ProfileMenu = ({ settings }) => {
     log('action', patch);
     settings.update({ menu: null, ...patch });
   };
-  const noDestination = (id) => {
-    log('menu item (no destination wired yet):', id);
+  const openLegal = (id) => {
+    log('open legal summary', id);
+    setLegal(id);
+  };
+  const closeLegal = () => {
+    log('legal summary closed');
+    setLegal(null);
     close();
   };
 
@@ -323,7 +357,10 @@ const ProfileMenu = ({ settings }) => {
     keyRef.current = onKeyDown;
   });
   useEffect(() => {
-    const handler = (event) => keyRef.current(event);
+    const handler = (event) => {
+      if (legalRef.current) return;
+      keyRef.current(event);
+    };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, []);
@@ -376,9 +413,11 @@ const ProfileMenu = ({ settings }) => {
                   </span>
                 </span>
               </div>
-              <p className="m-0 max-w-full truncate font-sans text-[13px] font-normal text-[#595959]">
-                {view.email}
-              </p>
+              {view.email ? (
+                <p className="m-0 max-w-full truncate font-sans text-[13px] font-normal text-[#595959]">
+                  {view.email}
+                </p>
+              ) : null}
             </div>
           </div>
           <div className="flex w-full items-center gap-[10px]">
@@ -496,14 +535,14 @@ const ProfileMenu = ({ settings }) => {
         <div className="flex w-full shrink-0 flex-wrap items-center gap-x-[12px] gap-y-[4px] px-[12px] pt-[6px] pb-[4px] font-sans text-[12px] text-[#595959]">
           <button
             type="button"
-            onClick={() => noDestination('privacy')}
+            onClick={() => openLegal('privacy')}
             className="cursor-pointer border-0 bg-transparent p-0 font-medium text-[#595959] underline decoration-solid underline-offset-[from-font] outline-none focus-visible:outline-2 focus-visible:outline-[#1c2a21]"
           >
             Privacy
           </button>
           <button
             type="button"
-            onClick={() => noDestination('terms')}
+            onClick={() => openLegal('terms')}
             className="cursor-pointer border-0 bg-transparent p-0 font-medium text-[#595959] underline decoration-solid underline-offset-[from-font] outline-none focus-visible:outline-2 focus-visible:outline-[#1c2a21]"
           >
             Terms
@@ -513,6 +552,13 @@ const ProfileMenu = ({ settings }) => {
           </span>
         </div>
       </div>
+
+      {legal === 'privacy' && (
+        <PrivacyPolicyModal ctaLabel="Got it" onAccept={closeLegal} onClose={closeLegal} />
+      )}
+      {legal === 'terms' && (
+        <TermsModal ctaLabel="Got it" onAccept={closeLegal} onClose={closeLegal} />
+      )}
 
       {languageOpen && (
         <LanguageSubmenu

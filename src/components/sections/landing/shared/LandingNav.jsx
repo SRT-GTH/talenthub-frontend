@@ -87,6 +87,7 @@ const LandingNav = () => {
   return (
     <>
       <header
+        data-landing-nav // read by smooth scrolls that must land below this fixed bar
         className={classNames(
           'inset-x-0 top-0 z-30 w-full',
           'fixed transition-[background-color,box-shadow] duration-300',
