@@ -150,7 +150,10 @@ const InstitutionHomeMobile = ({ session, home }) => {
             <div className="flex flex-wrap gap-[8px]">
               {consentNeeded ? (
                 <AgencyMobileChip tone="hot" icon={<AgMAlert className="size-[12px]" />}>
-                  {consentNeeded} need guardian consent
+                  {consentNeeded}{' '}
+                  {home?.consentBasis === 'opt-out'
+                    ? 'need a guardian notice'
+                    : 'need guardian consent'}
                 </AgencyMobileChip>
               ) : null}
               {toConfirm ? (

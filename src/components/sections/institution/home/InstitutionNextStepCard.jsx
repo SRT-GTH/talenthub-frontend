@@ -13,7 +13,11 @@ const fill = (t, n) => t.replace('{n}', n).replace('{s}', n === 1 ? '' : 's');
 
 const pick = (home) => {
   if (!home) return null;
-  if (home.consentNeeded) return { ...NEXT_STEP.consent, n: home.consentNeeded };
+  if (home.consentNeeded)
+    return {
+      ...(home.consentBasis === 'opt-out' ? NEXT_STEP.notice : NEXT_STEP.consent),
+      n: home.consentNeeded,
+    };
   if (home.notInvited) return { ...NEXT_STEP.invite, n: home.notInvited };
   if (home.waitingToConfirm) return { ...NEXT_STEP.waiting, n: home.waitingToConfirm };
   return { ...NEXT_STEP.add, n: home.total };

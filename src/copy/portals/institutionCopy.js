@@ -35,6 +35,7 @@ export const INSTITUTION_MENU_COPY = copySection({
 // The next-step card shows one of these, depending on the roster.
 const NEXT_CASES = [
   ['consent', 'guardian consent needed'],
+  ['notice', 'guardian notices not sent'],
   ['invite', 'students not invited'],
   ['waiting', 'students still to confirm'],
   ['add', 'everyone linked'],

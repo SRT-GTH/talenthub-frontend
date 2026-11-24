@@ -45,7 +45,11 @@ const toRow = (s, i) => {
       .filter(Boolean)
       .join(' · '),
     activity: consent
-      ? { label: 'Guardian consent needed', tone: 'red' }
+      ? {
+          label:
+            s.consent?.basis === 'opt-out' ? 'Guardian not notified' : 'Guardian consent needed',
+          tone: 'red',
+        }
       : s.linked
         ? { label: s.pill || 'Linked to GTH', tone: 'green' }
         : { label: s.note || 'Not linked yet', tone: 'grey' },

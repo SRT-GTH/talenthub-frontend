@@ -184,10 +184,12 @@ const InstitutionStudentsPage = () => {
     } else {
       rosterActions.toast(
         r.sent
-          ? `Consent requests sent to the guardians of ${studentsWords(r.sent)}.${r.noContact ? ' Some under-18s have no guardian contact on file.' : ''}`
-          : r.noContact
-            ? 'No requests sent: the under-18s still waiting have no guardian contact on file.'
-            : 'Nobody to ask: every under-18 already has a guardian’s answer or a request on the way.'
+          ? `Guardian notices sent for ${studentsWords(r.sent)}.${r.noContact ? ' Some under-18s have no guardian contact on file.' : ''}${r.failed ? ' Some notices couldn’t be delivered yet; try again later.' : ''}`
+          : r.failed
+            ? 'No notices could be delivered yet; try again later.'
+            : r.noContact
+              ? 'No notices sent: the under-18s not notified yet have no guardian contact on file.'
+              : 'Nobody to notify: every under-18’s guardian already has the notice or has answered.'
       );
     }
   };

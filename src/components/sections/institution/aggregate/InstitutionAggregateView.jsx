@@ -30,7 +30,10 @@ const tilesFor = (variant, t) => {
         id: 'counted',
         eyebrow: 'Counted on GTH',
         value: countText(t.counted),
-        sub: 'Linked to GTH; under-18s once a guardian agrees',
+        sub:
+          t.consentBasis === 'opt-out'
+            ? 'Linked to GTH; under-18s once their guardian is notified'
+            : 'Linked to GTH; under-18s once a guardian agrees',
       },
       {
         id: 'profile',
@@ -85,7 +88,9 @@ const tilesFor = (variant, t) => {
       sub:
         t.under18 === 0
           ? 'No students under 18'
-          : `${countWords(t.consentAgreed)} with a guardian’s agreement · ${countWords(t.consentNeeded)} still to agree`,
+          : t.consentBasis === 'opt-out'
+            ? `${countWords(t.consentAgreed)} with the guardian notified · ${countWords(t.consentNeeded)} not notified yet`
+            : `${countWords(t.consentAgreed)} with a guardian’s agreement · ${countWords(t.consentNeeded)} still to agree`,
     },
   ];
 };
@@ -199,7 +204,12 @@ const InstitutionAggregateView = ({ variant = 'students', school, actions = {}, 
   }, [load, refreshKey]);
 
   const t = o?.totals;
-  const columns = COLUMNS[variant] ?? COLUMNS.students;
+  // Opt-out model (ADR-13): a delivered guardian notice is stored as agreed with basis opt-out, so the column says "notified".
+  const columns = (COLUMNS[variant] ?? COLUMNS.students).map((c) =>
+    c[0] === 'consentAgreed' && t?.consentBasis === 'opt-out'
+      ? [c[0], 'Guardian notified', c[2]]
+      : c
+  );
   const groups = (o?.groups ?? []).filter((g) => (GROUPS[variant] ?? []).includes(g.id));
   const empty = t && t.roster === 0 && !t.graduates;
 
@@ -310,7 +320,7 @@ const InstitutionAggregateView = ({ variant = 'students', school, actions = {}, 
             </InstitutionButton>
             {t.under18 !== 0 ? (
               <InstitutionButton size="md" onClick={actions.onConsent} disabled={actions.busy}>
-                Ask guardians to agree
+                Send guardian notices
               </InstitutionButton>
             ) : null}
           </>

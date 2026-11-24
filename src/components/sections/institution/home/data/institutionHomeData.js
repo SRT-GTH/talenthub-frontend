@@ -320,6 +320,12 @@ export const NEXT_STEP = {
     body: 'Their profiles stay hidden from employers until a parent or guardian agrees.',
     to: '/institution/students?modal=consent',
   },
+  // opt-out model (ADR-13): students are active; their guardians still need the notice with the opt-out link
+  notice: {
+    title: '{n} student{s} under 18 have no guardian notice yet',
+    body: 'Send their parent or guardian the notice with the opt-out link. Students stay active unless a guardian opts out.',
+    to: '/institution/students?modal=consent',
+  },
   invite: {
     title: '{n} student{s} not invited yet',
     body: 'Add an email address so they get an invite to join GTH and link to your school.',
@@ -362,6 +368,7 @@ export const glanceFor = (home, short) => {
   const h = home || {};
   const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
   const t = GLANCE_TEXT.cards;
+  const optOut = h.consentBasis === 'opt-out';
   return {
     title: GLANCE_TEXT.title,
     subtitle: GLANCE_TEXT.subtitle.replace('{school}', short || 'your school'),
@@ -380,13 +387,17 @@ export const glanceFor = (home, short) => {
         id: 'consent',
         icon: 'shield',
         badge: t.consent.badge,
-        title: t.consent.title,
+        title: optOut ? 'Guardian notices' : t.consent.title,
         text: h.under18
-          ? `${h.consentAgreed ?? 0} of ${h.under18} under-18s have a guardian’s agreement.`
+          ? optOut
+            ? `${h.consentAgreed ?? 0} of ${h.under18} under-18s’ guardians have been notified.`
+            : `${h.consentAgreed ?? 0} of ${h.under18} under-18s have a guardian’s agreement.`
           : 'No students under 18 on the roster.',
         progressLabel: `${pct(h.consentAgreed ?? 0, h.under18 ?? 0)}%`,
         fillPct: pct(h.consentAgreed ?? 0, h.under18 ?? 0),
-        foot: `${h.consentNeeded ?? 0} still to agree`,
+        foot: optOut
+          ? `${h.consentNeeded ?? 0} not notified yet`
+          : `${h.consentNeeded ?? 0} still to agree`,
       },
       {
         id: 'profiles',

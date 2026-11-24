@@ -26,6 +26,7 @@ export const recordFor = (student, detail, institution = {}) => {
   const school = institution.short || institution.name || 'your institution';
   const where = [institution.town, institution.region].filter(Boolean).join(' · ');
   const consent = detail?.consent?.status || student.consent?.status;
+  const consentBasis = detail?.consent?.basis || student.consent?.basis;
   const skills = p?.skills?.length
     ? {
         more: null,
@@ -100,13 +101,19 @@ export const recordFor = (student, detail, institution = {}) => {
             id: 'consent',
             icon: 'voice',
             text:
-              consent === 'agreed'
-                ? 'Guardian agreed to link the profile'
-                : consent === 'sent'
-                  ? 'Guardian consent requested'
+              consentBasis === 'opt-out'
+                ? consent === 'agreed'
+                  ? 'Guardian notified (they can opt out)'
                   : consent === 'declined'
-                    ? 'Guardian declined'
-                    : 'Guardian consent not asked yet',
+                    ? 'Guardian opted out'
+                    : 'Guardian not notified yet'
+                : consent === 'agreed'
+                  ? 'Guardian agreed to link the profile'
+                  : consent === 'sent'
+                    ? 'Guardian consent requested'
+                    : consent === 'declined'
+                      ? 'Guardian declined'
+                      : 'Guardian consent not asked yet',
           },
         ]
       : []),
