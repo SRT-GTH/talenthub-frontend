@@ -6,7 +6,7 @@ import AdminSignInForm from '../../components/sections/admin/auth/AdminSignInFor
 import AdminSignInLayout from '../../components/sections/admin/auth/AdminSignInLayout.jsx';
 import { useAdminState } from '../../components/sections/admin/adminState.js';
 import {
-  logout,
+  endSession,
   requestLoginOtp,
   resendLoginOtp,
   verifyLoginOtp,
@@ -90,10 +90,11 @@ const AdminSignInPage = () => {
   };
 
   // Staff check: the stored session (readStaffSession also reads the role from entities[] for older accounts).
-  const finish = (user, mfaSetup) => {
+  const finish = async (user, mfaSetup) => {
     if (!isStaffType(user?.entityType) && !readStaffSession()) {
       log('not a staff account', user?.entityType);
-      logout();
+      // The sign-in just opened a session: end it on the server too, not only in this browser.
+      await endSession();
       closeDialog();
       setFormError('This account is not a GTH staff account.');
       return;
@@ -118,7 +119,7 @@ const AdminSignInPage = () => {
     if (challengeId) {
       try {
         const { user } = await verifyMfaSignIn({ identity: { email }, challengeId, code, method });
-        finish(user, null);
+        await finish(user, null);
         return { ok: true };
       } catch (err) {
         const type = mfaErrorType(err);
@@ -131,7 +132,7 @@ const AdminSignInPage = () => {
     }
     try {
       const { user, mfaSetup } = await verifyLoginOtp({ identity: { email }, otp: code });
-      finish(user, mfaSetup);
+      await finish(user, mfaSetup);
       return { ok: true };
     } catch (err) {
       return {

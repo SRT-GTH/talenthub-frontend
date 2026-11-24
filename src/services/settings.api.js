@@ -18,7 +18,7 @@ const log = debug('settings.api');
  *   GET  /settings/sessions · DELETE /settings/sessions/:id · POST /settings/sessions/revoke-others
  *   GET  /settings/export            JSON copy of the talent's data
  *   POST /settings/deactivate { confirm: 'DELETE' }   turns the account off (log back in to turn it on)
- *   POST /users/logout               ends this device's session
+ * Logging out (POST /users/logout) is auth.api endSession(), shared by every role.
  */
 const unwrap = (res) => (res?.data?.data !== undefined ? res.data.data : res?.data);
 const enc = encodeURIComponent;
@@ -33,32 +33,42 @@ export const fetchSettingsOverview = async () => {
   return data;
 };
 
-export const saveAccount = async (fields) => unwrap(await api.put('/settings/account', fields))?.account;
+export const saveAccount = async (fields) =>
+  unwrap(await api.put('/settings/account', fields))?.account;
 
-export const savePreferences = async (patch) => unwrap(await api.put('/settings/preferences', patch))?.preferences;
+export const savePreferences = async (patch) =>
+  unwrap(await api.put('/settings/preferences', patch))?.preferences;
 
-export const fetchNotificationSettings = async () => unwrap(await api.get('/settings/notifications'))?.notifications;
+export const fetchNotificationSettings = async () =>
+  unwrap(await api.get('/settings/notifications'))?.notifications;
 
 export const saveNotificationSettings = async (body) =>
   unwrap(await api.put('/settings/notifications', body))?.notifications;
 
-export const savePrivacy = async (body) => unwrap(await api.put('/settings/privacy', body))?.privacy;
+export const savePrivacy = async (body) =>
+  unwrap(await api.put('/settings/privacy', body))?.privacy;
 
 export const blockSomeone = async ({ kind, name, targetId }) =>
-  unwrap(await api.post('/settings/blocked', { kind, name, ...(targetId ? { targetId } : {}) }))?.blocked || [];
+  unwrap(await api.post('/settings/blocked', { kind, name, ...(targetId ? { targetId } : {}) }))
+    ?.blocked || [];
 
-export const unblock = async (blockId) => unwrap(await api.delete(`/settings/blocked/${enc(blockId)}`))?.blocked || [];
+export const unblock = async (blockId) =>
+  unwrap(await api.delete(`/settings/blocked/${enc(blockId)}`))?.blocked || [];
 
-export const setProfilePaused = async (paused) => unwrap(await api.put('/settings/pause', { paused }));
+export const setProfilePaused = async (paused) =>
+  unwrap(await api.put('/settings/pause', { paused }));
 
 export const changePassword = async ({ currentPassword, newPassword, logOutOthers = true }) =>
   unwrap(await api.post('/settings/password', { currentPassword, newPassword, logOutOthers }));
 
-export const fetchSessions = async () => unwrap(await api.get('/settings/sessions'))?.sessions || [];
+export const fetchSessions = async () =>
+  unwrap(await api.get('/settings/sessions'))?.sessions || [];
 
-export const logOutDevice = async (sessionId) => unwrap(await api.delete(`/settings/sessions/${enc(sessionId)}`));
+export const logOutDevice = async (sessionId) =>
+  unwrap(await api.delete(`/settings/sessions/${enc(sessionId)}`));
 
-export const logOutOtherDevices = async () => unwrap(await api.post('/settings/sessions/revoke-others'));
+export const logOutOtherDevices = async () =>
+  unwrap(await api.post('/settings/sessions/revoke-others'));
 
 /** Downloads the export as gth-my-data-YYYY-MM-DD.json. */
 export const downloadMyData = async () => {
@@ -76,13 +86,5 @@ export const downloadMyData = async () => {
   return blob.size;
 };
 
-export const deactivateAccount = async () => unwrap(await api.post('/settings/deactivate', { confirm: 'DELETE' }));
-
-/** Server-side logout of this device (session revoked). Never throws: local logout must still happen. */
-export const serverLogout = async () => {
-  try {
-    await api.post('/users/logout');
-  } catch (err) {
-    log('server logout failed', err?.response?.status);
-  }
-};
+export const deactivateAccount = async () =>
+  unwrap(await api.post('/settings/deactivate', { confirm: 'DELETE' }));

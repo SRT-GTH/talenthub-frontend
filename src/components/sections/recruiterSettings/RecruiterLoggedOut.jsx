@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { loggedOutFirstName } from '../../../services/auth.api.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
 import DashboardPageBackground from '../dashboard/DashboardPageBackground.jsx';
@@ -15,10 +16,12 @@ const log = debug('RecruiterLoggedOut');
  * (grid + blurred ellipses, `DashboardPageBackground variant="recruiter"`), and one centred card (520 wide, r16, #e5e8e3 hairline, p32, gap 14): a 64px #ebf1ec tile with the check-circle glyph, a Bricolage 30/600 "You're logged out, Joel.",
  * the 14/24 line, a full-width "Log back in" primary button, the green "Not Joel? Use a different account" link and the 12px shared-computer note. The Career Buddy launcher stays bottom right, as drawn.
  * The talent `LoggedOutScreen` draws another card (r28, two buttons, an avatar), so this recruiter screen has its own markup on the same assets.
- * ⚠️ ASSUMPTION: "Log back in" and "Not Joel? Use a different account" go to /login (no destination is drawn). Mock: no session exists to end.
+ * ⚠️ ASSUMPTION: "Log back in" and "Not Joel? Use a different account" go to /login (no destination is drawn).
+ * "Joel" is the real first name of whoever just logged out (auth.api loggedOutFirstName), or left out when unknown (ADR-08).
  */
 const RecruiterLoggedOut = () => {
   const navigate = useNavigate();
+  const [name] = useState(loggedOutFirstName);
 
   useEffect(() => {
     log('mount');
@@ -57,7 +60,7 @@ const RecruiterLoggedOut = () => {
             id="recruiter-logged-out-title"
             className="m-0 text-center font-heading text-[clamp(26px,2.1vw,30px)] leading-[36px] font-semibold tracking-[-0.6px] text-[#111]"
           >
-            {LOGGED_OUT_COPY.title}
+            {name ? `${LOGGED_OUT_COPY.title}, ${name}.` : `${LOGGED_OUT_COPY.title}.`}
           </h1>
           <p className="m-0 text-center text-[14px] leading-[24px] tracking-[0.2px] text-[#575755]">
             {LOGGED_OUT_COPY.body}
@@ -77,7 +80,7 @@ const RecruiterLoggedOut = () => {
             to="/login"
             className="inline-flex min-h-[24px] items-center text-center text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#387440] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
-            {LOGGED_OUT_COPY.other}
+            {name ? `Not ${name}? ${LOGGED_OUT_COPY.other}` : LOGGED_OUT_COPY.other}
           </Link>
           <p className="m-0 text-center text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
             {LOGGED_OUT_COPY.shared}

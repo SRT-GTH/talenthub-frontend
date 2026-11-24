@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { loggedOutFirstName } from '../../../services/auth.api.js';
 import { debug } from '../../../utils/debug.js';
 import { ensurePlayfulFont } from '../../../utils/ensurePlayfulFont.js';
 import {
@@ -8,7 +9,6 @@ import {
   WhiteArrowRightIcon,
 } from '../../shared/assets.jsx';
 import Button from '../../ui/Button.jsx';
-import avatarPortrait from '../../../assets/talent-settings/menu/kofi-avatar-portrait.svg';
 import gthLogo from '../../../assets/engagement/GTHLogo 1.svg';
 import glowMint from '../../../assets/talent-settings/menu/logged-out-glow-mint.svg';
 import glowGold from '../../../assets/talent-settings/menu/logged-out-glow-gold.svg';
@@ -22,18 +22,19 @@ const log = debug('LoggedOutScreen');
  * (own route, no talent shell). Focused: flat #f8f8f4. Playful (only `playful:` variants): cream→canvas
  * wash, two blurred glows (mint top right, gold bottom left), faint dot grid, two doodle stars, 1.5px ink
  * card border with an offset shelf, Bricolage Grotesque title, yellow "SEE YOU SOON" sticker and a
- * gradient avatar. Copy verbatim from the frames; name / counts are mock data shaped for an API.
- * Geometry is expressed from the 1728px frame (vw / clamp) so it scales down to 320px.
+ * gradient avatar. Geometry is expressed from the 1728px frame (vw / clamp) so it scales down to 320px.
+ * ADR-08: the frame's "Kofi", "4 applications" and "12-day streak" were sample data. The name is now the real first name of
+ * whoever just logged out (auth.api loggedOutFirstName; its initial fills the avatar), or left out when unknown (a reload, a
+ * direct visit), and the line under it names no counts.
  */
-const SESSION = { firstName: 'Kofi', applications: 4, streakDays: 12 };
-
 const LoggedOutScreen = () => {
   const navigate = useNavigate();
+  const [firstName] = useState(loggedOutFirstName);
 
   useEffect(() => {
     ensurePlayfulFont();
-    log('mount', SESSION);
-  }, []);
+    log('mount', { named: Boolean(firstName) });
+  }, [firstName]);
 
   return (
     <div className="relative min-h-dvh w-full overflow-hidden bg-[#f8f8f4] font-sans playful:bg-[linear-gradient(135deg,#faf4e8_0%,#f8f8f4_100%)]">
@@ -90,14 +91,16 @@ const LoggedOutScreen = () => {
         >
           <span
             aria-hidden="true"
-            className="relative size-[72px] shrink-0 overflow-hidden rounded-[36px] bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.637%,#7aa870_85.349%)]"
+            className="relative flex size-[72px] shrink-0 items-center justify-center overflow-hidden rounded-[36px] bg-[#387440] font-sans text-[30px] font-semibold text-white playful:bg-[linear-gradient(135deg,#387440_14.637%,#7aa870_85.349%)]"
           >
-            <img
-              src={avatarPortrait}
-              alt=""
-              draggable="false"
-              className="absolute -bottom-[9px] left-1/2 h-[84px] w-[81px] max-w-none -translate-x-1/2 select-none"
-            />
+            {firstName ? (
+              firstName.charAt(0).toUpperCase()
+            ) : (
+              <svg viewBox="0 0 32 32" className="size-[34px]" fill="none">
+                <circle cx="16" cy="11" r="6" fill="#ffffff" />
+                <path d="M5 28c1.6-6 5.8-9 11-9s9.4 3 11 9" fill="#ffffff" />
+              </svg>
+            )}
           </span>
 
           <span
@@ -113,12 +116,11 @@ const LoggedOutScreen = () => {
             id="logged-out-title"
             className="m-0 text-center font-sans text-[clamp(28px,2.31vw,40px)] leading-[1.1] font-semibold tracking-[-0.8px] text-[#1c2a21] playful:font-[family-name:var(--pf-font-display)] playful:[font-variation-settings:'wdth'_100]"
           >
-            You&apos;re logged out, {SESSION.firstName}.
+            {firstName ? `You’re logged out, ${firstName}.` : 'You’re logged out.'}
           </h1>
 
           <p className="m-0 w-full text-center font-sans text-[17px] leading-[1.5] font-normal text-[#595959] max-sm:text-[15px]">
-            Your profile, {SESSION.applications} applications and {SESSION.streakDays}-day streak
-            are saved. Log back in before midnight to keep the streak.
+            Your profile, applications and progress are saved. Log back in any time.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-[12px] max-sm:w-full max-sm:flex-col max-sm:items-stretch">
@@ -146,7 +148,9 @@ const LoggedOutScreen = () => {
           </div>
 
           <p className="m-0 flex flex-wrap items-center justify-center gap-[6px] font-sans text-[14px]">
-            <span className="font-normal text-[#595959]">Not {SESSION.firstName}?</span>
+            {firstName ? (
+              <span className="font-normal text-[#595959]">Not {firstName}?</span>
+            ) : null}
             <Link
               to="/login"
               className="font-semibold text-[#387440] underline decoration-solid underline-offset-[from-font] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"

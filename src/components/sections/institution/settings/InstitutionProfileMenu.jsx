@@ -18,7 +18,7 @@ import {
   ProfileMenuVerifiedCheckIcon,
 } from '../../../shared/assets.jsx';
 import { VERIFY_CHIP } from './data/institutionSettingsData.js';
-import { logout } from '../../../../services/auth.api.js';
+import { endSession } from '../../../../services/auth.api.js';
 import { STORAGE_KEYS } from '../../../../constants/storageKeys.js';
 import PrivacyPolicyModal from '../../../shared/PrivacyPolicyModal.jsx';
 import TermsModal from '../../../shared/TermsModal.jsx';
@@ -313,8 +313,8 @@ const InstitutionProfileMenu = ({ data, session }) => {
           {item('logout', {
             icon: <ProfileMenuLogoutIcon className="size-[20px]" />,
             label: 'Log out',
-            onActivate: () => {
-              logout();
+            onActivate: async () => {
+              await endSession();
               navigate('/login', { replace: true });
             },
           })}
