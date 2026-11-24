@@ -763,6 +763,12 @@ export const VERIFICATION_TOASTS = {
     title: 'Success - 2 documents uploaded',
     body: 'We’ll review them within 2 working days',
   },
+  // signed in: one real document went to the GTH team
+  'kyb-uploaded': {
+    tone: 'success',
+    title: 'Document uploaded',
+    body: 'The GTH team will review it, usually within 2 working days.',
+  },
 };
 
 /* ---------------------------------------------------------------- in-demand skills: filters, national view, states (section 07, D60–D64) */

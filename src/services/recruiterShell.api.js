@@ -102,7 +102,10 @@ const build = ({ onboarding, company, jobs, messaging, applications }) => {
     tier,
     plan,
     companyCompletion: typeof company?.completion === 'number' ? company.completion : null,
-    kyb: company?.kyb || null,
+    // canUpload: KYB documents come from the organisation's owner (or a recruiter with no organisation), US-7.3-05.
+    kyb: company?.kyb
+      ? { ...company.kyb, canUpload: Boolean(company.canEdit || !company.hasOrganisation) }
+      : null,
     jobs: jobs ? summariseJobs(jobs) : null,
     jobList: jobs || [],
     conversations: messaging ? (messaging.totalConversations ?? null) : null,

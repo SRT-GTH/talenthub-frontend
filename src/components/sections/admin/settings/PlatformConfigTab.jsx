@@ -29,9 +29,32 @@ const log = debug('PlatformConfigTab');
  *                   (which it never executes yet), so the dialog says so; operational / integration flags change straight away.
  *   Other settings  "Change" → new value + reason → PATCH /config/:key. Sensitive values stay hidden (the backend masks them).
  *   History         GET /config/:key/history (previous / new value, who, when, reason).
+ *   Verification gates (ADR-05)  the on/off settings verification.* (institution accreditation, recruiter KYB) have their own group
+ *                   and are saved with PATCH /config/:key (on/off settings that are not feature flags go that way too).
  */
 
+/* Plain names and switch-dialog text for the verification gates (backend utils/verificationGates.js). */
+const GATE_COPY = {
+  'verification.institution_accreditation_required': {
+    title: 'Institution accreditation required',
+    on: 'Institutions that are not approved yet will only see the accreditation pages and settings until GTH staff approve their documents. Institutions already approved are not affected.',
+    off: 'New institutions will open their portal (students, bulk upload, records, credentials) straight after registering, without documents or staff approval. Use this when agreements are made off the platform. Documents stay optional and staff can still review them; a school you marked "not approved" stays closed.',
+  },
+  'verification.recruiter_kyb_required': {
+    title: 'Recruiter KYB required',
+    on: 'Recruiters will be asked for KYB documents, and only organisations whose documents GTH staff approved show as verified. Job posting is not blocked.',
+    off: 'Recruiters will no longer be asked for KYB documents. Organisations that were not verified show "Verification not required", never "Verified". Organisations staff already verified keep their badge.',
+  },
+};
+const isGate = (c) => String(c.key).startsWith('verification.');
+
 const GROUPS = [
+  {
+    id: 'verification',
+    title: 'Verification gates',
+    sub: 'Whether institutions and recruiters must be checked by GTH staff before they get full access or a verified badge. Changes are logged with your reason and take effect within a few seconds.',
+    match: isGate,
+  },
   {
     id: 'feature_flag',
     title: 'Feature flags',
@@ -50,7 +73,8 @@ const GROUPS = [
   },
 ];
 
-const label = (key) => humanize(String(key).split('.').slice(1).join(' ') || key);
+const label = (key) =>
+  GATE_COPY[key]?.title || humanize(String(key).split('.').slice(1).join(' ') || key);
 const show = (c) =>
   c.isSensitive
     ? 'Hidden'
@@ -101,7 +125,11 @@ const PlatformConfigTab = () => {
     setBusy(true);
     setError('');
     try {
-      if (dialog.kind === 'toggle') {
+      if (dialog.kind === 'toggle' && !c.isFeatureFlag) {
+        // An on/off setting that is not a feature flag (e.g. a verification gate): a plain, audited value change.
+        await updateConfig(c.key, !c.value, reason.trim());
+        toast(`${label(c.key)} ${!c.value ? 'on' : 'off'}`, 'The change is live.');
+      } else if (dialog.kind === 'toggle') {
         const res = await toggleFlag(c.key, !c.value, reason.trim());
         if (res?.status === 'pending_approval')
           toast(
@@ -137,11 +165,13 @@ const PlatformConfigTab = () => {
       >
         {GROUPS.map((g) => {
           // JSON settings (like the onboarding template) have their own editors.
-          const items = configs.filter(
-            (c) =>
-              c.valueType !== 'json' &&
-              (c.category === g.id ||
-                (g.id === 'operational' && !GROUPS.some((x) => x.id === c.category)))
+          const items = configs.filter((c) =>
+            g.match
+              ? g.match(c)
+              : c.valueType !== 'json' &&
+                !isGate(c) &&
+                (c.category === g.id ||
+                  (g.id === 'operational' && !GROUPS.some((x) => x.id === c.category)))
           );
           if (!items.length) return null;
           return (
@@ -189,9 +219,11 @@ const PlatformConfigTab = () => {
         <AdminConfirmDialog
           title={`Turn ${label(dialog.c.key)} ${dialog.c.value ? 'off' : 'on'}?`}
           body={
-            dialog.c.category === 'feature_flag'
-              ? 'Feature flag changes need a second Super Admin to approve them before they take effect.'
-              : 'This takes effect straight away for everyone.'
+            GATE_COPY[dialog.c.key]
+              ? GATE_COPY[dialog.c.key][dialog.c.value ? 'off' : 'on']
+              : dialog.c.isFeatureFlag && dialog.c.category === 'feature_flag'
+                ? 'Feature flag changes need a second Super Admin to approve them before they take effect.'
+                : 'This takes effect straight away for everyone.'
           }
           primary={{
             label: busy ? 'Saving…' : dialog.c.value ? 'Turn off' : 'Turn on',

@@ -48,13 +48,16 @@ const CONFETTI = [
  * 176 high art band with the 100 round green medallion + 20 confetti rects and the 36 round close; body (p 32, gap 32): eyebrow, 35/42 headline (green "submitted."),
  * 15/22 text, three stat tiles (r16), "What happens next" two rows, "Go to my status page" (mint) + "Next: Review" (green shelf).
  * ⚠️ ASSUMPTION: the Review step is not drawn, so "Next: Review" also lands on the status page (in review).
- * Props: onClose, documents (how many were sent).
+ * Props: onClose, documents (how many were sent), optional (GTH staff made accreditation optional, ADR-05: the portal stays open).
  */
 
-const InstitutionSubmittedDialog = ({ onClose, documents = 4 }) => {
+const InstitutionSubmittedDialog = ({ onClose, documents = 4, optional = false }) => {
   const S = ACCREDITATION.submitted;
   const statusTo = '/institution/accreditation/status';
-  const text = `${documents} ${documents === 1 ? 'document' : 'documents'} sent. You can set up while we check, but students and credentials open once you’re approved.`;
+  const sent = `${documents} ${documents === 1 ? 'document' : 'documents'} sent.`;
+  const text = optional
+    ? `${sent} Your portal stays open while we check; your Verified badge shows once we approve them.`
+    : `${sent} You can set up while we check, but students and credentials open once you’re approved.`;
   return (
     <AgencyDialog
       label="Documents submitted"

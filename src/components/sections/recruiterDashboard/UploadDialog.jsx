@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import Button from '../../ui/Button.jsx';
 import Modal from '../../ui/Modal.jsx';
@@ -10,12 +10,59 @@ import { UPLOAD_DIALOG } from './recruiterDashboardData.js';
  * UploadDialog — "Upload KYB documents" (Figma D51 10195:97739 choose, D52 10195:99049 uploading): a card on `ui/Modal` with a tile, title, the org + file rules,
  * a required "Document type" select (TIN certificate preselected), a dashed drop zone ("Drag & drop your TIN certificate, or browse") and the privacy line;
  * while `step="uploading"` the zone is replaced by the file rows (name, size, "Uploading · 64%" with a bar, "Queued") and the primary button reads "Uploading...".
- * ⚠️ ASSUMPTION: no real upload happens (mock data); "Upload" stays disabled until a file is chosen, which the demo does by the `step=uploading` URL.
- * Props: org, step ('choose' | 'uploading'), onCancel, onDone.
+ * Demo (signed out): no real upload happens; "Upload" stays disabled until a file is chosen, which the demo does by the `step=uploading` URL.
+ * Live (onUploadFile given, US-7.3-05): "browse" or a drop picks one PDF / JPG / PNG up to 10 MB, "Upload" sends it as the chosen document
+ * type through the existing KYB upload (POST /media/upload, then POST /recruiter/kyb/submit) and closes with onDone.
+ * Props: org, step ('choose' | 'uploading'), onCancel, onDone, onUploadFile(file, type) (live), defaultType (live: the first missing document).
  */
-const UploadDialog = ({ org, step = 'choose', onCancel, onDone }) => {
-  const [type, setType] = useState('TIN certificate');
-  const uploading = step === 'uploading';
+const MAX_BYTES = 10 * 1024 * 1024;
+const ACCEPT = '.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png';
+const sizeLabel = (n) =>
+  n >= 1024 * 1024
+    ? `${(n / (1024 * 1024)).toFixed(1)} MB`
+    : `${Math.max(1, Math.round(n / 1024))} KB`;
+const UploadDialog = ({ org, step = 'choose', onCancel, onDone, onUploadFile, defaultType }) => {
+  const live = typeof onUploadFile === 'function';
+  const [type, setType] = useState(
+    live && UPLOAD_DIALOG.types.includes(defaultType) ? defaultType : 'TIN certificate'
+  );
+  const [file, setFile] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const input = useRef(null);
+  const uploading = live ? busy : step === 'uploading';
+  const pick = (f) => {
+    if (!f) return;
+    setError('');
+    if (!/\.(pdf|jpe?g|png)$/i.test(f.name)) {
+      setFile(null);
+      setError('Use a PDF, JPG or PNG file.');
+      return;
+    }
+    if (f.size > MAX_BYTES) {
+      setFile(null);
+      setError('That file is over 10 MB. Use a smaller scan.');
+      return;
+    }
+    setFile(f);
+  };
+  const send = async () => {
+    if (!live) {
+      onDone?.();
+      return;
+    }
+    if (!file || busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      await onUploadFile(file, type);
+      onDone?.();
+    } catch (err) {
+      setError(err?.message || 'That upload didn’t go through. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
     <Modal
       isOpen
@@ -54,7 +101,7 @@ const UploadDialog = ({ org, step = 'choose', onCancel, onDone }) => {
           </button>
         </div>
 
-        {uploading ? (
+        {uploading && !live ? (
           <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
             {UPLOAD_DIALOG.files.map((file) => (
               <li
@@ -117,7 +164,18 @@ const UploadDialog = ({ org, step = 'choose', onCancel, onDone }) => {
               value={type}
               onChange={setType}
             />
-            <div className="flex flex-col items-center gap-[6px] rounded-[16px] border border-dashed border-[#c1d4c4] bg-[#fafcfa] px-[24px] py-[32px] text-center">
+            <div
+              className="flex flex-col items-center gap-[6px] rounded-[16px] border border-dashed border-[#c1d4c4] bg-[#fafcfa] px-[24px] py-[32px] text-center"
+              onDragOver={live ? (e) => e.preventDefault() : undefined}
+              onDrop={
+                live
+                  ? (e) => {
+                      e.preventDefault();
+                      pick(e.dataTransfer?.files?.[0]);
+                    }
+                  : undefined
+              }
+            >
               <img
                 src={dashIcons.uploadDialogTile}
                 alt=""
@@ -126,9 +184,44 @@ const UploadDialog = ({ org, step = 'choose', onCancel, onDone }) => {
               />
               <p className="m-0 font-sans text-[14px] leading-[24px] text-[#111]">
                 {UPLOAD_DIALOG.dropLead(type)}{' '}
-                <span className="font-semibold text-[#387440]">{UPLOAD_DIALOG.browse}</span>
+                {live ? (
+                  <button
+                    type="button"
+                    onClick={() => input.current?.click()}
+                    disabled={busy}
+                    className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] font-semibold text-[#387440] underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                  >
+                    {UPLOAD_DIALOG.browse}
+                  </button>
+                ) : (
+                  <span className="font-semibold text-[#387440]">{UPLOAD_DIALOG.browse}</span>
+                )}
               </p>
+              {live ? (
+                <input
+                  ref={input}
+                  type="file"
+                  accept={ACCEPT}
+                  className="hidden"
+                  aria-label={`Choose your ${type}`}
+                  onChange={(e) => {
+                    pick(e.target.files?.[0]);
+                    e.target.value = '';
+                  }}
+                />
+              ) : null}
+              {live && file ? (
+                <p className="m-0 font-sans text-[13px] leading-[20px] font-medium text-[#2a5730]">
+                  {file.name} · {sizeLabel(file.size)}
+                  {busy ? ' · uploading…' : ''}
+                </p>
+              ) : null}
             </div>
+            {error ? (
+              <p role="alert" className="m-0 font-sans text-[13px] leading-[20px] text-[#902b20]">
+                {error}
+              </p>
+            ) : null}
             <p className="m-0 font-sans text-[12px] leading-[20px] text-[#575755]">
               {UPLOAD_DIALOG.privacy}
             </p>
@@ -139,7 +232,11 @@ const UploadDialog = ({ org, step = 'choose', onCancel, onDone }) => {
           <Button variant="tertiary" onClick={onCancel}>
             {UPLOAD_DIALOG.cancel}
           </Button>
-          <Button variant="primary" disabled={!uploading} onClick={onDone}>
+          <Button
+            variant="primary"
+            disabled={live ? !file || busy : !uploading}
+            onClick={live ? send : onDone}
+          >
             <img
               src={dashIcons.uploadConfirmDisabledIcon}
               alt=""

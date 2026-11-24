@@ -15,7 +15,9 @@ import {
  *   not signed in                 -> /login (comes back here after)
  *   not an institution's staff    -> an explanation, no portal
  *   paused / removed              -> an explanation
- *   not accredited yet            -> only the accreditation pages, settings and the profile menu (requireApproved pages redirect)
+ *   not accredited yet            -> only the accreditation pages, settings and the profile menu (requireApproved pages redirect),
+ *                                    unless staff turned accreditation off (verify.required false, ADR-05): then the portal is open
+ *                                    (verify.portalOpen; a school staff marked "not approved" stays closed)
  * useInstitutionSession() (./useInstitutionSession.js) turns the response into the shape the pages already use.
  */
 
@@ -104,7 +106,11 @@ export const InstitutionGate = ({ children, requireApproved = true }) => {
     );
   }
   const status = ctx.me.verify?.status;
-  if (requireApproved && status !== 'approved' && !OPEN_BEFORE_APPROVAL.test(pathname)) {
+  const open =
+    status === 'approved' ||
+    (ctx.me.verify?.required === false && status !== 'not-approved') ||
+    ctx.me.verify?.portalOpen === true;
+  if (requireApproved && !open && !OPEN_BEFORE_APPROVAL.test(pathname)) {
     return (
       <Navigate
         to={status === 'none' ? '/institution/accreditation' : '/institution/accreditation/status'}
