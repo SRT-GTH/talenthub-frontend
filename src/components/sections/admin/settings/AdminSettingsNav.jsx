@@ -14,7 +14,7 @@ import {
   SettingsAUsersIcon,
 } from '../../../shared/assets.jsx';
 import AgencyStatusChip from '../../agency/settings/AgencyStatusChip.jsx';
-import { logout } from '../../../../services/auth.api.js';
+import { endSession } from '../../../../services/auth.api.js';
 
 const log = debug('AdminSettingsNav');
 
@@ -125,9 +125,9 @@ const AdminSettingsNav = ({
       <div role="separator" className="my-[0px] h-px w-full bg-[#e7e7e7] max-lg:hidden" />
       <button
         type="button"
-        onClick={() => {
+        onClick={async () => {
           log('log out → staff sign-in');
-          logout();
+          await endSession();
           navigate('/admin/sign-in', { replace: true });
         }}
         className={classNames(ITEM, itemClassName, 'bg-transparent hover:bg-[#fbeeed]')}

@@ -124,12 +124,94 @@ export const resetPassword = async ({ token, newPassword }) => {
   return data;
 };
 
+/*
+ * Logging out (ADR-08 "Logout Revokes the Server Session for Every Role").
+ *
+ * endSession() is what every Log out button calls, for every role: the server ends this login session
+ * first (POST /users/logout, sent while the token is still attached so the api client can renew an expired
+ * access token and retry), then logout() clears this browser. After it, the old access token gets 401 and
+ * the refresh token can't mint a new one. `otherDevices: true` also ends the account's other sessions
+ * first (POST /settings/sessions/revoke-others, the "Also log out on my other devices" box).
+ *
+ * logout() only clears this browser: the tokens and profile, the 2-step hint, and personal data other
+ * screens keep here (Career Buddy chats and notes, everything in sessionStorage such as bulk-upload rows),
+ * so the next person on a shared computer sees none of it. Before clearing it keeps the first name in
+ * memory (never stored) for the logged-out pages: loggedOutFirstName().
+ */
+const LOGOUT_TIMEOUT_MS = 8000;
+const PERSONAL_KEY_PREFIXES = [
+  'careerBuddy.threads.',
+  'careerBuddy.chatMeta.',
+  'careerBuddy.personality.',
+];
+let lastFirstName = null;
+
+const storedFirstName = () => {
+  try {
+    const u = JSON.parse(localStorage.getItem(STORAGE_KEYS.userProfile) || 'null') || {};
+    const first = u.firstName || u.metadata?.firstName || u.profile?.firstName || '';
+    return typeof first === 'string' && first.trim() ? first.trim() : null;
+  } catch {
+    return null;
+  }
+};
+
+const clearPersonalData = () => {
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+      const key = localStorage.key(i);
+      if (key && PERSONAL_KEY_PREFIXES.some((p) => key.startsWith(p))) localStorage.removeItem(key);
+    }
+  } catch {
+    // storage unavailable: nothing to clear
+  }
+  try {
+    sessionStorage.clear();
+  } catch {
+    // storage unavailable: nothing to clear
+  }
+};
+
+/** First name of the person who just logged out in this tab, or null (unknown, or the page was reloaded). */
+export const loggedOutFirstName = () => lastFirstName;
+
 export const logout = () => {
   log('logout');
+  if (
+    localStorage.getItem(STORAGE_KEYS.authToken) ||
+    localStorage.getItem(STORAGE_KEYS.userProfile)
+  ) {
+    lastFirstName = storedFirstName();
+  }
   localStorage.removeItem(STORAGE_KEYS.authToken);
   localStorage.removeItem(STORAGE_KEYS.refreshToken);
   localStorage.removeItem(STORAGE_KEYS.userProfile);
   clearSetupHint();
+  clearPersonalData();
+};
+
+/** Ends this login session on the server, then clears this browser. Never throws; waits at most a few seconds. */
+export const endSession = async ({ otherDevices = false } = {}) => {
+  const signedIn = Boolean(
+    localStorage.getItem(STORAGE_KEYS.authToken) || localStorage.getItem(STORAGE_KEYS.refreshToken)
+  );
+  if (signedIn) {
+    if (otherDevices) {
+      try {
+        await api.post('/settings/sessions/revoke-others', null, { timeout: LOGOUT_TIMEOUT_MS });
+        log('other devices logged out');
+      } catch (err) {
+        log('other devices not logged out', err?.response?.status);
+      }
+    }
+    try {
+      await api.post('/users/logout', null, { timeout: LOGOUT_TIMEOUT_MS });
+      log('server session ended');
+    } catch (err) {
+      log('server logout failed', err?.response?.status);
+    }
+  }
+  logout();
 };
 
 // Site copy → Preview (`?copyPreview=`): pages show their sample account, never the staff member's own session.

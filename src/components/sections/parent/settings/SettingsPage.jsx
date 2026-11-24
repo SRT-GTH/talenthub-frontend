@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { endSession } from '../../../../services/auth.api.js';
 import { debug } from '../../../../utils/debug.js';
 import SettingsAccessibility from '../../talentSettings/SettingsAccessibility.jsx';
 import SettingsLanguage from '../../talentSettings/SettingsLanguage.jsx';
@@ -9,6 +10,7 @@ import CloseAccountDialog from './CloseAccountDialog.jsx';
 import DataTab from './DataTab.jsx';
 import LogoutDialog from './LogoutDialog.jsx';
 import NotificationsTab from './NotificationsTab.jsx';
+import ParentLoggedOut from './ParentLoggedOut.jsx';
 import RolesTab from './RolesTab.jsx';
 import SecurityTab from './SecurityTab.jsx';
 import SettingsResult from './SettingsResult.jsx';
@@ -49,6 +51,9 @@ const SettingsPage = () => {
     return `${pathname}?${p.toString()}`;
   };
 
+  // After a log out the session is gone, so the logged-out card stands without the parent chrome (ADR-08).
+  if (st.result === 'logged-out') return <ParentLoggedOut onLogIn={() => navigate('/login')} />;
+
   if (st.result) {
     return (
       <ParentFrame active="settings" sidebar="linked" dimSidebar>
@@ -83,7 +88,11 @@ const SettingsPage = () => {
       {st.modal === 'logout' ? (
         <LogoutDialog
           onStay={() => st.update({ modal: null })}
-          onConfirm={() => st.update({ modal: null, state: 'logged-out' }, { replace: true })}
+          onConfirm={async () => {
+            // Ends the session on the server, then clears this browser (every role does the same: ADR-08).
+            await endSession();
+            st.update({ modal: null, state: 'logged-out' }, { replace: true });
+          }}
         />
       ) : null}
       {st.modal === 'close-account' ? (

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import TwoStepPanel from '../components/sections/twoStep/TwoStepPanel.jsx';
 import WavyDivider from '../components/shared/WavyDivider.jsx';
-import { isLoggedIn, logout, logoHomePath } from '../services/auth.api.js';
+import { endSession, isLoggedIn, logoHomePath } from '../services/auth.api.js';
 import { debug } from '../utils/debug.js';
 
 const log = debug('TwoStepPage');
@@ -61,9 +61,9 @@ const TwoStepPage = () => {
           {required ? (
             <button
               type="button"
-              onClick={() => {
+              onClick={async () => {
                 log('sign out from forced set-up');
-                logout();
+                await endSession();
                 navigate(next && next.startsWith('/admin') ? '/admin/sign-in' : '/login', {
                   replace: true,
                 });

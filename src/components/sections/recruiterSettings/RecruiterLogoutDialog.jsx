@@ -1,4 +1,5 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { endSession } from '../../../services/auth.api.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
 import CenteredIconDialog from '../../ui/CenteredIconDialog.jsx';
@@ -10,13 +11,15 @@ const log = debug('RecruiterLogoutDialog');
 /*
  * RecruiterLogoutDialog - SR-16 "Log out · confirm" (Figma 10161:82353, modal 10161:82614): `?modal=logout` over any Settings tab. `ui/CenteredIconDialog` (460 wide, p32, gap 16): a 56px red tile (#f9ebea) with the logout glyph,
  * a Bricolage 28/600 "Log out of GTH?", the 14/24 line and Stay (tertiary) / Log out (red). The talent `LogoutConfirm` is tied to the talent session API and talent copy, so the recruiter dialog is built on the shared recruiter dialog shell instead.
- * Stay, the Escape key and the scrim close it; Log out goes to `?state=logged-out` (mock: no session is ended).
+ * Stay, the Escape key and the scrim close it. Log out ends the session on the server, then clears this browser (auth.api
+ * endSession, shared by every role), then shows `?state=logged-out`.
  * Props: settings (useRecruiterSettingsState()).
  */
 const DIALOG_BUTTON = '!h-[48px] !py-0';
 
 const RecruiterLogoutDialog = ({ settings }) => {
   const { update } = settings;
+  const [busy, setBusy] = useState(false);
   const stay = useCallback(() => {
     log('stay logged in');
     update({ modal: null });
@@ -43,8 +46,11 @@ const RecruiterLogoutDialog = ({ settings }) => {
             variant="danger"
             size="sm"
             className={DIALOG_BUTTON}
-            onClick={() => {
-              log('dispatch log out (mock)');
+            disabled={busy}
+            onClick={async () => {
+              log('log out');
+              setBusy(true);
+              await endSession();
               update({ modal: null, menu: null, state: 'logged-out' });
             }}
           >
