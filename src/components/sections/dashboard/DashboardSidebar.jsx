@@ -4,7 +4,8 @@ import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import CommunityIcon from '../community/CommunityIcon.jsx';
 import { icons } from '../community/communityIcons.js';
-import { SIDEBAR_PROFILE, SIDEBAR_PUBLIC_PROFILE } from './dashboardData.js';
+import { SIDEBAR_PUBLIC_PROFILE } from './dashboardData.js';
+import { useSidebarProfile } from './useSidebarProfile.js';
 import { useDashboardNav } from './dashboardNav.js';
 import NavBadge from './NavBadge.jsx';
 import PublicProfileCard from './PublicProfileCard.jsx';
@@ -168,6 +169,8 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
      /community/:id both resolve to the Community item, and items with no `to`
      stay inactive, exactly as before. */
   const { navItems, secondaryNavItems } = useDashboardNav();
+  // The profile card: the signed-in recruiter's own (ADR-15), the drawn sample in demo / preview modes.
+  const { profile: SIDEBAR_PROFILE, live, initials } = useSidebarProfile();
 
   /* Figma annotation (7025:87865): "Appears when link Icon is hovered or
      clicked." Hover and click are tracked separately so a click that follows
@@ -240,12 +243,18 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
                 backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)',
               }}
             >
-              <img
-                src={avatarLarge}
-                alt={SIDEBAR_PROFILE.name}
-                draggable="false"
-                className="h-[70px] w-[69px] max-w-none select-none"
-              />
+              {live ? (
+                <span className="font-sans text-[22px] font-semibold text-white" aria-hidden="true">
+                  {initials}
+                </span>
+              ) : (
+                <img
+                  src={avatarLarge}
+                  alt={SIDEBAR_PROFILE.name}
+                  draggable="false"
+                  className="h-[70px] w-[69px] max-w-none select-none"
+                />
+              )}
             </span>
             <span className="absolute -right-[46px] top-[5px] inline-flex h-[18px] max-lg:hidden items-center gap-[3px] overflow-hidden rounded-[4px] bg-informative-light px-[4px] py-[2px]">
               <CommunityIcon src={icons.newBadge} size={8} />
@@ -324,12 +333,18 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
           className="flex size-[62px] shrink-0 items-center justify-center overflow-hidden rounded-[31px]"
           style={{ backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)' }}
         >
-          <img
-            src={avatarLarge}
-            alt={SIDEBAR_PROFILE.name}
-            draggable="false"
-            className="h-[70px] w-[69px] max-w-none select-none"
-          />
+          {live ? (
+            <span className="font-sans text-[22px] font-semibold text-white" aria-hidden="true">
+              {initials}
+            </span>
+          ) : (
+            <img
+              src={avatarLarge}
+              alt={SIDEBAR_PROFILE.name}
+              draggable="false"
+              className="h-[70px] w-[69px] max-w-none select-none"
+            />
+          )}
         </span>
 
         <div className="flex w-full shrink-0 flex-col items-center gap-[7px]">

@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
+import { debug } from '../../../utils/debug.js';
+import { isSampleMode } from '../../../utils/sampleMode.js';
+import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
 import NotifButton from '../notifications/NotifButton.jsx';
+import { useNotificationFeed } from '../notifications/useNotificationFeed.js';
 import iconCheck from '../../../assets/notifications/icons/action-check.svg';
 import iconExpand from '../../../assets/notifications/icons/action-expand.svg';
 import iconSettings from '../../../assets/notifications/icons/footer-settings.svg';
@@ -8,6 +13,59 @@ import iconFooterExpand from '../../../assets/notifications/icons/footer-expand.
 import emptyBell from '../../../assets/notifications/illustrations/empty-popover-bell.svg';
 import { dashIcons } from './recruiterDashboardIcons.js';
 import { LANGUAGE_MENU, NOTIFICATIONS_PANEL as N } from './recruiterDashboardData.js';
+
+const log = debug('TopBarPanels');
+
+/*
+ * Signed-in recruiter (ADR-15): the panel lists their own notifications (GET /notifications, the shared feed hook) instead of
+ * the drawn sample rows. Rows sort into the drawn tabs by type; anything without a recruiter tab goes under System.
+ */
+const LIVE_TAB_OF = {
+  application: 'applications',
+  interview: 'interviews',
+  community: 'affiliation',
+};
+const liveView = (feed) => {
+  const rows = feed.items.map((item) => {
+    const tab = LIVE_TAB_OF[item.type] || 'system';
+    const action = item.actions?.[0];
+    return {
+      id: item.id,
+      type: tab,
+      initials: String(item.title || '?')
+        .trim()
+        .charAt(0)
+        .toUpperCase(),
+      bg: '#ebf1ec',
+      color: '#2a5730',
+      title: item.title,
+      meta: item.body || N.tabs.find((t) => t.id === tab)?.label || '',
+      time: item.time,
+      unread: feed.isUnread(item),
+      actions: action?.to
+        ? [{ id: 'open', label: action.label || 'View', tone: 'secondary', to: action.to }]
+        : null,
+    };
+  });
+  const unreadIn = (tab) =>
+    rows.filter((r) => r.unread && (tab === 'all' || r.type === tab)).length;
+  return {
+    groups: [
+      { id: 'today', label: 'TODAY', rows: rows.filter((r, i) => feed.items[i].group === 'today') },
+      {
+        id: 'earlier',
+        label: 'EARLIER',
+        rows: rows.filter((r, i) => feed.items[i].group !== 'today'),
+      },
+    ],
+    tabs: N.tabs.map((t) => ({
+      ...t,
+      count: t.id !== 'all' && unreadIn(t.id) ? String(unreadIn(t.id)) : undefined,
+    })),
+    sticker: feed.unreadCount ? `${feed.unreadCount} new` : N.empty.sticker,
+    isEmpty: feed.ready && rows.length === 0,
+  };
+};
 
 /*
  * TopBarPanels — the recruiter dashboard's top-bar pop-ups (Figma section 02 "Top bar — notifications, search, language, accessibility", US-7.7-…):
@@ -51,10 +109,35 @@ const HeaderButton = ({ label, icon, onClick }) => (
   </button>
 );
 
-export const RecruiterNotificationsPanel = ({ empty = false, onClose, onNavigate, className }) => {
+export const RecruiterNotificationsPanel = ({
+  empty: emptyFrame = false,
+  onClose,
+  onNavigate,
+  className,
+}) => {
   const ref = useRef(null);
   const [tab, setTab] = useState('all');
   useDismiss(ref, onClose);
+  const navigate = useNavigate();
+  const live = isRecruiterSession() && !isSampleMode();
+  const feed = useNotificationFeed({ enabled: live });
+  const view = live
+    ? liveView(feed)
+    : { groups: N.groups, tabs: N.tabs, sticker: N.newSticker, isEmpty: emptyFrame };
+  const empty = view.isEmpty;
+  const busy = live && (feed.loading || feed.error);
+  const markAllRead = () => (live ? feed.markAllRead() : onNavigate?.('mark-all-read'));
+  const openRow = (row, action) => {
+    if (!action.to) {
+      onNavigate?.(action.id);
+      return;
+    }
+    log('open notification', row.id, action.to);
+    if (row.unread) feed.markRead(row.id);
+    onClose?.();
+    if (/^https?:\/\//i.test(action.to)) window.open(action.to, '_blank', 'noopener');
+    else navigate(action.to);
+  };
 
   return (
     <div
@@ -78,7 +161,7 @@ export const RecruiterNotificationsPanel = ({ empty = false, onClose, onNavigate
                 empty ? 'bg-white' : 'bg-[#ffd86b]'
               )}
             >
-              {empty ? N.empty.sticker : N.newSticker}
+              {empty ? N.empty.sticker : view.sticker}
             </span>
           </div>
           <p className="m-0 font-sans text-[13px] leading-[16px] text-[#595959]">
@@ -86,11 +169,7 @@ export const RecruiterNotificationsPanel = ({ empty = false, onClose, onNavigate
           </p>
         </div>
         <div className="flex shrink-0 gap-[8px] pt-[8px]">
-          <HeaderButton
-            label="Mark all read"
-            icon={iconCheck}
-            onClick={() => onNavigate?.('mark-all-read')}
-          />
+          <HeaderButton label="Mark all read" icon={iconCheck} onClick={markAllRead} />
           <HeaderButton
             label="Expand to full view"
             icon={iconExpand}
@@ -104,7 +183,7 @@ export const RecruiterNotificationsPanel = ({ empty = false, onClose, onNavigate
         aria-label="Filter notifications"
         className="flex flex-wrap gap-[8px] px-[20px] pt-[14px] pb-[10px]"
       >
-        {N.tabs.map((item) => {
+        {view.tabs.map((item) => {
           const active = tab === item.id;
           return (
             <button
@@ -131,7 +210,18 @@ export const RecruiterNotificationsPanel = ({ empty = false, onClose, onNavigate
         })}
       </div>
 
-      {empty ? (
+      {busy ? (
+        <div className="flex flex-col items-start gap-[10px] px-[20px] py-[20px]">
+          <p className="m-0 font-sans text-[13px] leading-[18px] text-[#595959]">
+            {feed.loading ? 'Loading your notifications…' : 'We couldn’t load your notifications.'}
+          </p>
+          {feed.error ? (
+            <NotifButton size="xs" tone="secondary" onClick={feed.refresh}>
+              Try again
+            </NotifButton>
+          ) : null}
+        </div>
+      ) : empty ? (
         <div className="flex flex-col items-center gap-[10px] px-[32px] py-[28px] text-center">
           <img src={emptyBell} alt="" aria-hidden="true" className="size-[110px]" />
           <h3 className="m-0 font-sans text-[22px] leading-[28px] font-semibold text-[#1c2a21]">
@@ -149,7 +239,7 @@ export const RecruiterNotificationsPanel = ({ empty = false, onClose, onNavigate
         </div>
       ) : (
         <ul className="m-0 flex max-h-[480px] list-none flex-col gap-[12px] overflow-y-auto p-0 px-[8px] pb-[8px]">
-          {N.groups.map((group) => {
+          {view.groups.map((group) => {
             const rows = group.rows.filter((row) => tab === 'all' || row.type === tab);
             if (!rows.length) return null;
             return (
@@ -209,7 +299,7 @@ export const RecruiterNotificationsPanel = ({ empty = false, onClose, onNavigate
                                 key={action.id}
                                 size="xs"
                                 tone={action.tone}
-                                onClick={() => onNavigate?.(action.id)}
+                                onClick={() => openRow(row, action)}
                               >
                                 {action.label}
                               </NotifButton>

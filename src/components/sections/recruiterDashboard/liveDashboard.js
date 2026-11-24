@@ -1,5 +1,6 @@
 import { HERO, PIPELINE } from './recruiterDashboardData.js';
 import { jobBucket } from '../../../services/recruiterShell.api.js';
+import { fmtWhen, openInterview, snapshotOf } from '../applicationPipeline/pipelineLive.js';
 
 /*
  * liveDashboard - the recruiter home's widgets built from the signed-in recruiter's own data
@@ -132,6 +133,54 @@ const ORDER = [
   'accepted',
 ];
 const COLUMN_OF = { applied: 0, screening: 1, shortlisted: 2, interview: 3, offer: 5, accepted: 6 };
+
+/*
+ * The funnel drill-in (StageDrawer) for a signed-in recruiter: the applications that reached `stageId` (at it or past it, as the
+ * funnel counts them), from GET /applications/received. Rejected and withdrawn ones are left out. Each row names the candidate,
+ * the job and where they are now (with the interview time when one is booked). ADR-15: no sample candidates.
+ */
+const NOW_LABEL = {
+  submitted: 'Applied',
+  under_review: 'Screening',
+  shortlisted: 'Shortlisted',
+  interview_scheduled: 'Interview booked',
+  interviewed: 'Interviewed',
+  offer_pending: 'Offer being prepared',
+  offer_extended: 'Offer extended',
+  accepted: 'Accepted',
+};
+const DONE = new Set(['interviewed', 'offer_extended', 'accepted']);
+export const stageCandidates = (apps = [], stageId, jobs = []) => {
+  const from = COLUMN_OF[stageId] ?? 0;
+  const titles = new Map(jobs.map((j) => [String(j._id || j.id), j.title || 'Untitled']));
+  return apps
+    .filter((a) => ORDER.indexOf(a.currentStage) >= from)
+    .sort((a, b) => new Date(b.appliedAt || b.createdAt) - new Date(a.appliedAt || a.createdAt))
+    .map((a) => {
+      const s = snapshotOf(a);
+      const name =
+        [s.firstName, s.lastName].filter(Boolean).join(' ').trim() ||
+        s.displayName ||
+        s.name ||
+        'Candidate';
+      const iv = openInterview(a);
+      const now = NOW_LABEL[a.currentStage] || 'In progress';
+      return {
+        id: String(a._id),
+        initials: name
+          .split(/\s+/)
+          .slice(0, 2)
+          .map((p) => p[0]?.toUpperCase() || '')
+          .join(''),
+        bg: '#ebf1ec',
+        color: '#2a5730',
+        name,
+        role: titles.get(String(a.resourceId)) || a.resourceTitle || '',
+        status: DONE.has(a.currentStage) ? 'interviewed' : 'scheduled',
+        when: iv?.scheduledAt ? `${now} · ${fmtWhen(iv.scheduledAt)}` : now,
+      };
+    });
+};
 
 export const livePipeline = (byStage) => {
   if (!byStage) return null;

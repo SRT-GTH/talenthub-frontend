@@ -1,5 +1,9 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
+import { debug } from '../../../utils/debug.js';
+import { isSampleMode } from '../../../utils/sampleMode.js';
+import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
+import { useRecruiterShell } from '../../../hooks/useRecruiterShell.js';
 import { JobButton } from './jobButtons.jsx';
 import { BackCrumb, FlowBanner, PageFrame } from './jobFlowParts.jsx';
 import {
@@ -18,6 +22,43 @@ import {
 } from './jobIcons.jsx';
 import { PRODUCT_DESIGNER, PREVIEW } from './jobFormData.js';
 
+const log = debug('JobPreviewPage');
+
+/*
+ * Signed-in recruiter (ADR-15): no sample company, person or talent. The employer is the recruiter's own organisation, "Who's
+ * hiring" is the recruiter, the sample talent's match panel is left out, and the publish preview shows the job being written
+ * (the form passes its values in the navigation state; "Back to edit" hands them back). Demo / preview modes keep the frames.
+ */
+const PAY_PER = {
+  'Monthly salary': ' / mo',
+  'Yearly salary (GBP)': ' / yr',
+  'Hourly rate': ' / hr',
+  Stipend: ' stipend',
+};
+const payChip = (v) => {
+  if (v.payType === 'Unpaid') return 'Unpaid';
+  if (v.showPay === false || !(v.min || v.max)) return null;
+  const currency = String(v.payType || '').includes('GBP') ? 'GBP' : 'GHS';
+  return `${currency} ${[v.min, v.max].filter(Boolean).join('–')}${PAY_PER[v.payType] || ''}`;
+};
+const lines = (x) =>
+  (Array.isArray(x) ? x : String(x || '').split('\n')).map((s) => String(s).trim()).filter(Boolean);
+const jobFromValues = (v = {}) => ({
+  title: String(v.title || '').trim() || 'Untitled role',
+  about: v.about || '',
+  responsibilities: lines(v.responsibilities),
+  skills: (v.skills || [])
+    .map((s) => (typeof s === 'string' ? { name: s } : s))
+    .filter((s) => s?.name)
+    .map((s) => ({ name: s.required ? `${s.name} (required)` : s.name, state: 'neutral' })),
+  chips: [
+    [v.location, v.setup].filter(Boolean).join(' · ') || null,
+    v.employment || null,
+    payChip(v),
+    v.deadline ? `Closes ${v.deadline}` : null,
+  ],
+});
+
 /*
  * JobPreviewPage — what talent will see, drawn from the recruiter side (Figma JT-02 "Template preview" 10117:51016 and JT-08 "Preview before publishing" 10117:53347).
  * Routes: /recruiter/job-templates/product-designer/preview (variant 'template': "Use template" bar) and /recruiter/job-postings/new/preview (variant 'publish': "Back to edit" + "Publish job").
@@ -34,6 +75,7 @@ const Chip = ({ icon, children }) => (
 const SKILL_TONE = {
   have: 'border-[#bcd6c1] bg-[#ebf1ec] text-[#165d3a]',
   missing: 'border-[#f0e3c7] bg-[#faf4e8] text-[#463409]',
+  neutral: 'border-[#e1eae2] bg-white text-[#111]',
 };
 
 const Card = ({ children, className }) => (
@@ -50,23 +92,56 @@ const Card = ({ children, className }) => (
 const JobPreviewPage = ({ variant = 'template' }) => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const location = useLocation();
   const isTemplate = variant === 'template';
+  const shell = useRecruiterShell();
+  const live = isRecruiterSession() && !isSampleMode();
+  const formValues = location.state?.values || null;
+  const formPath = location.state?.from || '/recruiter/job-postings/new';
   const copy = isTemplate ? PREVIEW.template : PREVIEW.publish;
-  const job = PRODUCT_DESIGNER;
+  const liveJob = live && !isTemplate ? jobFromValues(formValues || {}) : null;
+  const job = liveJob || PRODUCT_DESIGNER;
   const back = isTemplate
     ? '/recruiter/job-templates'
     : '/recruiter/job-postings/new?template=product-designer';
-  const skills = copy.skills;
+  const skills = liveJob ? liveJob.skills : copy.skills;
+  const chips = liveJob ? liveJob.chips : PREVIEW.chips;
+  const employer = live
+    ? shell?.orgName || shell?.fullName || 'Your organisation'
+    : PREVIEW.employer;
+  const verified = live ? Boolean(shell?.kyb?.verified) : true;
+  const employerMeta = live ? shell?.place || '' : PREVIEW.employerMeta;
+  const hiring = live
+    ? {
+        ...PREVIEW.hiring,
+        initials: shell?.initials || '',
+        name: shell?.fullName || '',
+        role: ['Recruiter', shell?.orgName].filter(Boolean).join(' · '),
+        reply: null,
+      }
+    : PREVIEW.hiring;
+  const bannerBody = live
+    ? 'Talent see their own match details on the right. Buttons are disabled in preview.'
+    : copy.bannerBody;
+  // Back to the form with what was typed (live), or to the drawn template form (demo).
+  const backToForm = () =>
+    live && !isTemplate ? navigate(formPath, { state: { values: formValues } }) : navigate(back);
   void params;
+  log('render', { variant, live, hasValues: Boolean(formValues) });
 
   return (
     <PageFrame className="pb-[110px]">
-      <BackCrumb to={back} label={copy.crumbBack} crumb={copy.crumb} />
+      <BackCrumb
+        to={live && !isTemplate ? formPath : back}
+        state={live && !isTemplate ? { values: formValues } : undefined}
+        label={copy.crumbBack}
+        crumb={copy.crumb}
+      />
       <FlowBanner
         tone="info"
         icon={<EyeGlyph size={18} />}
         title={copy.bannerTitle}
-        body={copy.bannerBody}
+        body={bannerBody}
       />
 
       <div className="grid items-start gap-[24px] lg:grid-cols-[minmax(0,1fr)_minmax(300px,380px)]">
@@ -80,15 +155,17 @@ const JobPreviewPage = ({ variant = 'template' }) => {
                 <div className="flex flex-col">
                   <div className="flex flex-wrap items-center gap-[8px]">
                     <span className="font-sans text-[14px] leading-[20px] font-semibold text-[#111]">
-                      {PREVIEW.employer}
+                      {employer}
                     </span>
-                    <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] px-[8px] py-[2px] font-sans text-[12px] leading-[16px] font-medium text-[#2a5730]">
-                      <BadgeCheck size={12} />
-                      {PREVIEW.verified}
-                    </span>
+                    {verified ? (
+                      <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] px-[8px] py-[2px] font-sans text-[12px] leading-[16px] font-medium text-[#2a5730]">
+                        <BadgeCheck size={12} />
+                        {PREVIEW.verified}
+                      </span>
+                    ) : null}
                   </div>
                   <span className="font-sans text-[12px] leading-[16px] text-[#575755]">
-                    {PREVIEW.employerMeta}
+                    {employerMeta}
                   </span>
                 </div>
               </div>
@@ -113,21 +190,23 @@ const JobPreviewPage = ({ variant = 'template' }) => {
               {job.title}
             </h1>
             <div className="flex flex-wrap gap-[8px]">
-              {PREVIEW.chips.map((chip, index) => (
-                <Chip
-                  key={chip}
-                  icon={
-                    [
-                      <MapPin key="m" />,
-                      <BriefcaseGlyph key="b" />,
-                      null,
-                      <CalendarGlyph key="c" />,
-                    ][index]
-                  }
-                >
-                  {chip}
-                </Chip>
-              ))}
+              {chips.map((chip, index) =>
+                chip ? (
+                  <Chip
+                    key={chip}
+                    icon={
+                      [
+                        <MapPin key="m" />,
+                        <BriefcaseGlyph key="b" />,
+                        null,
+                        <CalendarGlyph key="c" />,
+                      ][index]
+                    }
+                  >
+                    {chip}
+                  </Chip>
+                ) : null
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-[12px]">
               <JobButton disabled className="!cursor-not-allowed opacity-60">
@@ -168,9 +247,11 @@ const JobPreviewPage = ({ variant = 'template' }) => {
               <h2 className="m-0 font-heading text-[22px] leading-[26px] font-semibold tracking-[-0.44px] text-[#111]">
                 {PREVIEW.skillsTitle}
               </h2>
-              <span className="font-sans text-[12px] leading-[16px] font-medium text-[#387440]">
-                {PREVIEW.skillsCount}
-              </span>
+              {live ? null : (
+                <span className="font-sans text-[12px] leading-[16px] font-medium text-[#387440]">
+                  {PREVIEW.skillsCount}
+                </span>
+              )}
             </div>
             <div className="flex flex-wrap gap-[8px]">
               {skills.map((skill) => (
@@ -181,7 +262,11 @@ const JobPreviewPage = ({ variant = 'template' }) => {
                     SKILL_TONE[skill.state]
                   )}
                 >
-                  {skill.state === 'have' ? <CheckGlyph size={12} /> : <PlusGlyph size={12} />}
+                  {skill.state === 'neutral' ? null : skill.state === 'have' ? (
+                    <CheckGlyph size={12} />
+                  ) : (
+                    <PlusGlyph size={12} />
+                  )}
                   {skill.name}
                 </span>
               ))}
@@ -190,34 +275,36 @@ const JobPreviewPage = ({ variant = 'template' }) => {
         </div>
 
         <aside className="flex min-w-0 flex-col gap-[16px]">
-          <section className="flex flex-col gap-[14px] rounded-[16px] bg-[#2a5730] p-[24px] text-white">
-            <div className="flex items-center justify-between">
-              <span className="font-sans text-[12px] leading-[16px] font-semibold tracking-[0.4px]">
-                {PREVIEW.match.eyebrow}
+          {live ? null : (
+            <section className="flex flex-col gap-[14px] rounded-[16px] bg-[#2a5730] p-[24px] text-white">
+              <div className="flex items-center justify-between">
+                <span className="font-sans text-[12px] leading-[16px] font-semibold tracking-[0.4px]">
+                  {PREVIEW.match.eyebrow}
+                </span>
+                <span className="rounded-full bg-white px-[10px] py-[3px] font-sans text-[12px] leading-[16px] font-medium text-[#111]">
+                  {PREVIEW.match.badge}
+                </span>
+              </div>
+              <span className="font-heading text-[56px] leading-[60px] font-semibold tracking-[-1.1px]">
+                {PREVIEW.match.percent}
               </span>
-              <span className="rounded-full bg-white px-[10px] py-[3px] font-sans text-[12px] leading-[16px] font-medium text-[#111]">
-                {PREVIEW.match.badge}
+              <p className="m-0 font-sans text-[12px] leading-[18px]">{PREVIEW.match.copy}</p>
+              <ul className="m-0 flex list-none flex-col gap-[16px] rounded-[10px] bg-[#1f4a2b] p-[16px]">
+                {PREVIEW.match.rows.map((row) => (
+                  <li
+                    key={row.label}
+                    className="flex items-center justify-between font-sans text-[14px] leading-[20px]"
+                  >
+                    <span>{row.label}</span>
+                    <span className="font-semibold text-[#c8951a]">{row.value}</span>
+                  </li>
+                ))}
+              </ul>
+              <span className="font-sans text-[14px] leading-[20px] font-medium">
+                {PREVIEW.match.how}
               </span>
-            </div>
-            <span className="font-heading text-[56px] leading-[60px] font-semibold tracking-[-1.1px]">
-              {PREVIEW.match.percent}
-            </span>
-            <p className="m-0 font-sans text-[12px] leading-[18px]">{PREVIEW.match.copy}</p>
-            <ul className="m-0 flex list-none flex-col gap-[16px] rounded-[10px] bg-[#1f4a2b] p-[16px]">
-              {PREVIEW.match.rows.map((row) => (
-                <li
-                  key={row.label}
-                  className="flex items-center justify-between font-sans text-[14px] leading-[20px]"
-                >
-                  <span>{row.label}</span>
-                  <span className="font-semibold text-[#c8951a]">{row.value}</span>
-                </li>
-              ))}
-            </ul>
-            <span className="font-sans text-[14px] leading-[20px] font-medium">
-              {PREVIEW.match.how}
-            </span>
-          </section>
+            </section>
+          )}
 
           <Card className="flex flex-col gap-[14px] !p-[20px]">
             <span className="font-sans text-[12px] leading-[16px] font-semibold tracking-[0.4px] text-[#575755]">
@@ -225,21 +312,23 @@ const JobPreviewPage = ({ variant = 'template' }) => {
             </span>
             <div className="flex items-center gap-[12px]">
               <span className="flex size-[40px] items-center justify-center rounded-full bg-[#ebf1ec] font-sans text-[12px] leading-[16px] font-semibold text-[#2a5730]">
-                {PREVIEW.hiring.initials}
+                {hiring.initials}
               </span>
               <div className="flex flex-col">
                 <span className="font-sans text-[14px] leading-[20px] font-semibold text-[#111]">
-                  {PREVIEW.hiring.name}
+                  {hiring.name}
                 </span>
                 <span className="font-sans text-[12px] leading-[16px] text-[#575755]">
-                  {PREVIEW.hiring.role}
+                  {hiring.role}
                 </span>
               </div>
             </div>
-            <span className="inline-flex items-center gap-[6px] font-sans text-[12px] leading-[16px] font-medium text-[#575755]">
-              <ClockGlyph size={12} />
-              {PREVIEW.hiring.reply}
-            </span>
+            {hiring.reply ? (
+              <span className="inline-flex items-center gap-[6px] font-sans text-[12px] leading-[16px] font-medium text-[#575755]">
+                <ClockGlyph size={12} />
+                {hiring.reply}
+              </span>
+            ) : null}
           </Card>
         </aside>
       </div>
@@ -247,23 +336,25 @@ const JobPreviewPage = ({ variant = 'template' }) => {
       <div className="fixed inset-x-0 bottom-0 z-20 lg:left-[clamp(280px,17.5vw,303px)]">
         <div className="mx-[clamp(16px,2.3vw,40px)] mb-[16px] flex flex-wrap items-center justify-between gap-[12px] rounded-[16px] border border-solid border-[#e1eae2] bg-white px-[20px] py-[14px] shadow-[0_8px_24px_rgba(15,15,10,0.08)]">
           <span className="font-sans text-[14px] leading-[20px] text-[#575755]">
-            {copy.barCopy}
+            {live && !isTemplate ? 'Happy with it? Go back to the form to publish.' : copy.barCopy}
           </span>
           <div className="flex items-center gap-[12px]">
-            <JobButton tone="ghost" onClick={() => navigate(back)}>
+            <JobButton tone="ghost" onClick={backToForm}>
               {isTemplate ? copy.close : copy.back}
             </JobButton>
-            <JobButton
-              onClick={() =>
-                navigate(
-                  isTemplate
-                    ? '/recruiter/job-postings/new?template=product-designer'
-                    : '/recruiter/job-postings/new?template=product-designer&state=publishing'
-                )
-              }
-            >
-              {isTemplate ? copy.use : copy.publish}
-            </JobButton>
+            {live && !isTemplate ? null : (
+              <JobButton
+                onClick={() =>
+                  navigate(
+                    isTemplate
+                      ? '/recruiter/job-postings/new?template=product-designer'
+                      : '/recruiter/job-postings/new?template=product-designer&state=publishing'
+                  )
+                }
+              >
+                {isTemplate ? copy.use : copy.publish}
+              </JobButton>
+            )}
           </div>
         </div>
       </div>

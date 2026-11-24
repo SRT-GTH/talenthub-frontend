@@ -23,6 +23,8 @@ import {
   PUBLISHING,
 } from './jobFormData.js';
 import { PlusGlyph } from './jobIcons.jsx';
+import { useRecruiterShell } from '../../../hooks/useRecruiterShell.js';
+import { isSampleMode } from '../../../utils/sampleMode.js';
 
 /*
  * Dialogs of the recruiter job flows (Figma "Recruiter - Job Postings" 10103:59491).
@@ -202,6 +204,7 @@ export const SaveTemplateDialog = ({
   setVisibility,
 }) => {
   const d = BUILD_TEMPLATE.dialog;
+  const shell = useRecruiterShell();
   return (
     <IconTileDialog
       icon={<SaveGlyph size={22} />}
@@ -242,7 +245,8 @@ export const SaveTemplateDialog = ({
         checked={values.includeScreening}
         onChange={(v) => set('includeScreening', v)}
         label={d.includeScreening}
-        hint={d.includeScreeningHint}
+        // The drawn hint names a sample team's saved criteria; signed in it is left out (ADR-15).
+        hint={shell && !isSampleMode() ? undefined : d.includeScreeningHint}
       />
     </IconTileDialog>
   );
@@ -250,9 +254,18 @@ export const SaveTemplateDialog = ({
 
 export const VisibilityGroup = ({ visibility, setVisibility, compact }) => {
   const a = BUILD_TEMPLATE.aside;
+  // Signed-in recruiter (ADR-15): their own organisation and no drawn teammate count ("Silver Rock Technology · 4 teammates").
+  const shell = useRecruiterShell();
+  const live = Boolean(shell) && !isSampleMode();
   const rows = [
     { id: 'me', label: a.onlyMe },
-    { id: 'team', label: a.team, hint: a.teamHint },
+    live
+      ? {
+          id: 'team',
+          label: shell.orgName ? `Everyone at ${shell.orgName}` : 'Everyone in your organisation',
+          hint: 'Your teammates will see it in Templates',
+        }
+      : { id: 'team', label: a.team, hint: a.teamHint },
   ];
   return (
     <div className="flex flex-col gap-[10px]" role="radiogroup" aria-label={a.visibilityLabel}>

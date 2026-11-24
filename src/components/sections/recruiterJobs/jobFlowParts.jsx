@@ -28,10 +28,12 @@ export const PageFrame = ({ children, className }) => {
   );
 };
 
-export const BackCrumb = ({ to, label, crumb }) => (
+// `state` (optional): router state for the link (the job preview hands the typed form back to it).
+export const BackCrumb = ({ to, label, crumb, state }) => (
   <div className="flex flex-wrap items-center gap-x-[10px] gap-y-[4px] font-sans">
     <Link
       to={to}
+      state={state}
       className="inline-flex items-center gap-[6px] text-[14px] leading-[20px] font-medium text-[#387440] no-underline hover:underline"
     >
       <ArrowBack size={14} />

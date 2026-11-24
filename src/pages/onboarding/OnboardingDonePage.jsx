@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
 import { ArrowRightIcon, GenzDoodleStar } from '../../components/shared/assets.jsx';
 import checkIco from '../../assets/talent-onboarding/done-check.svg';
@@ -26,6 +26,8 @@ import { debug } from '../../utils/debug.js';
 import TermsModal from '../../components/shared/TermsModal.jsx';
 import PrivacyPolicyModal from '../../components/shared/PrivacyPolicyModal.jsx';
 import { readDoneSummary } from '../../services/onboardingReview.js';
+import { isLoggedIn, logoHomePath } from '../../services/auth.api.js';
+import { allowsSignedOutSample } from '../../utils/sampleMode.js';
 
 const log = debug('OnboardingDonePage');
 
@@ -184,6 +186,14 @@ const OnboardingDonePage = () => {
     }
     setCopied(true);
   };
+
+  // No sign-up summary (nobody just created an account here): the sample person "Abena" only shows in demo / preview modes
+  // (ADR-15). Anyone else goes to their home when signed in, or to the start of sign-up.
+  if (!live && !allowsSignedOutSample()) {
+    const to = isLoggedIn() ? logoHomePath() : '/onboarding/talent/welcome';
+    log('no sign-up summary -> ', to);
+    return <Navigate to={to} replace />;
+  }
 
   const heroLine = live?.isMinor
     ? "Log in and build your profile. We've emailed your parent or guardian about GTH."

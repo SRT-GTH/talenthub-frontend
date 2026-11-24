@@ -21,6 +21,7 @@ import {
 import { debug } from '../../../utils/debug.js';
 import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
 import { fetchMyTemplates } from '../../../services/recruiterPostings.api.js';
+import { fetchSavedCriteria } from '../../../services/recruiterScreening.api.js';
 import {
   PAGE_HEADING,
   PAGE_SUBHEADING,
@@ -213,6 +214,34 @@ const liveTemplateCard = (t) => {
   };
 };
 
+/*
+ * Signed-in recruiter (ADR-15): the drawn template footnotes ("Last used 2 days ago", "Popular Choice"…) and screening criteria
+ * ("Saved by Akua M.", "Used on 6 jobs") are sample data. Library cards say what they are; Screening criteria lists the
+ * recruiter's own saved criteria (GET /recruiter/screening-criteria).
+ */
+const LIBRARY_FOOTNOTE = 'GTH template';
+const EDUCATION_TAG = { diploma: 'Diploma+', bachelors: 'Bachelor’s+', masters: 'Master’s+' };
+const criteriaTags = (c = {}) => {
+  const tags = [];
+  const exp = c.experience;
+  if (exp && Number.isFinite(Number(exp.min))) {
+    tags.push(Number.isFinite(Number(exp.max)) ? `${exp.min}–${exp.max} yrs` : `${exp.min}+ yrs`);
+  }
+  if (Array.isArray(c.skills) && c.skills.length) tags.push(c.skills.join(', '));
+  if (EDUCATION_TAG[c.education]) tags.push(EDUCATION_TAG[c.education]);
+  if (c.location?.region) tags.push(c.location.region);
+  return tags;
+};
+const liveCriteriaCard = (row) => ({
+  id: row.name,
+  title: row.name,
+  source: [row.isDefault ? 'Default' : null, row.jobId ? 'Saved from a job' : 'Saved']
+    .filter(Boolean)
+    .join(' · '),
+  tags: criteriaTags(row.criteria),
+  usedOn: '',
+});
+
 const JobTemplatesSection = () => {
   useScopedRoundedFont('data-recruiter-ui'); // Figma draws the recruiter pages in SF Pro Rounded
   const [searchParams, setSearchParams] = useSearchParams();
@@ -236,6 +265,21 @@ const JobTemplatesSection = () => {
       alive = false;
     };
   }, [isLive, toastKind]);
+  const [liveCriteria, setLiveCriteria] = useState(null);
+  useEffect(() => {
+    if (!isLive) return undefined;
+    let alive = true;
+    fetchSavedCriteria()
+      .then((rows) => alive && setLiveCriteria(rows.map(liveCriteriaCard)))
+      .catch((err) => {
+        log.error('screening criteria failed:', err?.response?.status);
+        if (alive) setLiveCriteria([]);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [isLive]);
+  const criteria = isLive ? liveCriteria || [] : SCREENING_CRITERIA;
   const savedName = searchParams.get('name');
   const toast =
     isLive && (toastKind === 'saved' || toastKind === 'copied')
@@ -280,7 +324,7 @@ const JobTemplatesSection = () => {
       (template) =>
         (!isFiltered || template.category === activeCategory) &&
         (!needle || template.title.toLowerCase().includes(needle))
-    );
+    ).map((template) => (isLive ? { ...template, footnote: LIBRARY_FOOTNOTE } : template));
     // myList only changes with toastKind (demo) or the loaded templates (live)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory, isFiltered, searchText, mine, toastKind, liveMine]);
@@ -324,7 +368,7 @@ const JobTemplatesSection = () => {
               {
                 id: 'screening',
                 label: SCREENING_PILL_LABEL,
-                count: String(SCREENING_CRITERIA.length),
+                count: String(criteria.length),
               },
               ...CATEGORY_PILLS.slice(1).map((pill) => ({ id: pill, label: pill })),
             ]}
@@ -360,7 +404,12 @@ const JobTemplatesSection = () => {
 
             {screeningView ? (
               <div className="grid grid-cols-1 gap-[22.67px] max-md:gap-[10px] sm:grid-cols-2 xl:grid-cols-3">
-                {SCREENING_CRITERIA.map((item) => (
+                {isLive && liveCriteria && !liveCriteria.length ? (
+                  <p className="m-0 font-sans text-[14px] leading-[20px] text-[#575755]">
+                    No saved screening criteria yet. Save some from Job Postings › Screening.
+                  </p>
+                ) : null}
+                {criteria.map((item) => (
                   <ScreeningCard
                     key={item.id}
                     item={item}
@@ -402,7 +451,7 @@ const JobTemplatesSection = () => {
                             className={`flex cursor-pointer flex-col border-0 bg-transparent px-[14px] py-[8px] text-left font-sans text-[14px] leading-[20px] hover:bg-[#f6f6f6] ${row.destructive ? 'text-[#c0392b]' : 'text-[#111]'}`}
                           >
                             {row.label}
-                            {row.hint ? (
+                            {row.hint && !isLive ? (
                               <span className="text-[12px] leading-[16px] text-[#575755]">
                                 {row.hint}
                               </span>

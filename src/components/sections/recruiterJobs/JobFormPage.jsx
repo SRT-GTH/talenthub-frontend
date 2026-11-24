@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import JobFormFields from './JobFormFields.jsx';
@@ -319,7 +319,11 @@ const JobFormPage = ({ mode = 'job' }) => {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const { postingId } = useParams();
-  const [values, setValues] = useState(() => seedFor(mode, params, ''));
+  // Back from the preview: the form comes back as it was typed (the preview hands the values back, ADR-15).
+  const { state: routeState } = useLocation();
+  const [values, setValues] = useState(
+    () => (mode !== 'edit' && routeState?.values) || seedFor(mode, params, '')
+  );
   const [visibility, setVisibility] = useState('team');
   const [notify, setNotify] = useState(true);
   const [ask, setAsk] = useState(false);
@@ -518,6 +522,11 @@ const JobFormPage = ({ mode = 'job' }) => {
     : '/recruiter/job-templates';
 
   const previewTo = '/recruiter/job-postings/new/preview';
+  // The preview draws what was typed, not the sample "Product Designer" (ADR-15).
+  const openPreview = () =>
+    navigate(previewTo, {
+      state: { values: withTypedLocation(), from: window.location.pathname },
+    });
 
   return (
     <PageFrame>
@@ -650,14 +659,14 @@ const JobFormPage = ({ mode = 'job' }) => {
             visibility={visibility}
             setVisibility={setVisibility}
             onSave={() => update({ modal: 'save' })}
-            onPreview={() => navigate(previewTo)}
+            onPreview={openPreview}
           />
         ) : (
           <JobAside
             values={values}
             errors={errors}
             onPublish={publish}
-            onPreview={() => navigate(previewTo)}
+            onPreview={openPreview}
             onDraft={saveDraft}
           />
         )}

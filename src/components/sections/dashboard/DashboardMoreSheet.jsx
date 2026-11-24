@@ -4,7 +4,8 @@ import { debug } from '../../../utils/debug.js';
 import Modal from '../../ui/Modal.jsx';
 import CommunityIcon from '../community/CommunityIcon.jsx';
 import { icons } from '../community/communityIcons.js';
-import { SIDEBAR_PROFILE, TOP_NAV } from './dashboardData.js';
+import { TOP_NAV } from './dashboardData.js';
+import { useSidebarProfile } from './useSidebarProfile.js';
 import NavBadge from './NavBadge.jsx';
 import PublicProfileCard from './PublicProfileCard.jsx';
 import avatarLarge from '../../../assets/community/avatar-recruiter-large.svg';
@@ -78,6 +79,8 @@ const SheetRow = ({ icon, label, badge, active, to, onSelect }) => {
 
 const DashboardMoreSheet = ({ isOpen, onClose, items, secondaryItems }) => {
   const handleSelect = (label) => log('sheet row:', label);
+  // Signed in (ADR-15): the user's own card and no drawn notification count; demo / preview modes keep the sample.
+  const { profile: SIDEBAR_PROFILE, live, initials } = useSidebarProfile();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="sm" ariaLabel="More navigation">
@@ -88,12 +91,18 @@ const DashboardMoreSheet = ({ isOpen, onClose, items, secondaryItems }) => {
             className="flex size-[48px] shrink-0 items-center justify-center overflow-hidden rounded-full"
             style={{ backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)' }}
           >
-            <img
-              src={avatarLarge}
-              alt=""
-              draggable="false"
-              className="h-[54px] w-[53px] max-w-none select-none"
-            />
+            {live ? (
+              <span className="font-sans text-[18px] font-semibold text-white" aria-hidden="true">
+                {initials}
+              </span>
+            ) : (
+              <img
+                src={avatarLarge}
+                alt=""
+                draggable="false"
+                className="h-[54px] w-[53px] max-w-none select-none"
+              />
+            )}
           </span>
           <div className="flex min-w-0 flex-col">
             <span className="font-sans text-[16px] font-semibold leading-6 text-black">
@@ -131,7 +140,7 @@ const DashboardMoreSheet = ({ isOpen, onClose, items, secondaryItems }) => {
           <SheetRow
             icon={icons.navNotification}
             label="Notifications"
-            badge={TOP_NAV.notificationCount}
+            badge={live ? undefined : TOP_NAV.notificationCount}
             onSelect={handleSelect}
           />
           <SheetRow icon={icons.navHelp} label="Help" onSelect={handleSelect} />

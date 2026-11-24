@@ -5,18 +5,25 @@ import Chip from '../../ui/Chip.jsx';
 import Modal from '../../ui/Modal.jsx';
 import { dashIcons } from './recruiterDashboardIcons.js';
 import { STAGE_DRAWER } from './recruiterDashboardData.js';
+import { stageCandidates } from './liveDashboard.js';
 
 /*
  * StageDrawer — the candidates of one funnel stage (Figma 10195:93923 "Drawer · Interview stage", D42, 758px card on `ui/Modal`):
  * a "Stage" chip, a Bricolage 30px title ("Interview · 8 candidates", the count in green), a subtitle, All / Scheduled / Interviewed filters,
  * one row per candidate (initials, name, role, a status chip, chevron) and "Open in Application Pipeline".
  * ⚠️ ASSUMPTION: Figma draws five rows, "+ 2 more" and an extra "Interviewed Oct 7" row below the button as hidden layers; only the five visible rows are built.
- * Props: stage (a PIPELINE stage), onClose.
+ * Props: stage (a PIPELINE stage), onClose, live ({ apps, jobs } for a signed-in recruiter: their own candidates at this stage,
+ * liveDashboard.js stageCandidates; null = the drawn sample candidates). ADR-15.
  */
-const StageDrawer = ({ stage, onClose }) => {
+const StageDrawer = ({ stage, onClose, live = null }) => {
   const [tab, setTab] = useState('all');
-  const rows = STAGE_DRAWER.candidates.filter((row) => tab === 'all' || row.status === tab);
-  const heading = STAGE_DRAWER.title(stage.label, 8);
+  const liveRows = live ? stageCandidates(live.apps, stage.id, live.jobs) : null;
+  const rows =
+    liveRows || STAGE_DRAWER.candidates.filter((row) => tab === 'all' || row.status === tab);
+  const heading = STAGE_DRAWER.title(stage.label, liveRows ? liveRows.length : 8);
+  const subtitle = liveRows
+    ? `${stage.label} or further · all your opportunities`
+    : STAGE_DRAWER.subtitle(`${stage.label} ${stage.sub}`);
   return (
     <Modal
       isOpen
@@ -37,7 +44,7 @@ const StageDrawer = ({ stage, onClose }) => {
               {heading.stage} · <span className="text-[#387440]">{heading.count}</span>
             </h2>
             <p className="m-0 font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
-              {STAGE_DRAWER.subtitle(`${stage.label} ${stage.sub}`)}
+              {subtitle}
             </p>
           </div>
           <button
@@ -50,28 +57,36 @@ const StageDrawer = ({ stage, onClose }) => {
           </button>
         </div>
 
-        <div role="tablist" aria-label="Candidates" className="flex flex-wrap gap-[8px]">
-          {STAGE_DRAWER.tabs.map((item) => {
-            const active = item.id === tab;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setTab(item.id)}
-                className={classNames(
-                  'inline-flex h-[28px] cursor-pointer items-center rounded-full border border-solid px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-                  active
-                    ? 'border-[#c1d4c4] bg-[#ebf1ec] text-[#2a5730]'
-                    : 'border-[#e5e8e3] bg-white text-[#111]'
-                )}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
+        {liveRows && !liveRows.length ? (
+          <p className="m-0 font-sans text-[14px] leading-[20px] text-[#575755]">
+            No candidates have reached this stage yet.
+          </p>
+        ) : null}
+        {/* The All / Scheduled / Interviewed tabs carry the drawn counts: demo only. */}
+        {liveRows ? null : (
+          <div role="tablist" aria-label="Candidates" className="flex flex-wrap gap-[8px]">
+            {STAGE_DRAWER.tabs.map((item) => {
+              const active = item.id === tab;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setTab(item.id)}
+                  className={classNames(
+                    'inline-flex h-[28px] cursor-pointer items-center rounded-full border border-solid px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+                    active
+                      ? 'border-[#c1d4c4] bg-[#ebf1ec] text-[#2a5730]'
+                      : 'border-[#e5e8e3] bg-white text-[#111]'
+                  )}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <ul className="m-0 flex list-none flex-col gap-[8px] p-0">
           {rows.map((row) => (
