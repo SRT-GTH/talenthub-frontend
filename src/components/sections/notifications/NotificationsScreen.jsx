@@ -7,6 +7,7 @@ import NotifButton from './NotifButton.jsx';
 import NotificationRow from './NotificationRow.jsx';
 import { useNotificationFeed } from './useNotificationFeed.js';
 import { isLoggedIn } from '../../../services/auth.api.js';
+import { isSampleMode } from '../../../utils/sampleMode.js';
 import {
   COMING_UP,
   FEED_COPY,
@@ -66,7 +67,8 @@ const Sticker = ({ tone = 'mint', children, className }) => (
   </span>
 );
 
-const FilterRail = ({ active, onSelect, counts, className }) => {
+// `live`: the quiet-hours switch is a drawn sample setting (nothing stores it), so a signed-in talent doesn't get it.
+const FilterRail = ({ active, onSelect, counts, className, live = false }) => {
   const [quiet, setQuiet] = useState(true);
   return (
     <aside
@@ -130,36 +132,40 @@ const FilterRail = ({ active, onSelect, counts, className }) => {
           );
         })}
       </nav>
-      <hr className="m-0 h-px border-0 bg-[#e1eae2]" />
-      <div className="flex flex-col gap-[8px] rounded-[16px] bg-[#faf4e8] p-[14px]">
-        <div className="flex items-center gap-[8px]">
-          <img src={railMoon} alt="" aria-hidden="true" className="size-[16px]" />
-          <span className="flex-1 font-sans text-[13.5px] font-semibold leading-[16px] text-[#1c2a21]">
-            {QUIET_HOURS.label}
-          </span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={quiet}
-            aria-label={QUIET_HOURS.label}
-            onClick={() => setQuiet((q) => !q)}
-            className={classNames(
-              'relative h-[20px] w-[36px] rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-              quiet ? 'bg-[#387440]' : 'bg-[#c9c9c4]'
-            )}
-          >
-            <span
-              className={classNames(
-                'absolute top-[2px] size-[16px] rounded-full bg-white transition-all',
-                quiet ? 'left-[18px]' : 'left-[2px]'
-              )}
-            />
-          </button>
-        </div>
-        <p className="m-0 font-sans text-[12.5px] leading-[18px] text-[#999999]">
-          {QUIET_HOURS.body}
-        </p>
-      </div>
+      {live ? null : (
+        <>
+          <hr className="m-0 h-px border-0 bg-[#e1eae2]" />
+          <div className="flex flex-col gap-[8px] rounded-[16px] bg-[#faf4e8] p-[14px]">
+            <div className="flex items-center gap-[8px]">
+              <img src={railMoon} alt="" aria-hidden="true" className="size-[16px]" />
+              <span className="flex-1 font-sans text-[13.5px] font-semibold leading-[16px] text-[#1c2a21]">
+                {QUIET_HOURS.label}
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={quiet}
+                aria-label={QUIET_HOURS.label}
+                onClick={() => setQuiet((q) => !q)}
+                className={classNames(
+                  'relative h-[20px] w-[36px] rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+                  quiet ? 'bg-[#387440]' : 'bg-[#c9c9c4]'
+                )}
+              >
+                <span
+                  className={classNames(
+                    'absolute top-[2px] size-[16px] rounded-full bg-white transition-all',
+                    quiet ? 'left-[18px]' : 'left-[2px]'
+                  )}
+                />
+              </button>
+            </div>
+            <p className="m-0 font-sans text-[12.5px] leading-[18px] text-[#999999]">
+              {QUIET_HOURS.body}
+            </p>
+          </div>
+        </>
+      )}
     </aside>
   );
 };
@@ -292,6 +298,9 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
     enabled: !sharedFeed,
   });
   const feed = sharedFeed ?? ownFeed;
+  // Signed in (ADR-15): the drawn week recap, "Coming up" interview and ping-setting values are sample data, so they are
+  // left out (no API gives them yet); demo and preview modes keep them.
+  const live = isLoggedIn() && !isSampleMode();
   // "Newest first" select: the Figma prototype only flips the pill to its open state (no list is drawn),
   // so the menu is the native one with the two orders. ⚠️ ASSUMPTION: "Oldest first" is the only other order.
   const [order, setOrder] = useState('newest');
@@ -317,7 +326,7 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
       <PageHeader
         caughtUp={feed.ready && feed.unreadCount === 0}
         unreadCount={feed.unreadCount}
-        live={isLoggedIn()}
+        live={live}
       />
 
       <div className="grid items-start gap-[24px] max-md:gap-[12px] lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[248px_minmax(0,1fr)_340px]">
@@ -326,6 +335,7 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
           onSelect={setFilter}
           counts={feed.counts}
           className="max-lg:hidden"
+          live={live}
         />
 
         {/* Phones / small tablets: the rail collapses into a horizontal chip row (no Figma mobile
@@ -468,98 +478,102 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
 
         {/* right column: stacks under the feed below xl */}
         <div className="flex flex-col gap-[16px] lg:max-xl:col-span-2 lg:max-xl:grid lg:max-xl:grid-cols-3 lg:max-xl:items-start">
-          <section
-            className={classNames(
-              'relative flex flex-col gap-[14px] overflow-hidden rounded-[24px] border border-solid border-[rgba(28,42,33,0.1)] bg-[#387440] p-[22px]',
-              SHELF
-            )}
-          >
-            <span className="font-sans text-[11.5px] font-bold leading-[14px] text-[#c1d4c4] max-lg:text-[12px]">
-              {RECAP.eyebrow}
-            </span>
-            <h2 className="m-0 font-sans text-[25px] font-semibold leading-[30px] text-white playful:font-heading">
-              {RECAP.title}
-            </h2>
-            <div className="flex items-center">
-              {RECAP.faces.map((src) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt=""
-                  className="-ml-[10px] size-[36px] rounded-full border border-solid border-[#387440] object-cover first:ml-0 playful:border-[2.5px]"
-                />
-              ))}
-              <span className="-ml-[10px] flex size-[36px] items-center justify-center rounded-full border border-solid border-[#387440] bg-[#ffd86b] font-sans text-[12px] font-bold leading-[14px] text-[#1c2a21] playful:border-[2.5px]">
-                {RECAP.more}
+          {live ? null : (
+            <section
+              className={classNames(
+                'relative flex flex-col gap-[14px] overflow-hidden rounded-[24px] border border-solid border-[rgba(28,42,33,0.1)] bg-[#387440] p-[22px]',
+                SHELF
+              )}
+            >
+              <span className="font-sans text-[11.5px] font-bold leading-[14px] text-[#c1d4c4] max-lg:text-[12px]">
+                {RECAP.eyebrow}
               </span>
-            </div>
-            <div className="flex flex-wrap gap-[8px] rounded-[8px] bg-[#ebf1ec] p-[4px] playful:rounded-none playful:bg-transparent playful:pb-[4px] playful:pl-0 playful:pr-0 playful:pt-[6px]">
-              {RECAP.stickers.map((s, i) => (
-                <Sticker key={s.label} tone={s.tone}>
-                  {i === 2 && uiStyle !== 'playful' ? RECAP.focusedXp : s.label}
-                </Sticker>
-              ))}
-            </div>
-            <img
-              src={weekSparkleA}
-              alt=""
-              aria-hidden="true"
-              className="absolute right-[22px] top-[16px] hidden size-[22px] playful:block"
-            />
-            <img
-              src={weekSparkleB}
-              alt=""
-              aria-hidden="true"
-              className="absolute right-[40px] top-[46px] hidden size-[12px] playful:block"
-            />
-          </section>
-
-          <section className="flex flex-col gap-[12px] rounded-[24px] border border-solid border-[#e1eae2] bg-white p-[18px]">
-            <h2 className="m-0 font-sans text-[19px] font-semibold leading-[24px] text-[#1c2a21] playful:font-heading">
-              {COMING_UP.title}
-            </h2>
-            <div className="flex items-center gap-[12px]">
-              <span
-                className={classNames(
-                  'flex h-[56px] w-[56px] flex-col items-center justify-center rounded-[14px] border border-solid border-[rgba(28,42,33,0.1)] bg-[#faf4e8]',
-                  SHELF
-                )}
-              >
-                <span className="font-sans text-[11px] font-bold leading-[13px] text-[#967014] max-lg:text-[12px]">
-                  {COMING_UP.day}
-                </span>
-                <span className="font-sans text-[21px] font-semibold leading-[26px] text-[#1c2a21] playful:font-heading">
-                  {COMING_UP.date}
-                </span>
-              </span>
-              <div className="flex min-w-0 flex-col gap-[2px]">
-                <span className="font-sans text-[14.5px] font-semibold leading-[17px] text-[#1c2a21]">
-                  {COMING_UP.event}
-                </span>
-                <span className="font-sans text-[13px] leading-[16px] text-[#595959]">
-                  {COMING_UP.when}
+              <h2 className="m-0 font-sans text-[25px] font-semibold leading-[30px] text-white playful:font-heading">
+                {RECAP.title}
+              </h2>
+              <div className="flex items-center">
+                {RECAP.faces.map((src) => (
+                  <img
+                    key={src}
+                    src={src}
+                    alt=""
+                    className="-ml-[10px] size-[36px] rounded-full border border-solid border-[#387440] object-cover first:ml-0 playful:border-[2.5px]"
+                  />
+                ))}
+                <span className="-ml-[10px] flex size-[36px] items-center justify-center rounded-full border border-solid border-[#387440] bg-[#ffd86b] font-sans text-[12px] font-bold leading-[14px] text-[#1c2a21] playful:border-[2.5px]">
+                  {RECAP.more}
                 </span>
               </div>
-            </div>
-            <div className="flex gap-[8px]">
-              <NotifButton size="sm" tone="primary" onClick={() => log('add to calendar')}>
-                {COMING_UP.primary}
-              </NotifButton>
-              <NotifButton
-                size="sm"
-                tone="secondary"
-                onClick={() => {
-                  // Same hand-off as the Home "Start mock interview" CTA: Career Buddy with a prompt.
-                  log('prep -> Career Buddy', COMING_UP.event);
-                  navigate('/profile/filling/career-buddy', {
-                    state: { prompt: COMING_UP.prepPrompt },
-                  });
-                }}
-              >
-                {COMING_UP.secondary}
-              </NotifButton>
-            </div>
-          </section>
+              <div className="flex flex-wrap gap-[8px] rounded-[8px] bg-[#ebf1ec] p-[4px] playful:rounded-none playful:bg-transparent playful:pb-[4px] playful:pl-0 playful:pr-0 playful:pt-[6px]">
+                {RECAP.stickers.map((s, i) => (
+                  <Sticker key={s.label} tone={s.tone}>
+                    {i === 2 && uiStyle !== 'playful' ? RECAP.focusedXp : s.label}
+                  </Sticker>
+                ))}
+              </div>
+              <img
+                src={weekSparkleA}
+                alt=""
+                aria-hidden="true"
+                className="absolute right-[22px] top-[16px] hidden size-[22px] playful:block"
+              />
+              <img
+                src={weekSparkleB}
+                alt=""
+                aria-hidden="true"
+                className="absolute right-[40px] top-[46px] hidden size-[12px] playful:block"
+              />
+            </section>
+          )}
+
+          {live ? null : (
+            <section className="flex flex-col gap-[12px] rounded-[24px] border border-solid border-[#e1eae2] bg-white p-[18px]">
+              <h2 className="m-0 font-sans text-[19px] font-semibold leading-[24px] text-[#1c2a21] playful:font-heading">
+                {COMING_UP.title}
+              </h2>
+              <div className="flex items-center gap-[12px]">
+                <span
+                  className={classNames(
+                    'flex h-[56px] w-[56px] flex-col items-center justify-center rounded-[14px] border border-solid border-[rgba(28,42,33,0.1)] bg-[#faf4e8]',
+                    SHELF
+                  )}
+                >
+                  <span className="font-sans text-[11px] font-bold leading-[13px] text-[#967014] max-lg:text-[12px]">
+                    {COMING_UP.day}
+                  </span>
+                  <span className="font-sans text-[21px] font-semibold leading-[26px] text-[#1c2a21] playful:font-heading">
+                    {COMING_UP.date}
+                  </span>
+                </span>
+                <div className="flex min-w-0 flex-col gap-[2px]">
+                  <span className="font-sans text-[14.5px] font-semibold leading-[17px] text-[#1c2a21]">
+                    {COMING_UP.event}
+                  </span>
+                  <span className="font-sans text-[13px] leading-[16px] text-[#595959]">
+                    {COMING_UP.when}
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-[8px]">
+                <NotifButton size="sm" tone="primary" onClick={() => log('add to calendar')}>
+                  {COMING_UP.primary}
+                </NotifButton>
+                <NotifButton
+                  size="sm"
+                  tone="secondary"
+                  onClick={() => {
+                    // Same hand-off as the Home "Start mock interview" CTA: Career Buddy with a prompt.
+                    log('prep -> Career Buddy', COMING_UP.event);
+                    navigate('/profile/filling/career-buddy', {
+                      state: { prompt: COMING_UP.prepPrompt },
+                    });
+                  }}
+                >
+                  {COMING_UP.secondary}
+                </NotifButton>
+              </div>
+            </section>
+          )}
 
           <section className="flex flex-col gap-[10px] rounded-[24px] border border-solid border-[#e1eae2] bg-white p-[18px]">
             <div className="flex items-center justify-between gap-[8px]">
@@ -575,7 +589,11 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
                 </span>
                 <button
                   type="button"
-                  aria-label={`${r.label}: ${r.value}. Change in notification settings`}
+                  aria-label={
+                    live
+                      ? `${r.label}: change in notification settings`
+                      : `${r.label}: ${r.value}. Change in notification settings`
+                  }
                   onClick={() => {
                     // The ping pills have no menu of their own; Settings › Notifications holds these controls.
                     log('ping setting -> /settings/notifications', r.label);
@@ -583,12 +601,12 @@ const NotificationsScreen = ({ home, feed: sharedFeed }) => {
                   }}
                   className={classNames(
                     'inline-flex cursor-pointer items-center gap-[4px] rounded-full border border-solid px-[10px] py-[4px] font-sans text-[12px] font-semibold leading-[14px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-                    r.on
+                    r.on && !live
                       ? 'border-[rgba(28,42,33,0.35)] bg-[#ebf1ec] text-[#2d5d33]'
                       : 'border-[rgba(28,42,33,0.35)] bg-[#f8f8f4] text-[#595959]'
                   )}
                 >
-                  {r.value}
+                  {live ? 'Change' : r.value}
                   <img src={pingChevron} alt="" aria-hidden="true" className="size-[12px]" />
                 </button>
               </div>

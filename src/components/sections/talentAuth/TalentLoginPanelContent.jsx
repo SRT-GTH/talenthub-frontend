@@ -230,7 +230,8 @@ export const LoginOverlayCards = () => {
                 </p>
               </div>
 
-              {/* Welcome back + name */}
+              {/* Label + name. Figma draws "Welcome back, Abena Mensah"; on a sign-in page that reads as a greeting to the
+                  person signing in, so the card is labelled as an example instead (ADR-15). */}
               <div
                 className="absolute flex flex-col"
                 style={{ left: '30.56%', top: '1.85%', right: 0, gap: '6%' }}
@@ -239,7 +240,7 @@ export const LoginOverlayCards = () => {
                   className="font-medium text-[#babab7]"
                   style={{ fontSize: 'max(5px, 1.36cqw)', lineHeight: 1 }}
                 >
-                  Welcome back,
+                  Example profile
                 </p>
                 <p
                   className="font-bold text-[#111] truncate"
