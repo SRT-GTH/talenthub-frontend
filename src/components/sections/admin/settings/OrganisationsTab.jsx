@@ -16,12 +16,14 @@ import { useAdminData, useAdminToast } from '../useAdminData.js';
 import {
   adminError,
   humanize,
+  institutionDataMode,
   orgAddAdmin,
   orgAdminList,
   orgCreate,
   orgRemoveAdmin,
   orgTypes,
   orgUpdate,
+  setInstitutionDataMode,
   shortDate,
 } from '../../../../services/admin.api.js';
 
@@ -34,6 +36,9 @@ const log = debug('OrganisationsTab');
  *   Organisations     institutions, companies, government and partners, filtered by type, status and tenant.
  *   Detail            settings (country, currency, timezone, branding, features, limits), status with a reason, admins, children.
  * Every create / change writes an audit record (ORGANIZATION_CREATED / _UPDATED / _STATUS_CHANGED).
+ * Institutions (type education) also show "Student data" (ADR-14): totals only (aggregate) or named students (identifiable), from the platform
+ * default or set for that institution (GET / PUT /api/admin/institution-data/:orgId, Super / Senior Admin, reason logged as
+ * INSTITUTION_STUDENT_DATA_MODE_CHANGED). The platform default is Settings › Platform settings › "Student data mode".
  * URL: ?view=tenants|orgs · ?org=<id> · ?new=tenant|org
  */
 
@@ -308,6 +313,136 @@ const OrgForm = ({ v, set, creating, types, tenants }) => {
   );
 };
 
+/* ── Student data mode of an institution (ADR-14) ───────────────────────── */
+const MODE_LABEL = {
+  aggregate: 'Totals only (aggregate)',
+  identifiable: 'Named students (identifiable)',
+};
+const MODE_TEXT = {
+  aggregate:
+    'The institution sees totals by year group, programme, level and region; groups under 5 are hidden. No named roster, student records, edits, transfers, named exports or credentials.',
+  identifiable:
+    'The institution sees named students: the roster, each student’s record and progress, edits, transfers, named exports and credentials.',
+};
+
+const StudentDataSection = ({ org, canEdit, toast }) => {
+  const info = useAdminData(() => institutionDataMode(org.id), [org.id]);
+  const [open, setOpen] = useState(false);
+  const [choice, setChoice] = useState('platform');
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const d = info.data;
+  const start = () => {
+    setChoice(d?.override || 'platform');
+    setReason('');
+    setError('');
+    setOpen(true);
+  };
+  const save = async () => {
+    if (busy) return;
+    if (reason.trim().length < 10) {
+      setError('Add a reason (10+ characters) for the audit log.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const out = await setInstitutionDataMode(org.id, choice, reason.trim());
+      log('student data mode', org.id, choice, out?.mode);
+      toast('Saved', `${org.name} now sees ${MODE_LABEL[out?.mode] ?? 'the new setting'}.`);
+      setOpen(false);
+      info.reload();
+    } catch (e) {
+      setError(e?.response ? adminError(e) : e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="flex flex-col gap-[8px] rounded-[16px] bg-[#f8f8f4] p-[14px]">
+      <div className="flex flex-wrap items-center justify-between gap-[8px]">
+        <span className="font-sans text-[14px] font-semibold text-[#1c2a21]">Student data</span>
+        {canEdit && d ? (
+          <TextAction tone="green" onClick={start}>
+            Change
+          </TextAction>
+        ) : null}
+      </div>
+      <AdminLoadNotice
+        loading={info.loading}
+        error={info.error}
+        status={info.status}
+        onRetry={info.reload}
+      >
+        {d ? (
+          <div className="flex flex-col gap-[6px] font-sans text-[14px] leading-[20px] text-[#1c2a21]">
+            <p className="m-0">
+              <strong className="font-semibold">{MODE_LABEL[d.mode]}</strong>
+              {' · '}
+              {d.source === 'institution'
+                ? `set for this institution${d.setByName ? ` by ${d.setByName}` : ''}${d.setAt ? `, ${shortDate(d.setAt)}` : ''}`
+                : `platform default (${MODE_LABEL[d.platform]})`}
+            </p>
+            <p className="m-0 text-[13px] text-[#595959]">{MODE_TEXT[d.mode]}</p>
+            {d.history?.length ? (
+              <details className="text-[13px] text-[#595959]">
+                <summary className="cursor-pointer font-semibold text-[#2a5730]">
+                  Changes ({d.history.length})
+                </summary>
+                <ul className="m-0 mt-[6px] flex list-none flex-col gap-[4px] p-0">
+                  {d.history.map((h, i) => (
+                    <li key={`${h.at}-${i}`}>
+                      {shortDate(h.at)} · {h.byName || 'GTH staff'}: {humanize(h.from)} →{' '}
+                      {humanize(h.to)}
+                      {h.toSource === 'platform' ? ' (platform default)' : ''} · {h.reason}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ) : null}
+          </div>
+        ) : null}
+      </AdminLoadNotice>
+      {open && d ? (
+        <AdminConfirmDialog
+          title={`Student data for ${org.name}`}
+          body="Changes what the institution’s staff see of their students, straight away. The institution is told, and the change is logged."
+          primary={{ label: busy ? 'Saving…' : 'Save', arrow: true }}
+          secondary="Cancel"
+          onPrimary={save}
+          onClose={() => setOpen(false)}
+        >
+          <div className="flex flex-col gap-[12px]">
+            <Select
+              label="What the institution sees"
+              options={[
+                {
+                  value: 'platform',
+                  label: `Platform default: ${MODE_LABEL[d.platform]}`,
+                },
+                { value: 'aggregate', label: MODE_LABEL.aggregate },
+                { value: 'identifiable', label: MODE_LABEL.identifiable },
+              ]}
+              value={choice}
+              onChange={setChoice}
+              helperText={MODE_TEXT[choice === 'platform' ? d.platform : choice]}
+            />
+            <TextInput
+              label="Reason"
+              required
+              placeholder="Why this change (for the audit log)"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              error={error || undefined}
+            />
+          </div>
+        </AdminConfirmDialog>
+      ) : null}
+    </div>
+  );
+};
+
 /* ── Detail ─────────────────────────────────────────────────────────────── */
 const OrgDetail = ({ org, all, canEdit, canTenant, onChanged, onClose, toast }) => {
   const isTenant = org.type === 'platform_tenant';
@@ -461,6 +596,10 @@ const OrgDetail = ({ org, all, canEdit, canTenant, onChanged, onClose, toast }) 
             </div>
           ))}
         </dl>
+
+        {org.type === 'education' ? (
+          <StudentDataSection org={org} canEdit={canEdit} toast={toast} />
+        ) : null}
 
         {isTenant ? (
           <div className="flex flex-col gap-[8px] rounded-[16px] bg-[#f8f8f4] p-[14px]">

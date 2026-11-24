@@ -129,6 +129,12 @@ const ProgressOutcomesView = ({ data }) => {
         </p>
       ) : !o ? (
         <p className="m-0 font-sans text-[14px] text-[#595959]">Loading class outcomes…</p>
+      ) : o.suppressed ? (
+        // aggregate student data mode (ADR-14): the backend sends no figures while 1-4 students are counted
+        <p className="m-0 rounded-[16px] border border-solid border-[#eedeb8] bg-[#faf4e8] p-[16px] font-sans text-[14px] leading-[20px] text-[#1c2a21]">
+          Fewer than {MIN_GROUP} students are counted so far. Class outcomes appear once at least{' '}
+          {MIN_GROUP} are linked, so no one can be picked out.
+        </p>
       ) : k.students < MIN_GROUP ? (
         <p className="m-0 rounded-[16px] border border-solid border-[#eedeb8] bg-[#faf4e8] p-[16px] font-sans text-[14px] leading-[20px] text-[#1c2a21]">
           {k.students === 0
@@ -232,7 +238,9 @@ const ProgressOutcomesView = ({ data }) => {
       {data.modal === 'download' ? (
         <ProgressDownloadDialog
           period={period}
-          canNames={['admin', 'records'].includes(session.admin.roleKey)}
+          canNames={
+            !session.studentData.aggregate && ['admin', 'records'].includes(session.admin.roleKey)
+          }
           onClose={closeDownload}
         />
       ) : null}

@@ -8,7 +8,10 @@ import { useInstitutionSessionState } from './institutionSessionStore.js';
  * useInstitutionSession — the signed-in institution session, from GET /api/institution/me (InstitutionSessionContext.jsx).
  * In development only, ?verify=none|under-review|approved|needs-info|not-approved still overrides the accreditation status to look at a gate.
  * Returns { admin, institution, head, verify: {status, approved, label, reference, submitted, reviewStarted, decided, renewalDue, note},
- *           readiness: {pct}, stats: {students, pending, credentials}, counts: {scholarshipsLive}, badges, roster, reload }.
+ *           readiness: {pct}, stats: {students, pending, credentials}, counts: {scholarshipsLive}, badges, roster,
+ *           studentData: {mode, aggregate, source, minGroup}, reload }.
+ * studentData (ADR-14): "aggregate" = the institution sees its students as totals only (no names, records, edits or credentials);
+ * "identifiable" = named students. A backend that does not send it yet means identifiable (the behaviour before the setting existed).
  */
 
 const LABEL = {
@@ -71,6 +74,12 @@ export const useInstitutionSession = () => {
       counts: me?.counts || { scholarshipsLive: 0 },
       badges: me?.badges || { notifications: 0, messages: 0 },
       roster: me?.roster || { total: 0, linked: 0, notLinked: 0, consentNeeded: 0 },
+      studentData: {
+        mode: me?.studentData?.mode === 'aggregate' ? 'aggregate' : 'identifiable',
+        aggregate: me?.studentData?.mode === 'aggregate',
+        source: me?.studentData?.source || 'platform',
+        minGroup: me?.studentData?.minGroup || 5,
+      },
       reload: ctx?.reload,
     };
   }, [me, rawVerify, ctx?.reload]);

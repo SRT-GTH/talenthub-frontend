@@ -16,6 +16,9 @@ import InstitutionRosterToolbar from '../../components/sections/institution/rost
 import InstitutionStudentRecord from '../../components/sections/institution/roster/InstitutionStudentRecord.jsx';
 import InstitutionTransferDialog from '../../components/sections/institution/roster/InstitutionTransferDialog.jsx';
 import InstitutionUploadDialog from '../../components/sections/institution/roster/InstitutionUploadDialog.jsx';
+import InstitutionAggregateOnly from '../../components/sections/institution/aggregate/InstitutionAggregateOnly.jsx';
+import InstitutionAggregateView from '../../components/sections/institution/aggregate/InstitutionAggregateView.jsx';
+import { studentsWords } from '../../components/sections/institution/aggregate/studentDataFormat.js';
 import { PAGE_SIZE } from '../../components/sections/institution/roster/data/rosterData.js';
 import { useInstitutionSession } from '../../components/sections/institution/useInstitutionSession.js';
 import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
@@ -41,9 +44,13 @@ const log = debug('InstitutionStudentsPage');
  *   filter=linked | not-linked                                   the filter chips (11.2.2k = not-linked)
  *   form=1 | 2 | 3 | graduates                                   the class tab (default: the first class with students)
  *   q=<text>  sort=surname-az | surname-za | profile  view=cards  page=<n>
+ * Aggregate student data mode (ADR-14, session.studentData.aggregate): no named roster. The page shows InstitutionAggregateView (totals by
+ * year group, programme, level and age; groups under 5 hidden) with Upload / Add one / Remind everyone / Ask guardians; /students/:id says
+ * records aren't shown; only the add and upload dialogs open.
  */
 
 const MODALS = ['add-student', 'upload', 'remove', 'transfer', 'consent'];
+const AGGREGATE_MODALS = ['add-student', 'upload'];
 const MATCH = (s, q) => `${s.name} ${s.programme}`.toLowerCase().includes(q.trim().toLowerCase());
 const surname = (s) => s.name.split(' ').at(-1);
 const SORTERS = {
@@ -80,6 +87,9 @@ const InstitutionStudentsPage = () => {
   const sort = sortParam ?? 'surname-az';
   const page = Math.max(1, Number(params.get('page')) || 1);
   const q = data.q;
+  const aggregate = session.studentData.aggregate;
+  const school = session.institution.short || session.institution.name;
+  const [busy, setBusy] = useState(false);
 
   const counts = useMemo(
     () => (empty ? ZERO : rosterCounts(store, formTab)),
@@ -87,8 +97,8 @@ const InstitutionStudentsPage = () => {
   );
 
   useEffect(() => {
-    rosterActions.load();
-  }, []);
+    if (!aggregate) rosterActions.load();
+  }, [aggregate]);
 
   const rows = useMemo(() => {
     if (empty) return [];
@@ -126,7 +136,11 @@ const InstitutionStudentsPage = () => {
   const openAdd = () => (studentId ? open('add-student') : navigate('/institution/students/new'));
   const set = (patch) => update({ page: null, ...patch }, { replace: true });
 
-  const activeModal = isNew ? 'add-student' : MODALS.includes(modal) ? modal : null;
+  const activeModal = isNew
+    ? 'add-student'
+    : (aggregate ? AGGREGATE_MODALS : MODALS).includes(modal)
+      ? modal
+      : null;
   const find = (id) => (id ? store.students.find((s) => s.id === id) : null);
   const aboutStudent = find(params.get('student') || studentId);
   const recordStudent = studentId ? find(studentId) : null;
@@ -148,10 +162,57 @@ const InstitutionStudentsPage = () => {
   const remind = (s) => remindIds([s.id], s.name.split(' ')[0]);
   const sendReminders = () => remindIds(selected.map((s) => s.id));
 
-  if (!store.loaded && store.loading) return <PageLoader look="focused" />;
+  // Aggregate mode: whole-roster actions (no ids: the backend picks everyone who qualifies); the toast never counts 1-4 students.
+  const wholeRoster = async (what) => {
+    if (busy) return;
+    setBusy(true);
+    const out =
+      what === 'remind' ? await rosterActions.remind() : await rosterActions.sendConsent();
+    setBusy(false);
+    if (!out.ok) {
+      rosterActions.toast(out.message);
+      return;
+    }
+    const r = out.result || {};
+    log('whole roster', what, r);
+    if (what === 'remind') {
+      rosterActions.toast(
+        r.sent
+          ? `Reminders sent to ${studentsWords(r.sent)} who haven’t linked their GTH profile.`
+          : 'Nobody to remind: every invited student has linked or has no pending invite.'
+      );
+    } else {
+      rosterActions.toast(
+        r.sent
+          ? `Consent requests sent to the guardians of ${studentsWords(r.sent)}.${r.noContact ? ' Some under-18s have no guardian contact on file.' : ''}`
+          : r.noContact
+            ? 'No requests sent: the under-18s still waiting have no guardian contact on file.'
+            : 'Nobody to ask: every under-18 already has a guardian’s answer or a request on the way.'
+      );
+    }
+  };
+
+  if (!aggregate && !store.loaded && store.loading) return <PageLoader look="focused" />;
 
   let body;
-  if (store.error && !store.loaded) {
+  if (aggregate) {
+    body = studentId ? (
+      <InstitutionAggregateOnly what="student" school={school} />
+    ) : (
+      <InstitutionAggregateView
+        variant="students"
+        school={school}
+        refreshKey={store.toast?.id}
+        actions={{
+          onUpload: () => open('upload'),
+          onAdd: openAdd,
+          onRemind: () => wholeRoster('remind'),
+          onConsent: () => wholeRoster('consent'),
+          busy,
+        }}
+      />
+    );
+  } else if (store.error && !store.loaded) {
     body = (
       <section
         role="alert"
@@ -309,7 +370,7 @@ const InstitutionStudentsPage = () => {
             if (isNew) navigate('/institution/students?modal=upload', { replace: true });
             else update({ modal: 'upload', state: null }, { replace: true });
           }}
-          onConsent={() => open('consent')}
+          onConsent={aggregate ? () => wholeRoster('consent') : () => open('consent')}
           programmes={store.programmes}
         />
       ) : null}

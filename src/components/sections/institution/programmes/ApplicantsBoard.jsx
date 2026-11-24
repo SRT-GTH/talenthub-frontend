@@ -10,6 +10,7 @@ import {
 } from '../../../../services/institutionPortal.api.js';
 import { APPLICANTS_COPY, PIPELINE_COLUMNS, nextStep } from './data/programmesData.js';
 import ProgrammeSelect from './ProgrammeSelect.jsx';
+import { useInstitutionSession } from '../useInstitutionSession.js';
 import { ProgrammesIconClock } from './programmesIcons.jsx';
 import { loadProgrammes, useProgrammesStore } from './useProgrammesStore.js';
 
@@ -46,6 +47,8 @@ const SecondaryButton = ({ children, onClick, disabled }) => (
 );
 
 const ApplicantCard = ({ a, busy, onMove }) => {
+  // ADR-14: one student's progress page exists only when the institution sees students by name.
+  const named = !useInstitutionSession().studentData.aggregate;
   const next = nextStep(a);
   const done = a.stage === 'completed';
   const out = a.stage === 'withdrawn';
@@ -59,7 +62,7 @@ const ApplicantCard = ({ a, busy, onMove }) => {
       <div className="flex items-center gap-[12px]">
         <Avatar initials={a.initials} />
         <div className="flex min-w-0 flex-col gap-[4px]">
-          {a.rosterId ? (
+          {a.rosterId && named ? (
             <Link
               to={`/institution/progress/students/${a.rosterId}`}
               className="text-[16px] leading-[20px] font-medium text-[#152019] no-underline hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"

@@ -25,6 +25,7 @@ import {
   glanceFor,
 } from '../../components/sections/institution/home/data/institutionHomeData.js';
 import InstitutionWelcome from '../../components/sections/institution/welcome/InstitutionWelcome.jsx';
+import InstitutionAggregateView from '../../components/sections/institution/aggregate/InstitutionAggregateView.jsx';
 import { useIsDesktop } from '../../hooks/useMediaQuery.js';
 import {
   apiMessage,
@@ -46,6 +47,8 @@ const log = debug('InstitutionHomePage');
  * The first-login body (checklist + locked cards) shows while the roster is empty (or ?state=new); its "Add your students" step ticks itself once students exist.
  * While the institution is not approved the home redirects to the accreditation page or its status page.
  * ⚠️ ASSUMPTION: the hero "Customise" button has no destination drawn: it is left out.
+ * Aggregate student data mode (ADR-14, session.studentData.aggregate): the student cards and the recent-students table give way to the
+ * totals block (InstitutionAggregateView variant="home"), and nothing points at Credentials (they need the named roster).
  */
 
 const fill = (text, vars) => text.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -85,6 +88,7 @@ const InstitutionHomePage = () => {
   const isDesktop = useIsDesktop();
   const { admin, institution, stats, counts } = session;
   const approved = session.verify.approved;
+  const aggregate = session.studentData.aggregate;
   const [home, setHome] = useState(null);
   const [error, setError] = useState('');
   const welcomed = useRef(false);
@@ -149,12 +153,27 @@ const InstitutionHomePage = () => {
     : firstLogin
       ? QUICK_ACTIONS.firstLogin
       : QUICK_ACTIONS.default;
-  const actions = actionSet.map((a) => ({
-    ...a,
-    meta: fill(a.meta, vars),
-    to: a.to === REGION_DATA_TO ? regionDataPath(institution.region) : a.to,
-  }));
-  const setup = overlay ? FIRST_LOGIN_OVERLAY : FIRST_LOGIN;
+  const actions = actionSet
+    .filter((a) => !aggregate || !/credential/.test(a.id))
+    .map((a) => ({
+      ...a,
+      meta: fill(a.meta, vars),
+      to: a.to === REGION_DATA_TO ? regionDataPath(institution.region) : a.to,
+    }));
+  const baseSetup = overlay ? FIRST_LOGIN_OVERLAY : FIRST_LOGIN;
+  const setup = aggregate
+    ? {
+        ...baseSetup,
+        checklist: {
+          ...baseSetup.checklist,
+          items: baseSetup.checklist.items.filter((i) => !/credential/.test(i.id)),
+        },
+        cards: {
+          ...baseSetup.cards,
+          cards: (baseSetup.cards.cards ?? []).filter((c) => !/credential/.test(c.id)),
+        },
+      }
+    : baseSetup;
   const checklist = liveChecklist(setup.checklist, home?.total ?? 0);
 
   return (
@@ -183,6 +202,11 @@ const InstitutionHomePage = () => {
               <AgencyChecklistCard {...checklist} headingId="home-setup" />
               <AgencyFeatureCards {...setup.cards} dashed headingId="home-more" />
             </>
+          ) : aggregate ? (
+            <InstitutionAggregateView
+              variant="home"
+              school={institution.short || institution.name}
+            />
           ) : (
             <>
               <InstitutionReadinessCard home={home} />
@@ -199,7 +223,15 @@ const InstitutionHomePage = () => {
           )}
         </>
       ) : (
-        <InstitutionHomeMobile session={session} home={home} />
+        <>
+          <InstitutionHomeMobile session={session} home={home} />
+          {aggregate && !firstLogin ? (
+            <InstitutionAggregateView
+              variant="home"
+              school={institution.short || institution.name}
+            />
+          ) : null}
+        </>
       )}
       <InstitutionWelcome data={data} />
     </InstitutionFrame>
