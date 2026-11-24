@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { loadEligibilityRules } from '../../../services/eligibilityRules.api.js';
+import { fetchSavedCriteria } from '../../../services/recruiterScreening.api.js';
+import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
+import { isSampleMode } from '../../../utils/sampleMode.js';
 import { under18Allowed } from '../../../utils/opportunityTypes.js';
 import { postingShapeOf } from './liveJobForm.js';
 import {
@@ -53,6 +56,32 @@ const SectionCard = ({ n, title, subtitle, children }) => (
   </section>
 );
 
+/* Signed in (ADR-15): the screening dropdown lists the recruiter's own saved criteria (GET /recruiter/screening-criteria, as the
+ * Templates screen does), never the sample groups. Sample mode keeps the Figma groups. */
+const useScreeningGroups = () => {
+  const live = isRecruiterSession() && !isSampleMode();
+  const [saved, setSaved] = useState(null);
+  useEffect(() => {
+    if (!live) return undefined;
+    let alive = true;
+    fetchSavedCriteria()
+      .then((rows) => alive && setSaved(rows))
+      .catch(() => alive && setSaved([]));
+    return () => {
+      alive = false;
+    };
+  }, [live]);
+  if (!live) return SCREENING_GROUPS;
+  const items = (saved || [])
+    .filter((c) => c && c.name)
+    .map((c) => ({
+      value: c.name,
+      label: c.name,
+      description: c.isDefault ? 'Your default criteria' : 'Saved by your team',
+    }));
+  return items.length ? [{ label: 'SAVED BY YOUR TEAM', items }] : [];
+};
+
 const Grid = ({ cols = 3, children }) => (
   <div
     className={classNames(
@@ -82,6 +111,7 @@ const JobFormFields = ({
   setQuery,
 }) => {
   const isTemplate = variant === 'template';
+  const screeningGroups = useScreeningGroups();
   const open = (key) => menu === key;
   const toggle = (key) => (next) => setMenu(next ? key : '');
   const points = values.responsibilities.length;
@@ -323,7 +353,7 @@ const JobFormFields = ({
               id="job-screening"
               value={values.screening}
               placeholder="Choose screening criteria"
-              groups={SCREENING_GROUPS}
+              groups={screeningGroups}
               footer={[
                 { id: 'new', label: SCREENING_NEW_LABEL, icon: <PlusGlyph /> },
                 { id: 'none', label: SCREENING_NONE_LABEL, muted: true },
