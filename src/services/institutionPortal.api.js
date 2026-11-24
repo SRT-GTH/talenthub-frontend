@@ -292,10 +292,26 @@ export const institutionUpdateStudent = (id, patch) =>
   api.patch(`/institution/students/${id}`, patch).then(body);
 export const institutionAddStudent = (payload) =>
   api.post('/institution/students', payload, { timeout: 60000 }).then(body);
-export const institutionImportStudents = (rows, commit, invite = true) =>
+/** Checks (commit false) or adds (commit true) a class list; opts: { defaultLevel, fileName }. */
+export const institutionImportStudents = (rows, commit, invite = true, opts = {}) =>
   api
-    .post('/institution/students/import', { rows, commit, invite }, { timeout: 300000 })
+    .post(
+      '/institution/students/import',
+      {
+        rows,
+        commit,
+        invite,
+        ...(opts.defaultLevel ? { defaultLevel: opts.defaultLevel } : {}),
+        ...(opts.fileName ? { fileName: opts.fileName } : {}),
+      },
+      { timeout: 300000 }
+    )
     .then(body);
+/** Row limit, levels and year groups, identity rule and each level's CSV template (backend institutionRoster.uploadRules). */
+export const institutionUploadRules = () => api.get('/institution/roster/upload-rules').then(body);
+/** Processing summary and per-row log of one upload. */
+export const institutionImportStatus = (id) =>
+  api.get(`/institution/roster/imports/${encodeURIComponent(id)}`).then(body);
 export const institutionRemindStudents = (ids) =>
   api.post('/institution/students/remind', ids ? { ids } : {}, { timeout: 60000 }).then(body);
 export const institutionSendConsent = (ids) =>
@@ -327,22 +343,25 @@ export const answerSchoolLink = (id, accept) =>
 /* ---- organisation invites (the link in the invite email: /auth/complete-invite/:token) ---- */
 export const inviteInfo = (token) =>
   api.get(`/institution-signup/invite/${encodeURIComponent(token)}`).then(body);
-/** Finishes the invite: creates the account with the invitee's password (and phone when the invite has none). */
-export const completeInvite = (token, { password, phoneNumber }) =>
-  api
+/** Finishes the invite: creates the account with the invitee's password (and the phone or email the invite doesn't have). */
+export const completeInvite = (token, { password, phoneNumber, email }) => {
+  const additionalData = {
+    ...(phoneNumber ? { phoneNumber: toGhanaE164(phoneNumber) } : {}),
+    ...(email ? { email: email.trim().toLowerCase() } : {}),
+  };
+  return api
     .post(
       `/users/complete-invite/${encodeURIComponent(token)}`,
-      {
-        password,
-        ...(phoneNumber ? { additionalData: { phoneNumber: toGhanaE164(phoneNumber) } } : {}),
-      },
+      { password, ...(Object.keys(additionalData).length ? { additionalData } : {}) },
       { timeout: 120000 }
     )
     .then(body);
+};
 
 export const guardianConsentInfo = (token) => api.get(`/guardian-consent/${token}`).then(body);
-export const guardianConsentAnswer = (token, decision) =>
-  api.post(`/guardian-consent/${token}`, { decision }).then(body);
+/** decision: agree | decline (older consent requests) · opt-out ({reason, comments, confirm}) | undo (opt-out notices). */
+export const guardianConsentAnswer = (token, decision, extra = {}) =>
+  api.post(`/guardian-consent/${token}`, { decision, ...extra }).then(body);
 
 /** The server's message for a failed call (axios hides it under response.data). */
 export const apiMessage = (err) =>

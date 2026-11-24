@@ -28,8 +28,8 @@ const InstitutionRosterEmpty = ({ onUpload, onAdd }) => (
         No students on your roster yet
       </h2>
       <p className="m-0 max-w-[360px] font-sans text-[14px] leading-[20px] text-[#595959]">
-        Upload a class list from your school system, or add students one at a time. Every Ghana Card
-        is checked before anyone is added.
+        Upload a class list from your school system, or add students one at a time. Every row is
+        checked before anyone is added.
       </p>
       <button
         type="button"
