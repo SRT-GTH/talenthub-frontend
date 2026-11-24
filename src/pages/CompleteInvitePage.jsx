@@ -8,9 +8,14 @@ const log = debug('CompleteInvitePage');
 /*
  * /auth/complete-invite/:token — the link in an organisation's invite email (a school adding a student or a staff member, or any organisation adding a
  * member). GET /api/institution-signup/invite/:token says who invited them and whether the link still works; the person chooses a password (8+ characters
- * with a number or symbol) and, when the invite has no phone number, adds theirs. POST /api/users/complete-invite/:token creates the account; they then
- * sign in at /login, where school staff land in the school portal and students on their own home.
+ * with a number or symbol) and, when the invite has no phone number (or, for a school's SMS invite, no email), adds it. POST /api/users/complete-invite/:token
+ * creates the account; they then sign in at /login, where school staff land in the school portal and students on their own home. If the email or phone they
+ * add already has a GTH account (409 USER_EXISTS / PHONE_TAKEN / CONTACT_TAKEN), they are offered "Sign in to that account" instead (ADR-12): the school's
+ * request to link then waits on that account.
  */
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const TAKEN = ['USER_EXISTS', 'PHONE_TAKEN', 'CONTACT_TAKEN'];
 
 const RULE = /[^A-Za-z]/;
 const REASON = {
@@ -18,6 +23,8 @@ const REASON = {
     'This invite link is not valid. Check that you opened the whole link from the email.',
   used: 'This invite was already used. Sign in with the email address it was sent to.',
   cancelled: 'This invite was cancelled. Ask whoever invited you to send a new one.',
+  paused:
+    'Your parent or guardian paused this account. Ask them, or your school, if you have questions.',
   expired: 'This invite has expired. Ask whoever invited you to send it again.',
 };
 
@@ -48,6 +55,8 @@ const CompleteInvitePage = () => {
   const [info, setInfo] = useState(null);
   const [loadError, setLoadError] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [taken, setTaken] = useState(false);
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
@@ -77,27 +86,40 @@ const CompleteInvitePage = () => {
 
   const phoneDigits = phone.replace(/\D/g, '');
   const problem =
-    info?.needsPhone && phone && phoneDigits.length < 9
-      ? 'Enter your full phone number.'
-      : password && password.length < 8
-        ? 'Use at least 8 characters.'
-        : password && !RULE.test(password)
-          ? 'Add a number or symbol.'
-          : confirm && confirm !== password
-            ? 'The two passwords are not the same.'
-            : '';
-  const ready = password && confirm && (!info?.needsPhone || phoneDigits.length >= 9) && !problem;
+    info?.needsEmail && email && !EMAIL.test(email.trim())
+      ? 'Enter a valid email address.'
+      : info?.needsPhone && phone && phoneDigits.length < 9
+        ? 'Enter your full phone number.'
+        : password && password.length < 8
+          ? 'Use at least 8 characters.'
+          : password && !RULE.test(password)
+            ? 'Add a number or symbol.'
+            : confirm && confirm !== password
+              ? 'The two passwords are not the same.'
+              : '';
+  const ready =
+    password &&
+    confirm &&
+    (!info?.needsPhone || phoneDigits.length >= 9) &&
+    (!info?.needsEmail || EMAIL.test(email.trim())) &&
+    !problem;
 
   const submit = async (e) => {
     e.preventDefault();
     if (!ready || busy) return;
     setBusy(true);
     setError('');
+    setTaken(false);
     try {
-      await completeInvite(token, { password, phoneNumber: info.needsPhone ? phone : undefined });
+      await completeInvite(token, {
+        password,
+        phoneNumber: info.needsPhone ? phone : undefined,
+        email: info.needsEmail ? email : undefined,
+      });
       setDone(true);
     } catch (err) {
       setError(apiMessage(err));
+      setTaken(TAKEN.includes(err?.response?.data?.type));
       setBusy(false);
     }
   };
@@ -141,7 +163,8 @@ const CompleteInvitePage = () => {
             Your account is ready
           </h1>
           <p className="m-0 text-[15px] leading-[24px] text-[#4b5563]">
-            Sign in with {info.email} and the password you just chose.
+            Sign in with {info.needsEmail ? email.trim() : info.email} and the password you just
+            chose.
           </p>
           <button
             type="button"
@@ -158,11 +181,25 @@ const CompleteInvitePage = () => {
               {info.firstName ? `Welcome, ${info.firstName}` : 'Welcome'}
             </h1>
             <p className="m-0 text-[15px] leading-[24px] text-[#4b5563]">
-              You’ve been invited to {what}. Choose a password to set up your account for{' '}
-              {info.email}.
+              You’ve been invited to {what}.{' '}
+              {info.needsEmail
+                ? `Add your email and choose a password to set up your account${info.phone ? ` for ${info.phone}` : ''}.`
+                : `Choose a password to set up your account for ${info.email}.`}
             </p>
           </div>
           <form onSubmit={submit} className="flex flex-col gap-[16px]" noValidate>
+            {info.needsEmail ? (
+              <Field
+                id="invite-email"
+                label="Your email address"
+                type="email"
+                value={email}
+                onChange={setEmail}
+                autoComplete="email"
+                placeholder="you@example.com"
+                hint="Your own email. You sign in with it."
+              />
+            ) : null}
             {info.needsPhone ? (
               <Field
                 id="invite-phone"
@@ -194,7 +231,12 @@ const CompleteInvitePage = () => {
             />
             {problem || error ? (
               <p role="alert" className="m-0 text-[14px] text-[#b42318]">
-                {error || problem}
+                {error || problem}{' '}
+                {taken ? (
+                  <Link to="/login" className="font-semibold text-[#387440] underline">
+                    Sign in to that account
+                  </Link>
+                ) : null}
               </p>
             ) : null}
             <button

@@ -12,14 +12,15 @@ import {
 
 /*
  * InstitutionUploadChecking — "Checking form3_2026.csv" (Figma 11.2.2g 8744:431110): file card (#f8f8f4, r14, file glyph, name 14/17 600, "312 rows · 41 KB · uploaded just now",
- * amber "Checking" pill), progress ("184 of 312 rows checked" 14/17 600 + "59%" #387440, 8 high #efefea track, #387440 fill), four steps (Ghana Card format · Duplicates on your roster ·
- * Already at another institution · Guardian details for under-18s: icon 18, label 14/17 500, status 13/16 500: green Done / amber Done with a count / grey Checking… / Waiting),
- * the shield note, "Cancel upload" + "Run in background →".
- * Props: name, rows (total), size ('41 KB'), progress (0..1), result (counts, shown once a step is done), onCancel, onBackground. The steps complete at 25 / 50 / 75 / 100 %;
+ * amber "Checking" pill), progress ("184 of 312 rows checked" 14/17 600 + "59%" #387440, 8 high #efefea track, #387440 fill), four steps (Names, dates and year groups ·
+ * Email or phone · Duplicates and other institutions · Guardians of under-18s: icon 18, label 14/17 500, status 13/16 500: green Done / amber Done with a count / grey
+ * Checking… / Waiting), the shield note, "Cancel upload" + "Run in background →".
+ * Props: name, rows (total), size ('41 KB'), progress (0..1), result (the check's summary: failing, duplicates, elsewhere, minors …), onCancel, onBackground.
+ * The steps complete at 25 / 50 / 75 / 100 %;
  * at the Figma frame (59 %) the first two are done, "Already at another institution" is Checking… and "Guardian details" Waiting.
  */
 
-const STEPS = ['card', 'dup', 'elsewhere', 'guardian'];
+const STEPS = ['rows', 'contact', 'dup', 'guardian'];
 
 const stepState = (i, progress) => {
   const done = progress >= (i + 1) / 4;
@@ -39,16 +40,22 @@ const InstitutionUploadChecking = ({
   const checked = Math.min(rows, Math.round(rows * progress));
   const pct = Math.round(progress * 100);
   const labels = {
-    card: 'Ghana Card format',
-    dup: 'Duplicates on your roster',
-    elsewhere: 'Already at another institution',
-    guardian: 'Guardian details for under-18s',
+    rows: 'Names, dates and year groups',
+    contact: 'Email or phone for each student',
+    dup: 'Duplicates and other institutions',
+    guardian: 'Guardians of under-18s',
   };
+  const found = (result.duplicates || 0) + (result.elsewhere || 0);
   const doneText = {
-    card: `Done · ${formatRosterCount(result.okCards)} OK`,
-    dup: `Done · ${formatRosterCount(result.duplicates)} found`,
-    elsewhere: `Done · ${formatRosterCount(result.elsewhere)} found`,
-    guardian: 'Done',
+    rows: result.failing ? `Done · ${formatRosterCount(result.failing)} to fix` : 'Done',
+    contact: 'Done',
+    dup: `Done · ${formatRosterCount(found)} found`,
+    guardian: `Done · ${formatRosterCount(result.minors)} under 18`,
+  };
+  const warnOf = {
+    rows: Boolean(result.failing),
+    dup: found > 0,
+    guardian: Boolean(result.minorsNoGuardian),
   };
   return (
     <>
@@ -93,7 +100,7 @@ const InstitutionUploadChecking = ({
         <ul className="m-0 flex list-none flex-col p-0">
           {STEPS.map((id, i) => {
             const st = stepState(i, progress);
-            const warn = id === 'dup' && st === 'done' && result.duplicates > 0;
+            const warn = st === 'done' && Boolean(warnOf[id]);
             return (
               <li
                 key={id}
