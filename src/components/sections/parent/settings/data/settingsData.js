@@ -264,7 +264,7 @@ export const LOGOUT = {
 
 export const LOGGED_OUT = {
   page: 'You’re logged out',
-  title: 'See you soon, Emma',
+  title: 'See you soon', // + ", <first name>" of whoever logged out, when known (SettingsResult)
   body: 'Approvals will still reach you on WhatsApp and SMS. Log back in any time to see your wards.',
   cta: 'Log in again',
 };

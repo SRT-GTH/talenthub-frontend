@@ -1,3 +1,4 @@
+import { loggedOutFirstName } from '../../../../services/auth.api.js';
 import { debug } from '../../../../utils/debug.js';
 import ParentButton from '../ParentButton.jsx';
 import spotSent from '../../../../assets/parent/spot-sent.svg';
@@ -30,6 +31,8 @@ const Card = ({ spot, title, body, preserve, children }) => (
 const SettingsResult = ({ kind, onLogIn, onCareer, onUndo }) => {
   log('render', { kind });
   const closed = kind === 'closed';
+  // The real first name of whoever just logged out (none after a reload): never a sample name.
+  const name = closed ? null : loggedOutFirstName();
   return (
     <div className="flex flex-col gap-[24px]">
       <h1 className="m-0 text-[clamp(26px,1.97vw,34px)] leading-[1.2] font-semibold tracking-[-0.68px] text-[#1c2a21]">
@@ -43,7 +46,11 @@ const SettingsResult = ({ kind, onLogIn, onCareer, onUndo }) => {
           </ParentButton>
         </Card>
       ) : (
-        <Card spot={spotSent} title={LOGGED_OUT.title} body={LOGGED_OUT.body}>
+        <Card
+          spot={spotSent}
+          title={name ? `${LOGGED_OUT.title}, ${name}` : LOGGED_OUT.title}
+          body={LOGGED_OUT.body}
+        >
           <ParentButton onClick={onLogIn}>{LOGGED_OUT.cta}</ParentButton>
         </Card>
       )}

@@ -148,17 +148,19 @@ export const DELETE_COPY = {
 // SR-16 "Log out of GTH?".
 export const LOGOUT_COPY = {
   title: 'Log out of GTH?',
-  body: 'Your hiring streak and drafts are saved. Candidates can still message you.',
+  body: 'Your drafts are saved. Candidates can still message you.',
   stay: 'Stay',
   confirm: 'Log out',
 };
 
-// SR-27 "Logged out". ⚠️ ASSUMPTION: "Log back in" and "Not Joel? Use a different account" go to /login (no destination is drawn).
+// SR-27 "Logged out". ⚠️ ASSUMPTION: "Log back in" and "Not <name>? Use a different account" go to /login (no destination is drawn).
+// The frame's "Joel" is the real first name of whoever logged out, or left out when unknown (RecruiterLoggedOut); recruiters
+// have no streaks, so the frame's "hiring streak" is not mentioned.
 export const LOGGED_OUT_COPY = {
-  title: 'You’re logged out, Joel.',
-  body: 'Your drafts, notes and hiring streak are saved.',
+  title: 'You’re logged out',
+  body: 'Your drafts and notes are saved.',
   cta: 'Log back in',
-  other: 'Not Joel? Use a different account',
+  other: 'Use a different account',
   shared: 'On a shared computer? Close this browser window too.',
 };
 
