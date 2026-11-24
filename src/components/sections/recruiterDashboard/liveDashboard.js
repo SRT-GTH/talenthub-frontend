@@ -1,5 +1,6 @@
 import { HERO, PIPELINE } from './recruiterDashboardData.js';
 import { jobBucket } from '../../../services/recruiterShell.api.js';
+import { employmentLabel } from '../../../utils/opportunityTypes.js';
 
 /*
  * liveDashboard - the recruiter home's widgets built from the signed-in recruiter's own data
@@ -66,11 +67,6 @@ export const liveHero = (shell, apps = [], now = new Date()) => {
   };
 };
 
-const TYPE = {
-  'full-time-job': 'Full-time',
-  internship: 'Internship',
-  'training-program': 'Training programme',
-};
 const IN_PIPELINE = new Set([
   'shortlisted',
   'interview_scheduled',
@@ -94,7 +90,7 @@ export const liveJobs = (jobList = [], apps = [], now = new Date()) => {
     return {
       id,
       title: j.title || 'Untitled',
-      type: TYPE[j.type] || 'Job',
+      type: employmentLabel(j),
       place:
         j.location?.type === 'remote'
           ? 'Remote'

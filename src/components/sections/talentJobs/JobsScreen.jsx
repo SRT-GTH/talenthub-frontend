@@ -146,6 +146,23 @@ const Skeleton = () => (
 const EMPTY_STEP_ROUTES = ['/profile/filling/skills', '/skills-lab', '/profile/engagement'];
 const EMPTY_BOOST_ROUTE = '/profile/engagement';
 
+// What the eligibility rules (ADR-06) open to a talent with limits (an under-18, or a JHS / SHS student): above the
+// Browse list, and as the explanation when nothing is listed. Nothing is shown when everything is open.
+const RestrictionNote = ({ empty = false }) =>
+  BROWSE_COPY.restriction ? (
+    <div
+      role="note"
+      className="flex w-full flex-col gap-[4px] rounded-[16px] border border-solid border-[#c1d4c4] bg-[#f3f8f4] px-[16px] py-[12px] text-left"
+    >
+      <span className="font-sans text-[14px] leading-[18px] font-semibold text-[#1c2a21]">
+        {empty ? 'Nothing open to you is listed right now' : 'What you can apply to'}
+      </span>
+      <span className="font-sans text-[13px] leading-[19px] text-[#3d4a40]">
+        {BROWSE_COPY.restriction}
+      </span>
+    </div>
+  ) : null;
+
 const EmptyMatches = ({ jobs }) => {
   const navigate = useNavigate();
   const go = (to, why) => {
@@ -154,6 +171,7 @@ const EmptyMatches = ({ jobs }) => {
   };
   return (
     <div className="flex flex-col items-center gap-[14px] rounded-[24px] border border-solid border-[#e1eae2] bg-white px-[24px] py-[32px] text-center">
+      <RestrictionNote empty={!BROWSE_ROWS.length} />
       <img src={targetArt} alt="" aria-hidden="true" className="size-[150px]" />
       <h2 className="m-0 font-sans text-[31px] leading-[37px] font-semibold text-[#1c2a21] playful:font-heading max-sm:text-[26px]">
         {EMPTY_COPY.title}
@@ -416,6 +434,7 @@ const BrowseTab = ({ jobs, saved, toggle }) => {
           <AlertsButton onClick={() => jobs.update({ modal: 'alerts' })} />
         </div>
       </div>
+      <RestrictionNote empty={!BROWSE_ROWS.length} />
       <div className="flex flex-wrap items-center justify-between gap-[10px]">
         <span className="font-sans text-[14px] leading-[normal] font-semibold text-[#1c2a21]">
           {filtered ? `${rows.length} of ${BROWSE_COPY.count}` : BROWSE_COPY.count}

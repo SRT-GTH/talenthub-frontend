@@ -82,6 +82,8 @@ export const JOB_TYPE_OPTIONS = [
   'Internship',
   'Temporary',
   'Freelance/Project-based',
+  // ADR-07: saved as its own employment type (backend utils/jobPostForm.js), no longer as full-time.
+  'Volunteer',
 ];
 
 /** Figma 7958:165028 draws the last option as "Freelance/ Project-based" (space after the slash); the stored value stays as the chat flow emits it. */

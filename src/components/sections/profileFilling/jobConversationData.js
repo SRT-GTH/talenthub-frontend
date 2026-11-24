@@ -188,7 +188,8 @@ export const parseJobType = (text) => {
   if (lower.includes('contract')) return 'Contract';
   if (lower.includes('intern')) return 'Internship';
   if (lower.includes('freelance') || lower.includes('project')) return 'Freelance/Project-based';
-  if (lower.includes('temp')) return 'Temporary';
+  if (lower.includes('temp') || lower.includes('gig')) return 'Temporary';
+  if (lower.includes('volunt')) return 'Volunteer';
   return 'Full-time';
 };
 

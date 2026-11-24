@@ -208,6 +208,15 @@ const shareJob = async (job, title, setCopied) => {
   }
 };
 
+const BLOCKED_LABEL = {
+  from_16: 'Open from age 16',
+  adults_only: 'Open to adults only',
+  not_open_to_under18: 'Not open to under-18s',
+  education_stage: 'Not open to you yet',
+  education_level: 'Not open to you yet',
+  not_eligible: 'Not open to you',
+};
+
 const Hero = ({ view, mode, saved, onSave, onApply, jobs }) => {
   const [copied, setCopied] = useState(false);
   const { job, d, confidential, line, sticker } = view;
@@ -222,13 +231,14 @@ const Hero = ({ view, mode, saved, onSave, onApply, jobs }) => {
       : null,
   ].filter(Boolean);
 
-  // Live: roles the talent cannot apply to (adults-only for a minor, or a higher education level).
+  // Live: roles the talent cannot apply to (the eligibility rules by age and education level, ADR-06, or a higher
+  // education level the posting asks for): Apply disabled, with the reason and what is open to them.
   const blocked = JOBS_LIVE && !closed && !applied && !sent && job.eligible === false;
   let primary;
   if (blocked) {
     primary = (
       <Button variant="primary" size="lg" disabled>
-        {job.ineligibleReason === 'adults_only' ? 'Open to adults only' : 'Not open to you yet'}
+        {BLOCKED_LABEL[job.ineligibleReason] || 'Not open to you yet'}
       </Button>
     );
   } else if (closed) {
@@ -254,9 +264,12 @@ const Hero = ({ view, mode, saved, onSave, onApply, jobs }) => {
     );
   }
   const hint = blocked
-    ? job.ineligibleReason === 'adults_only'
-      ? 'Internships and training programmes are open to you now.'
-      : 'This role asks for a higher education level than yours.'
+    ? [d.ineligibleMessage || job.ineligibleMessage, d.openToYou || job.openToYou]
+        .filter(Boolean)
+        .join(' ') ||
+      (job.ineligibleReason === 'education_level'
+        ? 'This role asks for a higher education level than yours.'
+        : 'This role isn’t open to you yet.')
     : closed
       ? (d.closedNote ?? null)
       : applied && !sent
@@ -798,16 +811,41 @@ const JobDetailScreen = ({ jobs }) => {
     log('mount', { job: jobs.job, apply, closed, applied, offline });
   }, [jobs.job, apply, closed, applied, offline]);
 
-  // Unknown id -> back to the list rather than an empty screen.
+  // An id the feed doesn't list (a shared link, or a role the eligibility rules keep out of this talent's lists): live,
+  // it is fetched on its own and opens with Apply disabled and the reason. Only one that can't be loaded goes back to the
+  // list (it used to go back silently for every unlisted role).
+  const [lookup, setLookup] = useState(null); // null | 'loading'
   useEffect(() => {
-    if (!job) {
-      log('unknown job, leaving detail', jobs.job);
-      jobs.update({ job: null, apply: null });
+    if (job) return undefined;
+    if (JOBS_LIVE && jobs.job && jobs.data?.loadDetail) {
+      let current = true;
+      setLookup('loading');
+      jobs.data.loadDetail(jobs.job).then((ok) => {
+        if (!current || ok) return;
+        log('job not found, leaving detail', jobs.job);
+        setLookup(null);
+        jobs.update({ job: null, apply: null });
+      });
+      return () => {
+        current = false;
+      };
     }
+    log('unknown job, leaving detail', jobs.job);
+    jobs.update({ job: null, apply: null });
+    return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [job]);
 
-  if (!job) return null;
+  if (!job) {
+    return lookup === 'loading' ? (
+      <p
+        role="status"
+        className="m-0 px-[16px] py-[64px] text-center font-sans text-[15px] text-[#737373]"
+      >
+        Loading this role…
+      </p>
+    ) : null;
+  }
   const view = buildView(job);
   const tab = JOB_TAB_LIST.find((t) => t.id === jobs.tab) ?? JOB_TAB_LIST[0];
   const mode = { closed, applied, sent: apply === 'sent' };

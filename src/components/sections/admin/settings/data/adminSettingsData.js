@@ -29,6 +29,12 @@ const BASE = [
     icon: 'folder',
     to: '/admin/settings/onboarding',
   },
+  {
+    id: 'eligibility',
+    label: 'Opportunity eligibility',
+    icon: 'shield',
+    to: '/admin/settings/eligibility',
+  },
   { id: 'observability', label: 'Observability', icon: 'sliders', to: '/admin/observability' },
   {
     id: 'accessibility',

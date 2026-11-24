@@ -7,6 +7,7 @@ import AdminSettingsShell from '../../components/sections/admin/settings/AdminSe
 import PlatformConfigTab from '../../components/sections/admin/settings/PlatformConfigTab.jsx';
 import PlatformValuesTab from '../../components/sections/admin/settings/PlatformValuesTab.jsx';
 import OnboardingTemplateTab from '../../components/sections/admin/settings/OnboardingTemplateTab.jsx';
+import OpportunityEligibilityTab from '../../components/sections/admin/settings/OpportunityEligibilityTab.jsx';
 import RolesPermissionsTab from '../../components/sections/admin/settings/RolesPermissionsTab.jsx';
 import OrganisationsTab from '../../components/sections/admin/settings/OrganisationsTab.jsx';
 import AgenciesTab from '../../components/sections/admin/settings/AgenciesTab.jsx';
@@ -33,6 +34,7 @@ const log = debug('AdminSettingsPage');
  *   /admin/settings/two-step                  My 2-step verification (MFA Phase 2): the signed-in staff member's own authenticator apps and backup codes
  *   /admin/settings/roles                     Roles and permissions (7.5.1e)
  *   /admin/settings/values                    Platform values: the platformEnum lists in the database (PlatformValuesTab)
+ *   /admin/settings/eligibility               Opportunity eligibility: who sees and may apply to what, by age and education level (ADR-06)
  *   /admin/settings  (= /admin/settings/platform)   platform config groups; #feature_flag / #integration scroll to a group (nav: Feature flags / Integrations)
  * Every nav item has a screen; dialogs live in the tabs that use them (StaffTab, PlatformConfigTab, …).
  */
@@ -78,6 +80,11 @@ const AdminSettingsPage = () => {
     subtitle =
       'Templates institutions and partners use to onboard people in bulk. Super Admins only; every change is logged.';
     body = <OnboardingTemplateTab session={session} />;
+  } else if (tab === 'eligibility') {
+    active = 'eligibility';
+    subtitle =
+      'Which opportunities talents see and may apply to, by age and education level. Super Admins only; every change needs a reason and is logged.';
+    body = <OpportunityEligibilityTab session={session} />;
   } else if (tab === 'values') {
     active = 'values';
     subtitle =
