@@ -10,12 +10,13 @@ import { Roster20ShieldIcon } from './rosterIcons.jsx';
 const log = debug('InstitutionConsentDialog');
 
 /*
- * InstitutionConsentDialog — "N students need guardian consent" (Figma 11.2.2i 8744:431724, ?modal=consent): 820 wide. Chip "Under-18s", title, text, table (Student 200 · Age 60 · Guardian 220 ·
- * Status 180; status pills: "Not asked yet" #efefea / #575755 · "Sent 12 Oct" #faf4e8 / #967014 · "Agreed 9 Oct" #ebf1ec / #387440 · "Declined" #f9ebea / #902b20),
- * the "… · n more · See all" row, the shield note and "Not now" + "Send n consent requests →".
- * Live: the under-18s of the roster (GET /api/institution/students). Send → POST /api/institution/students/consent: every under-18 with a guardian phone or
- * email who hasn't been asked (or declined) gets a link by SMS / email (public page /guardian-consent/:token, no GTH account needed). Rows without a guardian
- * contact are skipped and counted.
+ * InstitutionConsentDialog — "Guardian notices" for under-18s (Figma 11.2.2i 8744:431724, ?modal=consent; opt-out model, ADR-13): 820 wide. Chip "Under-18s", title,
+ * text, table (Student 200 · Age 60 · Guardian 220 · Status 180; status pills: "No notice yet" / "No guardian contact" #efefea / #575755 · "Notified 12 Oct" #ebf1ec /
+ * #387440 · "Opted out 9 Oct" #f9ebea / #902b20; older consent requests: "Sent" #faf4e8 · "Agreed" · "Declined"), the "… · n more · See all" row, the shield note and
+ * "Not now" + "Send n notices →".
+ * Under-18s are active from the start; each guardian gets a notice (SMS and / or email) with a link to opt out (public page /guardian-consent/:token, no GTH
+ * account needed). Send → POST /api/institution/students/consent: every under-18 with a guardian contact whose guardian wasn't told yet. A guardian who opted
+ * out is never written to again. Rows without a guardian contact are skipped and counted.
  * Props: onClose.
  */
 
@@ -23,18 +24,24 @@ const PILL = {
   none: 'bg-[#efefea] text-[#575755]',
   sent: 'bg-[#faf4e8] text-[#967014]',
   agreed: 'bg-[#ebf1ec] text-[#387440]',
+  notified: 'bg-[#ebf1ec] text-[#387440]',
   declined: 'bg-[#f9ebea] text-[#902b20]',
+  'opted-out': 'bg-[#f9ebea] text-[#902b20]',
 };
 const statusText = (r) =>
   r.status === 'none'
     ? r.hasContact
-      ? 'Not asked yet'
+      ? 'No notice yet'
       : 'No guardian contact'
-    : r.status === 'sent'
-      ? `Sent ${r.date}`
-      : r.status === 'declined'
-        ? `Declined ${r.date}`
-        : `Agreed ${r.date}`;
+    : r.status === 'notified'
+      ? `Notified ${r.date}`
+      : r.status === 'opted-out'
+        ? `Opted out ${r.date}`
+        : r.status === 'sent'
+          ? `Asked ${r.date}`
+          : r.status === 'declined'
+            ? `Declined ${r.date}`
+            : `Agreed ${r.date}`;
 const FIRST = 4;
 
 const GRID =
@@ -46,10 +53,8 @@ const InstitutionConsentDialog = ({ onClose }) => {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
   const rows = consentRowsFor(store);
-  const waiting = rows.filter((r) => r.status !== 'agreed');
-  const sendable = rows.filter(
-    (r) => (r.status === 'none' || r.status === 'declined') && r.hasContact
-  );
+  const waiting = rows.filter((r) => r.status === 'none' || r.status === 'sent');
+  const sendable = rows.filter((r) => (r.status === 'none' || r.status === 'sent') && r.hasContact);
   const shown = all ? rows : rows.slice(0, FIRST);
   const send = async () => {
     if (busy) return;
@@ -60,23 +65,23 @@ const InstitutionConsentDialog = ({ onClose }) => {
       setProblem(out.message);
       return;
     }
-    const { sent = 0, noContact = 0 } = out.result || {};
-    log('sent', sent, noContact);
+    const { sent = 0, noContact = 0, failed = 0 } = out.result || {};
+    log('sent', sent, noContact, failed);
     rosterActions.toast(
-      `${sent} consent request${sent === 1 ? ' was' : 's were'} sent.${noContact ? ` ${noContact} without a guardian contact were skipped.` : ''}`
+      `${sent} guardian notice${sent === 1 ? ' was' : 's were'} sent.${noContact ? ` ${noContact} without a guardian contact were skipped.` : ''}${failed ? ` ${failed} couldn’t be delivered yet; try again later.` : ''}`
     );
     onClose();
   };
   return (
-    <InstitutionDialogShell label="Students need guardian consent" onClose={onClose}>
+    <InstitutionDialogShell label="Guardian notices for under-18s" onClose={onClose}>
       <InstitutionDialogHeader
         chip="Under-18s"
         title={
           waiting.length
-            ? `${waiting.length} student${waiting.length === 1 ? ' needs' : 's need'} guardian consent`
-            : 'Every guardian has agreed'
+            ? `${waiting.length} guardian${waiting.length === 1 ? ' hasn’t' : 's haven’t'} been told yet`
+            : 'Every guardian with a contact has been told'
         }
-        text="Your staff see an under-18’s GTH profile and progress only after a parent or guardian agrees. We text or email each guardian a link; they don’t need a GTH account."
+        text="Students under 18 are active from the start. We text or email each parent or guardian a notice with a link to opt out if they have concerns; they don’t need a GTH account."
       />
       <div className="flex flex-col gap-[14px]">
         {rows.length ? (
@@ -150,8 +155,8 @@ const InstitutionConsentDialog = ({ onClose }) => {
         )}
         <p className="m-0 flex items-start gap-[8px] font-sans text-[13px] leading-[16px] text-[#575755]">
           <Roster20ShieldIcon className="mt-px size-[16px] shrink-0" />
-          Until a guardian agrees, the student’s profile stays hidden from your staff. They can
-          still use My Learning and Skills Lab.
+          If a guardian opts out, the student’s access is paused and your staff no longer see their
+          profile. Add a guardian contact for students marked “No guardian contact”.
         </p>
       </div>
       <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] text-danger empty:hidden">
@@ -164,7 +169,7 @@ const InstitutionConsentDialog = ({ onClose }) => {
           busy
             ? 'Sending…'
             : sendable.length
-              ? `Send ${sendable.length} consent request${sendable.length === 1 ? '' : 's'}`
+              ? `Send ${sendable.length} notice${sendable.length === 1 ? '' : 's'}`
               : 'Nothing to send'
         }
         onPrimary={send}

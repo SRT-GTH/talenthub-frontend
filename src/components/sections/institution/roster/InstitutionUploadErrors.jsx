@@ -10,6 +10,7 @@ import {
   Roster20FileIcon,
   RosterArrowheadDownIcon,
 } from './rosterIcons.jsx';
+import { downloadCheckReport } from './uploadReport.js';
 
 const log = debug('InstitutionUploadErrors');
 
@@ -17,12 +18,11 @@ const log = debug('InstitutionUploadErrors');
  * InstitutionUploadErrors — "Fix 14 rows first" (Figma 11.2.2d 8590:385302): nothing is added yet. File card (#f8f8f4, 1px #e7e7e7, r16: file tile, "form1-2026-intake.csv · 312 rows",
  * "298 ready · 14 need fixing" in green with a check-circle, "Re-upload" button), the first rows to fix as labelled read-only fields ("Row 18 · Ghana Card" → "GHA-71203 is too short" ...,
  * "+ 9 more rows" → "Download the error report to see them all"), the "Skip the 14 rows and add the rest" checkbox (ticked), the green "298 students are ready to add" banner,
- * "Download error report" (saves a real CSV with every row number and problem) and Cancel + "Add 298 students →" (disabled while the skip box is unticked).
- * The fields are the file's first 7 failing rows as the server reported them (POST /api/institution/students/import).
+ * "Download error report" (saves a real CSV with every row number and ALL its problems, plus the skipped rows) and Cancel + "Add 298 students →" (disabled while the
+ * skip box is unticked). The fields are the file's first 7 failing rows as the server reported them (POST /api/institution/students/import), every problem of a row
+ * in one field.
  * Props: result ({ fileName, fileRows, ready, failing, fixes }), onReupload, onCancel, onAdd, busy, error.
  */
-
-const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 
 const fieldsFor = (result) => {
   const shown = result.fixes.slice(0, 7).map((f) => ({
@@ -44,20 +44,7 @@ const fieldsFor = (result) => {
     : shown;
 };
 
-const downloadReport = (result) => {
-  const lines = ['row,student,problem'];
-  result.fixes.forEach((f) =>
-    lines.push([f.row, csvCell(f.student), csvCell(f.problem)].join(','))
-  );
-  const url = URL.createObjectURL(new Blob([`${lines.join('\n')}\n`], { type: 'text/csv' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'error-report.csv';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-};
+const downloadReport = (result) => downloadCheckReport(result);
 
 const InstitutionUploadErrors = ({ result, onReupload, onCancel, onAdd, busy = false, error }) => {
   const [skip, setSkip] = useState(true);

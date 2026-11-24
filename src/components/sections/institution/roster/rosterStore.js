@@ -109,11 +109,11 @@ export const rosterActions = {
   transferOut(id, to, note) {
     return attempt('transfer', () => institutionTransferStudent(id, to, note));
   },
-  /** rows: [{name, ghanaCard, programme, indexNumber, dateOfBirth, form, guardianPhone, email}]; commit false = check only. */
-  importRows(rows, commit, invite = true) {
+  /** rows: template keys from csvImport.rowsFromTable; commit false = check only; opts: { defaultLevel, fileName }. */
+  importRows(rows, commit, invite = true, opts = {}) {
     return attempt(
       'import',
-      async () => ({ result: await institutionImportStudents(rows, commit, invite) }),
+      async () => ({ result: await institutionImportStudents(rows, commit, invite, opts) }),
       { reload: commit }
     );
   },
@@ -132,18 +132,30 @@ export const rosterActions = {
   },
 };
 
-/** The under-18s for the guardian consent dialog. */
+/**
+ * The under-18s for the guardian notices dialog. Opt-out model (ADR-13): a guardian who got the notice is "notified" (the backend stores it as
+ * agreed with basis opt-out: active unless they opt out), one who opted out is "opted-out". Older consent requests keep sent / agreed / declined.
+ */
 export const consentRowsFor = (s) =>
   s.students
     .filter((r) => r.under18)
-    .map((r) => ({
-      id: r.id,
-      name: r.name,
-      age: r.age,
-      guardian: r.guardianLine || 'No guardian contact on file',
-      hasContact: Boolean(r.guardianContact),
-      status: ['agreed', 'sent', 'declined'].includes(r.consent?.status)
-        ? r.consent.status
-        : 'none',
-      date: r.consent?.date || '',
-    }));
+    .map((r) => {
+      const st = r.consent?.status;
+      const optOut = r.consent?.basis === 'opt-out';
+      return {
+        id: r.id,
+        name: r.name,
+        age: r.age,
+        guardian: r.guardianLine || 'No guardian contact on file',
+        hasContact: Boolean(r.guardianContact),
+        status:
+          optOut && st === 'agreed'
+            ? 'notified'
+            : optOut && st === 'declined'
+              ? 'opted-out'
+              : ['agreed', 'sent', 'declined'].includes(st)
+                ? st
+                : 'none',
+        date: r.consent?.date || '',
+      };
+    });
