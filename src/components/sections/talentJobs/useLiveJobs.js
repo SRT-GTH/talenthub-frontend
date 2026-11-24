@@ -140,21 +140,29 @@ export const useLiveJobs = () => {
     [run]
   );
 
+  // Resolves true once the posting is in the data (also one the feed doesn't list: a shared link, or a role the
+  // eligibility rules keep out of this talent's lists, shown with Apply disabled), false when it can't be loaded.
   const loadDetail = useCallback(
     async (id) => {
-      if (!live || !id || !dataRef.current || detailsRef.current[id]) return;
+      if (!live || !id || !dataRef.current) return false;
+      if (detailsRef.current[id]) return true;
       detailsRef.current[id] = { id }; // in flight: never fetch the same posting twice
       try {
         const job = await fetchTalentJob(id);
-        if (!job) return;
+        if (!job) {
+          delete detailsRef.current[id];
+          return false;
+        }
         detailsRef.current[id] = job;
         const data = mergeJobDetail(dataRef.current, job, feedRef.current?.jobs || []);
         dataRef.current = data;
         applyJobsData(data);
         setState((s) => ({ ...s, version: s.version + 1 }));
+        return true;
       } catch (err) {
         delete detailsRef.current[id];
         log.error('detail load failed:', err?.response?.status || err?.message);
+        return false;
       }
     },
     [live]

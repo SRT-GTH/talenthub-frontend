@@ -108,7 +108,9 @@ export function payLabel(salary) {
 export function opportunityMatchView(card, now = new Date()) {
   const mode = WORK_MODE_LABEL[card?.workMode] || (card?.workMode ? titleCase(card.workMode) : '');
   const place = [card?.city, mode].filter(Boolean).join(' · ');
-  const type = JOB_TYPE_LABEL[card?.type] || (card?.type ? titleCase(card.type) : '');
+  // The backend labels jobs by employment type (typeLabel: "Part-time", "Volunteer"; ADR-07).
+  const type =
+    card?.typeLabel || JOB_TYPE_LABEL[card?.type] || (card?.type ? titleCase(card.type) : '');
   const facts = [place, type, payLabel(card?.salary)].filter(Boolean);
   const score = Math.max(0, Math.min(100, Math.round(Number(card?.matchScore) || 0)));
   const ks = card?.keySkills;

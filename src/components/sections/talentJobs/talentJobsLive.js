@@ -151,6 +151,8 @@ export const toCard = (j, now = Date.now()) => {
     live: true,
     eligible: j.eligible !== false,
     ineligibleReason: j.ineligibleReason || null,
+    ineligibleMessage: j.ineligibleMessage || null,
+    openToYou: j.openToYou || null,
     closed: Boolean(j.closed),
     closesInDays: j.closesInDays ?? null,
     deadline: j.deadline || null,
@@ -163,12 +165,20 @@ export const toCard = (j, now = Date.now()) => {
   };
 };
 
+// Short lock label on a row the talent can't apply to (eligibility rules, ADR-06).
+const LOCK_LABEL = {
+  from_16: 'From age 16',
+  adults_only: 'Adults only',
+  not_open_to_under18: 'Not open to under-18s',
+  education_stage: 'Not open to you yet',
+  not_eligible: 'Not open to you',
+};
 const metaOf = (j) =>
   [
     j.company?.name,
     j.location,
     j.typeLabel,
-    j.eligible === false && j.ineligibleReason === 'adults_only' ? 'Adults only' : null,
+    j.eligible === false ? LOCK_LABEL[j.ineligibleReason] || null : null,
   ]
     .filter(Boolean)
     .join(' · ');
@@ -307,6 +317,8 @@ export const toDetail = (j, all = [], now = Date.now()) => {
     similar: similar.length ? similar : null,
     eligible: j.eligible !== false,
     ineligibleReason: j.ineligibleReason || null,
+    ineligibleMessage: j.ineligibleMessage || null,
+    openToYou: j.openToYou || null,
   };
   return detail;
 };
@@ -388,6 +400,8 @@ export const buildJobsData = (feed, now = Date.now()) => {
       onlyMine: 'Only show my matches',
       unmatched: 'Not matched yet',
       place: feed?.place || null, // the talent's own { region, district }: the Location filter's "near you"
+      // What the eligibility rules open to this talent (null = everything): shown above the list and on an empty one.
+      restriction: feed?.eligibility?.restricted ? feed.eligibility.openToYou || null : null,
     },
     // Browse all sorts "Newest" by default (BROWSE_SORTS in JobsScreen): newest posting first.
     BROWSE_ROWS: [...open]
@@ -465,11 +479,21 @@ export const buildJobsData = (feed, now = Date.now()) => {
   };
 };
 
-/** Merge a GET /jobs/:id payload into an existing data set (about, recruiter). */
+/**
+ * Merge a GET /jobs/:id payload into an existing data set (about, recruiter). A posting the feed doesn't list (opened by
+ * link, or kept out of this talent's lists by the eligibility rules) is added to JOB_INDEX so the detail screen can open it.
+ */
 export const mergeJobDetail = (data, job, feedJobs = [], now = Date.now()) => {
   if (!data || !job) return data;
   const detail = toDetail(job, feedJobs, now);
-  return { ...data, JOB_DETAILS: { ...data.JOB_DETAILS, [job.id]: detail } };
+  const index = data.JOB_INDEX || [];
+  const known =
+    index.some((c) => c.id === job.id) || (data.JOB_LIST || []).some((c) => c.id === job.id);
+  return {
+    ...data,
+    JOB_DETAILS: { ...data.JOB_DETAILS, [job.id]: detail },
+    ...(known || !job.title ? {} : { JOB_INDEX: [...index, toCard(job, now)] }),
+  };
 };
 
 const nameOf = (x) => (typeof x === 'string' ? x : x?.name || '');

@@ -429,7 +429,10 @@ const JobPostingsSection = () => {
     else if (action === 'delete') updateUrl({ ...base, modal: 'delete-draft', posting: id });
     else {
       navigator.clipboard?.writeText?.(
-        isLive ? `${window.location.origin}/jobs/${id}` : `gth.com/jobs/silver-rock/${id}`
+        // The talent app's job page (there is no /jobs/:id route: that link went to /home).
+        isLive
+          ? `${window.location.origin}/job-postings?job=${encodeURIComponent(id)}`
+          : `gth.com/jobs/silver-rock/${id}`
       );
       updateUrl(base);
     }

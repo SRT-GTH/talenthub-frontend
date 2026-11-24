@@ -1,9 +1,13 @@
+import { employmentTypeOf } from '../../../utils/opportunityTypes.js';
+
 /*
  * liveJobForm - turns the "Create job" page's values (JobFormPage / BLANK_FORM keys) into the form
  * POST /opportunities/from-buddy reads (backend utils/jobPostForm.js formToOpportunity), so the page
  * and Career Buddy create postings the same way: company from the recruiter's organisation, category
  * from the job type, fair-hiring wording check, posting limit, and publish (or a draft while the
  * organisation affiliation is pending).
+ * Employment type (ADR-07) is saved as its own field, so Part-time, Contract, Gig / temporary and Volunteer stay what the
+ * recruiter chose; the under-18 option (openToUnder18) is saved and reloaded too.
  */
 
 const JOB_TYPE = {
@@ -13,7 +17,25 @@ const JOB_TYPE = {
   internship: 'internship',
   // National Service: backend type government-program (utils/jobPostForm.js "national-service").
   'national service (nss)': 'national-service',
-  apprenticeship: 'temporary',
+  apprenticeship: 'apprenticeship',
+  'gig / temporary': 'temporary',
+  volunteer: 'volunteer',
+};
+
+// Page "Employment type" -> the stored category, duration and employment type (same as backend utils/jobPostForm.js).
+const STORED_TYPE = {
+  'full-time': { type: 'full-time-job', duration: 'permanent', employmentType: 'full-time' },
+  'part-time': { type: 'full-time-job', duration: 'permanent', employmentType: 'part-time' },
+  contract: { type: 'full-time-job', duration: 'contract', employmentType: 'contract' },
+  temporary: { type: 'full-time-job', duration: 'temporary', employmentType: 'temporary' },
+  volunteer: { type: 'full-time-job', duration: 'temporary', employmentType: 'volunteer' },
+  apprenticeship: {
+    type: 'full-time-job',
+    duration: 'temporary',
+    employmentType: 'apprenticeship',
+  },
+  internship: { type: 'internship', duration: 'internship', employmentType: 'internship' },
+  'national-service': { type: 'government-program', duration: 'temporary', employmentType: null },
 };
 
 const ARRANGEMENT = { 'on-site': 'on-site', hybrid: 'hybrid', remote: 'remote' };
@@ -52,10 +74,16 @@ const amount = (text) => {
 const EMPLOYMENT_OF = (opp) => {
   if (opp.type === 'internship') return 'Internship';
   if (opp.type === 'government-program') return 'National Service (NSS)';
-  const d = opp.duration?.type;
-  if (d === 'contract') return 'Contract';
-  if (d === 'temporary') return 'Contract';
-  return 'Full-time';
+  return (
+    {
+      'part-time': 'Part-time',
+      contract: 'Contract',
+      temporary: 'Gig / temporary',
+      volunteer: 'Volunteer',
+      apprenticeship: 'Apprenticeship',
+      internship: 'Internship',
+    }[employmentTypeOf(opp)] || 'Full-time'
+  );
 };
 const SETUP_OF = { onsite: 'On-site', hybrid: 'Hybrid', remote: 'Remote' };
 const PAY_OF = {
@@ -127,7 +155,19 @@ export const fromOpportunity = (opp = {}) => {
     screening: '',
     confirmation: true,
     gthProfile: true,
-    under18: false,
+    under18: opp.openToUnder18 === true,
+  };
+};
+
+/** Page values -> the stored shape the eligibility rules read ({ type, employmentType, duration, salary }). */
+export const postingShapeOf = (values) => {
+  const form = toBuddyForm(values);
+  const stored = STORED_TYPE[form.jobType] || STORED_TYPE['full-time'];
+  return {
+    type: stored.type,
+    employmentType: stored.employmentType,
+    duration: { type: stored.duration },
+    salary: { min: form.salaryMin ?? 0, max: form.salaryMax ?? 0 },
   };
 };
 
@@ -149,6 +189,12 @@ export const toPostingUpdates = (values, current = {}) => {
     // City and region are worked out from the address by the backend (utils/jobPostForm.js placeOf).
     location: { type: arrangement, address: form.workLocation, country: 'Ghana' },
     skills: form.skills.map((name) => ({ name, isRequired: true })),
+    // Employment type and the under-18 option are kept on edit (ADR-06 / ADR-07); the backend re-checks the option.
+    ...(() => {
+      const shape = postingShapeOf(values);
+      return { type: shape.type, employmentType: shape.employmentType, duration: shape.duration };
+    })(),
+    openToUnder18: form.openToUnder18,
   };
   if (form.salaryMin != null || form.salaryMax != null) {
     updates.salary = {
@@ -196,5 +242,6 @@ export const toBuddyForm = (values) => {
       ? { deadlineDay: deadline.day, deadlineMonth: deadline.month, deadlineYear: deadline.year }
       : {}),
     skills: (v.skills || []).map((s) => (typeof s === 'string' ? s : s?.name)).filter(Boolean),
+    openToUnder18: Boolean(v.under18),
   };
 };

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
 import { fetchPosting, fetchPostingPipeline } from '../../../services/recruiterPostings.api.js';
 import { debug } from '../../../utils/debug.js';
+import { employmentLabel } from '../../../utils/opportunityTypes.js';
 import { ago } from '../jobPostings/useLivePostings.js';
 import { fromOpportunity, placeLabel, splitDescription } from './liveJobForm.js';
 
@@ -25,13 +26,6 @@ const STATUS_LABEL = {
   paused: 'Paused',
   expired: 'Closed',
   filled: 'Closed',
-};
-const TYPE_LABEL = {
-  'full-time-job': 'Full-time',
-  internship: 'Internship',
-  'training-program': 'Training programme',
-  'government-program': 'National Service (NSS)',
-  'international-opportunity': 'International',
 };
 const PER = {
   monthly: '/ month',
@@ -103,7 +97,7 @@ export const toPostingView = (opp, pipeline = { stages: {}, total: 0 }) => {
       [placeText, setup && !placeText.startsWith('Remote') ? setup : '']
         .filter(Boolean)
         .join(' · '),
-      TYPE_LABEL[opp.type] || 'Job',
+      employmentLabel(opp),
       payLabel(opp.salary),
       closes,
     ],
@@ -146,7 +140,8 @@ export const toPostingView = (opp, pipeline = { stages: {}, total: 0 }) => {
       total: `${total} applicant${total === 1 ? '' : 's'}`,
       rows: PIPELINE_ROWS.map((r) => ({ label: r.label, value: count(r.stages), color: r.color })),
     },
-    share: `${window.location.origin}/jobs/${id}`,
+    // The talent app's job page (there is no /jobs/:id route: that link went to /home).
+    share: `${window.location.origin}/job-postings?job=${encodeURIComponent(id)}`,
     applicantCount: total,
   };
 };
