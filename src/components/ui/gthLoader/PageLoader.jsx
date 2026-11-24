@@ -18,6 +18,41 @@ const PAGE_CAPTIONS = [
   'Lining up opportunities…',
 ];
 const DEFAULT_TIP = 'A 3-minute quiz keeps your streak alive.';
+// The talent lines and tip above are talent copy; recruiters, parents and the other portals get lines of their own and no tip.
+const RECRUITER_CAPTIONS = [
+  'Opening your workspace…',
+  'Checking your job postings…',
+  'Gathering your applicants…',
+  'Lining up talent…',
+];
+const PARENT_CAPTIONS = [
+  'Opening your dashboard…',
+  'Checking on your wards…',
+  'Gathering what needs you…',
+  'Almost there…',
+];
+const PORTAL_CAPTIONS = [
+  'Opening your dashboard…',
+  'Getting things ready…',
+  'Fetching the latest numbers…',
+  'Almost there…',
+];
+/* Captions + tip for the page being opened (read from the address bar: the loader can show before the router has a location). */
+const portalCopy = () => {
+  let path = '';
+  try {
+    path = window.location.pathname;
+  } catch {
+    path = '';
+  }
+  const on = (prefix) => path === prefix || path.startsWith(`${prefix}/`);
+  if (on('/recruiter') || on('/onboarding/recruiter'))
+    return { captions: RECRUITER_CAPTIONS, tip: null };
+  if (on('/parent')) return { captions: PARENT_CAPTIONS, tip: null };
+  if (['/admin', '/agency', '/institution', '/data'].some(on))
+    return { captions: PORTAL_CAPTIONS, tip: null };
+  return { captions: PAGE_CAPTIONS, tip: DEFAULT_TIP };
+};
 // Lines 2-4 are one track shifted by 1 s (see gthLoader.css), line 1 has its own.
 const CAPTION_DELAY = ['0s', '0s', '-3s', '-2s'];
 const KENTE =
@@ -38,12 +73,15 @@ const BLOB = 'pointer-events-none absolute rounded-full';
 
 const PageLoader = ({
   look,
-  captions = PAGE_CAPTIONS,
+  captions: captionsProp,
   label = 'Loading your dashboard',
-  tip = DEFAULT_TIP,
+  tip: tipProp,
   className,
 }) => {
   const { uiStyle } = useUiStyle();
+  const copy = portalCopy();
+  const captions = captionsProp ?? copy.captions;
+  const tip = tipProp === undefined ? copy.tip : tipProp;
   const mode = look || (uiStyle === 'playful' ? 'playful' : 'focused');
   if (mode === 'focused') {
     return (

@@ -131,7 +131,8 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
           ...TOP_NAV,
           profileName: recruiter.shortName || '\u00a0',
           messageCount: recruiter.unreadMessages || 0,
-          notificationCount: 0,
+          // The real unread count arrives below (GET /notifications); nothing until then (ADR-15).
+          notificationCount: '',
           streakCount: '\u2013',
         }
       : TOP_NAV;
@@ -179,9 +180,11 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
 
   // Bell count: the page load gives it (talentHomeState live.notifications.unread); after a read
   // in the pop-up / full screen the feed broadcasts and the count is re-read here.
+  // Signed-in recruiter: their own unread count, read on mount (no page load carries it) and after every read in the panel.
+  const recruiterBell = !isTalent && Boolean(recruiter);
   const [liveUnread, setLiveUnread] = useState(null);
   useEffect(() => {
-    if (!isTalent) return undefined;
+    if (!isTalent && !recruiterBell) return undefined;
     const onChange = () => {
       fetchNotifications({ limit: 1 })
         .then(({ unreadCount }) => {
@@ -190,11 +193,12 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
         })
         .catch((err) => log.error('bell count refresh failed:', err?.message));
     };
+    if (recruiterBell) onChange();
     window.addEventListener(NOTIFICATIONS_CHANGED, onChange);
     return () => window.removeEventListener(NOTIFICATIONS_CHANGED, onChange);
-  }, [isTalent]);
+  }, [isTalent, recruiterBell]);
   const bellCount =
-    isTalent && liveUnread !== null
+    (isTalent || recruiterBell) && liveUnread !== null
       ? liveUnread > 0
         ? String(liveUnread)
         : ''

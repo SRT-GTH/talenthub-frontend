@@ -245,7 +245,11 @@ const CommunityBrowseLive = ({ community }) => {
   return (
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1425px] flex-col gap-[24px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)] pb-[24px]">
-        <BrowseHeader total={browse.catalogueTotal ?? cards.length + mine.length} xp={false} />
+        <BrowseHeader
+          total={browse.catalogueTotal ?? cards.length + mine.length}
+          xp={false}
+          friends={false}
+        />
         <BrowseToolbar
           cat={cat}
           onCat={(id) => {

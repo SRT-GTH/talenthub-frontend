@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import { PANEL } from './data/notificationsData.js';
 import { SPACES_PANEL } from '../switch/switchData.js';
+import { useParentNotifications } from './useParentNotifications.js';
 import iconUserSolo from '../../../../assets/parent/notif-user.svg';
 import iconSpacesUsers from '../../../../assets/parent/spaces-users.svg';
 import iconSpacesUser from '../../../../assets/parent/spaces-user.svg';
@@ -20,6 +21,8 @@ const log = debug('NotificationsPanel');
 const NotificationsPanel = ({ onClose, both = false }) => {
   const [filter, setFilter] = useState('all');
   const ref = useRef(null);
+  // Signed in (ADR-15): the parent's own latest notifications, not the drawn sample family's.
+  const own = useParentNotifications();
   const closeRef = useRef(onClose);
   useEffect(() => {
     closeRef.current = onClose;
@@ -49,12 +52,14 @@ const NotificationsPanel = ({ onClose, both = false }) => {
     };
   }, []);
 
-  const rows = both
-    ? [
-        ...SPACES_PANEL.careerRows.map((r) => ({ ...r, icon: iconUserSolo, space: 'career' })),
-        ...PANEL.items.map((r) => ({ ...r, space: 'parent' })),
-      ].filter((r) => filter === 'all' || r.space === filter)
-    : PANEL.items;
+  const rows = own.live
+    ? own.rows.slice(0, 5)
+    : both
+      ? [
+          ...SPACES_PANEL.careerRows.map((r) => ({ ...r, icon: iconUserSolo, space: 'career' })),
+          ...PANEL.items.map((r) => ({ ...r, space: 'parent' })),
+        ].filter((r) => filter === 'all' || r.space === filter)
+      : PANEL.items;
 
   return (
     <div
@@ -70,7 +75,9 @@ const NotificationsPanel = ({ onClose, both = false }) => {
         </h2>
         <button
           type="button"
-          onClick={() => log('mark all read (no read state drawn)')}
+          onClick={() =>
+            own.live ? own.feed.markAllRead() : log('mark all read (no read state drawn)')
+          }
           className="cursor-pointer border-0 bg-transparent p-0 text-[13px] leading-[16px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           {PANEL.markAllRead}
@@ -104,6 +111,15 @@ const NotificationsPanel = ({ onClose, both = false }) => {
           ))}
         </div>
       ) : null}
+      {own.live && !rows.length ? (
+        <p className="m-0 pb-[8px] text-[13px] leading-[18px] text-[#575755]">
+          {own.feed.loading
+            ? 'Loading your notifications…'
+            : own.feed.error
+              ? 'We couldn’t load your notifications.'
+              : 'You’re all caught up.'}
+        </p>
+      ) : null}
       <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
         {rows.map((item, i) => (
           <li
@@ -113,7 +129,7 @@ const NotificationsPanel = ({ onClose, both = false }) => {
             }
           >
             <Link
-              to={item.to}
+              to={item.to || '/parent/notifications'}
               onClick={() => {
                 log('open row', item.id);
                 onClose();

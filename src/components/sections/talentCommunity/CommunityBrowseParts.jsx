@@ -28,7 +28,8 @@ const log = debug('CommunityBrowseParts');
  */
 
 /* The decoration sticker row of the "GTH · Messages header art" instance (Playful only, hidden in Focused and below xl). */
-const HeaderDecor = ({ xp }) => (
+// `friends`: the drawn "9 friends are here" sticker is a sample number; the live page leaves it out (ADR-15).
+const HeaderDecor = ({ xp, friends = true }) => (
   <div
     className="relative hidden h-[69px] w-[600px] shrink-0 xl:playful:block"
     aria-hidden="true"
@@ -46,10 +47,12 @@ const HeaderDecor = ({ xp }) => (
           />
         ))}
       </span>
-      <span className="absolute left-[136px] top-[36px] inline-flex items-center gap-[6px] whitespace-nowrap rounded-full border border-solid border-[rgba(0,82,43,0.12)] bg-white px-[12px] py-[7px] font-sans text-[12px] leading-[14px] tracking-[0.2px] text-[#1c2a21] shadow-[0_6px_14px_rgba(31,69,38,0.16)]">
-        <span className="size-[8px] rounded-full bg-[#349643]" />
-        {COMMUNITY_BROWSE_COPY.header.friends}
-      </span>
+      {friends ? (
+        <span className="absolute left-[136px] top-[36px] inline-flex items-center gap-[6px] whitespace-nowrap rounded-full border border-solid border-[rgba(0,82,43,0.12)] bg-white px-[12px] py-[7px] font-sans text-[12px] leading-[14px] tracking-[0.2px] text-[#1c2a21] shadow-[0_6px_14px_rgba(31,69,38,0.16)]">
+          <span className="size-[8px] rounded-full bg-[#349643]" />
+          {COMMUNITY_BROWSE_COPY.header.friends}
+        </span>
+      ) : null}
       <span
         className="absolute left-[338px] top-[9px] inline-flex items-center gap-[6px] whitespace-nowrap rounded-full bg-[#387440] px-[14px] py-[8px] font-sans text-[13px] font-medium leading-[16px] tracking-[0.2px] text-white shadow-[0_6px_14px_rgba(31,69,38,0.16)]"
         style={{ transform: 'rotate(5deg)' }}
@@ -81,9 +84,10 @@ const HeaderDecor = ({ xp }) => (
 /*
  * BrowseHeader — "Find your people" + count sticker, subtitle, decoration art.
  * Props: total (number, the "10 communities" sticker), xp (default true: the drawn "+20 XP per helpful answer" sticker;
- * live passes false, since posting / answering in community awards no XP in the ledger).
+ * live passes false, since posting / answering in community awards no XP in the ledger), friends (default true: the drawn
+ * "9 friends are here" sticker; live passes false).
  */
-export const BrowseHeader = ({ total, xp = true }) => {
+export const BrowseHeader = ({ total, xp = true, friends = true }) => {
   const { browseCopy: COPY, isRecruiter, base } = useCommunityContent();
   return (
     <div
@@ -136,7 +140,7 @@ export const BrowseHeader = ({ total, xp = true }) => {
               </CommunityButton>
             </span>
           ) : null}
-          <HeaderDecor xp={xp} />
+          <HeaderDecor xp={xp} friends={friends} />
         </>
       )}
     </div>

@@ -4,7 +4,7 @@ import { GroupCard, SettingRow } from '../../talentSettings/SettingsBUi.jsx';
 import Button from '../../../ui/Button.jsx';
 import ParentButton from '../ParentButton.jsx';
 import ParentTextField from '../ParentTextField.jsx';
-import { ACCOUNT } from './data/settingsData.js';
+import { useParentSettingsData } from './data/useParentSettingsData.js';
 
 const log = debug('SettingsAccountTab');
 
@@ -13,9 +13,10 @@ const log = debug('SettingsAccountTab');
  * parent role with a "Your roles" link, and the profile photo), then Cancel / Save changes. Built on the talent Settings pieces (GroupCard, SettingRow).
  * Props: onRoles (the "Your roles" link). Cancel restores the drawn values; Save only logs (mock data, no backend).
  */
-const initial = () => Object.fromEntries(ACCOUNT.fields.map((f) => [f.id, f.value]));
-
 const AccountTab = ({ onRoles }) => {
+  // The drawn persona in demo frames, the signed-in parent's own details otherwise (ADR-15).
+  const { ACCOUNT } = useParentSettingsData();
+  const initial = () => Object.fromEntries(ACCOUNT.fields.map((f) => [f.id, f.value]));
   const [values, setValues] = useState(initial);
 
   return (

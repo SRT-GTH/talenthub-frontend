@@ -4,7 +4,7 @@ import ParentButton from '../ParentButton.jsx';
 import ParentTextField from '../ParentTextField.jsx';
 import spotWrong from '../../../../assets/parent/settings-spot-wrong.svg';
 import warning from '../../../../assets/parent/settings-warning.svg';
-import { CLOSE } from './data/settingsData.js';
+import { useParentSettingsData } from './data/useParentSettingsData.js';
 
 const log = debug('SettingsCloseAccountDialog');
 
@@ -16,6 +16,8 @@ const log = debug('SettingsCloseAccountDialog');
  * ⚠️ ASSUMPTION: the enabled button is the standard green primary (only the disabled look is drawn) and the match is exact, upper case.
  */
 const CloseAccountDialog = ({ value, onChange, onKeep, onConfirm }) => {
+  // ADR-15: no sample ward names for a signed-in parent.
+  const { CLOSE } = useParentSettingsData();
   const ready = value.trim() === CLOSE.word;
   log('render', { typed: value.length, ready });
 

@@ -23,6 +23,7 @@ import {
 import { fetchReceivedApplications } from '../../../../services/recruiterPipeline.api.js';
 import { snapshotOf } from '../../applicationPipeline/pipelineLive.js';
 import { useLiveSettingsOverview } from '../account/useLiveSettingsOverview.js';
+import { useRecruiterShell } from '../../../../hooks/useRecruiterShell.js';
 
 const log = debug('RecruiterLanguageTab');
 
@@ -114,6 +115,7 @@ const LanguageTab = ({ settings }) => {
   const hiringPause = useHiringPause(settings);
   const [values, setValues] = useState(LANGUAGE_DEFAULTS);
   const { language, data, pause, exportToast } = LANGUAGE_COPY;
+  const shell = useRecruiterShell();
   // Signed in: retention is saved to your preferences; Export CSV and Request download produce real files.
   const live = useLiveSettingsOverview();
   const isLive = live.status !== 'demo';
@@ -246,14 +248,25 @@ const LanguageTab = ({ settings }) => {
       ) : null}
 
       <SettingsCard title={pause.title} description={pause.description}>
+        {/* Signed in (ADR-15): the recruiter's own organisation, not the drawn "Silver Rock Technology". No API pauses an
+            organisation's hiring yet, so the button is off rather than showing a pause that never happened. */}
         <SettingLine
-          title={pause.row.title}
-          description={pause.row.description}
+          title={
+            isLive
+              ? `Pause all hiring at ${shell?.orgName || 'your organisation'}`
+              : pause.row.title
+          }
+          description={
+            isLive
+              ? 'Not available yet. For now, pause or close each job from Job Postings.'
+              : pause.row.description
+          }
           control={
             <Button
               variant="tertiary"
               className="!h-[40px] !py-0 max-sm:!px-[20px]"
               onClick={hiringPause.pause}
+              disabled={isLive}
             >
               {pause.row.cta}
             </Button>

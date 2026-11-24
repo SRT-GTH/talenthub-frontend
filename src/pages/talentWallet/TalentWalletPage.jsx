@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { debug } from '../../utils/debug.js';
+import { isSampleMode } from '../../utils/sampleMode.js';
+import { isLoggedIn } from '../../services/auth.api.js';
 import WalletFrame from '../../components/sections/talentWallet/WalletFrame.jsx';
 import WalletHeader, { WalletTabs } from '../../components/sections/talentWallet/WalletHeader.jsx';
 import WalletHome from '../../components/sections/talentWallet/WalletHome.jsx';
@@ -51,26 +53,55 @@ const SCREENS = {
 };
 
 /*
+ * Signed in (ADR-15): no wallet API exists yet (balance, transactions, KYC, Cycles, credit score), so a talent is told the wallet
+ * is coming instead of seeing the drawn sample wallet (GHS 1,240.50, "KYC verified", escrow, credit score 712). The design frames
+ * stay reachable with `?demo=1`, signed out in demo mode, and in Site copy preview.
+ */
+const COMING_SOON_HEADER = {
+  title: 'Wallet',
+  subtitle: 'Get paid for internships and gigs, earn Cycles for learning, and pay for training.',
+  sticker: { icon: 'hourglass', label: 'Coming soon' },
+  art: {
+    linked: 'Coming soon',
+    sticker: 'We’ll tell you when it opens',
+    week: 'Nothing to set up yet',
+  },
+};
+
+const WalletComingSoon = () => (
+  <section className="flex max-w-[640px] flex-col gap-[10px] rounded-[24px] border border-solid border-[#e1eae2] bg-white p-[24px]">
+    <h2 className="m-0 font-sans text-[21px] font-semibold leading-[26px] text-[#1c2a21] playful:font-heading">
+      Your wallet isn’t open yet
+    </h2>
+    <p className="m-0 font-sans text-[15px] leading-[22px] text-[#595959]">
+      Payments, payouts, savings and Cycles aren’t live on Ghana Talent Hub yet, so there is nothing
+      to show here and nothing for you to set up. We’ll let you know when your wallet opens.
+    </p>
+  </section>
+);
+
+/*
  * TalentWalletPage — `/wallet`, Figma "Talent Wallet" (8817:693; Playful + Focused, expanded + collapsed sidebar).
  * Which screen shows is chosen from the URL (talentWalletState.js → resolveScreen in walletHeaders.js); the header and tab strip
  * follow the screen. Frame <-> URL table: wiki/talent-wallet.md.
  */
 const TalentWalletPage = () => {
   const wallet = useTalentWalletState();
+  const comingSoon = isLoggedIn() && !isSampleMode();
   const screen = resolveScreen(wallet);
-  const header = getHeader(wallet);
-  const tabs = getTabs(wallet);
-  const Body = SCREENS[screen];
+  const header = comingSoon ? COMING_SOON_HEADER : getHeader(wallet);
+  const tabs = comingSoon ? null : getTabs(wallet);
+  const Body = comingSoon ? WalletComingSoon : SCREENS[screen];
 
   useEffect(() => {
     log('mount', {
-      screen,
+      screen: comingSoon ? 'coming-soon (signed in, no wallet API)' : screen,
       view: wallet.view,
       step: wallet.step,
       tab: wallet.tab,
       state: wallet.state,
     });
-  }, [screen, wallet.view, wallet.step, wallet.tab, wallet.state]);
+  }, [comingSoon, screen, wallet.view, wallet.step, wallet.tab, wallet.state]);
 
   const body = Body ? <Body wallet={wallet} /> : null;
 
@@ -86,7 +117,7 @@ const TalentWalletPage = () => {
           {body}
         </div>
       </div>
-      <WalletDialogs wallet={wallet} />
+      {comingSoon ? null : <WalletDialogs wallet={wallet} />}
     </WalletFrame>
   );
 };

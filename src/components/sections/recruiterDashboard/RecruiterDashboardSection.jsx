@@ -666,7 +666,13 @@ const RecruiterDashboardSection = () => {
         />
       ) : null}
 
-      {drawerStage ? <StageDrawer stage={drawerStage} onClose={() => set({ stage: '' })} /> : null}
+      {drawerStage ? (
+        <StageDrawer
+          stage={drawerStage}
+          onClose={() => set({ stage: '' })}
+          live={isLive ? { apps, jobs: shell.jobList || [] } : null}
+        />
+      ) : null}
 
       {dialog === 'upload' ? (
         <UploadDialog

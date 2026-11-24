@@ -14,7 +14,7 @@ import {
 } from '../../talentSettings/SettingsBUi.jsx';
 import { ChangePasswordDialog } from '../../talentSettings/SettingsBSecurityDialogs.jsx';
 import ParentButton from '../ParentButton.jsx';
-import { SECURITY } from './data/settingsData.js';
+import { useParentSettingsData } from './data/useParentSettingsData.js';
 
 const log = debug('SettingsSecurityTab');
 
@@ -31,6 +31,8 @@ const DEVICE_ICONS = {
  * ⚠️ ASSUMPTION: "Disconnect" only logs (no dialog is drawn for it).
  */
 const SecurityTab = () => {
+  // ADR-15: a signed-in parent gets no sample phone number, Google account or devices.
+  const { SECURITY } = useParentSettingsData();
   const { signIn, devices } = SECURITY;
   const [twoStep, setTwoStep] = useState(true);
   const [list, setList] = useState(devices.list);
@@ -70,16 +72,18 @@ const SecurityTab = () => {
             <SettingsToggle labelledBy="sec-two-step" checked={twoStep} onChange={setTwoStep} />
           }
         />
-        <SettingRow
-          top={false}
-          title={signIn.google.title}
-          description={signIn.google.email}
-          control={
-            <TextAction tone="danger" onClick={() => log('disconnect google (no dialog drawn)')}>
-              {signIn.google.cta}
-            </TextAction>
-          }
-        />
+        {signIn.google ? (
+          <SettingRow
+            top={false}
+            title={signIn.google.title}
+            description={signIn.google.email}
+            control={
+              <TextAction tone="danger" onClick={() => log('disconnect google (no dialog drawn)')}>
+                {signIn.google.cta}
+              </TextAction>
+            }
+          />
+        ) : null}
       </GroupCard>
 
       <GroupCard title={devices.title} description={devices.desc}>

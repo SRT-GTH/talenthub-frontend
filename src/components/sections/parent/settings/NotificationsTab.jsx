@@ -4,7 +4,7 @@ import { SettingsAChevronDownIcon, SettingsAClockIcon } from '../../../shared/as
 import { SettingsACheckbox } from '../../talentSettings/SettingsAUi.jsx';
 import { GroupCard, SettingRow, SettingsToggle } from '../../talentSettings/SettingsBUi.jsx';
 import Button from '../../../ui/Button.jsx';
-import { NOTIFICATIONS } from './data/settingsData.js';
+import { useParentSettingsData } from './data/useParentSettingsData.js';
 
 const log = debug('SettingsNotificationsTab');
 
@@ -45,6 +45,8 @@ const TimePill = ({ value, onChange, label }) => (
  * ⚠️ ASSUMPTION: "Turn everything off for 24 hours" only logs (the paused state is not drawn in the parent canvas; the talent Settings draw one, ST-03b).
  */
 const NotificationsTab = () => {
+  // ADR-15: no sample ward names for a signed-in parent.
+  const { NOTIFICATIONS } = useParentSettingsData();
   const { matrix, quiet, weekly, pauseAll, save } = NOTIFICATIONS;
   const [cells, setCells] = useState(() =>
     Object.fromEntries(matrix.rows.map((r) => [r.id, [...r.on]]))

@@ -4,7 +4,7 @@ import { debug } from '../../../../utils/debug.js';
 import { SettingsARadioOnIcon } from '../../../shared/assets.jsx';
 import { GroupCard, SettingRow, SettingsToggle } from '../../talentSettings/SettingsBUi.jsx';
 import ParentButton from '../ParentButton.jsx';
-import { ROLES } from './data/settingsData.js';
+import { useParentSettingsData } from './data/useParentSettingsData.js';
 
 const log = debug('SettingsRolesTab');
 
@@ -50,6 +50,8 @@ const RoleOption = ({ option, selected, onSelect }) => (
  * Props: onManage.
  */
 const RolesTab = ({ onManage }) => {
+  // The drawn wards in demo frames, the parent's own linked wards otherwise (ADR-15).
+  const { ROLES } = useParentSettingsData();
   const [open, setOpen] = useState(ROLES.open.options[0].id);
   const [flags, setFlags] = useState(() =>
     Object.fromEntries(ROLES.separate.rows.map((r) => [r.id, r.on]))

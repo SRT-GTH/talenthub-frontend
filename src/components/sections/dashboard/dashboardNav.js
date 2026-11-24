@@ -1,4 +1,6 @@
 import { useLocation } from 'react-router-dom';
+import { isLoggedIn } from '../../../services/auth.api.js';
+import { useRecruiterShell } from '../../../hooks/useRecruiterShell.js';
 import { icons } from '../community/communityIcons.js';
 import { SidebarProfileNotebookPenIcon } from './RecruiterSidebarIcons.jsx';
 
@@ -94,9 +96,19 @@ const markActive = (items, pathname) =>
     active: Boolean(item.to) && (pathname === item.to || pathname.startsWith(`${item.to}/`)),
   }));
 
+/* Badges (ADR-15): the drawn "3"s are sample numbers. A signed-in recruiter sees their own counts (active postings and unread
+   messages, from the recruiter shell); any other signed-in session sees none; demo and preview pages keep the drawn ones. */
+const liveBadges = (shell) => ({
+  'job-postings': shell.jobs?.active ? String(shell.jobs.active) : undefined,
+  messages: shell.unreadMessages ? String(shell.unreadMessages) : undefined,
+});
+
 export const useDashboardNav = () => {
   const { pathname } = useLocation();
-  const navItems = markActive(NAV_ITEMS, pathname);
+  const shell = useRecruiterShell();
+  const badges = shell ? liveBadges(shell) : isLoggedIn() ? {} : null;
+  const items = badges ? NAV_ITEMS.map((item) => ({ ...item, badge: badges[item.id] })) : NAV_ITEMS;
+  const navItems = markActive(items, pathname);
   const secondaryNavItems = markActive(SECONDARY_NAV_ITEMS, pathname);
   const tabItems = TAB_BAR_IDS.map((id) => navItems.find((item) => item.id === id));
   const moreItems = navItems.filter((item) => !TAB_BAR_IDS.includes(item.id));
