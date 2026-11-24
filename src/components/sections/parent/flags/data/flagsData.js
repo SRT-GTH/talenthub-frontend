@@ -124,7 +124,7 @@ export const FLAGS_COPY = {
       `Flagged ${f.flaggedOn} · ${severity.label} · waiting for ${ward.firstName}`,
     // corrected: PW-05 "Flagged 14 Oct · “Year should be 2010” · Abena changed it today"
     corrected: (f, ward) =>
-      `Flagged ${f.flaggedOn} · “${f.note.replace(/\.$/, '')}” · ${ward.firstName} changed it today`,
+      `Flagged ${f.flaggedOn} · “${f.note.replace(/\.$/, '')}” · ${ward.firstName} changed it ${f.fixedOn ?? 'today'}`,
     // reflagged: ⚠️ ASSUMPTION — no frame draws this row; same shape as the pending row.
     reflagged: (f, ward) =>
       `Flagged ${f.flaggedOn} · you flagged it again · waiting for ${ward.firstName}`,
@@ -158,6 +158,17 @@ export const FLAGS_COPY = {
     noteLabel: 'What’s still wrong?',
     send: 'Send flag again',
   },
+  // ⚠️ ASSUMPTION: no frame draws taking a flag back; the dialog reuses the "Flag again" shell (PW-06c). Live wards only.
+  withdraw: {
+    action: 'Withdraw',
+    title: (label) => `Withdraw your flag on “${label}”?`,
+    intro: (ward, f) =>
+      `${ward.firstName} won’t need to change it, and recruiters can see ${ward.possessive ?? 'their'} ${f.label.toLowerCase()} again. We’ll let ${ward.firstName} know.`,
+    noteLabel: (ward) => `A note for ${ward.firstName} (optional)`,
+    noteHelp: (ward) => `${ward.firstName} sees this note.`,
+    cancel: 'Cancel',
+    confirm: 'Withdraw flag',
+  },
   recheck: {
     title: (label, ward) => `${ward.firstName} fixed “${label}”`,
     intro: 'Check the change. Approve it, or flag it again with a note.',
@@ -176,6 +187,10 @@ export const FLAGS_COPY = {
     approved: (f, ward) => ({
       message: 'Fix approved',
       detail: `${ward.firstName}’s ${f.label.toLowerCase()} shows to recruiters again.`,
+    }),
+    withdrawn: (f, ward) => ({
+      message: 'Flag withdrawn',
+      detail: `${ward.firstName}’s ${f.label.toLowerCase()} shows to recruiters again. We told ${ward.firstName}.`,
     }),
   },
   keyTitle: 'Flag statuses',

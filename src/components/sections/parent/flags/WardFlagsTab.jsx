@@ -12,7 +12,8 @@ const log = debug('WardFlagsTab');
 /*
  * WardFlagsTab — the Flags tab, PW-05 "Ward · Flags tracker" (Figma 10034:140037): left a white card (r24, p 8 / 22, gap 14) of flag rows — a 40px #eef4ef tile (r12) with a 20px icon, the field name 15/600 over
  * a 13 #575755 line, a status chip, and the green "Review fix" button (r10, p 12 / 18) only on a corrected flag; right a 360px "Flag statuses" key card (r24, p22) with the four chips and one line each.
- * Props: ward ({ firstName }), flags (flagsStore flags), onReview(flag) — opens the PW-06 dialog.
+ * Props: ward ({ firstName }), flags (flagsStore flags), onReview(flag) — opens the PW-06 dialog, onWithdraw(flag) (optional, live wards) — a secondary
+ * "Withdraw" button on pending / re-flagged rows that opens the withdraw dialog (no frame).
  * Layout: key card right from 1280px, below the list otherwise. Status chip: white for Pending / Corrected / Re-reviewing, green for Approved (same chips as the Profile tab).
  */
 const CARD =
@@ -28,7 +29,7 @@ const rowSub = (flag, ward) => {
   return FLAGS_COPY.rowSub[flag.status](flag, ward, severity);
 };
 
-const WardFlagsTab = ({ ward, flags, onReview }) => {
+const WardFlagsTab = ({ ward, flags, onReview, onWithdraw }) => {
   log('render', { flags: flags.length });
 
   return (
@@ -59,6 +60,19 @@ const WardFlagsTab = ({ ward, flags, onReview }) => {
                   }}
                 >
                   Review fix
+                </ParentButton>
+              ) : null}
+              {onWithdraw && (flag.status === 'pending' || flag.status === 'reflagged') ? (
+                <ParentButton
+                  variant="secondary"
+                  className="!rounded-[10px] !pr-[16px] !pl-[16px] [&&]:!pt-[11px] [&&]:!pb-[10px]"
+                  aria-label={`${FLAGS_COPY.withdraw.action}: ${flag.label}`}
+                  onClick={() => {
+                    log('withdraw', { flag: flag.id });
+                    onWithdraw(flag);
+                  }}
+                >
+                  {FLAGS_COPY.withdraw.action}
                 </ParentButton>
               ) : null}
             </TabRow>
