@@ -257,11 +257,17 @@ export const SetupPills = ({ value, onChange, options, icons }) => (
   </div>
 );
 
-export const CheckRow = ({ checked, onChange, label, hint, bold }) => (
-  <label className="flex cursor-pointer items-start gap-[10px]">
+export const CheckRow = ({ checked, onChange, label, hint, bold, disabled = false }) => (
+  <label
+    className={classNames(
+      'flex items-start gap-[10px]',
+      disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+    )}
+  >
     <input
       type="checkbox"
       checked={checked}
+      disabled={disabled}
       onChange={(event) => onChange?.(event.target.checked)}
       className="peer sr-only"
     />

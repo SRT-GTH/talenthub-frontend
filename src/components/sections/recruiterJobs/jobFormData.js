@@ -36,6 +36,12 @@ export const EMPLOYMENT_TYPES = [
     description: 'For NSS-posted graduates',
   },
   { value: 'Apprenticeship', label: 'Apprenticeship' },
+  {
+    value: 'Gig / temporary',
+    label: 'Gig / temporary',
+    description: 'Short paid work: shifts, events, holiday jobs',
+  },
+  { value: 'Volunteer', label: 'Volunteer', description: 'Unpaid' },
 ];
 export const EMPLOYMENT_MENU_LABEL = 'EMPLOYMENT TYPE';
 
@@ -125,7 +131,7 @@ export const SETTINGS_CHECKS = [
   {
     id: 'under18',
     label: 'Accept applications from talent under 18',
-    hint: 'Only for internships and training programmes. Parent consent is checked automatically.',
+    hint: 'Only where the platform’s rules allow under-18s (for example internships, volunteer, part-time and gig roles; never full-time). Parent consent is checked automatically.',
   },
 ];
 

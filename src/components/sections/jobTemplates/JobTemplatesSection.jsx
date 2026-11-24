@@ -19,6 +19,7 @@ import {
   TemplateArrowRightIcon,
 } from './jobTemplatesIcons.jsx';
 import { debug } from '../../../utils/debug.js';
+import { employmentLabel } from '../../../utils/opportunityTypes.js';
 import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
 import { fetchMyTemplates } from '../../../services/recruiterPostings.api.js';
 import {
@@ -185,12 +186,6 @@ const ScreeningCard = ({ item, onLoad }) => (
 );
 
 /* Signed in: "My templates" are the recruiter's saved templates (GET /opportunities/templates?mine=true). */
-const TYPE_LABEL = {
-  'full-time-job': 'Full-Time',
-  internship: 'Internship',
-  'training-program': 'Training',
-  'government-program': 'National Service',
-};
 const liveTemplateCard = (t) => {
   const f = t.defaultFields || {};
   const when = t.createdAt
@@ -203,7 +198,7 @@ const liveTemplateCard = (t) => {
     icon: 'code',
     title: t.name,
     category: t.category || 'Saved',
-    type: TYPE_LABEL[f.type] || 'Job',
+    type: employmentLabel(f),
     description:
       t.description ||
       String(f.shortDescription || f.description || '').slice(0, 140) ||

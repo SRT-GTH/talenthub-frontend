@@ -4,6 +4,7 @@ import { isRecruiterSession, refreshRecruiterShell } from '../../../services/rec
 import { fetchMyJobs, fetchReceivedApplications } from '../../../services/recruiterPipeline.api.js';
 import { closePosting } from '../../../services/recruiterPostings.api.js';
 import { debug } from '../../../utils/debug.js';
+import { employmentLabel } from '../../../utils/opportunityTypes.js';
 
 const log = debug('useLivePostings');
 
@@ -35,22 +36,6 @@ const ACTION_FOR = {
   Closed: 'View summary',
 };
 const AWAITING_STAGES = new Set(['submitted', 'under_review']);
-
-const TYPE_LABEL = {
-  'full-time-job': 'Full-Time',
-  'part-time-job': 'Part-Time',
-  internship: 'Internship',
-  contract: 'Contract',
-  volunteer: 'Volunteer',
-  apprenticeship: 'Apprenticeship',
-  nss: 'National Service',
-};
-
-const titleCase = (s) =>
-  String(s || '')
-    .replace(/[-_]+/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase())
-    .trim();
 
 export const ago = (iso, now = Date.now()) => {
   const t = new Date(iso).getTime();
@@ -95,7 +80,8 @@ export const toPosting = (job, apps = []) => {
     title: job.title || 'Untitled posting',
     status,
     location: placeOf(job.location),
-    type: TYPE_LABEL[job.type] || titleCase(job.type) || 'Job',
+    // ADR-07: the employment type ("Part-time", "Volunteer"), not the category.
+    type: employmentLabel(job),
     age: ago(job.publishDate || job.createdAt),
     totalApplicants: isDraft ? '--' : String(mine.length),
     awaiting: isDraft ? '--' : String(awaiting),

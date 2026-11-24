@@ -1,4 +1,8 @@
+import { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
+import { loadEligibilityRules } from '../../../services/eligibilityRules.api.js';
+import { under18Allowed } from '../../../utils/opportunityTypes.js';
+import { postingShapeOf } from './liveJobForm.js';
 import {
   AreaBox,
   CheckRow,
@@ -91,6 +95,23 @@ const JobFormFields = ({
   const skillPlaceholder = isTemplate
     ? TEMPLATE_SKILL_SEARCH_PLACEHOLDER
     : SKILL_SEARCH_PLACEHOLDER;
+
+  // "Accept applications from talent under 18": offered only where the eligibility rules (platform config, ADR-06) let
+  // an under-18 apply to this kind of posting; the backend re-checks it on save.
+  const [rules, setRules] = useState(null);
+  useEffect(() => {
+    let live = true;
+    loadEligibilityRules().then((r) => {
+      if (live) setRules(r);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  const under18Ok = under18Allowed(rules, postingShapeOf(values));
+  useEffect(() => {
+    if (!under18Ok && values.under18) set('under18', false);
+  }, [under18Ok, values.under18, set]);
 
   return (
     <div className="flex min-w-0 flex-col gap-[20px]">
@@ -316,15 +337,23 @@ const JobFormFields = ({
           </Field>
         </Grid>
         <div className="flex flex-col gap-[16px]">
-          {SETTINGS_CHECKS.map((check) => (
-            <CheckRow
-              key={check.id}
-              checked={Boolean(values[check.id])}
-              onChange={(v) => set(check.id, v)}
-              label={check.label}
-              hint={check.hint}
-            />
-          ))}
+          {SETTINGS_CHECKS.map((check) => {
+            const locked = check.id === 'under18' && !under18Ok;
+            return (
+              <CheckRow
+                key={check.id}
+                checked={!locked && Boolean(values[check.id])}
+                disabled={locked}
+                onChange={(v) => set(check.id, v)}
+                label={check.label}
+                hint={
+                  locked
+                    ? `Not available for ${values.employment || 'this kind of'} roles: the platform’s rules keep under-18s off this kind of work.`
+                    : check.hint
+                }
+              />
+            );
+          })}
         </div>
       </SectionCard>
     </div>
