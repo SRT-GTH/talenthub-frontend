@@ -11,6 +11,7 @@ const log = debug('parent.api');
  *   POST /parent/wards/:wardId/flags                    { fieldKey, severity, note }
  *   POST /parent/wards/:wardId/flags/:flagId/approve
  *   POST /parent/wards/:wardId/flags/:flagId/flag-again { severity, note }
+ *   POST /parent/wards/:wardId/flags/:flagId/withdraw   { note? }  the parent takes the flag back
  *   POST /parent-ward/opt-out                           { wardEntityId, reason, reasonCategory }
  *   POST /parent-ward/reverse-opt-out                   { wardEntityId, reversedReason? }
  *   POST /parent-ward/unlink-ward                       { wardEntityId }
@@ -60,6 +61,14 @@ export const flagWardFieldAgain = async (wardId, flagId, { severity, note }) =>
       severity,
       note,
     })
+  );
+
+export const withdrawWardFlag = async (wardId, flagId, { note } = {}) =>
+  unwrap(
+    await api.post(
+      `/parent/wards/${enc(wardId)}/flags/${enc(flagId)}/withdraw`,
+      note ? { note } : {}
+    )
   );
 
 export const optOutWard = async (wardId, { reason, reasonCategory }) =>
