@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
 import { useCareerBuddyRole } from '../../hooks/useCareerBuddyRole.js';
+import { startDemoSession } from '../../utils/sampleMode.js';
 
 const log = debug('DemoNavigator');
 
@@ -193,7 +194,12 @@ function buddyLocationKey(pathname, search) {
 
 export default function DemoNavigator() {
   const location = useLocation();
-  const navigate = useNavigate();
+  const routerNavigate = useNavigate();
+  // Every jump from the Demo navigator starts this tab's demo session (ADR-15), so its signed-out sample pages stay open.
+  const navigate = (...args) => {
+    startDemoSession('demo navigator');
+    routerNavigate(...args);
+  };
   const { role, setRole } = useCareerBuddyRole();
 
   const onCareerBuddy = location.pathname.startsWith(CAREER_BUDDY_PREFIX);

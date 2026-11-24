@@ -17,6 +17,12 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // The suites draw the Figma sample screens signed out. Since ADR-15 a signed-out visitor of a protected page is sent
+    // to /login, except in demo modes; this dev-only flag (src/utils/sampleMode.js) keeps the suites on the sample pages.
+    storageState: {
+      cookies: [],
+      origins: [{ origin: BASE_URL, localStorage: [{ name: 'gth:demo', value: '1' }] }],
+    },
     // Optional: point at an already-installed Chromium instead of the
     // revision bundled with this Playwright version.
     launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH || undefined },

@@ -296,6 +296,8 @@ const APP_AVATAR_INITIAL = {
 };
 import { useCareerBuddyRole } from './hooks/useCareerBuddyRole.js';
 import DemoNavigator from './components/shared/DemoNavigator.jsx';
+// Protected pages send signed-out visitors to sign in instead of drawing sample data (ADR-15).
+import { GatedRoutes } from './components/shared/SignInGate.jsx';
 import PageLoader from './components/ui/gthLoader/PageLoader.jsx';
 import SectionLoader from './components/ui/gthLoader/SectionLoader.jsx';
 import { routeLabel } from './components/ui/gthLoader/routeLabel.js';
@@ -369,7 +371,7 @@ function App() {
               faroEnabled() && <PerfRouteMarker />
             )}
             <Suspense fallback={<RootFallback />}>
-              <Routes>
+              <GatedRoutes>
                 {/* Theme 7 Platform Admin — GTH staff back office, Figma canvas "Staff · Platform Admin (Theme 7)" 8520:12, Focused only.
             Signed-in staff chrome (mock session) with its own router in pages/admin/AdminApp.jsx. Outside MainLayout. */}
                 <Route
@@ -1706,7 +1708,7 @@ function App() {
 
                 {/* Unknown URLs: the signed-in user's home, or the landing page. */}
                 <Route path="*" element={<UnknownRouteRedirect />} />
-              </Routes>
+              </GatedRoutes>
             </Suspense>
           </CareerBuddyRoleProvider>
         </UiStyleProvider>
