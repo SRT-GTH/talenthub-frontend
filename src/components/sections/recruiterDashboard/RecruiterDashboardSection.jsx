@@ -2,6 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecruiterShell } from '../../../hooks/useRecruiterShell.js';
 import { fetchReceivedApplications } from '../../../services/recruiterPipeline.api.js';
+import {
+  KYB_TYPE_IDS,
+  kybErrorText,
+  uploadKybDocument,
+} from '../../../services/recruiterCompany.api.js';
+import { refreshRecruiterShell } from '../../../services/recruiterShell.api.js';
 import { liveHero, liveJobs, livePipeline } from './liveDashboard.js';
 import { useLiveHomeExtras } from './useLiveHomeExtras.js';
 import { debug } from '../../../utils/debug.js';
@@ -673,7 +679,23 @@ const RecruiterDashboardSection = () => {
           org={org.name}
           step={get('step') === 'uploading' ? 'uploading' : 'choose'}
           onCancel={() => set({ dialog: '', step: '' })}
-          onDone={() => set({ dialog: '', step: '', toast: 'uploaded' })}
+          onDone={() => set({ dialog: '', step: '', toast: isLive ? 'kyb-uploaded' : 'uploaded' })}
+          // Signed in: the real KYB upload (US-7.3-05), preset to the first missing document; the widget refreshes after.
+          onUploadFile={
+            isLive
+              ? async (file, type) => {
+                  log('kyb upload', type);
+                  try {
+                    await uploadKybDocument(file, KYB_TYPE_IDS[type]);
+                  } catch (err) {
+                    log.error('kyb upload failed', err?.response?.status || err?.message);
+                    throw new Error(kybErrorText(err));
+                  }
+                  await refreshRecruiterShell().catch(() => null);
+                }
+              : undefined
+          }
+          defaultType={isLive ? shell.kyb?.missing?.[0]?.label : undefined}
         />
       ) : null}
 
