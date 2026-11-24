@@ -5,6 +5,8 @@ import SettingsBanner from './SettingsBanner.jsx';
 import { PauseIcon } from './hiringIcons.jsx';
 import { HIRING_PAUSED } from './hiringData.js';
 import { useHiringPause } from './useHiringPause.js';
+import { isRecruiterSession } from '../../../../services/recruiterShell.api.js';
+import { isSampleMode } from '../../../../utils/sampleMode.js';
 
 const log = debug('HiringPausedBanner');
 
@@ -20,6 +22,9 @@ const HiringPausedBanner = ({ settings }) => {
     log('state', { paused, toastOpen });
   }, [paused, toastOpen]);
   if (!paused && !toastOpen) return null;
+  // Signed in (ADR-15): nothing pauses an organisation's hiring yet (no API), so the drawn "Hiring is paused at Silver Rock
+  // Technology · 2 live jobs hidden" banner and toast are not shown.
+  if (isRecruiterSession() && !isSampleMode()) return null;
   return (
     <>
       {paused ? (
