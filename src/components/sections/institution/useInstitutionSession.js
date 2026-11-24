@@ -7,8 +7,11 @@ import { useInstitutionSessionState } from './institutionSessionStore.js';
 /*
  * useInstitutionSession — the signed-in institution session, from GET /api/institution/me (InstitutionSessionContext.jsx).
  * In development only, ?verify=none|under-review|approved|needs-info|not-approved still overrides the accreditation status to look at a gate.
- * Returns { admin, institution, head, verify: {status, approved, label, reference, submitted, reviewStarted, decided, renewalDue, note},
- *           readiness: {pct}, stats: {students, pending, credentials}, counts: {scholarshipsLive}, badges, roster, reload }.
+ * Returns { admin, institution, head, verify: {status, approved, required, open, label, reference, submitted, reviewStarted, decided,
+ *           renewalDue, note}, readiness: {pct}, stats: {students, pending, credentials}, counts: {scholarshipsLive}, badges, roster, reload }.
+ *   approved  staff approved the accreditation (the only thing that earns "Verified")
+ *   required  the platform switch verification.institution_accreditation_required (ADR-05; true unless staff turned it off)
+ *   open      the portal is open: approved, or accreditation is not required and staff did not mark the school "not approved"
  */
 
 const LABEL = {
@@ -17,6 +20,12 @@ const LABEL = {
   'needs-info': 'Verification · action needed',
   'not-approved': 'Verification not approved',
   none: 'Not yet verified',
+};
+/* Accreditation switched off: an unverified school is not waiting for anything. */
+const OPTIONAL_LABEL = {
+  none: 'Not verified · optional',
+  'under-review': 'Verification in review · optional',
+  'needs-info': 'Verification · more information asked (optional)',
 };
 const ymd = (d) => (d ? String(d).slice(0, 10) : '');
 const EMPTY_INSTITUTION = {
@@ -49,6 +58,8 @@ export const useInstitutionSession = () => {
     const v = me?.verify || {};
     const status = VERIFY_STATUSES.includes(rawVerify) ? rawVerify : v.status || 'none';
     const approved = status === 'approved';
+    const required = v.required !== false;
+    const open = approved || (!required && status !== 'not-approved');
     return {
       admin: { ...EMPTY_ADMIN, ...(me?.admin || {}) },
       institution: { ...EMPTY_INSTITUTION, ...(me?.institution || {}) },
@@ -56,7 +67,9 @@ export const useInstitutionSession = () => {
       verify: {
         status,
         approved,
-        label: LABEL[status],
+        required,
+        open,
+        label: (!required && OPTIONAL_LABEL[status]) || LABEL[status],
         reference: v.reference || '',
         submitted: ymd(v.submittedAt),
         reviewStarted: ymd(v.reviewStartedAt),
@@ -64,8 +77,8 @@ export const useInstitutionSession = () => {
         renewalDue: ymd(v.renewalDue),
         note: v.note || '',
       },
-      readiness: { pct: approved ? clampPercent(me?.readiness?.pct || 0) : 0 },
-      stats: approved
+      readiness: { pct: open ? clampPercent(me?.readiness?.pct || 0) : 0 },
+      stats: open
         ? me?.stats || { students: 0, pending: 0, credentials: 0 }
         : { students: 0, pending: 0, credentials: 0 },
       counts: me?.counts || { scholarshipsLive: 0 },

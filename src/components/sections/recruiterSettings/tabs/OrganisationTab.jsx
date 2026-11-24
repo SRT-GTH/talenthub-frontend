@@ -199,6 +199,9 @@ const OrganisationTab = ({ settings }) => {
                 <BadgeCheck size={12} />
                 {ORG_VERIFICATION.chip}
               </Chip>
+            ) : company?.kyb?.state === 'not_required' ? (
+              // GTH staff switched KYB off (ADR-05): neutral, never "Verified".
+              <Chip tone="neutral">Not required</Chip>
             ) : (
               <Chip tone="amber">
                 <ClockGlyph size={12} />

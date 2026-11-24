@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import AgencyChecklistCard from '../../components/sections/agency/home/AgencyChecklistCard.jsx';
 import AgencyFeatureCards from '../../components/sections/agency/home/AgencyFeatureCards.jsx';
 import AgencyQuickActions from '../../components/sections/agency/home/AgencyQuickActions.jsx';
@@ -44,7 +44,8 @@ const log = debug('InstitutionHomePage');
  *                                    (on a full load it was started together with /me: the first load takes that request)
  *   POST /institution/home/welcome-seen   the first time an approved staff member opens the home, the welcome modal opens once and is marked seen
  * The first-login body (checklist + locked cards) shows while the roster is empty (or ?state=new); its "Add your students" step ticks itself once students exist.
- * While the institution is not approved the home redirects to the accreditation page or its status page.
+ * While the institution is not approved the home redirects to the accreditation page or its status page, unless staff made
+ * accreditation optional (verify.required false, ADR-05): then the home opens and a note offers the documents for the Verified badge.
  * ⚠️ ASSUMPTION: the hero "Customise" button has no destination drawn: it is left out.
  */
 
@@ -84,7 +85,9 @@ const InstitutionHomePage = () => {
   const session = useInstitutionSession();
   const isDesktop = useIsDesktop();
   const { admin, institution, stats, counts } = session;
-  const approved = session.verify.approved;
+  // "approved" here means the portal is open (approved, or accreditation switched off by GTH staff).
+  const approved = session.verify.open;
+  const optionalVerify = approved && !session.verify.approved;
   const [home, setHome] = useState(null);
   const [error, setError] = useState('');
   const welcomed = useRef(false);
@@ -159,6 +162,30 @@ const InstitutionHomePage = () => {
 
   return (
     <InstitutionFrame data={data} title="Home">
+      {optionalVerify ? (
+        <div
+          role="note"
+          className="flex flex-wrap items-center justify-between gap-[12px] rounded-[12px] border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[16px] py-[12px] font-sans text-[14px] leading-[20px] text-[#1c2a21]"
+        >
+          <span>
+            {session.verify.status === 'under-review'
+              ? 'Your accreditation documents are with the GTH team. Your portal stays open while they check.'
+              : 'Your portal is open. Accreditation is optional: send your documents any time to show the Verified badge.'}
+          </span>
+          <Link
+            to={
+              session.verify.status === 'under-review'
+                ? '/institution/accreditation/status'
+                : '/institution/accreditation?view=list'
+            }
+            className="font-semibold text-brand-green underline"
+          >
+            {session.verify.status === 'under-review'
+              ? 'See the status'
+              : 'Add accreditation documents'}
+          </Link>
+        </div>
+      ) : null}
       {error ? (
         <div
           role="alert"

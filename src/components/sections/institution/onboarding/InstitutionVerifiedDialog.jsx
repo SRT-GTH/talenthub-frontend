@@ -15,10 +15,11 @@ const log = debug('InstitutionVerifiedDialog');
  * InstitutionVerifiedDialog — "Email verified" (Figma 11.1.1d 8589:1937 "Overlay centred card": 440 x 553, white, r24, 3px #c1d4c4 stroke, content 360, p 40; #1c2a21 at 70 % scrim):
  * close 28 round · green check tile 64 · "Email verified" caption pill · 29/35 600 headline (green "verified") · 12/18 #959592 text · summary card (#ebf1ec, 1px #e1eae2,
  * r16) with Institution / Email rows · progress rail · "Continue to accreditation →" · domain note.
- * Props: institutionName, onContinue, onClose.
+ * Props: institutionName, onContinue, onClose, optional (GTH staff made accreditation optional, ADR-05: the portal is open now, so
+ * the text says so and the button reads "Go to your portal").
  */
 
-const InstitutionVerifiedDialog = ({ institutionName, onContinue, onClose }) => (
+const InstitutionVerifiedDialog = ({ institutionName, onContinue, onClose, optional = false }) => (
   <AgencyDialog
     label="Email verified"
     onClose={onClose}
@@ -63,7 +64,9 @@ const InstitutionVerifiedDialog = ({ institutionName, onContinue, onClose }) => 
             Email <span className="text-[#387440]">verified</span>
           </h2>
           <p className="m-0 max-w-[286px] font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#959592]">
-            Next, upload your accreditation documents so we can verify the institution.
+            {optional
+              ? 'Your portal is open. Accreditation is optional: add your documents any time to show the Verified badge.'
+              : 'Next, upload your accreditation documents so we can verify the institution.'}
           </p>
         </div>
         <dl className="m-0 flex w-full flex-col gap-[4px] rounded-[16px] border border-solid border-[#e1eae2] bg-[#ebf1ec] px-[17px] py-[20px]">
@@ -92,12 +95,12 @@ const InstitutionVerifiedDialog = ({ institutionName, onContinue, onClose }) => 
             type="button"
             data-autofocus
             onClick={() => {
-              log('continue to accreditation');
+              log(optional ? 'go to the portal' : 'continue to accreditation');
               onContinue();
             }}
             className="inline-flex min-h-[56px] w-full items-center justify-center gap-[8px] rounded-[14px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[40px] py-[16px] font-sans text-[16px] leading-[24px] font-bold tracking-[0.1px] text-white shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
-            Continue to accreditation
+            {optional ? 'Go to your portal' : 'Continue to accreditation'}
             <ArrowRightIcon className="size-[20px]" />
           </button>
           <p className="m-0 flex items-center justify-center gap-[4px] font-sans text-[10px] max-lg:text-[12px] leading-[16px] tracking-[0.2px] text-[#959592]">

@@ -52,6 +52,7 @@ import {
 import {
   companyErrorText,
   fetchCompany,
+  kybErrorText,
   saveCompany,
   uploadKybDocument,
 } from '../../../services/recruiterCompany.api.js';
@@ -827,6 +828,8 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   // Tracks whether the recruiter has uploaded a KYB doc this session — used
   // to update the KYB/KYC Status field in RecruiterPanel's view-details.
   const [kybVerified, setKybVerified] = useState(false);
+  // Live recruiter: GTH staff can switch KYB off (kyb.required false, ADR-05): then the chat never offers the KYB upload.
+  const [kybRequired, setKybRequired] = useState(true);
   // Live recruiter: the real company profile (GET /recruiter/company) and the chat's answers.
   const [companyLive, setCompanyLive] = useState(null);
   const [companyDraft, setCompanyDraft] = useState({});
@@ -838,28 +841,32 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
         if (cancelled || !view) return;
         setCompanyLive(view);
         setKybVerified(Boolean(view.kyb?.verified));
+        const kybOff = view.kyb?.required === false && !view.kyb?.verified;
+        setKybRequired(!kybOff);
         setStages((prev) =>
-          prev.map((stage) => {
-            if (stage.id === 'company-info') {
-              return {
-                ...stage,
-                status:
-                  view.completion >= 100
-                    ? 'done'
-                    : view.completion > 0
-                      ? 'in-progress'
-                      : 'not-started',
-                completionPct: view.completion || 0,
-                fields: companyPanelFields(view),
-              };
-            }
-            if (stage.id === 'kyb') {
-              if (view.kyb?.verified) return { ...stage, status: 'done', completionPct: 100 };
-              if (view.kyb?.status === 'kyb_submitted')
-                return { ...stage, status: 'in-progress', completionPct: 60 };
-            }
-            return stage;
-          })
+          prev
+            .filter((stage) => !(kybOff && stage.id === 'kyb'))
+            .map((stage) => {
+              if (stage.id === 'company-info') {
+                return {
+                  ...stage,
+                  status:
+                    view.completion >= 100
+                      ? 'done'
+                      : view.completion > 0
+                        ? 'in-progress'
+                        : 'not-started',
+                  completionPct: view.completion || 0,
+                  fields: companyPanelFields(view),
+                };
+              }
+              if (stage.id === 'kyb') {
+                if (view.kyb?.verified) return { ...stage, status: 'done', completionPct: 100 };
+                if (view.kyb?.state === 'in_review' || view.kyb?.status === 'kyb_submitted')
+                  return { ...stage, status: 'in-progress', completionPct: 60 };
+              }
+              return stage;
+            })
         );
       })
       .catch((err) => log.error('company load failed', err?.response?.status || err?.message));
@@ -1775,13 +1782,14 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     const base = recruiterLive
       ? withPipeline.filter(
           (c) =>
-            !(kybVerified && c === KYB_UPLOAD_CTA) &&
+            !((kybVerified || !kybRequired) && c === KYB_UPLOAD_CTA) &&
             !(companySaved && c === 'Complete Company Profile')
         )
       : withPipeline;
     if (nodeId !== 'job-posted-success') return base;
     const companyDone = stages.some((s) => s.id === 'company-info' && s.status === 'done');
-    const kybDone = kybVerified || stages.some((s) => s.id === 'kyb' && s.status === 'done');
+    const kybDone =
+      kybVerified || !kybRequired || stages.some((s) => s.id === 'kyb' && s.status === 'done');
     const chips = [];
     if (!companyDone) chips.push('Complete Company Profile');
     if (!kybDone) chips.push(KYB_UPLOAD_CTA);
@@ -1793,6 +1801,7 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     nodeId,
     stages,
     kybVerified,
+    kybRequired,
     recruiterLive,
     RB.chips,
   ]);
@@ -2285,10 +2294,14 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           thinking: { phase: 'thinking', lookingAt: ['Your document'] },
         },
       ]);
-      uploadKybDocument(file)
+      // The chat doesn't ask which document this is: file it as the first one still missing (not always the registration certificate).
+      const docId = companyLive?.kyb?.missing?.[0]?.id || 'registration';
+      uploadKybDocument(file, docId)
         .then((out) => {
-          // The backend only moves an account waiting on KYB to "in review"; a verified one stays verified.
-          const inReview = out?.affiliationRequest?.status === 'kyb_submitted';
+          // In review unless the organisation was already verified (then the file is just kept with its records).
+          const inReview = out?.kybState
+            ? out.kybState === 'in_review'
+            : out?.affiliationRequest?.status === 'kyb_submitted';
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== 'kyb-uploading'),
             {
@@ -2308,21 +2321,27 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           );
           setCompanyLive((v) =>
             v
-              ? { ...v, kyb: { ...v.kyb, status: 'kyb_submitted', label: 'Documents in review' } }
+              ? {
+                  ...v,
+                  kyb: {
+                    ...v.kyb,
+                    state: 'in_review',
+                    label: 'Documents in review',
+                    missing: (v.kyb?.missing || []).filter((d) => d.id !== docId),
+                  },
+                }
               : v
           );
         })
         .catch((err) => {
           log.error('kyb upload failed', err?.response?.status || err?.message);
-          const suspended = err?.response?.data?.type === 'ACCOUNT_SUSPENDED';
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== 'kyb-uploading'),
             {
               id: `kyb-failed-${Date.now()}`,
               sender: 'bot',
-              text: suspended
-                ? 'Your account is suspended, so documents can\u2019t be submitted right now. Please contact the GTH team.'
-                : 'That upload didn\u2019t go through. Please try again with a PDF or an image of the document.',
+              // suspended account, not the organisation's owner (US-7.3-05), or a failed upload
+              text: kybErrorText(err),
             },
           ]);
         });

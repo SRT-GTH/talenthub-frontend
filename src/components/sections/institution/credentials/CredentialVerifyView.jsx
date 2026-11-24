@@ -72,7 +72,9 @@ const CredentialVerifyView = ({ credentialId }) => {
   const sentence = !result
     ? ''
     : result.status === 'valid'
-      ? 'Signed by a verified institution and unchanged since it was issued.'
+      ? result.issuer?.verified === false
+        ? `Signed by ${result.issuer?.short ?? 'the school'} and unchanged since it was issued. GTH has not verified this school’s accreditation yet.`
+        : 'Signed by a verified institution and unchanged since it was issued.'
       : result.status === 'revoked'
         ? `${result.issuer?.short ?? 'The school'} revoked this on ${String(result.revoked).split(' · ')[0]}. Don’t accept it as proof.`
         : `Check the ID on the certificate and try again. IDs look like GTH-CR-0412-00297.`;

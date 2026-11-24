@@ -127,9 +127,13 @@ const InstitutionSignUpPage = () => {
           log('crest upload failed', apiMessage(err))
         );
       }
-      if (out.loggedIn) await session?.reload?.();
+      const me = out.loggedIn ? await session?.reload?.() : null;
       setChallenge(null);
-      setRegistered(out);
+      // GTH staff can make accreditation optional (ADR-05): the portal is then open straight away.
+      setRegistered({
+        ...out,
+        optional: Boolean(me?.verify?.required === false && me?.verify?.portalOpen),
+      });
       return true;
     } catch (err) {
       const c = getApiErrorCode(err);
@@ -196,8 +200,25 @@ const InstitutionSignUpPage = () => {
       {registered ? (
         <InstitutionVerifiedDialog
           institutionName={details.name}
-          onContinue={() => navigate(registered.loggedIn ? '/institution/accreditation' : '/login')}
-          onClose={() => navigate(registered.loggedIn ? '/institution/accreditation' : '/login')}
+          optional={registered.optional}
+          onContinue={() =>
+            navigate(
+              !registered.loggedIn
+                ? '/login'
+                : registered.optional
+                  ? '/institution'
+                  : '/institution/accreditation'
+            )
+          }
+          onClose={() =>
+            navigate(
+              !registered.loggedIn
+                ? '/login'
+                : registered.optional
+                  ? '/institution'
+                  : '/institution/accreditation'
+            )
+          }
         />
       ) : null}
     </InstitutionSignUpLayout>

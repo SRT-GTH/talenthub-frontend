@@ -53,10 +53,19 @@ const LIST = '/institution/accreditation?view=list';
 
 const subtitleOf = (status, view, session) => {
   const r = view?.review || {};
+  // GTH staff made accreditation optional (ADR-05): the portal is open whatever the review says.
+  const open =
+    !session.verify.required && session.verify.open && status !== 'approved'
+      ? ' Accreditation is optional right now, so your portal stays open meanwhile.'
+      : '';
   if (status === 'under-review') {
     return r.submittedAt
-      ? `You sent your documents on ${day(r.submittedAt)}${r.reviewStartedAt ? `; a reviewer started on ${day(r.reviewStartedAt)}` : ''}. Most checks take 1–2 working days, so expect an answer by ${workingDaysAfter(r.submittedAt, 2)}.`
-      : '';
+      ? `You sent your documents on ${day(r.submittedAt)}${r.reviewStartedAt ? `; a reviewer started on ${day(r.reviewStartedAt)}` : ''}. Most checks take 1–2 working days, so expect an answer by ${workingDaysAfter(r.submittedAt, 2)}.${open}`
+      : open.trim();
+  }
+  if (status === 'needs-info' && open) {
+    const fix = 'Fix it on the documents page and send them again.';
+    return `${r.note ? `${r.note} ${fix}` : fix}${open}`;
   }
   if (status === 'needs-info' || status === 'not-approved') {
     const fix =

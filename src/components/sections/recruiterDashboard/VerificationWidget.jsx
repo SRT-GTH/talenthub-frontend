@@ -9,7 +9,12 @@ import { VERIFICATION, VERIFICATION_STATES } from './recruiterDashboardData.js';
  * `variant`: '' (default, two documents missing) | 'verified' (KYB verified, all documents verified, green "Verified recruiter" banner) |
  * 'rejected' (TIN certificate rejected with the reason and a 24-hour cooldown, Recruitment licence in review, disabled "Re-upload available in 18h") |
  * 'owner' (not an org owner, 403: a red note and "Notify Ama Owusu" replace the upload button).
- * Props: org, variant, readOnly (pending affiliation: "Read-only" pill, dimmed upload), onUpload, onNotifyOwner.
+ * Props: org, variant, readOnly (pending affiliation: "Read-only" pill, dimmed upload), onUpload, onNotifyOwner, live.
+ * live (signed in, US-7.3-05, ADR-05): GET /recruiter/company kyb { required, state, verified, label, verifiedAt, rejectionReason,
+ *   documents[{ id, label, status }], missing[], canUpload } (backend utils/verificationGates.kybView). Verified only once KYB documents
+ *   were sent and GTH staff approved them; otherwise the real state, the document list with what is missing, and the upload button
+ *   (organisation owners only). required false (staff switched KYB off): a neutral "Not required" state, no prompts, never "Verified"
+ *   unless staff verified it. KYC is not offered on GTH yet, so it never shows as verified (an email code is not an identity check).
  */
 const DocStatus = ({ status }) => {
   if (status === 'Verified') {
@@ -65,7 +70,33 @@ const liveDocs = (live) =>
     label: d.label,
     status: LIVE_DOC_STATUS[d.status] || 'In review',
   }));
+/* The KYB state from the live payload (older backends sent only the account status). */
+const liveStateOf = (live) =>
+  live.state ||
+  (live.verified
+    ? 'verified'
+    : live.status === 'kyb_submitted'
+      ? 'in_review'
+      : live.status === 'kyb_rejected'
+        ? 'rejected'
+        : 'not_started');
+const LIVE_KYB_CHIP = {
+  verified: { chip: 'Verified', tone: 'outline-success', bg: 'bg-[#ebf1ec]/50' },
+  in_review: { chip: 'In review', tone: 'outline-amber', bg: 'bg-[#faf4e8]' },
+  returned: { chip: 'More info needed', tone: 'outline-amber', bg: 'bg-[#faf4e8]' },
+  rejected: { chip: 'Not approved', tone: 'outline-danger', bg: 'bg-[#f9ebea]' },
+  not_started: { chip: 'Not verified', tone: 'outline-amber', bg: 'bg-[#faf4e8]' },
+  not_required: { chip: 'Not required', tone: 'neutral', bg: 'bg-[#f4f4f1]' },
+};
+const LIVE_KYC = {
+  title: 'KYC · You',
+  text: 'Your email is verified. Identity checks aren’t available on GTH yet.',
+  chip: 'Not available yet',
+};
 const liveKybText = (live, docs) => {
+  const state = liveStateOf(live);
+  if (state === 'not_required') return 'GTH isn’t asking for KYB documents right now.';
+  if (state === 'returned') return 'GTH asked for more information. Upload the documents again.';
   if (live.verified) {
     const on = live.verifiedAt
       ? new Date(live.verifiedAt).toLocaleDateString('en-GB', {
@@ -76,7 +107,7 @@ const liveKybText = (live, docs) => {
       : '';
     return on ? `Organisation verified on ${on}` : 'Organisation verified';
   }
-  if (live.status === 'kyb_rejected')
+  if (state === 'rejected')
     return live.rejectionReason
       ? `Not approved: ${live.rejectionReason}`
       : 'Not approved. Upload clearer copies.';
@@ -95,18 +126,21 @@ const VerificationWidget = ({
   onNotifyOwner,
   live = null,
 }) => {
-  const kyb = live
-    ? {
-        title: `KYB · ${org}`,
-        chip: live.status === 'kyb_submitted' ? 'In review' : live.label || 'Not verified',
-      }
-    : VERIFICATION.kyb(org);
-  const verified = variant === 'verified';
+  const liveState = live ? liveStateOf(live) : null;
+  const liveChip = live ? LIVE_KYB_CHIP[liveState] || LIVE_KYB_CHIP.not_started : null;
+  const kyb = live ? { title: `KYB · ${org}`, chip: liveChip.chip } : VERIFICATION.kyb(org);
+  const verified = live ? liveState === 'verified' : variant === 'verified';
   const needsAction = !live && (variant === 'rejected' || variant === 'owner');
-  // A verified organisation lists only the documents it actually sent (some were verified another way).
+  const notRequired =
+    liveState === 'not_required' || (live && live.required === false && !verified);
+  // A verified organisation lists only the documents it actually sent (some were verified another way);
+  // with KYB not required, only documents that were sent anyway.
   const documents = live
-    ? liveDocs(live).filter((d) => !live.verified || d.status !== 'Missing')
+    ? liveDocs(live).filter((d) => !(verified || notRequired) || d.status !== 'Missing')
     : documentsFor(variant);
+  const liveMissing = live ? documents.filter((d) => d.status === 'Missing').length : 0;
+  // US-7.3-05: only the organisation's owner uploads KYB documents (the backend refuses others).
+  const canUpload = live ? live.canUpload !== false : true;
   const kybText = live
     ? liveKybText(live, documents)
     : verified
@@ -114,9 +148,7 @@ const VerificationWidget = ({
       : needsAction
         ? VERIFICATION_STATES.rejected.kybText
         : kyb.text;
-  const kyc = live
-    ? { ...VERIFICATION.kyc, text: 'Your account email is verified' }
-    : VERIFICATION.kyc;
+  const kyc = live ? LIVE_KYC : VERIFICATION.kyc;
 
   return (
     <WidgetCard
@@ -138,14 +170,20 @@ const VerificationWidget = ({
                 {kyc.text}
               </span>
             </div>
-            <Chip tone="outline-success" className="self-start py-[4px]">
+            <Chip tone={live ? 'neutral' : 'outline-success'} className="self-start py-[4px]">
               {kyc.chip}
             </Chip>
           </div>
           <div
             className={classNames(
               'flex flex-col gap-[6px] rounded-[10px] px-[16px] py-[12px]',
-              verified ? 'bg-[#ebf1ec]/50' : needsAction ? 'bg-[#f9ebea]' : 'bg-[#faf4e8]'
+              live
+                ? liveChip.bg
+                : verified
+                  ? 'bg-[#ebf1ec]/50'
+                  : needsAction
+                    ? 'bg-[#f9ebea]'
+                    : 'bg-[#faf4e8]'
             )}
           >
             <div className="flex flex-col gap-[2px]">
@@ -156,7 +194,21 @@ const VerificationWidget = ({
                 {kybText}
               </span>
             </div>
-            {verified ? (
+            {live ? (
+              <Chip
+                tone={liveChip.tone}
+                icon={
+                  liveState === 'rejected'
+                    ? dashIcons.alertMissing
+                    : liveChip.tone === 'outline-amber'
+                      ? dashIcons.clockInReview
+                      : undefined
+                }
+                className="self-start py-[4px]"
+              >
+                {kyb.chip}
+              </Chip>
+            ) : verified ? (
               <Chip tone="outline-success" className="self-start py-[4px]">
                 {VERIFICATION_STATES.verified.kybChip}
               </Chip>
@@ -240,6 +292,51 @@ const VerificationWidget = ({
               </span>
             </span>
           </div>
+        ) : live && notRequired ? (
+          <p className="m-0 flex gap-[8px] font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
+            <img
+              src={dashIcons.infoNote}
+              alt=""
+              aria-hidden="true"
+              className="mt-[2px] size-[16px] shrink-0"
+            />
+            Verification isn’t required on GTH right now. You can post jobs and reach talents as
+            usual.
+          </p>
+        ) : live ? (
+          <>
+            <p className="m-0 flex gap-[8px] font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
+              <img
+                src={dashIcons.infoNote}
+                alt=""
+                aria-hidden="true"
+                className="mt-[2px] size-[16px] shrink-0"
+              />
+              {canUpload
+                ? 'Optional: you can keep posting while we verify. Your postings show the Verified badge once GTH approves your documents.'
+                : 'Only your organisation’s admin can upload KYB documents. You can keep posting meanwhile.'}
+            </p>
+            {canUpload ? (
+              <button
+                type="button"
+                disabled={readOnly}
+                onClick={onUpload}
+                className="inline-flex min-h-[46px] w-full cursor-pointer items-center justify-center gap-[6px] rounded-[10px] border-0 bg-[#387440] px-[18px] py-[11px] font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-white shadow-[0_3px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <img
+                  src={dashIcons.uploadDocuments}
+                  alt=""
+                  aria-hidden="true"
+                  className="size-[16px]"
+                />
+                {liveState === 'rejected' || liveState === 'returned'
+                  ? 'Upload documents again'
+                  : liveMissing
+                    ? VERIFICATION.upload
+                    : 'Upload a document'}
+              </button>
+            ) : null}
+          </>
         ) : (
           <>
             <p className="m-0 flex gap-[8px] font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
