@@ -549,4 +549,5 @@ export const flagRows = (detail) =>
     before: f.before ?? '—',
     now: f.now ?? '—',
     approvedOn: f.approvedAt ? shortDay(f.approvedAt) : undefined,
+    fixedOn: f.fixedAt ? shortDay(f.fixedAt) : undefined,
   }));

@@ -8,6 +8,7 @@ import WardProfileTab from './WardProfileTab.jsx';
 import WardFlagsTab from './WardFlagsTab.jsx';
 import FlagFieldDialog from './FlagFieldDialog.jsx';
 import RecheckDialog from './RecheckDialog.jsx';
+import WithdrawFlagDialog from './WithdrawFlagDialog.jsx';
 import { flagsActions, useWardFlags } from './flagsStore.js';
 import { FLAGS_COPY, PROFILE_GROUPS } from './data/flagsData.js';
 
@@ -26,7 +27,8 @@ const log = debug('WardFlagsSection');
  * `sev` (know | correcting | critical) and `note` seed the dialog form; `check=1` shows the error at once. The two toast URLs apply their drawn state on load (flagsStore ensureSent / ensureApproved) so a frame
  * reproduces from a fresh load. Real flow: Flag button -> PW-04 -> Send -> toast (Undo reverts) · Review fix -> PW-06 -> Approve fix -> toast, or Flag again -> PW-06c -> Send flag again.
  * Props: ward (wardsData entry), tab ('profile' | 'flags'), live (optional): { groups, flags, send(fieldId, values),
- *   approve(flagId), again(flagId, values) } — the ward's real fields and flags, and async writes to the parent API. Live sends
+ *   approve(flagId), again(flagId, values), withdraw(flagId, { note }) } — the ward's real fields and flags, and async writes to the parent API.
+ *   Live only: a pending / re-flagged row has "Withdraw" (&modal=withdraw&flag=<id>, WithdrawFlagDialog, no frame) — the parent takes the flag back. Live sends
  *   have no Undo (the flag already reached the ward); a failed write shows its error in the toast.
  * ⚠️ ASSUMPTION: the toasts reuse ParentToast (4 s); a flag-again send shows the same "Flag sent to Abena" toast (no frame).
  */
@@ -103,6 +105,9 @@ const WardFlagsSection = ({ ward, tab, live = null }) => {
           ward={ward}
           flags={flags}
           onReview={(f) => setModal({ modal: 'recheck', flag: f.id })}
+          onWithdraw={
+            live?.withdraw ? (f) => setModal({ modal: 'withdraw', flag: f.id }) : undefined
+          }
         />
       )}
 
@@ -194,6 +199,26 @@ const WardFlagsSection = ({ ward, tab, live = null }) => {
             setToast(FLAGS_COPY.toast.approved(flag, ward));
           }}
           onFlagAgain={() => setModal({ modal: 'flag-again', flag: flag.id })}
+        />
+      ) : null}
+
+      {modal === 'withdraw' && flag && live?.withdraw ? (
+        <WithdrawFlagDialog
+          ward={ward}
+          flag={flag}
+          busy={busy}
+          onClose={close}
+          onWithdraw={(values) =>
+            run(
+              () => live.withdraw(flag.id, values),
+              () => {
+                log('withdrawn (live)', { flag: flag.id });
+                close();
+                focusAfterRender('#flags-list');
+                setToast(FLAGS_COPY.toast.withdrawn(flag, ward));
+              }
+            )
+          }
         />
       ) : null}
 

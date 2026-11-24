@@ -44,6 +44,7 @@ import {
   approveWardFix,
   flagWardField,
   flagWardFieldAgain,
+  withdrawWardFlag,
   optOutWard,
   parentError,
   restoreWard,
@@ -183,6 +184,10 @@ const ParentWardPage = () => {
         },
         again: async (flagId, values) => {
           await flagWardFieldAgain(wardId, flagId, values);
+          await refreshParent(wardId);
+        },
+        withdraw: async (flagId, values) => {
+          await withdrawWardFlag(wardId, flagId, values);
           await refreshParent(wardId);
         },
       }
