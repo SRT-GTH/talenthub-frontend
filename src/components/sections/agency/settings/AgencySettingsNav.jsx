@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { logout } from '../../../../services/auth.api.js';
+import { endSession } from '../../../../services/auth.api.js';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import {
@@ -104,9 +104,9 @@ const AgencySettingsNav = ({ active }) => {
       <span aria-hidden="true" className="h-px w-full bg-[#e7e7e7] max-lg:hidden" />
       <button
         type="button"
-        onClick={() => {
+        onClick={async () => {
           log('log out');
-          logout();
+          await endSession();
           window.location.assign('/login');
         }}
         className={classNames(ITEM, 'w-full cursor-pointer text-left font-semibold text-[#c0392b]')}

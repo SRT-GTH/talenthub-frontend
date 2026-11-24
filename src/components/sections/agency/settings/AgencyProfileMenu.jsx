@@ -18,7 +18,7 @@ import {
   ProfileMenuVerifiedCheckIcon,
 } from '../../../shared/assets.jsx';
 import { agencyAnalysts } from '../../../../services/agency.api.js';
-import { logout } from '../../../../services/auth.api.js';
+import { endSession } from '../../../../services/auth.api.js';
 import { useAgencyResource } from '../useAgencyResource.js';
 
 const log = debug('AgencyProfileMenu');
@@ -257,9 +257,9 @@ const AgencyProfileMenu = ({ data, session }) => {
           {item('logout', {
             icon: <ProfileMenuLogoutIcon className="size-[20px]" />,
             label: 'Log out',
-            onActivate: () => {
+            onActivate: async () => {
               log('log out');
-              logout();
+              await endSession();
               window.location.assign('/login');
             },
           })}

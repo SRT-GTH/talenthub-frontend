@@ -16,7 +16,7 @@ import {
 } from '../../../shared/assets.jsx';
 import InstitutionStatusChip from './InstitutionStatusChip.jsx';
 import { SETTINGS_LOGOUT_LABEL, SETTINGS_NAV } from './data/institutionSettingsData.js';
-import { logout } from '../../../../services/auth.api.js';
+import { endSession } from '../../../../services/auth.api.js';
 
 const log = debug('InstitutionSettingsNav');
 
@@ -108,9 +108,9 @@ const InstitutionSettingsNav = ({ active }) => {
       <span aria-hidden="true" className="h-px w-full bg-[#e7e7e7] max-lg:hidden" />
       <button
         type="button"
-        onClick={() => {
+        onClick={async () => {
           log('log out');
-          logout();
+          await endSession();
           navigate('/login', { replace: true });
         }}
         className={classNames(ITEM, 'w-full cursor-pointer text-left font-semibold text-[#c0392b]')}

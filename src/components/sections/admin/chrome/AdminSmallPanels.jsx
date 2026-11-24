@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
-import { logout } from '../../../../services/auth.api.js';
+import { endSession } from '../../../../services/auth.api.js';
 import { LANGUAGES } from '../../talentMessages/LanguageData.js';
 import { ADMIN_BASE } from '../adminNav.js';
 import AdminPanel from './AdminPanel.jsx';
@@ -266,9 +266,9 @@ export const AdminProfileMenu = ({ onClose, onOpen, session, counts }) => {
         <li aria-hidden="true" className="my-[6px] h-px bg-[#efefec]" />
         <Row
           danger
-          onClick={() => {
+          onClick={async () => {
             onClose();
-            logout();
+            await endSession();
             navigate('/admin/sign-in', { replace: true });
           }}
         >

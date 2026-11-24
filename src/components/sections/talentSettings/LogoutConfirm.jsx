@@ -6,8 +6,7 @@ import { LogoutConfirmBoltIcon, LogoutConfirmTileIcon } from '../../shared/asset
 import Button from '../../ui/Button.jsx';
 import { usePlayfulDialogA11y } from '../../ui/PlayfulDialogA11y.js';
 import FlowPortal from '../talentHome/FlowPortal.jsx';
-import { logout as clearLocalSession } from '../../../services/auth.api.js';
-import { logOutOtherDevices, serverLogout } from '../../../services/settings.api.js';
+import { endSession } from '../../../services/auth.api.js';
 import { invalidateAccountOverview, useAccountOverview } from './useLiveSettings.js';
 
 const log = debug('LogoutConfirm');
@@ -59,12 +58,7 @@ const LogoutConfirm = ({ settings }) => {
     if (!settings.demo) {
       setBusy(true);
       // Ends this device's session on the server (and the others when ticked), then clears this browser.
-      if (allDevices && view.otherDevices)
-        await logOutOtherDevices().catch((err) =>
-          log('others not logged out', err?.response?.status)
-        );
-      await serverLogout();
-      clearLocalSession();
+      await endSession({ otherDevices: Boolean(allDevices && view.otherDevices) });
       invalidateAccountOverview();
     }
     navigate('/logged-out', { replace: true });
