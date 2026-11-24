@@ -260,6 +260,15 @@ const PlatformConfigTab = () => {
                 value={value}
                 onChange={setValue}
               />
+            ) : Array.isArray(dialog.c.allowedValues) && dialog.c.allowedValues.length ? (
+              // keys seeded with allowedValues (e.g. institution.student_data_mode) take only those values
+              <Select
+                label="New value"
+                required
+                options={dialog.c.allowedValues.map(String)}
+                value={value}
+                onChange={setValue}
+              />
             ) : (
               <TextInput
                 label="New value"

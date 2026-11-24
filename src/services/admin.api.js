@@ -230,6 +230,11 @@ export const orgAddAdmin = (organizationId, entityId) =>
   post('/organizations/add-admin', { organizationId, entityId });
 export const orgRemoveAdmin = (organizationId, entityId) =>
   api.delete('/organizations/remove-admin', { data: { organizationId, entityId } }).then(body);
+/** An institution's student data mode (ADR-14): {platform, override, mode, source, setAt, setByName, reason, history}. Super / Senior Admin. */
+export const institutionDataMode = (orgId) => get(`/admin/institution-data/${orgId}`);
+/** mode: aggregate | identifiable | platform (follow the platform default). The reason is logged. */
+export const setInstitutionDataMode = (orgId, mode, reason) =>
+  put(`/admin/institution-data/${orgId}`, { mode, reason });
 export const orgMembers = async (entityId) =>
   arr(await get(`/links/entity/${entityId}`), 'links', 'data', 'records');
 

@@ -16,6 +16,7 @@ import {
   institutionSetPaused,
 } from '../../../../services/institutionPortal.api.js';
 import InstitutionCloseAccountDialog from './InstitutionCloseAccountDialog.jsx';
+import { useInstitutionSession } from '../useInstitutionSession.js';
 import { DATA_COPY, TOASTS } from './data/institutionSettingsData.js';
 
 const log = debug('InstitutionDataTab');
@@ -32,10 +33,23 @@ const day = (iso) =>
  * Live: "Download your roster" (POST /institution/roster/export, CSV, logged; under-18s without a guardian's agreement leave as initials), the audit log
  * CSV (POST /institution/audit/export), "Pause institution account" (PATCH /institution/settings/pause: a flag programmes will respect; staff keep access),
  * and "Close account", which sends a close request to the GTH team (POST /institution/settings/close-request): nothing closes until GTH confirms.
- * Pause and close are admin only. Props: revised, onToast(toast).
+ * Pause and close are admin only. "How you see student data" states the student data mode (ADR-14, set by GTH staff, read-only here);
+ * in the aggregate mode there is no roster download. Props: revised, onToast(toast).
  */
+const STUDENT_DATA = {
+  aggregate: {
+    title: 'Totals only',
+    desc: 'You see your students as totals by year group, programme, level and region. Groups of fewer than 5 students are hidden so no one can be picked out. Student records, edits, named exports and credentials are not available.',
+  },
+  identifiable: {
+    title: 'Named students',
+    desc: 'You see your students by name: the roster, each student’s record and progress, edits, transfers, named exports and credentials. Under-18s’ profiles show once a guardian agrees.',
+  },
+};
 const InstitutionDataTab = ({ revised, onToast }) => {
   const copy = DATA_COPY[revised ? 'rev' : 'base'];
+  const { studentData } = useInstitutionSession();
+  const mode = STUDENT_DATA[studentData.mode] ?? STUDENT_DATA.aggregate;
   const [state, setState] = useState(null);
   const [closing, setClosing] = useState(false);
   const [busy, setBusy] = useState('');
@@ -86,19 +100,39 @@ const InstitutionDataTab = ({ revised, onToast }) => {
 
   return (
     <>
-      <SettingsACard title={copy.hold.title} desc={copy.hold.desc}>
-        <SettingsARow first title={copy.hold.download.title} desc={copy.hold.download.desc}>
-          <Button
-            variant="tertiary"
-            size="lg"
-            className="shrink-0"
-            disabled={busy === 'roster'}
-            onClick={() => download('roster', institutionRosterExport)}
-          >
-            {busy === 'roster' ? 'Preparing…' : copy.hold.download.cta}
-          </Button>
-        </SettingsARow>
+      <SettingsACard title="How you see student data">
         <SettingsARow
+          first
+          title={mode.title}
+          desc={mode.desc}
+          badge={
+            <span className="rounded-full bg-[#ebf1ec] px-[8px] py-[2px] text-[12px] leading-[16px] font-semibold whitespace-nowrap text-[#2a5730]">
+              {studentData.source === 'institution' ? 'Set by GTH for you' : 'GTH default'}
+            </span>
+          }
+        >
+          <span className="shrink-0 text-[13px] text-[#595959] max-sm:hidden">
+            Ask the GTH team to change it
+          </span>
+        </SettingsARow>
+      </SettingsACard>
+
+      <SettingsACard title={copy.hold.title} desc={copy.hold.desc}>
+        {studentData.aggregate ? null : (
+          <SettingsARow first title={copy.hold.download.title} desc={copy.hold.download.desc}>
+            <Button
+              variant="tertiary"
+              size="lg"
+              className="shrink-0"
+              disabled={busy === 'roster'}
+              onClick={() => download('roster', institutionRosterExport)}
+            >
+              {busy === 'roster' ? 'Preparing…' : copy.hold.download.cta}
+            </Button>
+          </SettingsARow>
+        )}
+        <SettingsARow
+          first={studentData.aggregate}
           title={
             <Link
               to="/institution/settings/audit-log"

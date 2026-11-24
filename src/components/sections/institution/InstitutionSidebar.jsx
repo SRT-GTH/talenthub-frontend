@@ -72,7 +72,10 @@ const InstitutionSidebar = ({
         )}
       >
         <div className={classNames('flex flex-col gap-[4px]', rail && 'items-center')}>
-          {PRIMARY_NAV.map((item) => (
+          {/* ADR-14: Credentials need the named roster, so an institution that sees totals only has no Credentials item. */}
+          {PRIMARY_NAV.filter(
+            (item) => item.id !== 'credentials' || !session?.studentData?.aggregate
+          ).map((item) => (
             <InstitutionNavItem
               key={item.id}
               item={item}

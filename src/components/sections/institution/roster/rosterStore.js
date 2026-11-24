@@ -87,6 +87,11 @@ export const rosterActions = {
         programmes: out.programmes || [],
       });
     } catch (err) {
+      // ADR-14: an institution that sees totals only has no named roster to load (the actions below still work).
+      if (err?.response?.data?.type === 'STUDENT_DATA_AGGREGATE_ONLY') {
+        set({ loaded: true, loading: false, aggregateOnly: true, students: [], error: null });
+        return;
+      }
       set({ loading: false, error: apiMessage(err) });
     }
   },
