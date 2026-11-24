@@ -460,8 +460,8 @@ const ActivateSection = () => {
               className="font-sans font-medium text-brand-green max-md:text-[13px]!"
               style={{ fontSize: '12px', lineHeight: 1.4 }}
             >
-              Your account activates immediately , no review required. You can start uploading
-              students right away.
+              Your account is created as soon as you activate. If GTH needs your accreditation
+              documents first, we’ll show you what to send.
             </p>
           </div>
 

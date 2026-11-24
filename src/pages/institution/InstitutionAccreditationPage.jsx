@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useInstitutionState } from '../../components/sections/institution/institutionState.js';
 import { useInstitutionSession } from '../../components/sections/institution/useInstitutionSession.js';
 import InstitutionAccredEmpty from '../../components/sections/institution/onboarding/InstitutionAccredEmpty.jsx';
@@ -31,6 +31,7 @@ const log = debug('InstitutionAccreditationPage');
  * (POST …/documents, base64, private); typed details with PUT …/details/:kind; "Next: Review" sends everything (POST …/submit), shows the
  * "Documents submitted." dialog and leads to the status page. While the documents are in review the page is read-only.
  * URL: /institution/accreditation (nothing uploaded yet) · ?view=list (the documents) · ?view=submitted (the list + the dialog).
+ * When GTH staff made accreditation optional (verify.required false, ADR-05) a note says so and links to the open portal.
  */
 
 const InstitutionAccreditationPage = () => {
@@ -45,6 +46,7 @@ const InstitutionAccreditationPage = () => {
   const hasDocs = Boolean(view?.docs?.length);
   const submitted = data.view === 'submitted';
   const listView = data.view === 'list' || submitted || hasDocs;
+  const optional = !session.verify.required && session.verify.open && !session.verify.approved;
 
   const load = useCallback(() => {
     setLoadError(null);
@@ -115,6 +117,20 @@ const InstitutionAccreditationPage = () => {
         <InstitutionAccredHero />
         <div className="flex flex-col gap-[32px] px-[clamp(16px,3.7vw,64px)] py-[40px] lg:flex-row lg:items-start lg:gap-[64px]">
           <div className="min-w-0 flex-1">
+            {optional ? (
+              <p
+                role="note"
+                className="m-0 mb-[20px] flex flex-wrap items-center justify-between gap-[12px] rounded-[16px] border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[16px] py-[12px] text-[14px] leading-[20px] text-[#1c2a21]"
+              >
+                <span>
+                  Accreditation is optional on GTH right now. Your portal is already open; send
+                  these documents when you can to show the Verified badge.
+                </span>
+                <Link to="/institution" className="font-semibold text-[#387440] underline">
+                  Go to your portal
+                </Link>
+              </p>
+            ) : null}
             {loadError ? (
               <div
                 role="alert"
@@ -167,6 +183,7 @@ const InstitutionAccreditationPage = () => {
       {submitted ? (
         <InstitutionSubmittedDialog
           documents={view?.docs?.length || 4}
+          optional={optional}
           onClose={() => data.update({ view: 'list' })}
         />
       ) : null}
