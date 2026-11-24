@@ -140,7 +140,8 @@ const InstitutionHomeMobile = ({ session, home }) => {
         title="Your students"
         subtitle={
           home
-            ? `${formatCount(home.total)} on the roster · ${home.linkedPct}% linked to GTH`
+            ? // linkedPct is null when too few students to show it (aggregate student data mode, ADR-14)
+              `${formatCount(home.total)} on the roster${home.linkedPct == null ? '' : ` · ${home.linkedPct}% linked to GTH`}`
             : 'Loading…'
         }
       >
@@ -159,7 +160,7 @@ const InstitutionHomeMobile = ({ session, home }) => {
               ) : null}
             </div>
           ) : null}
-          {home && !home.recent.length ? (
+          {home && !home.total ? (
             <p className="m-0 font-sans text-[14px] leading-[22px] text-[#575755]">
               No students yet. Add them one by one or upload a CSV.
             </p>

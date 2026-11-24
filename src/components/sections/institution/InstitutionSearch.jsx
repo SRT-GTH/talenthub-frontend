@@ -4,6 +4,7 @@ import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { apiMessage, institutionSearch } from '../../../services/institutionPortal.api.js';
 import { INSTITUTION_BASE } from './institutionNav.js';
+import { useInstitutionSession } from './useInstitutionSession.js';
 
 const log = debug('InstitutionSearch');
 
@@ -13,6 +14,8 @@ const log = debug('InstitutionSearch');
  * under the box (records and credentials only once the school is accredited, like their pages). ARIA combobox: ↑/↓ move, Enter opens the
  * highlighted result, Esc closes. Enter with nothing highlighted keeps the old behaviour: the Students roster filtered by the text (?q=),
  * which is also the last row of the list. ⌘K / Ctrl+K focuses it (InstitutionTopBar). Answers to earlier keystrokes are ignored.
+ * Aggregate student data mode (ADR-14): the backend finds records only (no students, no credentials), so the box searches records and has
+ * no "all students matching" row.
  * Props: inputRef, defaultValue, renderBox(children) (the bordered box the top bar draws around the input).
  */
 
@@ -24,6 +27,7 @@ const GROUPS = [
 
 const InstitutionSearch = ({ inputRef, defaultValue = '', renderBox }) => {
   const navigate = useNavigate();
+  const aggregate = useInstitutionSession().studentData.aggregate;
   const listId = useId();
   const [q, setQ] = useState(defaultValue);
   const [res, setRes] = useState(null);
@@ -74,7 +78,7 @@ const InstitutionSearch = ({ inputRef, defaultValue = '', renderBox }) => {
           out.push({ key: `${key}-${item.id}`, group: key, item, to: to(item.id) });
       }
     }
-    if (needle.length >= 2) {
+    if (needle.length >= 2 && !aggregate) {
       out.push({
         key: 'all',
         group: 'all',
@@ -82,7 +86,7 @@ const InstitutionSearch = ({ inputRef, defaultValue = '', renderBox }) => {
       });
     }
     return out;
-  }, [res, needle]);
+  }, [res, needle, aggregate]);
 
   const go = (opt) => {
     setOpen(false);
@@ -111,6 +115,10 @@ const InstitutionSearch = ({ inputRef, defaultValue = '', renderBox }) => {
   const onSubmit = (e) => {
     e.preventDefault();
     if (open && active >= 0 && options[active]) return go(options[active]);
+    if (aggregate) {
+      setOpen(true);
+      return undefined;
+    }
     log('search submit', needle);
     go({
       to: needle
@@ -144,8 +152,8 @@ const InstitutionSearch = ({ inputRef, defaultValue = '', renderBox }) => {
           aria-controls={listId}
           aria-autocomplete="list"
           aria-activedescendant={showList && active >= 0 ? optId(active) : undefined}
-          aria-label="Search students, records, credentials"
-          placeholder="Search students, records, credentials…"
+          aria-label={aggregate ? 'Search records' : 'Search students, records, credentials'}
+          placeholder={aggregate ? 'Search records…' : 'Search students, records, credentials…'}
           autoComplete="off"
           className="h-[28px] min-w-0 flex-1 bg-transparent font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#1c2a21] outline-none placeholder:text-[#bfbfbf]"
         />
@@ -204,7 +212,9 @@ const InstitutionSearch = ({ inputRef, defaultValue = '', renderBox }) => {
             ) : null}
             {state === 'ready' && total === 0 ? (
               <li role="presentation" className="px-[10px] py-[10px] text-[13.5px] text-[#595959]">
-                No students, records or credentials match “{needle}”.
+                {aggregate
+                  ? `No records match “${needle}”.`
+                  : `No students, records or credentials match “${needle}”.`}
               </li>
             ) : null}
             {state === 'error' ? (
@@ -212,7 +222,7 @@ const InstitutionSearch = ({ inputRef, defaultValue = '', renderBox }) => {
                 Search failed. {error}
               </li>
             ) : null}
-            {options.length ? (
+            {options.length && options[options.length - 1].group === 'all' ? (
               <li
                 id={optId(options.length - 1)}
                 role="option"

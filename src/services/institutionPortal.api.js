@@ -152,6 +152,9 @@ export const unflagStudent = (id) =>
   api.delete(`/institution/progress/students/${id}/flag`).then(body);
 export const progressOutcomes = (period) =>
   api.get('/institution/progress/outcomes', { params: { period }, timeout: 60000 }).then(body);
+/** Totals and breakdowns with groups of 1-4 suppressed (ADR-14): the Students, Progress and Home pages in the aggregate mode. */
+export const progressOverview = () =>
+  api.get('/institution/progress/overview', { timeout: 60000 }).then(body);
 /** -> { fileName, mime, content (base64) } */
 export const exportOutcomes = ({ period, readiness, names }) =>
   api

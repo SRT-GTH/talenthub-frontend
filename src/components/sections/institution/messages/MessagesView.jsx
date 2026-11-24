@@ -134,13 +134,13 @@ const MessagesView = ({ data, threadId, isNew }) => {
   }, [composing, audiences, store.draft.choice, store.draft.type]);
 
   useEffect(() => {
-    if (modal === 'failures' && openId) {
+    if (modal === 'failures' && openId && !session.studentData.aggregate) {
       setFailures(null);
       messageFailures(openId)
         .then((r) => setFailures(r.items ?? []))
         .catch(() => setFailures([]));
     }
-  }, [modal, openId]);
+  }, [modal, openId, session.studentData.aggregate]);
 
   const visible = useMemo(
     () =>
@@ -264,12 +264,16 @@ const MessagesView = ({ data, threadId, isNew }) => {
     const failed = thread.delivery?.guardiansFailed ?? 0;
     if (thread.status === 'sent' && failed > 0) {
       const p = deliveryProblem(failed);
+      // ADR-14: the list of failed copies names each student, so it is only offered when the institution sees students by name.
+      const see = session.studentData.aggregate
+        ? undefined
+        : { label: p.see, onClick: () => update({ modal: 'failures' }) };
       return (
         <ThreadBanner
           tone={thread.delivery.retriedAt ? 'retried' : 'problem'}
           title={p.title}
           sentence={p.sentence}
-          secondary={{ label: p.see, onClick: () => update({ modal: 'failures' }) }}
+          secondary={see}
           primary={{
             label: busy ? 'Retrying…' : p.retry,
             onClick: () =>
@@ -396,7 +400,7 @@ const MessagesView = ({ data, threadId, isNew }) => {
           onSend={sendOrSchedule}
         />
       ) : null}
-      {modal === 'failures' && thread ? (
+      {modal === 'failures' && thread && !session.studentData.aggregate ? (
         <FailedNumbersDialog
           items={failures}
           onClose={() => update({ modal: null }, { replace: true })}
