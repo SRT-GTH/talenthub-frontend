@@ -7,7 +7,7 @@ import PublicMobileTabs from './PublicMobileTabs.jsx';
 import PublicSidebar from './PublicSidebar.jsx';
 import PublicTopBar from './PublicTopBar.jsx';
 import OfflineBanner from './status/OfflineBanner.jsx';
-import { offlineFreshness } from './status/publicDataCache.js';
+import { latestSavedAt, offlineFreshness } from './status/publicDataCache.js';
 import useOnlineStatus from './status/useOnlineStatus.js';
 import { activeNavId } from './publicDataNav.js';
 import { searchDestination } from './publicDataSearch.js';
@@ -40,11 +40,17 @@ const PublicDataFrame = ({
   hideDownload = false,
   className,
 }) => {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const activeId = active ?? activeNavId(pathname);
   const { rail, drawer, update } = data;
   const online = useOnlineStatus();
+  // Offline: when the cached data was saved; nothing cached on a real drop = 'none' (copy without a time); the forced
+  // ?state=offline frame keeps the drawn time.
+  const offlineSavedAt = online
+    ? undefined
+    : (latestSavedAt() ??
+      (new URLSearchParams(search).get('state') === 'offline' ? undefined : 'none'));
 
   useEffect(() => {
     log('mount', { pathname, rail, drawer, activeId });
@@ -106,7 +112,7 @@ const PublicDataFrame = ({
       <div className="flex min-w-0 flex-1 flex-col">
         <PublicTopBar
           title={title}
-          freshness={online ? freshness : offlineFreshness()}
+          freshness={online ? freshness : offlineFreshness(offlineSavedAt)}
           q={data.q}
           onSearch={(q) => update({ q: q || null }, { replace: true })}
           onSubmitSearch={(q) => {
@@ -120,7 +126,8 @@ const PublicDataFrame = ({
           onDownload={hideDownload ? undefined : () => update({ modal: 'download' })}
           onMenu={() => update({ drawer: true })}
         />
-        <OfflineBanner />
+        {/* Offline: the time the cached data was saved (no cache yet: the drawn demo time). */}
+        <OfflineBanner savedAt={offlineSavedAt} />
         <main id="public-main" tabIndex={-1} className="min-w-0 flex-1 outline-none">
           {hideMobileTabs ? null : (
             <PublicMobileTabs activeId={activeId} className="px-[16px] pt-[20px]" />

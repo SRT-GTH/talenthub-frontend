@@ -18,7 +18,7 @@ import {
   buildStageSegments,
   stagesFor,
 } from './engagementShellData.js';
-import { useLiveJourney } from './useLiveJourney.js';
+import { useLiveJourneyStatus } from './useLiveJourney.js';
 
 const log = debug('EngagementStageFrame');
 
@@ -73,7 +73,7 @@ const EngagementStageFrame = ({
     return () => document.documentElement.removeAttribute('data-talent-home');
   }, [stageId]);
 
-  const live = useLiveJourney();
+  const { live, loading: journeyLoading } = useLiveJourneyStatus();
   const jhs = Boolean(live?.jhs);
   const hidden = jhs && JHS_HIDDEN_STAGES.has(stageId);
   // JHS talents have no Work or Pitch stage: a bookmarked or typed URL goes back to the map.
@@ -119,6 +119,7 @@ const EngagementStageFrame = ({
           stageName={shownStage.barLabel ?? shownStage.label}
           segments={segments}
           doneCount={doneCount}
+          loading={journeyLoading}
         />
       ) : null}
       <div className="flex min-h-0 flex-1 flex-col">{children}</div>

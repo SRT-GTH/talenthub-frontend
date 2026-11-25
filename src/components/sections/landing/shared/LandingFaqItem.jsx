@@ -49,7 +49,7 @@ const LandingFaqItem = ({ id, question, answer, open, onToggle, variant = 'page'
             className={classNames(
               'min-w-0 flex-1 font-sans font-semibold text-[#1c2a21]',
               home
-                ? 'text-[20px] leading-[23.9px]'
+                ? 'text-[20px] leading-[23.9px] max-md:text-[17px] max-md:leading-[1.2]'
                 : 'text-[clamp(17px,calc(14px+0.35vw),20px)] leading-[1.2]'
             )}
           >

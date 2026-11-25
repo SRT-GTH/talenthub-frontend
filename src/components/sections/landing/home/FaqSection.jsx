@@ -73,7 +73,7 @@ const FaqSection = () => {
           <a
             href={HELP_MAILTO}
             onClick={() => log('help link ->', HELP_MAILTO)}
-            className="lp-ul cursor-pointer font-semibold text-[#387440] no-underline"
+            className="lp-ul cursor-pointer font-semibold text-[#387440] no-underline min-[430px]:max-lg:min-h-[24px] max-[429px]:min-h-[33px]"
           >
             {FAQ_HELP.link}
           </a>

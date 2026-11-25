@@ -9,23 +9,15 @@ import { useDashboardNav } from './dashboardNav.js';
 import NavBadge from './NavBadge.jsx';
 import PublicProfileCard from './PublicProfileCard.jsx';
 import avatarLarge from '../../../assets/community/avatar-recruiter-large.svg';
+import { useRecruiterShell } from '../../../hooks/useRecruiterShell.js';
 
 const log = debug('DashboardSidebar');
 
 /*
- * DashboardSidebar — the left rail, in BOTH states Figma ships:
- *
- *   expanded  (339px) → Figma 7025:85256  — used on the community index
- *   collapsed (126px) → Figma 7025:86125  — used on the community detail
- *
- * The `ep:d-arrow-left` chevron in the rail's top-right toggles between them
- * (Figma 7025:85366 pointing left, 7025:86231 mirrored pointing right), so
- * both states are reachable from either page.
- *
- * `⚠️ ASSUMPTION` — Figma's expanded frame leaves the icon slots for
- * "Messages" (7025:85344) and "Profile" (7025:85353) EMPTY. The collapsed
- * frame supplies both glyphs, so those are reused here rather than leaving
- * two blank squares. Flagged for the manual Figma pass.
+ * DashboardSidebar — the recruiter's COLLAPSED icon rail (126px, as drawn in the recruiter Figma): avatar puck, icon nav, public-profile
+ * popover. The expand chevron hands back to DashboardShell, whose expanded rail is always the workspace sidebar
+ * (recruiterDashboard/WorkspaceSidebar.jsx). The older expanded "Getting started" rail was removed (2026-11-25): it showed
+ * the Figma sample recruiter on every account. Signed in, the puck shows the recruiter's initials and plan badge.
  *
  * ROLE NOTE — every label here is recruiter-specific and comes straight from
  * Figma; there is no talent/parent variant in the file. See the role note in
@@ -33,76 +25,6 @@ const log = debug('DashboardSidebar');
  */
 
 const GREEN_GRADIENT = 'linear-gradient(171.84deg, #387440 14.637%, #84cc16 85.349%)';
-
-const ExpandedNavItem = ({ item, onNavigate }) => {
-  const RecruiterIcon = item.RecruiterIcon;
-  const content = (
-    <>
-      <span className="flex w-[20px] shrink-0 items-center justify-center">
-        {/* Most glyphs are <img> assets with Figma's fills baked in, so they
-            cannot be recoloured with a text class.
-            `brightness-0` flattens any glyph to solid black (alpha, and so the
-            shape, survives); `invert(n)` then lifts that black to a flat tone:
-            invert(1) = #ffffff for the active item on the green gradient, and
-            invert(.6) = #999999 for inactive — the exact grey nav-home.svg and
-            the rest are already stroked with.
-            `grayscale` is NOT enough here: the only Community asset Figma ships
-            is nav-community-active.svg, stroked #EBF1EC for the green pill, and
-            desaturating near-white leaves it near-white, i.e. invisible on the
-            white rail. Normalising through black fixes every icon regardless of
-            its baked colour. Icons that ship as `currentColor` components
-            (`item.RecruiterIcon`, e.g. the V2.0 "Profile" notebook-pen) are tinted by
-            colour instead: #999999 at rest, #EBF1EC when active. */}
-        {RecruiterIcon ? (
-          <RecruiterIcon className={item.active ? 'text-[#ebf1ec]' : 'text-[#999999]'} />
-        ) : (
-          <CommunityIcon
-            src={item.icon}
-            size={18}
-            className={item.active ? 'brightness-0 invert' : 'brightness-0 invert-[.6]'}
-          />
-        )}
-      </span>
-      <span
-        className="min-w-0 flex-1 text-left font-sans text-[14px] leading-6 tracking-[0.2px]"
-        style={{ color: item.active ? '#ebf1ec' : (item.labelColor ?? '#70706e') }}
-      >
-        {item.label}
-      </span>
-      {item.badge && <NavBadge count={item.badge} solid />}
-    </>
-  );
-
-  const shared = classNames(
-    'flex min-h-[44px] w-full items-center rounded-[10px] px-[12px] py-[10px] transition-colors',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-    !item.active && 'hover:bg-brand-green-light'
-  );
-  // Icon-to-label gap: Figma draws 11px on some items and 8px on others (see dashboardNav.js `labelGap`).
-  const style = {
-    columnGap: item.labelGap ?? 8,
-    ...(item.active ? { backgroundImage: GREEN_GRADIENT } : null),
-  };
-
-  if (item.to) {
-    return (
-      <Link
-        to={item.to}
-        aria-current={item.active ? 'page' : undefined}
-        className={shared}
-        style={style}
-        onClick={() => log('nav click:', item.id)}
-      >
-        {content}
-      </Link>
-    );
-  }
-  return (
-    <button type="button" className={shared} style={style} onClick={() => onNavigate(item.id)}>
-      {content}
-    </button>
-  );
-};
 
 const CollapsedNavItem = ({ item, onNavigate }) => {
   const RecruiterIcon = item.RecruiterIcon;
@@ -168,6 +90,9 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
      /community/:id both resolve to the Community item, and items with no `to`
      stay inactive, exactly as before. */
   const { navItems, secondaryNavItems } = useDashboardNav();
+  // Signed in: the recruiter's own initials and plan badge (signed out keeps the Figma sample avatar and "New").
+  const shell = useRecruiterShell();
+  const badge = shell ? shell.plan?.badge || 'Free' : SIDEBAR_PROFILE.badge;
 
   /* Figma annotation (7025:87865): "Appears when link Icon is hovered or
      clicked." Hover and click are tracked separately so a click that follows
@@ -219,215 +144,93 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
     </button>
   );
 
-  if (collapsed) {
-    return (
-      <aside
-        className={classNames(
-          'relative flex w-[126px] shrink-0 flex-col items-center justify-between border-r-2 border-white bg-white px-[12px] py-[60px]',
-          compact && 'max-lg:w-[104px] max-lg:px-[8px] max-lg:py-[24px]',
-          className
-        )}
-        aria-label="Community navigation"
-      >
-        {toggleButton}
+  return (
+    <aside
+      className={classNames(
+        'relative flex w-[126px] shrink-0 flex-col items-center justify-between border-r-2 border-white bg-white px-[12px] py-[60px]',
+        compact && 'max-lg:w-[104px] max-lg:px-[8px] max-lg:py-[24px]',
+        className
+      )}
+      aria-label="Community navigation"
+    >
+      {toggleButton}
 
-        <div className="flex min-h-0 flex-col items-center gap-[20px] slim-scrollbar overflow-y-auto">
-          {/* Avatar puck — 3px brand ring + "New" badge (7025:86127) */}
-          <div className="relative flex flex-col items-center justify-center gap-[16px] rounded-[1000px] border-[3px] border-[#468438] bg-white p-[6px]">
-            <span
-              className="flex size-[62px] items-center justify-center overflow-hidden rounded-[31px]"
-              style={{
-                backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)',
-              }}
-            >
+      <div className="flex min-h-0 flex-col items-center gap-[20px] slim-scrollbar overflow-y-auto">
+        {/* Avatar puck — 3px brand ring + "New" badge (7025:86127) */}
+        <div className="relative flex flex-col items-center justify-center gap-[16px] rounded-[1000px] border-[3px] border-[#468438] bg-white p-[6px]">
+          <span
+            className="flex size-[62px] items-center justify-center overflow-hidden rounded-[31px]"
+            style={{
+              backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)',
+            }}
+          >
+            {shell ? (
+              <span
+                className="font-sans text-[22px] font-semibold text-white"
+                aria-label={shell.fullName || undefined}
+              >
+                {shell.initials || ''}
+              </span>
+            ) : (
               <img
                 src={avatarLarge}
                 alt={SIDEBAR_PROFILE.name}
                 draggable="false"
                 className="h-[70px] w-[69px] max-w-none select-none"
               />
+            )}
+          </span>
+          <span className="absolute -right-[46px] top-[5px] inline-flex h-[18px] max-lg:hidden items-center gap-[3px] overflow-hidden rounded-[4px] bg-informative-light px-[4px] py-[2px]">
+            <CommunityIcon src={icons.newBadge} size={8} />
+            <span className="font-sans text-[9px] max-lg:text-[12px] font-medium tracking-[0.2px] text-informative-dark">
+              {badge}
             </span>
-            <span className="absolute -right-[46px] top-[5px] inline-flex h-[18px] max-lg:hidden items-center gap-[3px] overflow-hidden rounded-[4px] bg-informative-light px-[4px] py-[2px]">
-              <CommunityIcon src={icons.newBadge} size={8} />
-              <span className="font-sans text-[9px] max-lg:text-[12px] font-medium tracking-[0.2px] text-informative-dark">
-                {SIDEBAR_PROFILE.badge}
-              </span>
-            </span>
-          </div>
+          </span>
+        </div>
 
-          <nav className="flex flex-col items-start gap-[12px] overflow-hidden pt-[6px]">
-            <div className="flex flex-col items-start gap-[4px]">
-              {navItems.map((item) => (
-                <CollapsedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
-              ))}
-            </div>
-            <div className="h-px w-full rounded-[30px] bg-brand-green-light-hover" />
-            {secondaryNavItems.map((item) => (
+        <nav className="flex flex-col items-start gap-[12px] overflow-hidden pt-[6px]">
+          <div className="flex flex-col items-start gap-[4px]">
+            {navItems.map((item) => (
               <CollapsedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
             ))}
-          </nav>
-        </div>
-
-        {/* Collapsed public-profile trigger + hover/click popover */}
-        <div
-          className="relative shrink-0"
-          onMouseEnter={() => {
-            log('public-profile popover: hover open');
-            setProfileHovered(true);
-          }}
-          onMouseLeave={() => {
-            log('public-profile popover: hover close');
-            setProfileHovered(false);
-          }}
-        >
-          <button
-            type="button"
-            aria-label={SIDEBAR_PUBLIC_PROFILE.heading}
-            aria-expanded={profilePopoverOpen}
-            onClick={() => {
-              log('public-profile popover: click pin toggle →', !profilePinned);
-              setProfilePinned((pinned) => !pinned);
-            }}
-            className="flex flex-col items-start overflow-hidden rounded-[12px] border border-neutral bg-white p-[12px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-          >
-            <span className="flex items-center rounded-[8px] bg-brand-green-light px-[10px] py-[8px]">
-              <CommunityIcon src={icons.linkOutlinedLg} size={20} />
-            </span>
-          </button>
-
-          {profilePopoverOpen && (
-            <PublicProfileCard className="absolute bottom-0 left-[57px] z-20 w-[249px]" />
-          )}
-        </div>
-      </aside>
-    );
-  }
-
-  return (
-    /* Figma V2.0 rail (7249:76053 / :86046): 303px wide, padding 56/16/40/16, gap 20. The profile card is 279px wide
-       (4px wider than the padded column), the nav is 255px, and the public-profile card sits at the bottom with a
-       50px gap above it (Figma nominal 60, drawn 50 at 977px tall). */
-    <aside
-      className={classNames(
-        'relative flex w-[clamp(264px,17.54vw,303px)] shrink-0 flex-col items-center gap-[20px] bg-white px-[16px] pb-[40px] pt-[56px]',
-        className
-      )}
-      aria-label="Recruiter navigation"
-    >
-      {toggleButton}
-
-      {/* Profile card. Every child carries shrink-0 (as Figma's own auto-layout
-          does) — without it the flex column squashes the getting-started block
-          to zero height whenever the rail is short on space. */}
-      <div className="-mx-[4px] flex shrink-0 flex-col items-center justify-center gap-[16px] self-stretch overflow-hidden rounded-[16px] border-[1.4px] border-[#e1eae2] bg-white px-[11px] py-[17.6px]">
-        <span
-          className="flex size-[62px] shrink-0 items-center justify-center overflow-hidden rounded-[31px]"
-          style={{ backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)' }}
-        >
-          <img
-            src={avatarLarge}
-            alt={SIDEBAR_PROFILE.name}
-            draggable="false"
-            className="h-[70px] w-[69px] max-w-none select-none"
-          />
-        </span>
-
-        <div className="flex w-full shrink-0 flex-col items-center gap-[7px]">
-          <div className="flex items-center gap-[5px] overflow-hidden">
-            <span className="font-sans text-[14px] font-semibold leading-6 tracking-[0.2px] text-[#1c2a21]">
-              {SIDEBAR_PROFILE.name}
-            </span>
-            <span className="inline-flex h-[18px] items-center gap-[3px] overflow-hidden rounded-[4px] bg-[#eaeffb] py-[2px] pl-[6px] pr-[7px]">
-              <CommunityIcon src={icons.newBadge} size={8} />
-              <span className="font-sans text-[10px] max-lg:text-[12px] font-semibold leading-5 tracking-[0.2px] text-[#244a9f]">
-                {SIDEBAR_PROFILE.badge}
-              </span>
-            </span>
           </div>
-          <p className="w-full text-center font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#babab7]">
-            {SIDEBAR_PROFILE.meta}
-          </p>
-          <div className="flex items-center gap-[5px] overflow-hidden">
-            <CommunityIcon src={icons.dotProgress} size={4} />
-            <span className="font-sans text-[12px] font-medium leading-4 tracking-[0.2px] text-[#387440]">
-              {SIDEBAR_PROFILE.progressNote}
-            </span>
-          </div>
-        </div>
-
-        {/* Getting started progress */}
-        <div className="flex w-full shrink-0 flex-col items-start justify-center gap-[8px] overflow-hidden">
-          <div className="flex w-full items-center justify-between overflow-hidden tracking-[0.2px]">
-            <span className="font-sans text-[13px] font-semibold leading-4 text-[#1c2a21]">
-              {SIDEBAR_PROFILE.gettingStartedLabel}
-            </span>
-            <span className="font-sans text-[11px] max-lg:text-[12px] font-medium leading-4 text-[#babab7]">
-              {SIDEBAR_PROFILE.gettingStartedCount}
-            </span>
-          </div>
-          <div
-            className="flex h-[7px] w-full overflow-hidden rounded-[4px] bg-[#ebf1ec]/50"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round(SIDEBAR_PROFILE.gettingStartedPercent)}
-            aria-label={SIDEBAR_PROFILE.gettingStartedLabel}
-          >
-            <span
-              className="h-[7px] rounded-[4px]"
-              style={{
-                width: `${SIDEBAR_PROFILE.gettingStartedPercent}%`,
-                backgroundImage: 'linear-gradient(171.7deg, #387440 14.637%, #84cc16 85.349%)',
-              }}
-            />
-          </div>
-          {/* "Continue setup" -> the recruiter home's setup view (the Prospecting canvas "Get ready" checklist, /recruiter/home?view=setup). */}
-          <Link
-            to="/recruiter/home?view=setup"
-            onClick={() => log('continue setup -> /recruiter/home?view=setup')}
-            className="no-underline font-sans text-[11px] max-lg:text-[12px] leading-[13px] tracking-[0.2px] text-[#70706e] hover:text-brand-green focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-          >
-            {SIDEBAR_PROFILE.continueLabel}
-          </Link>
-        </div>
-
-        {/* Stats strip */}
-        <div className="flex shrink-0 items-center justify-center gap-[4px] rounded-[10px] border border-[#faf4e8] bg-[#ebf1ec]/50 px-[16px] py-[9px]">
-          {SIDEBAR_PROFILE.stats.map((stat, index) => (
-            <div key={stat.id} className="flex items-center">
-              {index > 0 && <span className="mr-[4px] h-[28px] w-px bg-[#ebf1ec]" />}
-              <div className="flex w-[60px] flex-col items-center justify-center gap-[2px] overflow-hidden px-[2px] text-center">
-                <span className="font-sans text-[12px] font-semibold leading-5 tracking-[0.2px] text-[#387440]">
-                  {stat.value}
-                </span>
-                <span className="font-sans text-[11px] max-lg:text-[12px] leading-[13px] text-[#999]">
-                  {stat.label}
-                </span>
-              </div>
-            </div>
+          <div className="h-px w-full rounded-[30px] bg-brand-green-light-hover" />
+          {secondaryNavItems.map((item) => (
+            <CollapsedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
           ))}
-        </div>
+        </nav>
       </div>
 
-      {/* Nav + public-profile card. The nav is the only flexible band — the profile card and the
-          public-profile card are shrink-0, so a short viewport scrolls the nav instead of silently clipping either
-          card. `justify-between` pins the public-profile card to the bottom like Figma's space-between frame. */}
-      <div className="flex min-h-0 w-full flex-1 flex-col justify-between gap-[50px] px-[8px]">
-        <nav className="flex min-h-0 flex-col items-start gap-[12px] slim-scrollbar overflow-y-auto pt-[6px]">
-          <div className="flex w-full shrink-0 flex-col items-start gap-[4px]">
-            {navItems.map((item) => (
-              <ExpandedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
-            ))}
-          </div>
-          <div className="h-px w-full shrink-0 rounded-[30px] bg-[#e1eae2]" />
-          <div className="flex w-full shrink-0 flex-col items-start gap-[4px]">
-            {secondaryNavItems.map((item) => (
-              <ExpandedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
-            ))}
-          </div>
-        </nav>
+      {/* Collapsed public-profile trigger + hover/click popover */}
+      <div
+        className="relative shrink-0"
+        onMouseEnter={() => {
+          log('public-profile popover: hover open');
+          setProfileHovered(true);
+        }}
+        onMouseLeave={() => {
+          log('public-profile popover: hover close');
+          setProfileHovered(false);
+        }}
+      >
+        <button
+          type="button"
+          aria-label={SIDEBAR_PUBLIC_PROFILE.heading}
+          aria-expanded={profilePopoverOpen}
+          onClick={() => {
+            log('public-profile popover: click pin toggle →', !profilePinned);
+            setProfilePinned((pinned) => !pinned);
+          }}
+          className="flex flex-col items-start overflow-hidden rounded-[12px] border border-neutral bg-white p-[12px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+        >
+          <span className="flex items-center rounded-[8px] bg-brand-green-light px-[10px] py-[8px]">
+            <CommunityIcon src={icons.linkOutlinedLg} size={20} />
+          </span>
+        </button>
 
-        <PublicProfileCard className="w-full shrink-0 lg:h-[125px]" />
+        {profilePopoverOpen && (
+          <PublicProfileCard className="absolute bottom-0 left-[57px] z-20 w-[249px]" />
+        )}
       </div>
     </aside>
   );

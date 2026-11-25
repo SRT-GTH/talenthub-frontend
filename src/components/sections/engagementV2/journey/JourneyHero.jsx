@@ -87,7 +87,7 @@ const ProgressCard = ({ model }) => {
               <span
                 key={n}
                 className={classNames(
-                  'absolute top-[16px] flex items-center gap-[4px] whitespace-nowrap text-[11px] font-semibold leading-[13px] max-sm:hidden',
+                  'absolute top-[16px] flex items-center gap-[4px] whitespace-nowrap text-[11px] font-semibold leading-[13px] max-lg:text-[12px] max-sm:hidden',
                   on ? 'text-[#785910]' : 'text-[#737373]'
                 )}
                 style={{ left: `${captionLeft(n)}%` }}

@@ -138,7 +138,7 @@ const RegionSwitcher = ({
               FOCUS
             )}
           >
-            <span>{title}</span>
+            <span className="whitespace-nowrap">{title}</span>
             <RegionsIconChevronDown className="size-[20px] shrink-0 text-[#1a1a18] md:size-[24px]" />
           </button>
         </h1>

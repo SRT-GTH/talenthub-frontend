@@ -74,7 +74,7 @@ const PublicTopBar = ({
     <header className="sticky top-0 z-30 border-b border-solid border-[#e7e7e7] bg-white">
       {/* desktop + tablet */}
       <div className="hidden h-[76px] items-center gap-[24px] px-[32px] md:flex xl:px-[40px]">
-        <p className="m-0 w-[168px] shrink-0 truncate font-sans text-[16px] leading-[19px] font-bold text-[#1c2a21] xl:w-[236px] xl:text-[18px] xl:leading-[21px] xl:font-semibold">
+        <p className="m-0 w-[168px] min-w-0 shrink truncate font-sans text-[16px] leading-[19px] font-bold text-[#1c2a21] xl:w-[236px] xl:text-[18px] xl:leading-[21px] xl:font-semibold">
           {title}
         </p>
         <label className="hidden h-[42px] w-[420px] max-w-full items-center gap-[10px] rounded-[12px] border border-solid border-[#e7e7e7] bg-[#f8f8f4] px-[14px] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#387440] xl:flex">
@@ -134,7 +134,18 @@ const PublicTopBar = ({
           <img src={gthLogo} alt="" width="32" height="30" className="h-[30px] w-[32px]" />
           <span className="font-sans text-[16px] leading-[19px] font-bold text-[#1c2a21]">GTH</span>
         </Link>
-        <FreshnessPill label="Live" size="sm" />
+        {/* Phones: the short state of the same freshness (it said "Live" even when the data was offline / cached). */}
+        <FreshnessPill
+          label={
+            freshness?.tone === 'offline'
+              ? 'Offline'
+              : freshness?.tone === 'maintenance'
+                ? 'Maintenance'
+                : 'Live'
+          }
+          tone={freshness?.tone}
+          size="sm"
+        />
         <button
           type="button"
           onClick={onMenu}

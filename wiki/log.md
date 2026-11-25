@@ -1,3 +1,38 @@
+## [2026-11-25] fix | Public data offline header
+
+- Full responsive sweep at 375 and 768 (1,478 checks): 1,467 passed. The 11 failures were the /data top bar at 768 when offline: "Offline · showing cached data from 09:12" pushed Download PDF 11px off screen. The title now shrinks (`PublicTopBar.jsx`); the phone pill says Offline / Maintenance instead of always "Live". All 11 pass; offline checked at 375 / 768 / 1024 / 1280 with no overflow.
+- The offline copy claimed cached data from the drawn 09:12, but nothing is ever cached. A real drop now reads "Offline · showing the last data loaded" / "You’re offline. Showing the data already loaded…" (⚠️ ASSUMPTION copy). With a cache it shows the newest saved time (`latestSavedAt`); `?state=offline` keeps the Figma copy. Gap recorded in backend-integration-gaps §8.
+
+## [2026-11-25] refactor | One expanded recruiter sidebar (workspace card)
+
+- `DashboardShell` now renders `WorkspaceSidebar` as the expanded rail on EVERY recruiter page (`renderSidebar` still overrides, e.g. Settings). Before, Clubs, My crew, Messages and the setup home (`?view=setup`) used the older "Getting started" rail, which always showed the Figma sample recruiter ("Joel Adade Kofie", 47 / 128 / 12) even when signed in. The older Figma club frames draw that card; the newer recruiter designs replaced it (user decision 2026-11-25: use the newer card everywhere).
+- `DashboardSidebar` is now only the collapsed icon rail (expanded branch and `ExpandedNavItem` removed). Signed in, its avatar puck shows the recruiter's initials and plan badge instead of the sample avatar and "New".
+- ✅ VERIFIED: `/recruiter/community?demo=1`, `/recruiter/community/circle`, `/recruiter/messages` and `/recruiter/home?view=setup` show the workspace card with the right item active, and no page errors.
+
+## [2026-11-24] fix | Stage bar no longer flashes the drawn "1 of 9" while signed in
+
+- `useLiveJourneyStatus()` (useLiveJourney.js) returns `{ live, loading }`: loading = signed in and the first journey read is still in flight. `EngagementStageBar` takes `loading`: grey pulsing segments, no count, aria-label "Loading your progress". Wired in `EngagementStageFrame` (all stages) and `AvatarPage`. Signed out / demo frames are unchanged. ✅ VERIFIED with the talent test account: "Loading your progress" → "9 of 9 stages done", no demo flash.
+
+## [2026-11-24] chore | e2e output off the system drive
+
+- `playwright.config.js` reads two optional env vars: `E2E_OUTPUT_DIR` (test-results + playwright-report) and `E2E_BASELINE_DIR` (desktop-visual baselines). Unset = the old in-repo folders. On the lead dev laptop both point at `D:/talenthub-e2e` (user env vars); the 1,303 stale baselines moved there (231 MB off C:). ✅ VERIFIED config resolves to D:.
+
+## [2026-11-24] fix | Responsive gate on phones and tablets
+
+- Full e2e on the merged build (f13cf64): functional specs green apart from staging timeouts; responsive 1440 / 1024 green; 768 / 375 / 320 had 22 / 48 / 49 failures, now fixed. desktop-visual baselines (Oct to early Nov) are stale: 474 diffs, 89 missing, many routes now redirect signed-out to /login. Regenerating them needs a known-good build and demo or mocked sessions (❓ NEEDS-CLARIFICATION).
+- App fixes (phones/tablets only, desktop unchanged):
+  - **Stage bar:** below sm the "Journey map" link folds to its arrow (named by aria-label) and the stage name truncates, so certs no longer scrolls sideways.
+  - **Avatar steps:** "Edit name" is 24px; Back and Next stack so labels stay on one line.
+  - **Interests:** tighter area cards.
+  - **Recruiter home:** pipeline tiles two per row on phones; the drop chip doesn't break after the minus.
+  - **Small text and targets:** inbox badges, Public-data sidebar labels and journey milestone captions are 12px below lg; Radio and Checkbox are 24px tall below lg; the region title stays on one line; the recruiter help FAQ is tighter.
+  - **Landing (zoomed by vw/430 under 430):** links get 33px design height, which is 24px on screen at 320. Below a 0.6 fan scale the opportunity cards are a picture (aria-hidden, no links); "Browse all opportunities" is the action. Step numbers are 12px; FAQ questions are 17px on phones.
+- Responsive probe (`tests/e2e/helpers/responsive.js`), rule 5 "button labels wrap":
+  - A label wraps only when ONE text node breaks across lines. Stacked title and sub buttons ("Applied / submitted") are designed that way.
+  - Checkbox option cards are exempt, like radio cards.
+  - Accordion triggers inside headings are exempt.
+- ✅ VERIFIED: the 320 list from the full run plus every affected group at 320 / 375 / 768, and `/` at all five widths, pass. Lint and build are clean.
+
 ## [2026-11-22] fix | Profile-building UX follow-ups
 
 - Skills stage lists platform-verified skills first (display only); Goals dialog names each missing required field (shared `Field` error, focus moves to the first missing input); Pitch stage opens an existing pitch on its published / review screen ("Loading your pitch…" meanwhile; Edit / Replace reach the chooser); Avatar stage shows skeletons while the saved avatar loads (signed in). Copy for errors and loading is ⚠️ ASSUMPTION (not drawn). ✅ VERIFIED demo + signed in.

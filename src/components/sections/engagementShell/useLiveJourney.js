@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { cachedJourney, fetchJourney, onJourney } from '../../../services/journey.api.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
 import { ENGAGEMENT_STAGES } from './engagementShellData.js';
 
 const KNOWN = new Set(ENGAGEMENT_STAGES.map((s) => s.id));
@@ -25,13 +26,23 @@ export const toLiveProgress = (journey) => {
  * The signed-in talent's real journey progress ({ doneIds, nextId, milestone }), or null while loading, when signed out,
  * or when the request fails — callers then keep their demo / URL-driven progress. Refetches on mount so a stage saved
  * on the previous screen shows up when the talent lands back on the map.
+ * useLiveJourneyStatus also says whether that first read is still in flight (signed in, nothing cached yet), so the stage
+ * bar can show a placeholder instead of the drawn demo progress for a moment.
  */
-export const useLiveJourney = () => {
+export const useLiveJourneyStatus = () => {
   const [journey, setJourney] = useState(cachedJourney);
+  const [settled, setSettled] = useState(() => Boolean(cachedJourney()) || !isLoggedIn());
   useEffect(() => {
+    let alive = true;
     const off = onJourney(setJourney);
-    fetchJourney();
-    return off;
+    fetchJourney().finally(() => alive && setSettled(true));
+    return () => {
+      alive = false;
+      off();
+    };
   }, []);
-  return useMemo(() => toLiveProgress(journey), [journey]);
+  const live = useMemo(() => toLiveProgress(journey), [journey]);
+  return { live, loading: !settled && !live };
 };
+
+export const useLiveJourney = () => useLiveJourneyStatus().live;

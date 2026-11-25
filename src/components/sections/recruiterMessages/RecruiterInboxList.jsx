@@ -50,7 +50,7 @@ const Row = ({ item, selected, archived, onOpen, onRestore }) => (
               {item.preview}
             </span>
             {item.unread ? (
-              <span className="grid h-[19px] min-w-[19px] shrink-0 place-items-center rounded-full bg-[#387440] px-[5px] font-sans text-[11px] leading-[13px] font-medium text-white">
+              <span className="grid h-[19px] min-w-[19px] shrink-0 place-items-center rounded-full bg-[#387440] px-[5px] font-sans text-[11px] leading-[13px] font-medium text-white max-lg:text-[12px]">
                 {item.unread}
               </span>
             ) : null}
@@ -184,7 +184,7 @@ const RecruiterInboxList = ({
             >
               {item.label}
               {item.id === 'applicants' ? (
-                <span className="grid h-[22px] min-w-[21px] place-items-center rounded-full bg-[#c8951a] px-[7px] font-sans text-[11.5px] leading-[19px] font-bold text-white">
+                <span className="grid h-[22px] min-w-[21px] place-items-center rounded-full bg-[#c8951a] px-[7px] font-sans text-[11.5px] leading-[19px] font-bold text-white max-lg:text-[12px]">
                   {count}
                 </span>
               ) : (

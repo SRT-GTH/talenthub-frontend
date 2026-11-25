@@ -207,7 +207,12 @@ const HelpCentre = ({ settings, help, q, openFaq, setOpenFaq, data, ownRequests 
               </div>
             </div>
 
-            <section className={classNames(CARD, 'flex flex-col p-[24px] playful:gap-[8px]')}>
+            <section
+              className={classNames(
+                CARD,
+                'flex flex-col p-[24px] max-sm:p-[16px] playful:gap-[8px]'
+              )}
+            >
               <h2
                 className={classNames(
                   'm-0 text-[19px] leading-[1.25] tracking-[-0.19px] text-[#1c2a21]',
@@ -236,7 +241,7 @@ const HelpCentre = ({ settings, help, q, openFaq, setOpenFaq, data, ownRequests 
                         FOCUS_RING
                       )}
                     >
-                      <span className="min-w-0 flex-1 font-sans text-[15px] font-semibold leading-[1.2] text-[#1c2a21]">
+                      <span className="min-w-0 flex-1 font-sans text-[15px] font-semibold leading-[1.2] text-[#1c2a21] max-sm:text-[14px]">
                         {item.question}
                       </span>
                       <Chevron className="size-[20px] shrink-0" />

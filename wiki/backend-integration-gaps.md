@@ -404,6 +404,7 @@ These now confirm in place but store nothing: course request ("Request this cour
 - [ ] (inferred) `MAP_REGIONS_SAMPLE` / `SAMPLE_SPARKLINE` helpers in the overview and regions data files: check whether live pages still render them.
 
 - [ ] **Freshness card copy is static:** always "14:02 GMT (2 min ago)" even when the live pill says "Updated 3 h ago · Refreshing" (`methodology/FreshnessTooltip.jsx:22`). 🔶 LIKELY (inspection 2026-11-22)
+- [ ] **Offline cache is not wired (frontend):** `status/publicDataCache.js` (`fetchWithCache`, `saveCache`) is never called, so nothing is cached for a dropped connection. A real drop now says "Offline · showing the last data loaded" (no time). Wiring needs each `/data` loader to go through `fetchWithCache(key, loader)`; the pill and banner then show the saved time automatically (`latestSavedAt`). The forced `?state=offline` frame keeps the drawn 09:12. ✅ VERIFIED (2026-11-25)
 - [ ] **Outcomes stories:** live `/public-data/outcomes` returns no stories, so the stories section is hidden and `/data/outcomes/stories/ama-k` shows "This story isn't available". ✅ VERIFIED (inspection 2026-11-22)
 - [ ] **Top-bar search** only searches the sample directory data (`publicDataSearch.js`); there is no search API. ⚠️ ASSUMPTION (inspection 2026-11-22)
 - [ ] **Digest unsubscribe:** `?token=` is ignored; the page shows the sample address. ✅ VERIFIED (inspection 2026-11-22)

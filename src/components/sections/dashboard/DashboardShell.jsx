@@ -4,6 +4,7 @@ import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import DashboardTopNav from './DashboardTopNav.jsx';
 import DashboardSidebar from './DashboardSidebar.jsx';
+import { renderWorkspaceSidebar } from '../recruiterDashboard/renderWorkspaceSidebar.jsx';
 import DashboardMobileTabBar from './DashboardMobileTabBar.jsx';
 import DashboardPageBackground from './DashboardPageBackground.jsx';
 import CareerBuddyFloatingButton from '../community/CareerBuddyFloatingButton.jsx';
@@ -70,7 +71,7 @@ const DashboardShell = ({
   railBadges,
   /* Talent only: which rail item is the current page ('profile' on /profile; default home). */
   activeNav,
-  /* Recruiter dashboard (add-only, defaults unchanged): `orgSlot` is the org switcher node for the top bar; `renderSidebar({ collapsed, onToggle })` may return a replacement for the expanded rail at lg+ (the workspace rail); returning null keeps the standard rail. */
+  /* Recruiter dashboard (add-only, defaults unchanged): `orgSlot` is the org switcher node for the top bar; `renderSidebar({ collapsed, onToggle })` overrides the expanded rail at lg+ (default: the workspace rail, renderWorkspaceSidebar); returning null shows the collapsed icon rail. */
   orgSlot,
   panels,
   renderSidebar,
@@ -117,7 +118,9 @@ const DashboardShell = ({
         <DashboardTopNav className="shrink-0" orgSlot={orgSlot} panels={topNavPanels} />
 
         <div className={classNames('flex min-h-0 w-full flex-1', contentClassName)}>
-          {renderSidebar?.({
+          {/* One expanded recruiter rail everywhere: the workspace sidebar (the signed-in recruiter's own card). It replaced the
+              older 'Getting started' card, which showed the Figma sample recruiter on every account. Collapsed = the icon rail below. */}
+          {(renderSidebar ?? renderWorkspaceSidebar)({
             collapsed: sidebarCollapsed,
             onToggle: () => setSidebarCollapsed((collapsed) => !collapsed),
           }) ?? (

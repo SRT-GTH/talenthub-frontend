@@ -46,7 +46,7 @@ const LINK_TARGETS = {
 };
 
 const LINK_CLASS =
-  'cursor-pointer self-start border-0 bg-transparent p-0 text-left font-sans text-[15px] leading-[18px] text-white no-underline lp-ul-hover';
+  'cursor-pointer self-start border-0 bg-transparent p-0 text-left font-sans text-[15px] leading-[18px] text-white no-underline lp-ul-hover min-[430px]:max-lg:min-h-[24px] max-[429px]:min-h-[33px] max-[429px]:min-w-[33px]';
 
 const COLUMNS = [
   {

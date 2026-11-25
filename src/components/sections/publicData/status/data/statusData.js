@@ -45,6 +45,10 @@ export const OFFLINE_COPY = {
   banner: 'You’re offline. Showing data saved at {time} today, so some numbers may be out of date.',
   retry: 'Retry connection',
   freshness: 'Offline · showing cached data from {time}',
+  // ⚠️ ASSUMPTION (not drawn): a real drop with nothing cached shows what is already on screen, with no time to quote.
+  bannerNoCache:
+    'You’re offline. Showing the data already loaded, so some numbers may be out of date.',
+  freshnessNoCache: 'Offline · showing the last data loaded',
 };
 
 // ⚠️ ASSUMPTION: when ?state=offline forces the frame and nothing is cached yet, the drawn time stands in for the cache time.

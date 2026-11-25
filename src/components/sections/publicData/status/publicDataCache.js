@@ -16,6 +16,8 @@ const log = debug('publicDataCache');
  *   formatCacheTime(savedAt)           -> "09:12"  (24h, GMT as the page says "GMT"; no savedAt -> the drawn demo time)
  *   offlineFreshness(savedAt)          -> { label: "Offline · showing cached data from 09:12" }   the stale variant of the freshness pill
  *                                         (pass it as PublicDataFrame `freshness`; the grey pill styling needs the REQUEST in the report)
+ *   latestSavedAt()                    -> the newest savedAt across every cached key (null when nothing is cached); the frame's
+ *                                         offline pill and banner use it, so they show when the data on screen was saved
  *   offlineBannerText(savedAt)         -> "You’re offline. Showing data saved at 09:12 today, …"
  * Only aggregated, public, already-suppressed payloads may be cached: never personal data.
  */
@@ -79,10 +81,31 @@ export const formatCacheTime = (savedAt) => {
   }).format(date);
 };
 
+export const latestSavedAt = () => {
+  try {
+    let latest = null;
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const key = window.localStorage.key(i);
+      if (!key || !key.startsWith(PREFIX)) continue;
+      const savedAt = JSON.parse(window.localStorage.getItem(key) || 'null')?.savedAt;
+      if (typeof savedAt === 'number' && (latest === null || savedAt > latest)) latest = savedAt;
+    }
+    return latest;
+  } catch {
+    return null;
+  }
+};
+
+// savedAt 'none' = a real drop with nothing cached: copy without a time (undefined keeps the drawn demo time for ?state=offline).
 export const offlineFreshness = (savedAt) => ({
   tone: 'offline',
-  label: OFFLINE_COPY.freshness.replace('{time}', formatCacheTime(savedAt)),
+  label:
+    savedAt === 'none'
+      ? OFFLINE_COPY.freshnessNoCache
+      : OFFLINE_COPY.freshness.replace('{time}', formatCacheTime(savedAt)),
 });
 
 export const offlineBannerText = (savedAt) =>
-  OFFLINE_COPY.banner.replace('{time}', formatCacheTime(savedAt));
+  savedAt === 'none'
+    ? OFFLINE_COPY.bannerNoCache
+    : OFFLINE_COPY.banner.replace('{time}', formatCacheTime(savedAt));

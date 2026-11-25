@@ -113,7 +113,7 @@ const PipelineWidget = ({
         </InlineState>
       ) : (
         <div className="flex flex-col gap-[10px]">
-          <ol className="m-0 grid list-none grid-cols-6 items-end gap-[8px] p-0 max-sm:grid-cols-3 max-sm:gap-y-[16px]">
+          <ol className="m-0 grid list-none grid-cols-6 items-end gap-[8px] p-0 max-sm:grid-cols-2 max-sm:gap-y-[16px]">
             {stages.map((stage) => (
               <li key={stage.id} className="flex min-w-0 flex-col justify-end gap-[8px]">
                 <button
@@ -128,7 +128,11 @@ const PipelineWidget = ({
                       {stage.count}
                     </span>
                     {stage.drop ? (
-                      <Chip tone="danger" icon={dashIcons.trendDownChip} className="px-[6px]">
+                      <Chip
+                        tone="danger"
+                        icon={dashIcons.trendDownChip}
+                        className="px-[6px] whitespace-nowrap"
+                      >
                         {stage.drop}
                       </Chip>
                     ) : null}

@@ -212,7 +212,7 @@ const AvatarHero = ({ meta, loading = false }) => {
             type="button"
             aria-label="Edit name"
             onClick={() => log('edit name (not drawn in Figma: inert)')}
-            className="inline-grid min-h-[24px] min-w-[16px] cursor-pointer place-items-center border-0 bg-transparent p-0 text-[#387440]"
+            className="inline-grid min-h-[24px] min-w-[24px] cursor-pointer place-items-center border-0 bg-transparent p-0 text-[#387440]"
           >
             <EditNameIcon className="size-[16px]" />
           </button>

@@ -301,7 +301,7 @@ const JourneyRail = () => (
           }`}
         >
           <span
-            className={`flex size-[22px] shrink-0 items-center justify-center rounded-full font-sans text-[11px] font-bold leading-[13px] ${
+            className={`flex size-[22px] shrink-0 items-center justify-center rounded-full font-sans text-[11px] font-bold leading-[13px] max-lg:text-[12px] ${
               milestone ? 'bg-[#1c2a21] text-white' : 'bg-white text-[#1c2a21]'
             }`}
           >

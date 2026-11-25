@@ -36,7 +36,7 @@ const Radio = ({
       className={classNames(
         'inline-flex items-center select-none',
         compact ? 'gap-[6px]' : 'gap-[8px]',
-        'max-md:min-h-11',
+        'max-lg:min-h-6 max-md:min-h-11',
         disabled ? 'cursor-not-allowed opacity-55' : 'cursor-pointer',
         className
       )}

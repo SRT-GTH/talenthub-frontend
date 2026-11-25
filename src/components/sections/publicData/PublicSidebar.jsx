@@ -124,7 +124,7 @@ const SidebarToggle = ({ collapsed = false, onToggle, className }) => (
 );
 
 const SectionLabel = ({ children }) => (
-  <p className="m-0 font-sans text-[11px] font-semibold leading-[13px] tracking-[0.88px] text-[#595959] uppercase">
+  <p className="m-0 font-sans text-[11px] font-semibold leading-[13px] tracking-[0.88px] text-[#595959] uppercase max-lg:text-[12px]">
     {children}
   </p>
 );

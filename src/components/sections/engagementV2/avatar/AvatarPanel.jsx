@@ -126,7 +126,7 @@ const AvatarPanel = ({
               type="button"
               onClick={onBack}
               className={classNames(
-                'inline-flex min-h-[52px] shrink-0 cursor-pointer items-center justify-center gap-[8px] rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.1)] bg-white px-[32px] py-[12px] font-sans text-[14px] font-semibold leading-[24px] tracking-[0.1px] text-[#1c2a21]',
+                'inline-flex min-h-[52px] shrink-0 cursor-pointer max-sm:flex-1 items-center justify-center gap-[8px] rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.1)] bg-white px-[32px] py-[12px] font-sans text-[14px] font-semibold leading-[24px] tracking-[0.1px] text-[#1c2a21]',
                 'playful:border-[rgba(28,42,33,0.3)]',
                 SHADOW_SOFT,
                 SHADOW_HARD,
@@ -142,7 +142,7 @@ const AvatarPanel = ({
               disabled={busy}
               className={classNames(
                 'disabled:cursor-not-allowed disabled:opacity-60',
-                'inline-flex min-h-[48px] min-w-0 flex-1 cursor-pointer items-center justify-center gap-[8px] rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[28px] py-[12px] font-sans text-[14px] font-semibold leading-[24px] tracking-[0.1px]',
+                'inline-flex min-h-[48px] min-w-0 flex-1 cursor-pointer whitespace-nowrap max-sm:basis-full items-center justify-center gap-[8px] rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[28px] py-[12px] font-sans text-[14px] font-semibold leading-[24px] tracking-[0.1px]',
                 SHADOW_SOFT,
                 SHADOW_HARD,
                 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'

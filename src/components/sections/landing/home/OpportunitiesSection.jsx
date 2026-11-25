@@ -22,12 +22,15 @@ const log = debug('OpportunitiesSection');
  * Desktop bg #fff; tablet/mobile gradient #f7ebcf -> #fbf6ea. The job-card fan is drawn once at 1400x347 and scaled down
  * uniformly on smaller frames (Figma: 0.538 tablet, 0.279 mobile).
  */
-const JobCard = ({ card }) => {
+const JobCard = ({ card, preview = false }) => {
   const solid = card.tile === 'solid';
   // Same target as the /opportunities job cards (opportunities/jobDestinations.js): the role in the talent jobs page, through
   // log in when signed out. "Quick apply" opens the role too: applying happens there. ⚠️ ASSUMPTION, Figma draws no target.
   const { open } = jobDestinations(card);
   const handleCta = () => log('card cta ->', card.id, card.cta.label, open);
+  // Shrunk into a small preview (phones and tablets), the buttons are drawn, not tappable: "Browse all opportunities" is the action there.
+  const Cta = preview ? 'span' : Link;
+  const ctaProps = preview ? {} : { to: open, onClick: handleCta };
   return (
     <div className="flex w-[400px] flex-col gap-3 rounded-[26px] border-[1.2px] border-solid border-[#1c2a21]/[.22] bg-white p-[22px] shadow-[4px_4px_0_rgba(28,42,33,.14),0_8px_20px_rgba(28,42,33,.05)] transition-[border-color,box-shadow] duration-[250ms] ease-out hover:border-[#1c2a21] hover:shadow-[0_6px_0_#387440] motion-reduce:transition-none">
       <div className="flex items-center gap-3 max-md:flex-col max-md:items-stretch max-md:gap-[43px]">
@@ -84,22 +87,20 @@ const JobCard = ({ card }) => {
         ))}
       </div>
       {card.cta.primary ? (
-        <Link
-          to={open}
-          onClick={handleCta}
+        <Cta
+          {...ctaProps}
           className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[18px] py-3 font-sans text-[16px] font-bold leading-6 tracking-[0.1px] text-white no-underline shadow-[0_4px_0_#224626]"
         >
           {card.cta.label}
           <LpBIcon name="arrowRight" size={20} />
-        </Link>
+        </Cta>
       ) : (
-        <Link
-          to={open}
-          onClick={handleCta}
+        <Cta
+          {...ctaProps}
           className="inline-flex cursor-pointer items-center justify-center rounded-[10px] border-2 border-solid border-[#c1d4c4] bg-[#e1eae2] px-[18px] py-3 font-sans text-[16px] font-bold leading-6 tracking-[0.1px] text-[#165d3a] no-underline shadow-[0_1px_2px_rgba(27,36,44,.12)]"
         >
           {card.cta.label}
-        </Link>
+        </Cta>
       )}
     </div>
   );
@@ -107,6 +108,8 @@ const JobCard = ({ card }) => {
 
 const OpportunitiesSection = () => {
   const [fanRef, scale, fanWidth] = useFitScale(FAN_W);
+  // Below ~0.6 the cards' buttons would be under 24px to tap, so the fan becomes a picture (the CTA below is the action).
+  const preview = scale < 0.6;
   /* Mobile: the cards are taller than the artboard height, so the bottoms tuck UNDER the stats row (stats get z-10) as in Figma. */
   const fanH = FAN_H;
 
@@ -114,8 +117,8 @@ const OpportunitiesSection = () => {
     log('mount');
   }, []);
   useEffect(() => {
-    log('fan scale:', scale.toFixed(3), 'wrapper width:', fanWidth);
-  }, [scale, fanWidth]);
+    log('fan scale:', scale.toFixed(3), 'wrapper width:', fanWidth, 'preview:', preview);
+  }, [scale, fanWidth, preview]);
 
   return (
     <section
@@ -152,6 +155,7 @@ const OpportunitiesSection = () => {
         >
           <div
             className="absolute top-0"
+            aria-hidden={preview || undefined}
             style={{
               width: FAN_W,
               height: fanH,
@@ -172,7 +176,7 @@ const OpportunitiesSection = () => {
                   transform: `rotate(${card.tilt}deg)`,
                 }}
               >
-                <JobCard card={card} />
+                <JobCard card={card} preview={preview} />
               </div>
             ))}
             <Sticker tilt={4} className="left-[789px] top-[-8px] bg-[#ffd86b]">

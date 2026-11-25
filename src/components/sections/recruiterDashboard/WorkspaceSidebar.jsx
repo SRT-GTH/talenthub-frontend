@@ -58,8 +58,8 @@ const liveSidebar = (shell) => {
 /*
  * WorkspaceSidebar — the recruiter dashboard's left rail at lg+ (Figma "Sidebar · talent" 10068:42622, 303×977): profile card (photo, name + Pro badge, meta line,
  * "Profile journey 5 of 9" bar, three stats), the nav (Home active as a flat #387440 pill), the plan-usage card, the public link and "Preview as talent".
- * Different from the older rail (`DashboardSidebar`, "Getting started" + gradient pill): that one still serves the other recruiter pages, this one is passed
- * to `DashboardShell` through `renderSidebar` on the dashboard only. Collapsing falls back to the standard collapsed rail.
+ * The ONE expanded recruiter rail: DashboardShell renders it on every recruiter page (it replaced the older "Getting started" rail). Pages may still pass
+ * their own `renderSidebar` for options (Settings row). Collapsing falls back to the collapsed icon rail (DashboardSidebar).
  * Props: onToggle (collapse), className, showSettings (opt-in: a "Settings" row under Profile, drawn on the Application Pipeline frames PL-01 … PL-16, Figma 10173:11581; off everywhere else).
  */
 const NAV_ORDER = [

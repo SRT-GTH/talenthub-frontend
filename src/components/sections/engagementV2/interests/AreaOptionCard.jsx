@@ -36,14 +36,16 @@ const AreaOptionCard = ({
       aria-disabled={disabled && !selected ? true : undefined}
       onClick={() => onToggle?.(area.id)}
       className={`flex w-full min-w-0 cursor-pointer items-center border border-solid text-left ${FOCUS_RING} disabled:cursor-default ${
-        dialog ? 'gap-[10px] rounded-[16px] p-[14px]' : 'gap-3 rounded-[18px] p-4'
+        dialog
+          ? 'gap-[10px] rounded-[16px] p-[14px] max-sm:gap-[8px] max-sm:p-[10px]'
+          : 'gap-3 rounded-[18px] p-4 max-sm:gap-[10px] max-sm:p-[12px]'
       } ${face}`}
     >
       <span
         className={`grid shrink-0 place-items-center ${
           dialog
-            ? 'size-[34px] rounded-[10px] text-[17px]'
-            : 'size-[40px] rounded-[12px] text-[20px]'
+            ? 'size-[34px] rounded-[10px] text-[17px] max-sm:size-[30px]'
+            : 'size-[40px] rounded-[12px] text-[20px] max-sm:size-[34px]'
         } ${selected ? 'bg-[#387440] text-white' : 'bg-[#ebf1ec] text-[#387440]'}`}
       >
         <Glyph />

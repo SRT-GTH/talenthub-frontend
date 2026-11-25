@@ -6,7 +6,7 @@ import {
   ENGAGEMENT_STAGES,
   buildStageSegments,
 } from '../../components/sections/engagementShell/engagementShellData.js';
-import { useLiveJourney } from '../../components/sections/engagementShell/useLiveJourney.js';
+import { useLiveJourneyStatus } from '../../components/sections/engagementShell/useLiveJourney.js';
 import { currentUserLabel } from '../../services/careerBuddy.api.js';
 import AvatarHero from '../../components/sections/engagementV2/avatar/AvatarHero.jsx';
 import AvatarPanel from '../../components/sections/engagementV2/avatar/AvatarPanel.jsx';
@@ -168,7 +168,7 @@ const AvatarPage = ({ step: stepProp }) => {
   };
 
   // Signed in: the stage bar shows the talent's real progress (it was the drawn "1 of 9 done · 11%" for everyone)
-  const liveJourney = useLiveJourney();
+  const { live: liveJourney, loading: journeyLoading } = useLiveJourneyStatus();
   const liveSegments = liveJourney
     ? buildStageSegments({
         doneIds: liveJourney.doneIds,
@@ -195,6 +195,7 @@ const AvatarPage = ({ step: stepProp }) => {
         stageName="Avatar"
         segments={liveJourney ? liveSegments : SEGMENTS}
         doneCount={liveJourney ? liveJourney.doneIds.length : 1}
+        loading={journeyLoading}
       />
       <div className="relative isolate overflow-hidden [container-type:inline-size]">
         <div

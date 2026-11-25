@@ -901,33 +901,41 @@ export const probe = ({ width }) => {
   if (smaller44.length && width < 768) warnings.push(`${smaller44.length} targets under 44px`);
 
   // 5. short button labels must not wrap onto a second line (below lg).
-  //    Option cards with descriptions are longer than 32 chars and exempt.
+  //    Option cards with descriptions are longer than 32 chars and exempt; so are radio and checkbox option cards
+  //    ("Agriculture & Environment" may take two lines in a one-column card on a 320px phone).
   if (belowLg) {
     const wrapped = [];
-    for (const el of document.querySelectorAll('button:not([role="radio"]), [role="button"]')) {
+    for (const el of document.querySelectorAll(
+      'button:not([role="radio"]):not([role="checkbox"]), [role="button"]'
+    )) {
       const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
       if (!text || text.length > 32 || !visible(el)) continue;
+      // An accordion trigger inside a heading (FAQ question) is a heading, and headings may wrap.
+      if (el.closest('h1, h2, h3, h4, h5, h6')) continue;
       const range = document.createRange();
       range.selectNodeContents(el);
       const tops = new Set(Array.from(range.getClientRects()).map((r) => Math.round(r.top / 4)));
-      // multiple text lines => more than one line of text boxes. Boxes share a line when one's vertical
-      // centre falls inside the other: a label next to a smaller chip text (e.g. "Abena" + "1 flag", 18px and
-      // 14px high, 2.8px apart) is ONE line; bucketing `top / 8` split such pairs whenever they straddled a bucket edge.
-      const lines = [];
+      // A label wraps when ONE text node breaks across lines. A button drawn as a stacked title + sub line
+      // ("Applied" over "submitted", "Recruiting on behalf of" over "MTN Ghana") is two text nodes on two
+      // lines by design. Rects of one node share a line when one's vertical centre falls inside the other.
+      let lines = [];
       const walker2 = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       while (walker2.nextNode()) {
         const n = walker2.currentNode;
         if (!n.nodeValue.trim()) continue;
         const r2 = document.createRange();
         r2.selectNodeContents(n);
+        const own = [];
         for (const rect of r2.getClientRects()) {
+          if (rect.width < 1) continue;
           const cy = rect.top + rect.height / 2;
-          const line = lines.find((l) => cy >= l.top && cy <= l.bottom);
+          const line = own.find((l) => cy >= l.top && cy <= l.bottom);
           if (line) {
             line.top = Math.min(line.top, rect.top);
             line.bottom = Math.max(line.bottom, rect.bottom);
-          } else lines.push({ top: rect.top, bottom: rect.bottom });
+          } else own.push({ top: rect.top, bottom: rect.bottom });
         }
+        if (own.length > lines.length) lines = own;
       }
       if (lines.length > 1 && tops.size > 0) wrapped.push(`"${text}"`);
     }

@@ -71,7 +71,7 @@ const FinalCta = ({ photo = false }) => {
           </Link>
           <Link
             to={LANDING_ROUTES.login}
-            className="lp-ul self-start font-sans text-[15px] font-semibold text-white no-underline md:self-auto"
+            className="lp-ul self-start font-sans text-[15px] font-semibold text-white no-underline md:self-auto min-[430px]:max-lg:min-h-[24px] max-[429px]:min-h-[33px]"
           >
             Already registered? Log in
           </Link>
