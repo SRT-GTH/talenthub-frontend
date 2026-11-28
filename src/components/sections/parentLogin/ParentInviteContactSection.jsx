@@ -5,6 +5,7 @@ import { z } from 'zod';
 import PhoneInput from '../../ui/form/PhoneInput.jsx';
 import TextInput from '../../ui/form/TextInput.jsx';
 import { ArrowRightIcon, MailIcon } from '../../shared/assets.jsx';
+import { PARENT_ID_VERIFICATION } from '../../../constants/parentFlows.js';
 import { debug } from '../../../utils/debug.js';
 
 import {
@@ -208,7 +209,12 @@ const ParentInviteContactSection = () => {
             type="button"
             onClick={() => {
               log('back clicked');
-              navigate(-1);
+              // The previous step by name: navigate(-1) left the app when the step was opened directly.
+              navigate(
+                PARENT_ID_VERIFICATION
+                  ? '/onboarding/parent-invited-verification'
+                  : '/onboarding/parent-invited-identity'
+              );
             }}
             aria-label="Back"
             className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold max-md:h-11 max-md:w-11 max-md:shrink-0 max-md:justify-center max-md:px-0"

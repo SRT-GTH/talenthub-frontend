@@ -9,6 +9,7 @@ import AskBuddyFabButton from '../../ui/AskBuddyFabButton.jsx';
 import ParentRailCollapsed from './ParentRailCollapsed.jsx';
 import ParentSidebar from './ParentSidebar.jsx';
 import ParentTopBar from './ParentTopBar.jsx';
+import ParentMobileNav from './chrome/ParentMobileNav.jsx';
 import CareerProfileDialog from './switch/CareerProfileDialog.jsx';
 import SwitchSpaceMenu from './switch/SwitchSpaceMenu.jsx';
 import ParentBuddyPanel from './buddy/ParentBuddyPanel.jsx';
@@ -81,6 +82,17 @@ const ParentFrame = ({
   // Scoped font stack (styles/parent.css): the bundled SF Pro Rounded while a parent screen is mounted.
   useScopedRoundedFont('data-parent-ui');
 
+  // Messages: the parent portal has no inbox of its own (the Parents file draws the icon only). ⚠️ ASSUMPTION: a parent who is also
+  // a talent opens their career inbox (/messages, the same account's conversations); without a career profile, the parent's notifications.
+  const openMessages = () => {
+    const to = career === 'talent' ? '/messages' : '/parent/notifications';
+    log('messages ->', to);
+    navigate(to);
+  };
+  const openCareerDialog = () => setParam('modal', 'career-profile');
+  const openSearch = () => setParam('panel', 'search');
+  const dimClass = dimSidebar ? 'pointer-events-none opacity-35' : '';
+
   const setRail = (value) => {
     log('rail', value);
     setParams(
@@ -118,6 +130,9 @@ const ParentFrame = ({
           onSwitchSpace={
             career === 'talent' ? () => setParam('menu', menuOpen ? '' : 'switch') : undefined
           }
+          onMessages={openMessages}
+          career={career}
+          onBuildCareer={openCareerDialog}
         />
         {panelOpen ? (
           <NotificationsPanel
@@ -126,29 +141,35 @@ const ParentFrame = ({
           />
         ) : null}
         <div className="flex min-h-0 w-full flex-1">
+          {/* >= lg: the sidebar, or the PR-01c rail with `?rail=collapsed`. md–lg: the rail (no room for the sidebar, so no
+              expand toggle). < md: the bottom tab bar below (ParentMobileNav). */}
           {sidebarSlot ||
             (collapsed ? (
               <ParentRailCollapsed
                 state={sidebar}
                 active={active}
                 onExpand={() => setRail('expanded')}
-                className={
-                  dimSidebar ? 'pointer-events-none opacity-35 max-lg:hidden' : 'max-lg:hidden'
-                }
+                toggleClassName="max-lg:hidden"
+                className={`${dimClass} max-md:hidden`}
               />
             ) : (
-              <ParentSidebar
-                state={sidebar}
-                active={active}
-                onCollapse={() => setRail('collapsed')}
-                career={career}
-                cardRef={cardRef}
-                onSwitch={() => setParam('menu', menuOpen ? '' : 'switch')}
-                onBuildCareer={() => setParam('modal', 'career-profile')}
-                className={
-                  dimSidebar ? 'pointer-events-none opacity-35 max-lg:hidden' : 'max-lg:hidden'
-                }
-              />
+              <>
+                <ParentSidebar
+                  state={sidebar}
+                  active={active}
+                  onCollapse={() => setRail('collapsed')}
+                  career={career}
+                  cardRef={cardRef}
+                  onSwitch={() => setParam('menu', menuOpen ? '' : 'switch')}
+                  onBuildCareer={openCareerDialog}
+                  className={`${dimClass} max-lg:hidden`}
+                />
+                <ParentRailCollapsed
+                  state={sidebar}
+                  active={active}
+                  className={`${dimClass} hidden md:flex lg:hidden`}
+                />
+              </>
             ))}
           <main
             id="main"
@@ -161,6 +182,15 @@ const ParentFrame = ({
             {children}
           </main>
         </div>
+        {sidebarSlot ? null : (
+          <ParentMobileNav
+            active={active}
+            sidebar={sidebar}
+            career={career}
+            onSearch={openSearch}
+            onBuildCareer={openCareerDialog}
+          />
+        )}
       </div>
       {menuOpen && !collapsed ? (
         <SwitchSpaceMenu
@@ -186,7 +216,7 @@ const ParentFrame = ({
       <AskBuddyFabButton
         look="focused"
         onClick={() => setParam('buddy', 'open')}
-        className="fixed right-[clamp(12px,2.31vw,40px)] bottom-[clamp(16px,1.85vw,32px)] z-40"
+        className="fixed right-[clamp(12px,2.31vw,40px)] bottom-[clamp(16px,1.85vw,32px)] z-40 max-md:bottom-[calc(72px+env(safe-area-inset-bottom))]"
       />
     </div>
   );

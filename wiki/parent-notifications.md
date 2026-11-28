@@ -51,3 +51,12 @@ Diff % = whole-frame pixel difference vs the Figma 0.5x export. PN-04 / PN-03 / 
 ## Not built (needs a decision)
 
 PN-05 / PN-06 / PN-07 are messages the backend sends by SMS and WhatsApp, not app screens. Proposed (2026-10-28): the verbatim message copy in a data file next to the email templates, plus three phone-look preview pages under `/parent/messages-preview`, marked as previews. Texts are already extracted (sender, time, body, buttons, "Reply YES, NO or STOP"); links like `gth.gov.gh/p/7KQ2` are placeholders until the backend chooses them.
+
+## Live wiring and inspection (2026-11-25, phase parent-more)
+
+- ✅ VERIFIED (code + browser with a fake session): signed in and not a frame URL, `/parent/notifications` reads GET `/api/notifications` through the shared `notifications/useNotificationFeed` (the talent hook) and maps documents with `notifications/parentNotificationsLive.js` onto the drawn rows (tab by `type` / `category` words, Today / This week / Earlier, `actionUrl` app paths only). Tab counts and "N new" are live; opening an unread row marks it read (PUT `/notifications/:id/read`); unread rows get a green dot.
+- Loading line, error line + Try again, and empty = the To review "caught up" card (`review/ReviewCaughtUp`, now with optional `title` / `body`). Our copy, no frame (⚠️ ASSUMPTION).
+- 🔶 LIKELY: the backend has no parent notification types yet; the tab guess needs a signed-in parent with real notifications. The bell panel (`NotificationsPanel`, other session) is still mock: it can reuse `toParentRow`.
+- "Notification settings" → `/parent/settings?tab=notifications` (was already wired; the header comment said log-only, fixed).
+- Figma prototype links: PN-01 milestone row → PN-03, PN-03 → PN-03b toast, PN-05b "That's fine" → PN-06 (WhatsApp, not built: closes). Match the app ✅ VERIFIED.
+- Milestone reactions (PN-03) stay mock: no reactions / milestones endpoint.

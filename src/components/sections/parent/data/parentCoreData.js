@@ -10,6 +10,7 @@
 export const PARENT = {
   firstName: 'Emma',
   name: 'Emma Mensah',
+  email: 'emma.mensah@gmail.com',
   short: 'Emma M.',
   verified: true,
   talentLine: 'My career · Banking to data analytics',

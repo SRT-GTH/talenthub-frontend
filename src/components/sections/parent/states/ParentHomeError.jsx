@@ -8,7 +8,7 @@ const log = debug('ParentHomeError');
 /*
  * ParentHomeError — PD-06 "Parent home · Couldn't load (error)" (Figma 10047:148153): "Good evening, Emma" 34/600, the error card (r24, p44, gap 14: 104 spot, "We couldn't load your wards" 24/600,
  * 14 / 1.45 #575755 copy 560 wide, "Try again" + "Open Help") and the amber offline note ("You're offline. Last updated today at 09:12.").
- * Props: onRetry() (Try again). ⚠️ ASSUMPTION: "Open Help" only logs (Help and guides is not drawn); the offline note is always shown, as drawn.
+ * Props: onRetry() (Try again). "Open Help" opens /parent/help (⚠️ ASSUMPTION: no link drawn). The offline note is always shown, as drawn.
  */
 const ParentHomeError = ({ onRetry }) => (
   <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px]">

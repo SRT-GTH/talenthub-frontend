@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle.js';
+import ParentButton from '../../components/sections/parent/ParentButton.jsx';
+import { ParentSkeleton as Sk } from '../../components/sections/parent/states/ParentHomeLoading.jsx';
 import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 import { WARDS } from '../../components/sections/parent/wards/data/wardsData.js';
 import WardShell from '../../components/sections/parent/wards/WardShell.jsx';
@@ -28,6 +30,7 @@ import {
 import {
   dropParentWard,
   loadParentMe,
+  loadParentWard,
   refreshParent,
   useParentMe,
   useParentWard,
@@ -142,11 +145,46 @@ const ParentWardPage = () => {
       return <Navigate to="/parent/wards" replace />;
     }
     if (!ward) {
+      // No Figma frame for a ward page that is loading or failed: the PD-05 shimmer in the ward header's shape, or the PD-06 card's message + Try again.
+      const failed = detail.status === 'error';
+      log('branch: live ward not ready', { failed, code: detail.code });
       return (
         <ParentFrame active="wards">
-          <p role="status" className="m-0 font-sans text-[15px] text-[#595959]">
-            {detail.status === 'error' ? detail.error : 'Loading…'}
-          </p>
+          <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px]">
+            {failed ? (
+              <section
+                role="alert"
+                className="flex flex-col items-start gap-[12px] rounded-[24px] border border-solid border-[#e7e7e7] bg-white p-[clamp(20px,2.3vw,40px)] shadow-[0_5px_17px_rgba(28,42,33,0.03)]"
+              >
+                <h1 className="m-0 font-sans text-[24px] leading-[normal] font-semibold text-[#1c2a21]">
+                  We couldn’t load this ward
+                </h1>
+                <p className="m-0 font-sans text-[14px] leading-[1.45] text-[#575755]">
+                  {detail.error}
+                </p>
+                <div className="flex flex-wrap gap-[12px]">
+                  <ParentButton onClick={() => loadParentWard(wardId, true)}>
+                    Try again
+                  </ParentButton>
+                  <ParentButton variant="secondary" to="/parent/wards">
+                    Back to My wards
+                  </ParentButton>
+                </div>
+              </section>
+            ) : (
+              <div role="status" aria-label="Loading the ward" className="flex flex-col gap-[24px]">
+                <div className="flex items-center gap-[16px]">
+                  <Sk className="size-[72px] shrink-0 rounded-full" />
+                  <span className="flex flex-1 flex-col gap-[10px]">
+                    <Sk className="h-[22px] w-[min(260px,70%)] rounded-[8px]" />
+                    <Sk className="h-[12px] w-[min(380px,90%)] rounded-[8px]" />
+                  </span>
+                </div>
+                <Sk className="h-[44px] w-full rounded-[12px]" />
+                <Sk className="h-[240px] w-full rounded-[24px]" />
+              </div>
+            )}
+          </div>
         </ParentFrame>
       );
     }

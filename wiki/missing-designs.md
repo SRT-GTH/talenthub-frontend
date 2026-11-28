@@ -143,6 +143,14 @@ We built these from the drawn pieces. Please design them properly.
 
 ### Parent
 
+- [ ] **Parent login code step and wrong-details error (2026-11-28):** no parent frame. Built on the shared `/login` code step and danger toast, in the parent gold. Also the API error line on Contact / Review / Login (shared `ApiErrorNote`).
+- [ ] **Signed-in "not available yet" card** on Wallets and Evaluate: our wording, in the ward-tab card style.
+- [ ] **Live Notifications** loading, error and empty states, and the unread dot (empty reuses the To review "caught up" card with new text).
+- [ ] **Settings** status lines ("Saved", "Paused for 24 hours", "Download requested") and the "close account not available" line.
+- [ ] **Parent top-bar pop-ups** (search results, language, accessibility, profile menu) reuse the talent and recruiter ones; no parent frames.
+- [ ] **Phone and tablet parent chrome:** bottom tab bar + More sheet below 768 px, collapsed rail at 768–1023 px (the Figma frames are desktop only).
+- [ ] **My wards and ward page** loading (shimmer) and error (Try again) states.
+
 - [ ] **Wallets** `/parent/wallets`:
   - Field errors for limits and amounts.
   - The other decline-reason chips (only the first is drawn).

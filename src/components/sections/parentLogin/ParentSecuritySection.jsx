@@ -8,6 +8,7 @@ import Button from '../../ui/Button.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon, CloseIcon, LockIcon, ShieldIcon } from '../../shared/assets.jsx';
+import { setSignupPassword } from '../../../services/parentSignup.api.js';
 import { debug } from '../../../utils/debug.js';
 import { useParentDialogA11y } from './useParentDialogA11y.js';
 
@@ -302,8 +303,9 @@ const ParentSecuritySection = () => {
 
   const onSubmit = async (data) => {
     log('submit — creating password', { length: data.password.length });
-    await new Promise((r) => setTimeout(r, 600));
-    log('password saved — showing modal');
+    // Kept in memory only; /auth/register sends it with the account on the review step.
+    setSignupPassword(data.password);
+    log('password held for sign-up — showing modal');
     setShowModal(true);
   };
 

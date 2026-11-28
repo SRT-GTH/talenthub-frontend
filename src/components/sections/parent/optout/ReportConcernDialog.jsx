@@ -4,6 +4,7 @@ import DialogCard, { DialogCloseButton } from '../../../ui/DialogCard.jsx';
 import ChoiceChips from '../../../ui/ChoiceChips.jsx';
 import ParentButton from '../ParentButton.jsx';
 import ParentTextField from '../ParentTextField.jsx';
+import LiveSaveStatus from '../../talentSettings/LiveSaveStatus.jsx';
 import spotPrivacy from '../../../../assets/parent/spot-privacy.svg';
 import { OPT_OUT_COPY, REPORT_WORRIES } from './data/optOutData.js';
 
@@ -13,11 +14,11 @@ const log = debug('ReportConcernDialog');
  * ReportConcernDialog — PH-03 "Report a safety concern" (Figma 10057:1591, modal 10057:1779): 580 wide, r24, p28, gap 16, scrim ink at 55 %. Spot · Privacy 80 + close (36, green #f8f8f4), 24/600 title, 14 intro,
  * "Who is it about?" (the linked wards + "Someone else"), "What’s worrying you?" (four chips), the required "Tell us more" note (helper "We may contact you on WhatsApp"), the red notice
  * ("If a child is in danger right now, call 112 (or 191 for the police) first." #f9ebea, r14, 12.5/600 #c0392b) and "Cancel" + "Send report".
- * Props: wards ([{ id, firstName }] the parent's linked wards), initial ({ who, worry, note }) — frame seeds for the URL, onClose, onSend({ who, worry, note }).
+ * Props: wards ([{ id, firstName }] the parent's linked wards), initial ({ who, worry, note }) — frame seeds for the URL, onClose, onSend({ who, worry, note }), busy (a live send is running), error (why the live send failed).
  * Drawn over the Help and guides page (a later canvas); here it opens over the ward page. ⚠️ ASSUMPTION: "Send report" stays disabled until the note has text; "Who" starts on the first ward and "What" on the
  * first chip (the drawn selections).
  */
-const ReportConcernDialog = ({ wards, initial, onClose, onSend }) => {
+const ReportConcernDialog = ({ wards, initial, onClose, onSend, busy = false, error = null }) => {
   const copy = OPT_OUT_COPY.report;
   const whoOptions = [
     ...wards.map((w) => ({ id: w.id, label: w.firstName })),
@@ -33,7 +34,7 @@ const ReportConcernDialog = ({ wards, initial, onClose, onSend }) => {
 
   const submit = (e) => {
     e.preventDefault();
-    if (!ready) return;
+    if (!ready || busy) return;
     onSend({ who, worry, note: note.trim() });
   };
 
@@ -85,11 +86,12 @@ const ReportConcernDialog = ({ wards, initial, onClose, onSend }) => {
           {copy.danger}
         </p>
 
+        <LiveSaveStatus status={error ? { tone: 'error', text: error } : null} />
         <div className="flex flex-wrap items-center justify-end gap-[12px]">
           <ParentButton variant="secondary" onClick={onClose}>
             {copy.cancel}
           </ParentButton>
-          <ParentButton type="submit" disabled={!ready}>
+          <ParentButton type="submit" disabled={!ready || busy}>
             {copy.send}
           </ParentButton>
         </div>

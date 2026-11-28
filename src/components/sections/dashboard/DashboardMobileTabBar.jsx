@@ -66,8 +66,12 @@ const TabContent = ({ icon, label, active, badge }) => (
 const tabClass =
   'group flex min-w-[48px] flex-1 flex-col items-center justify-center gap-[1px] px-[2px] py-[4px] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green';
 
-const DashboardMobileTabBar = ({ className }) => {
-  const { tabItems, moreItems, secondaryNavItems, moreActive, pathname } = useDashboardNav();
+/* Add-only for other portals (the parent chrome): `nav` replaces the recruiter nav ({ tabItems, moreItems, secondaryNavItems, moreActive, pathname },
+   same item shape: id, label, tabLabel?, icon (image src), to, active, badge) and `sheet` is passed to DashboardMoreSheet (profile / extraRows / footer).
+   Without them the bar is exactly the recruiter one. */
+const DashboardMobileTabBar = ({ className, nav, sheet }) => {
+  const recruiterNav = useDashboardNav();
+  const { tabItems, moreItems, secondaryNavItems, moreActive, pathname } = nav || recruiterNav;
   /* The sheet is "open for a path": navigating (from a tab or from inside the
      sheet) changes pathname, which closes it without a setState-in-effect. */
   const [moreOpenPath, setMoreOpenPath] = useState(null);
@@ -75,8 +79,8 @@ const DashboardMobileTabBar = ({ className }) => {
   const setMoreOpen = (next) => setMoreOpenPath(next ? pathname : null);
 
   useEffect(() => {
-    log('mount', { tabs: TAB_BAR_IDS });
-  }, []);
+    log('mount', { tabs: nav ? nav.tabItems.map((t) => t.id) : TAB_BAR_IDS });
+  }, [nav]);
 
   return (
     <>
@@ -126,6 +130,15 @@ const DashboardMobileTabBar = ({ className }) => {
         onClose={() => setMoreOpen(false)}
         items={moreItems}
         secondaryItems={secondaryNavItems}
+        {...sheet}
+        // A row that acts in place (no route change) closes the sheet itself.
+        extraRows={sheet?.extraRows?.map((row) => ({
+          ...row,
+          onSelect: () => {
+            setMoreOpen(false);
+            row.onSelect?.();
+          },
+        }))}
       />
     </>
   );

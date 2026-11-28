@@ -120,6 +120,10 @@ const ParentVerificationSection = () => {
   const hasFile = Boolean(ghanaCardFile || profilePhotoFile);
 
   const handleContinue = () => {
+    // SIMULATED: the chosen files are not uploaded. There is no endpoint for a parent's
+    // Ghana Card image or profile photo before the account exists (the talent upload-photo
+    // call needs a talent onboarding session), and no NIA check. Flow B hides this step
+    // for the same reason (constants/parentFlows.js PARENT_ID_VERIFICATION).
     log('continue clicked — navigating to parent-contact step', {
       hasGhanaCard: !!ghanaCardFile,
       hasProfilePhoto: !!profilePhotoFile,

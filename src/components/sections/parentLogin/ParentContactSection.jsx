@@ -9,6 +9,14 @@ import TextInput from '../../ui/form/TextInput.jsx';
 import VerificationCode from '../../ui/form/VerificationCode.jsx';
 import { LoadingSpinner } from '../../shared/assets.jsx';
 import { useParentDialogA11y } from './useParentDialogA11y.js';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import { getApiErrorCode, getApiErrorMessage } from '../../../services/apiErrors.js';
+import {
+  getSignupDraft,
+  saveSignupDraft,
+  sendContactCode,
+  verifyContactCode,
+} from '../../../services/parentSignup.api.js';
 
 const log = debug('ParentContactSection');
 
@@ -232,7 +240,8 @@ const maskPhone = (phone) => {
 const maskEmail = (email) => {
   const [local, domain] = email.split('@');
   if (!domain || local.length < 3) return email;
-  return `${local[0]}${'•'.repeat(local.length - 2)}${local.slice(-1)}@${domain}`;
+  // At most 6 dots so a long address stays on one line.
+  return `${local[0]}${'•'.repeat(Math.min(6, local.length - 2))}${local.slice(-1)}@${domain}`;
 };
 
 // ── OTP Verification Modal ─────────────────────────────────────────────────
@@ -242,11 +251,17 @@ const maskEmail = (email) => {
  *   expiry   — 600 s (10 min) overall OTP expiry, shown as MM:SS
  *   resend   — 60 s cooldown before "Resend code" becomes active
  */
-const OtpModal = ({ phone, email, onClose, onVerified }) => {
-  const DEMO_CODE = '123456';
+// The backend allows 5 tries per code (it answers attemptsRemaining after a wrong one).
+const OTP_ATTEMPTS = 5;
+
+const OtpModal = ({ phone, email, expiresInSeconds = 600, onClose, onVerified }) => {
   const [otp, setOtp] = useState('');
   const [hasError, setHasError] = useState(false);
-  const [attemptsLeft, setAttemptsLeft] = useState(3);
+  const [attemptsLeft, setAttemptsLeft] = useState(OTP_ATTEMPTS);
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+  // Errors that are not "wrong code" (expired, locked, network): one line under the CTA.
+  const [apiError, setApiError] = useState('');
   const dialogRef = useRef(null);
   const boxesRef = useRef(null);
   // Focus in, Tab trapped, Esc closes, focus returns to "Send Verification Code".
@@ -256,20 +271,33 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
     initialFocusSelector: 'input[aria-label="Digit 1 of 6"]',
   });
 
-  const expiry = useCountdown(600, true);
+  const expiry = useCountdown(expiresInSeconds, true);
   const resend = useCountdown(60, true);
   // Phones get slightly smaller OTP boxes so the sheet stays compact.
   const isPhone = useMediaQuery('(max-width: 639px)');
 
   log('OtpModal mount:', { phone, email });
 
-  const handleVerify = () => {
-    log('OtpModal verify attempt:', otp);
-    if (otp === DEMO_CODE) {
+  const handleVerify = async () => {
+    if (verifying) return;
+    log('OtpModal verify attempt');
+    setVerifying(true);
+    setApiError('');
+    try {
+      await verifyContactCode(otp);
       log('OtpModal: correct — verified');
       onVerified();
-    } else {
-      const left = attemptsLeft - 1;
+    } catch (err) {
+      const code = getApiErrorCode(err);
+      setVerifying(false);
+      if (code !== 'OTP_INVALID') {
+        log.error('OtpModal: verify failed:', code);
+        if (code === 'OTP_LOCKED') setAttemptsLeft(0);
+        setApiError(getApiErrorMessage(err));
+        return;
+      }
+      const remaining = err?.response?.data?.data?.attemptsRemaining;
+      const left = typeof remaining === 'number' ? remaining : attemptsLeft - 1;
       log('OtpModal: wrong code — attempts left:', left);
       setHasError(true);
       setAttemptsLeft(left);
@@ -281,18 +309,28 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
     }
   };
 
-  const handleResend = () => {
-    if (!resend.expired) return;
+  const handleResend = async () => {
+    if (!resend.expired || resending) return;
     log('OtpModal: resend requested');
-    expiry.reset();
-    resend.reset();
-    setOtp('');
-    setHasError(false);
-    setAttemptsLeft(3);
+    setResending(true);
+    setApiError('');
+    try {
+      await sendContactCode({ email });
+      expiry.reset();
+      resend.reset();
+      setOtp('');
+      setHasError(false);
+      setAttemptsLeft(OTP_ATTEMPTS);
+    } catch (err) {
+      log.error('OtpModal: resend failed:', getApiErrorCode(err));
+      setApiError(getApiErrorMessage(err));
+    } finally {
+      setResending(false);
+    }
   };
 
   const filled = otp.length === OTP_LENGTH;
-  const canSubmit = filled && !hasError && attemptsLeft > 0;
+  const canSubmit = filled && !hasError && attemptsLeft > 0 && !verifying && !expiry.expired;
 
   return (
     <div
@@ -486,7 +524,11 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
               padding: 0,
             }}
           >
-            {resend.expired ? 'Resend code' : `Resend code (${resend.seconds}s)`}
+            {resending
+              ? 'Sending…'
+              : resend.expired
+                ? 'Resend code'
+                : `Resend code (${resend.seconds}s)`}
           </button>
         </div>
 
@@ -514,9 +556,15 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
             cursor: canSubmit ? 'pointer' : 'not-allowed',
           }}
         >
-          {filled ? 'Verify & Continue' : 'Enter all 6 digits to continue'}
+          {verifying && <LoadingSpinner stroke="#FEF1E7" />}
+          {verifying
+            ? 'Verifying'
+            : filled
+              ? 'Verify & Continue'
+              : 'Enter all 6 digits to continue'}
           <ArrowRightIcon />
         </button>
+        <ApiErrorNote message={apiError} className="mx-auto mt-2" />
 
         {/* ── Attempts remaining — Figma 2938:27992, always visible */}
         <p
@@ -788,27 +836,40 @@ const ParentContactSection = () => {
   log('mount');
   const navigate = useNavigate();
 
-  const [phone, setPhone] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
-  const [email, setEmail] = useState('');
+  // Coming back to this step keeps what was typed (sign-up draft in this tab).
+  const [phone, setPhone] = useState(() => getSignupDraft().phone || '');
+  const [whatsapp, setWhatsapp] = useState(() => getSignupDraft().whatsapp || '');
+  const [email, setEmail] = useState(() => getSignupDraft().email || '');
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [verified, setVerified] = useState(false);
-  // Presentational loading step on "Send Verification Code" (the OTP itself is the
-  // untouched demo flow: modal opens, code 123456 verifies).
+  // "Send Verification Code" emails a real code (POST /auth/contact-verification/send).
   const [sending, setSending] = useState(false);
-  const sendTimer = useRef(null);
-  useEffect(() => () => clearTimeout(sendTimer.current), []);
+  const [sendError, setSendError] = useState('');
+  const [codeExpiry, setCodeExpiry] = useState(600);
 
   const isFormReady = phone.trim().length >= 7 && email.trim().includes('@');
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!isFormReady || sending) return;
     log('send verification code clicked — phone:', maskPhone(phone), 'email:', maskEmail(email));
     setSending(true);
-    sendTimer.current = setTimeout(() => {
-      setSending(false);
+    setSendError('');
+    saveSignupDraft({
+      phone: phone.trim(),
+      whatsapp: whatsapp.trim(),
+      email: email.trim(),
+      contactVerified: false,
+    });
+    try {
+      const { expiresInSeconds } = await sendContactCode({ email });
+      if (expiresInSeconds) setCodeExpiry(expiresInSeconds);
       setShowOtpModal(true);
-    }, 700);
+    } catch (err) {
+      log.error('send code failed:', getApiErrorCode(err));
+      setSendError(getApiErrorMessage(err, 'We could not send the code. Please try again.'));
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleVerified = () => {
@@ -915,11 +976,12 @@ const ParentContactSection = () => {
 
         {/* CTA */}
         <div className="flex w-full max-w-[698px] flex-col items-center gap-2 max-md:contents">
+          <ApiErrorNote message={sendError} />
           <StickyActionBar bleed={16}>
             <button
               type="button"
               onClick={handleSend}
-              disabled={!isFormReady}
+              disabled={!isFormReady || sending}
               aria-busy={sending || undefined}
               className="flex w-full items-center justify-center gap-2 font-sans font-bold transition-all max-md:h-11! max-md:rounded-[10px]! max-md:text-[14px]! max-md:border-b-2!"
               style={{
@@ -964,6 +1026,7 @@ const ParentContactSection = () => {
         <OtpModal
           phone={phone}
           email={email}
+          expiresInSeconds={codeExpiry}
           onClose={() => {
             log('OTP modal closed');
             setShowOtpModal(false);

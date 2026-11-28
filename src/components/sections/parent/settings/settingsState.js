@@ -8,6 +8,8 @@ import { TAB_IDS } from './data/settingsData.js';
  *   modal=logout|close-account                       PS-06 (over the Account page) / PS-07 (over Data and account, drawn behind it)
  *   confirm=<text>                                   what is typed in the close-account box (PS-07 draws "CLO")
  *   state=logged-out|closed                          PS-06b / PS-07b (the full-page result screens)
+ *   sstate=unsaved|saved                             the talent Accessibility / Language sections' own state (their `state`, renamed so it never turns
+ *                                                    the live page into a design frame: `?state=` switches /parent/* to the demo persona)
  * `update(patch, { replace })` merges into the query string (null / '' removes a key). It reads the live address bar, as in parent/review/reviewState.js.
  */
 const MODALS = ['logout', 'close-account'];
@@ -26,8 +28,8 @@ export const useSettingsState = () => {
       modal: MODALS.includes(modal) ? modal : '',
       confirm: params.get('confirm') ?? '',
       result: STATES.includes(result) ? result : '',
-      // The talent Accessibility section keeps its own ?state=unsaved|saved (its save bar / toast).
-      sectionState: STATES.includes(result) ? '' : (result ?? ''),
+      // The talent Accessibility section keeps its own state (save bar / toast) under `sstate`.
+      sectionState: params.get('sstate') ?? '',
     };
   }, [params]);
 
@@ -43,5 +45,14 @@ export const useSettingsState = () => {
     [navigate]
   );
 
-  return { ...state, update };
+  // For the reused talent sections: their `state` key is stored as `sstate`.
+  const sectionUpdate = useCallback(
+    (patch, opts) => {
+      const { state: sectionValue, ...rest } = patch;
+      update('state' in patch ? { ...rest, sstate: sectionValue } : rest, opts);
+    },
+    [update]
+  );
+
+  return { ...state, update, sectionUpdate };
 };

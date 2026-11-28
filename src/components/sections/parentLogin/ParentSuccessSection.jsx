@@ -164,13 +164,20 @@ const ParentSuccessSection = () => {
   const ward = invited
     ? live
     : { firstName: 'Kofi', possessive: "Kofi's", fullName: 'Kofi Mensah', school: 'Achimota' };
-  // Signed in only when the parent used the email the notice went to.
-  const needsLogin = invited && state?.loggedIn === false;
+  // Invited flow: signed in only when the parent used the email the notice went to.
+  // Self-serve flow: /auth/register returns no session, so the parent always logs in next.
+  const needsLogin = state?.loggedIn === false;
+  // The parent log-in, with the new email filled in; `next` carries on to where the button pointed.
+  const parentLogin = (next) =>
+    `/onboarding/parent-login?${new URLSearchParams({
+      ...(state?.email ? { email: state.email } : {}),
+      ...(next ? { next } : {}),
+    })}`;
 
   const handleDashboard = () => {
     log('primary CTA clicked', { needsLogin });
     // A parent account's home is the parent dashboard (services/auth.api.js sends parents to /parent).
-    navigate(needsLogin ? '/login' : '/parent');
+    navigate(needsLogin ? parentLogin() : '/parent');
   };
 
   const handleOptOut = (e) => {
@@ -179,7 +186,7 @@ const ParentSuccessSection = () => {
     if (invited) setOptOutOpen(true);
     // Self-serve flow: the account now exists, so opting a ward out happens from My wards
     // (each ward page has Opt out). ⚠️ ASSUMPTION: no screen is drawn for this hand-off.
-    else navigate('/parent/wards');
+    else navigate(needsLogin ? parentLogin('/parent/wards') : '/parent/wards');
   };
 
   return (

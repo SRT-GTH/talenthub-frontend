@@ -1,3 +1,10 @@
+## [2026-11-28] feat | Parent auth and dashboard inspection (3 agents)
+
+- **Sign-up and login (`parent-signup.spec.js`, 1 new):** flow A is live end to end (contact code, register, two-step login) and verified on staging; verification upload, ward lookup and the Done ward stay simulated. Parent login is real (shared code step and danger toast extracted to `talentAuth/LoginSteps.jsx`). Flow B Back buttons go to the previous step by name. Done and Welcome opt-out links wired (⚠️ ASSUMPTION for the no-account opt-out).
+- **Chrome and core:** every top-bar control opens something (`?panel=search|language|a11y|account`, ⌘K search, profile menu), phones get a tab bar + More sheet, tablets the collapsed rail; My wards and the ward page have loading and error states.
+- **Evaluate, wallets, notifications, settings, help:** signed in, Settings, Notifications and Report a concern are live; Evaluate and Wallets show "not available yet" (no backend). Bug fixed: Settings › Log out never ended the session.
+- **Not done:** nothing was checked as a real signed-in parent (no account yet); Figma pixel compare was not redone this pass. Gaps: `backend-integration-gaps.md` §2 and §4; designs: `missing-designs.md` (Parent).
+
 ## [2026-11-25] fix | Public data offline header
 
 - Full responsive sweep at 375 and 768 (1,478 checks): 1,467 passed. The 11 failures were the /data top bar at 768 when offline: "Offline · showing cached data from 09:12" pushed Download PDF 11px off screen. The title now shrinks (`PublicTopBar.jsx`); the phone pill says Offline / Maintenance instead of always "Live". All 11 pass; offline checked at 375 / 768 / 1024 / 1280 with no overflow.

@@ -7,9 +7,11 @@ import spinner from '../../../../assets/parent/spinner.svg';
  * Applications card with three 864 x 64 rows; right 448: three cards with a 160 bar and a 404 block of 180 / 160 / 120) + the "Getting Abena and Elliot's updates…" note under the top bar.
  * Skeleton blocks shimmer (styles/parent.css, `.pd-skeleton`). Role="status" with the note as its label.
  */
-const Sk = ({ className }) => (
-  <span aria-hidden="true" className={classNames('pd-skeleton block', className)} />
+const Sk = ({ className, style }) => (
+  <span aria-hidden="true" className={classNames('pd-skeleton block', className)} style={style} />
 );
+// The shimmer block on its own, for other parent screens' loading states (My wards rows, the ward page).
+export const ParentSkeleton = Sk;
 
 const CARD =
   'rounded-[24px] border border-solid border-[#e7e7e7] bg-white drop-shadow-[0_5px_8.5px_rgba(18,38,20,0.03)]';

@@ -43,6 +43,7 @@ const MESSAGES = {
   INVITE_MISSING: 'Open the link from your notification email again.',
   PASSWORD_MISSING: 'Please set your password again.',
   EMAIL_EXISTS: 'An account with this email already exists. Log in instead.',
+  USER_EXISTS: 'An account with this email or phone number already exists. Log in instead.',
   OPTOUT_ALREADY_ACTIVE: "Your ward's access is already paused.",
   NETWORK: 'We could not reach the server. Check your connection and try again.',
   WAKING_UP: 'The server is starting up. Please try again in a minute.',

@@ -4,15 +4,7 @@ import { debug } from '../../../utils/debug.js';
 import { NAV_MAIN, NAV_SECONDARY, careerHome } from './data/parentCoreData.js';
 import { NO_CAREER } from './switch/switchData.js';
 import useParentChrome from './live/useParentChrome.js';
-import homeActive from '../../../assets/parent/frame-1.svg';
-import navWards from '../../../assets/parent/icon-1.svg';
-import navReview from '../../../assets/parent/icon-2.svg';
-import navEvaluate from '../../../assets/parent/icon-3.svg';
-import navWallets from '../../../assets/parent/stroke.svg';
-import navNotifications from '../../../assets/parent/icon-4.svg';
-import navSettings from '../../../assets/parent/icon-5.svg';
-import navHelp from '../../../assets/parent/icon-6.svg';
-import navCareer from '../../../assets/parent/icon-7.svg';
+import { PARENT_NAV_ICONS as ICONS } from './chrome/parentNavIcons.js';
 import verifiedIcon from '../../../assets/parent/icon.svg';
 import switchChevron from '../../../assets/parent/switch-chevron.svg';
 import dot from '../../../assets/parent/ellipse.svg';
@@ -29,19 +21,9 @@ const log = debug('ParentSidebar');
  * Props: state ('none' | 'linked' | 'caughtUp'), active (nav id, default 'home'), className.
  * Live (signed in, not a frame URL): the parent, counts and note come from GET /parent/me (useParentChrome); `state` is
  * then ignored and the career card follows whether the parent has a career profile.
- * ⚠️ ASSUMPTION: the collapse toggle (the « at the card's corner) only logs — Figma draws no collapsed parent rail; "tap to switch" and the Verified chevron do nothing (no switcher drawn).
+ * The collapse toggle (the « at the card's corner) calls onCollapse: ParentFrame sets `?rail=collapsed` and shows ParentRailCollapsed (Figma PR-01c draws it).
+ * The switch chevron and "Parent view · tap to switch" open the switch-space menu (onSwitch, Figma PD-02) when the parent has a career profile.
  */
-
-const ICONS = {
-  wards: navWards,
-  review: navReview,
-  evaluate: navEvaluate,
-  wallets: navWallets,
-  notifications: navNotifications,
-  settings: navSettings,
-  help: navHelp,
-  career: navCareer,
-};
 
 // Nav badge: To review and Notifications are solid green, Ward wallets carries the lime gradient (Figma 10027:1657 / 1659 / 1660).
 const Badge = ({ count, gradient }) => (
@@ -67,14 +49,14 @@ const NavItem = ({ item, active, badge }) => (
     <span className="relative block size-[20px] shrink-0">
       {item.id === 'home' ? (
         <img
-          src={homeActive}
+          src={ICONS.home}
           alt=""
           draggable="false"
           className="absolute top-[0.5px] left-0 size-[18px] max-w-none"
         />
       ) : item.id === 'wallets' ? (
         <img
-          src={navWallets}
+          src={ICONS.wallets}
           alt=""
           draggable="false"
           className="absolute max-w-none"

@@ -83,13 +83,16 @@ Needs a **public (no login) jobs endpoint**, which does not exist yet. It should
 
 **Gaps:**
 
-- [ ] **Parent flow A (no invite):** fully simulated, with every step on a timer.
-  - Login: `ParentLoginSection.jsx:186-188`. Forgot password is inert (`:280`).
-  - Identity: `ParentIdentitySection.jsx:170` ("Future: POST /api/parent/identity").
-  - **Contact OTP is hard-coded to `123456`** (`parentLogin/ParentContactSection.jsx:246`) ✅.
-  - Password: `ParentSecuritySection.jsx:304`. Link ward: `ParentLinkWardSection.jsx:63`. Review: `ParentReviewSection.jsx:211`.
-  - The done page shows a sample ward (`ParentSuccessSection.jsx:162`).
-  - "Log in instead" is inert (`ParentLinkWardSection.jsx:308`, `ParentReviewSection.jsx:664`, `ParentSecuritySection.jsx:399`).
+- [x] **Parent flow A (no invite)** is live since 2026-11-28 (`parentSignup.api.js`): contact code (`/auth/contact-verification/send|verify`), account (`/auth/register`, `entityType: 'parent'`), then the parent login (two-step). ✅ VERIFIED in a full staging run (`tests/e2e/parent-signup.spec.js`). Still simulated:
+  - **Verification upload:** the Ghana Card and photo are not sent; no pre-account upload endpoint. The review says "Not uploaded yet". (`ParentVerificationSection.jsx`)
+  - **Link ward (A):** shows the sample ward "Abena"; `/parent/link-ward`, `/parent/search-ward` and `/parent/wards/search` are all 404 (a lookup of wards whose registration named this parent, before the account exists). (`ParentLinkWardSection.jsx`)
+  - **Done (A):** shows a sample ward with "WARD_AUTO_LINKED".
+  - **Relationship is not saved:** `/auth/register` rejects `userData.relationship`.
+  - **Phone is not verified:** the code goes by email only, as in the talent flow.
+  - **Two codes:** `/auth/register` returns no session and ignores the contact `verificationToken`, so a new parent gets a second emailed code at first login. Needs a register option that returns a session or accepts the verification token.
+  - **"Keep me logged in"** is not sent (no API option, same as `/login`).
+  - **Consent "Read full document"** (three dialogs on Review): no policy page to open.
+  - The flow B invited path needs ward tokens (`make_wards.js`, `C:/Backups/parent_wards.json`) to be tested end to end; 3 tests skip without them. ❓ NEEDS-CLARIFICATION
 - [ ] **Talent sign-up and login (`/get-started`, `/login`, `/onboarding/talent/*`)** (checked 2026-11-17). The flow itself is live: `onboarding.api` start / capture / upload-photo / verify-contact / resend / activate / schools / status, and `location.api` regions, districts and towns. Still missing or front-end only:
   - **Local setup:** `/start` needs `VITE_TENANT_ORG_ID`. Without a `.env` it sends a blank id and staging answers "Organization not found" (copy `.env.example` to `.env`). ✅ VERIFIED.
   - **Education level / grade options** are hard-coded (`OnboardingEducationPage.jsx` `LEVEL_OPTIONS`, `GRADES_BY_LEVEL`). They are meant to come from the `education_grade` platform enums once those are seeded. The age limits on levels and grades are also front-end only (`MIN_AGE_BY_LEVEL`, `MIN_AGE_BY_GRADE`). Primary has no grades on purpose: GTH starts at JHS, and picking it opens the "level not eligible" pop-up. 🔶 LIKELY
@@ -287,6 +290,14 @@ These now confirm in place but store nothing: course request ("Request this cour
 - `learningPath.api`
 - Buddy
 
+**Update 2026-11-28 (inspection):** signed in, Evaluate and Wallets now say "not available yet" instead of showing sample wards and money (`states/ParentNotYet.jsx`); parent Settings, Notifications and Report a concern are live (see below).
+
+- [ ] **Backend endpoints that do not exist (all 404):** parent wallets / payments / limits / top-up; parent evaluations (start, questions, submit, autosave, outcome); parent notification types, milestones and reactions; parent roles and closing only the parent role; ward list as its own route (`GET /parent/wards`); link requests by name and date of birth (`POST /parent/link-requests`, list, resend); To review certificates, teacher evaluations and assessment results; ward Evaluations / Crew / visibility tabs; `POST /parent/reports`; help articles; `users/switch-role`. ✅ VERIFIED (probes 2026-11-28)
+- [x] **Live now (2026-11-28):** Settings (Account `PUT /settings/account`, Notifications, Security devices / password / two-step, Data export), Notifications feed (`/notifications`), Report a safety concern (`POST /support/concerns`), Log out (`POST /users/logout`). Needs a signed-in parent check. ❓
+- [ ] **Settings gaps:** Change photo, Download PDF, "Pause non-urgent notifications", Disconnect Google, Roles choices have no endpoint; **Close parent account** shows an error because `/settings/deactivate` turns off the whole account (a parent who is also a talent keeps My career). Notification rows use parent ids the backend may not keep. 🔶 LIKELY
+- [ ] **Parent Notifications tabs** are guessed from `type` / `category` words; the backend has no parent types. The top-bar bell panel is still mock. 🔶 LIKELY
+- [ ] **Top-bar search** is client-side over `/parent/me` wards and a fixed page list (`chrome/parentSearchIndex.js`); `GET /search` exists (401) but is untested. **Language pick** and **accessibility settings** are not saved (browser only). **Messages count** is hidden when signed in (`/messaging/stats` exists, 401). 🔶 LIKELY
+- [x] **Fixed 2026-11-28:** Settings › Log out never ended the session (it showed the result but kept the tokens).
 - [ ] **Evaluate** (`/parent/evaluate*`): mock (`evaluate/data/*`, `questions/data/questionsData.js`, `results/data/resultsData.js`).
 - [ ] **Wallets** (`/parent/wallets`, ward Wallet tab): mock (`wallets/data/walletsData.js`).
 - [ ] **Notifications and milestone:** mock (`notifications/data/notificationsData.js`); `notifications.api` is not used here.

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
 import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
+import { useParentLiveMode } from '../../components/sections/parent/live/parentLive.js';
+import ParentNotYet from '../../components/sections/parent/states/ParentNotYet.jsx';
+import { NOT_YET_PAGES } from '../../components/sections/parent/states/notYetCopy.js';
 import QuestionScreen from '../../components/sections/parent/evaluate/questions/QuestionScreen.jsx';
 import DiscardDialog from '../../components/sections/parent/evaluate/questions/DiscardDialog.jsx';
 import {
@@ -33,6 +36,7 @@ const initial = (set, state) => {
 
 const ParentEvaluateQuestionPage = () => {
   const [params] = useSearchParams();
+  const live = useParentLiveMode();
   const navigate = useNavigate();
   const state = params.get('state') ?? 'general';
   const set = state === 'academic' ? 'academic' : 'general';
@@ -78,6 +82,15 @@ const ParentEvaluateQuestionPage = () => {
       navigate('/parent/evaluate');
     }
   };
+
+  // Live (signed-in parent, no frame `?state=`): no evaluation endpoint yet (see ParentEvaluatePage).
+  if (live) {
+    return (
+      <ParentFrame active="evaluate" sidebar="linked">
+        <ParentNotYet {...NOT_YET_PAGES.evaluate} />
+      </ParentFrame>
+    );
+  }
 
   return (
     <ParentFrame active="evaluate" sidebar="linked">

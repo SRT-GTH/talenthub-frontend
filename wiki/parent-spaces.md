@@ -48,3 +48,5 @@ There is still **one** talent home. `?as=emma` makes `useTalentHomeState` show t
 1. `SwitchSpaceMenu` (parent) and the talent profile menu / `ProfileMenu.jsx` are both account-space popovers: one component with a config would cover both once TC-02 exists.
 2. The space chips in `NotificationsPanel` ≈ `ui/StatusPill` / `WardChip` pill styles.
 3. `CareerProfileDialog` ≈ the other parent dialogs (`DialogCard` + spot + points card): the points card repeats in `settings/CloseAccountDialog`.
+
+- Figma prototype links (read 2026-11-25): PD-02 "My career" → TC-01 (`/home?as=emma`), TC-01 profile card → TC-02 (the app opens the menu from the card's chevron "Switch space"), TC-02 → PN-02 → PS-02 → PD-04 are whole-frame demo links. ✅ VERIFIED in browser: My career → `/home?as=emma`, Parent view (from `/home?as=emma&menu=switch`) → `/parent`. No backend exists for switching spaces or roles (`/users/switch-role`, `/parent/roles`, `/settings/roles` all 404).

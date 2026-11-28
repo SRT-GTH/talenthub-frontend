@@ -56,6 +56,10 @@ const ParentLinkWardSection = () => {
   const confirmTimer = useRef(null);
   useEffect(() => () => clearTimeout(confirmTimer.current), []);
 
+  // SIMULATED: the ward card is the Figma sample (Abena) and nothing is sent. Before the
+  // account exists no endpoint can find the wards whose registration named this parent
+  // (needed: a lookup by the verified email / phone, e.g. with the contact verificationToken).
+  // Signed-in parents link with a code instead (POST /parent/link-with-code, /parent/link-ward).
   const handleConfirm = () => {
     if (confirming) return;
     log('confirm clicked — loading, then navigating to parent-review');

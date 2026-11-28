@@ -83,3 +83,8 @@ The `wallets` params are `modal`, `view`, `toast` (own values only) and `w…` d
 - The red callout (`#fcece9`, 1px `#c0392b` at 25 %, shield + title + body) is now in `ApproveDialog`, `TopUpFailedDialog` and `link/LinkCodeDialog`: one `ui/Callout`.
 - The dialog top row (80px spot art + close) is repeated in `TopUpDialogs`, `OpenWalletDialog` and the ward dialogs.
 - The request row and `wards/tabs/TabRow` / `WalletTab` payment rows are lookalikes.
+
+## Live and inspection (2026-11-25, phase parent-more)
+
+- Staging has no ward-wallet endpoint (probed `/parent/wallets`, `/parent/wards/:id/wallet|payments`, `/parent/payments…`, `/parent/top-up`, `/parent/wards/:id/limits`: all 404). ✅ VERIFIED: signed in, `/parent/wallets` now shows `states/ParentNotYet` ("Ward wallets are not available yet. Nothing has been charged or paid.", the live ward Wallet tab's line) instead of Emma's mock wallets. Frame URLs and signed-out visits keep the mock.
+- Figma prototype links (`transitionNodeID`): Decline → PWa-04, Approve → PWa-02, Change limits → PWa-05, PWa-02 Decline → PWa-04. Match the app ✅ VERIFIED. The other links are whole-frame "click to advance" demo links.

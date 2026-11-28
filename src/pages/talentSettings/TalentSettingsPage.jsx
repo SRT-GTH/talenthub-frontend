@@ -21,6 +21,7 @@ import SettingsGuardian from '../../components/sections/talentSettings/SettingsG
 import SettingsAppearance from '../../components/sections/talentSettings/SettingsAppearance.jsx';
 import HelpSupportPage from '../../components/sections/talentSettings/HelpSupportPage.jsx';
 import { useLiveSettings } from '../../components/sections/talentSettings/useLiveSettings.js';
+import LiveSettingsStatus from '../../components/sections/talentSettings/LiveSettingsStatus.jsx';
 import { useTalentHomeState } from '../../components/sections/talentHome/talentHomeState.js';
 // Site copy: the texts staff edit are applied to this page's data (copy/copyBind.js).
 import '../../copy/portals/talentPagesCopy.js';
@@ -45,30 +46,6 @@ const SECTION_BODIES = {
  * The profile menu, log-out confirm, help pop-over set and feedback / invite dialogs are SHELL-level
  * overlays (any talent page can open them from the URL) — they are mounted by the talent shell, not here.
  */
-/* Live data loading / failed (never the drawn mock in its place). */
-const LiveSettingsStatus = ({ live }) =>
-  live.status === 'error' ? (
-    <div
-      role="alert"
-      className="flex flex-col items-start gap-[12px] rounded-[20px] bg-white p-[24px]"
-    >
-      <p className="m-0 text-[15px] font-medium text-[#c0392b]">
-        Couldn’t load your settings. Check your connection and try again.
-      </p>
-      <button
-        type="button"
-        onClick={live.reload}
-        className="cursor-pointer rounded-[10px] border border-solid border-[#ccc] bg-white px-[16px] py-[8px] text-[14px] font-semibold text-[#1c2a21]"
-      >
-        Try again
-      </button>
-    </div>
-  ) : (
-    <p aria-live="polite" className="m-0 py-[40px] text-center text-[14px] text-[#737373]">
-      Loading your settings…
-    </p>
-  );
-
 const TalentSettingsPage = ({ sectionParam }) => {
   const base = useTalentSettingsState();
   // Live by default (`?demo=1` keeps the drawn mock): every section reads and saves through `settings.live`.

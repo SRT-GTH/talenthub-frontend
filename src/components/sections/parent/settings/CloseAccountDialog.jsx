@@ -2,6 +2,7 @@ import { debug } from '../../../../utils/debug.js';
 import DialogCard, { DialogCloseButton } from '../../../ui/DialogCard.jsx';
 import ParentButton from '../ParentButton.jsx';
 import ParentTextField from '../ParentTextField.jsx';
+import LiveSaveStatus from '../../talentSettings/LiveSaveStatus.jsx';
 import spotWrong from '../../../../assets/parent/settings-spot-wrong.svg';
 import warning from '../../../../assets/parent/settings-warning.svg';
 import { CLOSE } from './data/settingsData.js';
@@ -12,10 +13,10 @@ const log = debug('SettingsCloseAccountDialog');
  * CloseAccountDialog — PS-07 "Close parent account (confirm)" (Figma 10053:4444, modal 10053:4766): 560 wide, p28, gap16; the 80px spot and the close button, a 24/600 title, the intro line, an
  * info card (#f8f8f4, r24, p18) with four warning rows (13.5/500), a required "Type CLOSE to confirm" field and Keep my account / Close parent account. `?modal=close-account&confirm=<text>`.
  * The red button stays disabled (Figma draws it grey with "CLO" typed) until the box reads CLOSE.
- * Props: value, onChange(text), onKeep (close, Esc and the X too), onConfirm.
+ * Props: value, onChange(text), onKeep (close, Esc and the X too), onConfirm, error (a line above the buttons, e.g. when the live account cannot be closed here).
  * ⚠️ ASSUMPTION: the enabled button is the standard green primary (only the disabled look is drawn) and the match is exact, upper case.
  */
-const CloseAccountDialog = ({ value, onChange, onKeep, onConfirm }) => {
+const CloseAccountDialog = ({ value, onChange, onKeep, onConfirm, error }) => {
   const ready = value.trim() === CLOSE.word;
   log('render', { typed: value.length, ready });
 
@@ -51,6 +52,7 @@ const CloseAccountDialog = ({ value, onChange, onKeep, onConfirm }) => {
         autoComplete="off"
         onChange={(e) => onChange(e.target.value)}
       />
+      <LiveSaveStatus status={error ? { tone: 'error', text: error } : null} />
       <div className="flex flex-wrap items-center justify-end gap-[12px] py-[6px]">
         <ParentButton variant="secondary" onClick={onKeep}>
           {CLOSE.keep}

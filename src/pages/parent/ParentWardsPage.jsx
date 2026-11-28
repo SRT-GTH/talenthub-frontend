@@ -5,7 +5,7 @@ import WardsAll from '../../components/sections/parent/wards/WardsAll.jsx';
 import ParentToast from '../../components/sections/parent/wards/dialogs/ParentToast.jsx';
 import { unlinkToast } from '../../components/sections/parent/wards/dialogs/data/dialogsData.js';
 import { WARDS } from '../../components/sections/parent/wards/data/wardsData.js';
-import { useParentMe } from '../../components/sections/parent/live/parentLive.js';
+import { loadParentMe, useParentMe } from '../../components/sections/parent/live/parentLive.js';
 import { wardView } from '../../components/sections/parent/live/parentLiveView.js';
 
 /*
@@ -54,13 +54,11 @@ const ParentWardsPage = () => {
       {me.live ? (
         <WardsAll
           wards={liveWards}
-          empty={
-            me.status === 'error'
-              ? me.error
-              : me.data
-                ? 'No ward linked yet. Link your child with their 6-character code.'
-                : 'Loading…'
-          }
+          // An error after data was shown keeps the list (the store keeps the last data); only a first-load failure shows the error row.
+          status={me.data ? 'ready' : me.status === 'error' ? 'error' : 'loading'}
+          error={me.error}
+          onRetry={() => loadParentMe(true)}
+          empty="No ward linked yet. Link your child with their 6-character code."
           onLink={() => navigate('/parent/link-ward')}
         />
       ) : (

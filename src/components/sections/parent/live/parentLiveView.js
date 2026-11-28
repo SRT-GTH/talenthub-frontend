@@ -82,6 +82,7 @@ export const parentChrome = (me) => {
     firstName,
     name,
     short,
+    email: p.email || null,
     verified: Boolean(p.verified),
     photo: initialsAvatar(name),
     hasCareerProfile: Boolean(p.hasCareerProfile),

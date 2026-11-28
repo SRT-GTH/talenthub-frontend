@@ -5,6 +5,8 @@ import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 import { WARDS } from '../../components/sections/parent/wards/data/wardsData.js';
 import HelpGuides from '../../components/sections/parent/help/HelpGuides.jsx';
 import ReportConcernLayer from '../../components/sections/parent/optout/ReportConcernLayer.jsx';
+import { useParentMe } from '../../components/sections/parent/live/parentLive.js';
+import { wardView } from '../../components/sections/parent/live/parentLiveView.js';
 
 const log = debug('ParentHelpPage');
 
@@ -13,7 +15,8 @@ const log = debug('ParentHelpPage');
  *   (none)                                                 the page: search, six topics, "Talk to the GTH parent team"
  *   ?modal=report[&who=abena&worry=contacted&note=…]       PH-03   "Report a safety concern" over the page
  *   ?modal=report-sent&about=abena                         PH-03b  "Thank you, Emma. We’re on it."; "Opt Abena out" goes to /parent/wards/abena?modal=opt-out
- * The dialogs are parent/optout/ReportConcernLayer (shared with the ward page). Mock data only.
+ * The dialogs are parent/optout/ReportConcernLayer (shared with the ward page). Live (signed-in parent): the "Who is it about?" chips are the parent's
+ * own wards (GET /parent/me) and Send report posts to /support/concerns; the guides themselves are static copy (no help-content endpoint).
  */
 const LINKED_WARDS = [WARDS.abena, WARDS.elliot];
 const LINKED_IDS = LINKED_WARDS.map((w) => w.id);
@@ -21,8 +24,11 @@ const LINKED_IDS = LINKED_WARDS.map((w) => w.id);
 const ParentHelpPage = () => {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
+  const me = useParentMe();
   useDocumentTitle('Help and guides');
-  log('render', { modal: params.get('modal') });
+  const wards = me.live ? (me.data?.wards || []).map((w) => wardView(w)) : LINKED_WARDS;
+  const wardIds = me.live ? wards.map((w) => w.id) : LINKED_IDS;
+  log('render', { modal: params.get('modal'), live: me.live, wards: wards.length });
 
   const openReport = () => {
     const p = new URLSearchParams(params);
@@ -34,9 +40,9 @@ const ParentHelpPage = () => {
     <ParentFrame active="help" sidebar="linked">
       <HelpGuides onReport={openReport} />
       <ReportConcernLayer
-        defaultWho={WARDS.abena.id}
-        linkedWards={LINKED_WARDS}
-        optOutIds={LINKED_IDS}
+        defaultWho={me.live ? (wards[0]?.id ?? 'else') : WARDS.abena.id}
+        linkedWards={wards}
+        optOutIds={wardIds}
         onOptOut={(ward) => navigate(`/parent/wards/${ward.id}?modal=opt-out`)}
       />
     </ParentFrame>

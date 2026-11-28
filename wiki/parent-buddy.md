@@ -30,3 +30,5 @@ Diff % = whole-frame pixel difference vs the Figma 0.5x export (home behind the 
 - ⚠️ ASSUMPTION: the Ask Buddy button opening the panel, `?buddy=open`, the timed thinking → working → writing sequence after a sent question and the sample answer for any question are ours (Figma draws only the five states of one question). History and Expand only log (no screen drawn).
 - Header icons (history clock, expand, close) are drawn inline in #387440 on the mint tiles; the Figma icon colours were not read off the vectors.
 - Not verified: Playful (none exists for this file); a screen-reader pass; `test:e2e` as a whole.
+
+- Figma prototype links (read 2026-11-25): "Stop generating" in PB-01…PB-04 → PB-05; frames advance PB-01 → PB-02 → PB-03 (demo). Match ✅ VERIFIED. Live Ask Buddy (`ParentBuddyLive`, POST `/career-buddy/turn-stream`) was already wired; needs a signed-in parent check.

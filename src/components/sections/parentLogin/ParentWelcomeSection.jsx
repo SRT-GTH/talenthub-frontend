@@ -5,6 +5,9 @@ import Toast from '../../ui/Toast.jsx';
 import ParentInlineNotice from './ParentInlineNotice.jsx';
 import { LoadingSpinner } from '../../shared/assets.jsx';
 import { useMediaQuery } from '../../../hooks/useMediaQuery.js';
+import ParentOptOutModal from './ParentOptOutModal.jsx';
+import { getInvite } from '../../../services/parentInvite.api.js';
+import { clearSignup } from '../../../services/parentSignup.api.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('ParentWelcomeSection');
@@ -124,6 +127,7 @@ const ParentWelcomeSection = () => {
 
   const navigate = useNavigate();
   const [toastVisible, setToastVisible] = useState(true);
+  const [optOutOpen, setOptOutOpen] = useState(false);
   // Figma 'Active' CTA state: spinner + darker green, then continue (~700 ms).
   const [creating, setCreating] = useState(false);
   const createTimer = useRef(null);
@@ -269,6 +273,8 @@ const ParentWelcomeSection = () => {
               if (creating) return;
               log('create account CTA clicked — loading, then next Path A step');
               setCreating(true);
+              // A new sign-up starts from an empty draft (a finished one may still be in this tab).
+              clearSignup();
               createTimer.current = setTimeout(() => {
                 navigate('/onboarding/parent-identity');
               }, 700);
@@ -297,8 +303,14 @@ const ParentWelcomeSection = () => {
               color: '#575755',
             }}
             onClick={() => {
-              log('opt-out CTA clicked');
-              // TODO: no Path A opt-out target yet (NEEDS DECISION) — stays inert
+              // ⚠️ ASSUMPTION (no Figma link): opting a ward out without an account needs the
+              // ward token from the notification email. With that invite already open in this tab,
+              // use its opt-out dialog; otherwise the invited welcome explains to open the email
+              // link again (its "This link is incomplete" state), which carries the token.
+              const hasInvite = Boolean(getInvite()?.token);
+              log('opt-out CTA clicked', { hasInvite });
+              if (hasInvite) setOptOutOpen(true);
+              else navigate('/onboarding/parent-invited?action=opt-out');
             }}
           >
             I Have Concerns — Opt-Out Instead
@@ -341,6 +353,7 @@ const ParentWelcomeSection = () => {
           }}
         />
       )}
+      <ParentOptOutModal isOpen={optOutOpen} onClose={() => setOptOutOpen(false)} />
     </div>
   );
 };

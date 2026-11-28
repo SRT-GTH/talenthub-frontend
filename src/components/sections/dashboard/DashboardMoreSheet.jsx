@@ -76,7 +76,18 @@ const SheetRow = ({ icon, label, badge, active, to, onSelect }) => {
   );
 };
 
-const DashboardMoreSheet = ({ isOpen, onClose, items, secondaryItems }) => {
+/* Add-only for other portals (the parent chrome): `profile` ({ name, meta, photo }) replaces the recruiter header, `extraRows`
+   ([{ id, icon, label, badge, to, onSelect }]) replace the Notifications / Help rows under the line, and `footer` replaces the
+   public-profile card (null hides it). Without them the sheet is exactly the recruiter one. */
+const DashboardMoreSheet = ({
+  isOpen,
+  onClose,
+  items,
+  secondaryItems,
+  profile,
+  extraRows,
+  footer,
+}) => {
   const handleSelect = (label) => log('sheet row:', label);
 
   return (
@@ -84,23 +95,34 @@ const DashboardMoreSheet = ({ isOpen, onClose, items, secondaryItems }) => {
       <div className="flex flex-col gap-[16px] px-[16px] pb-[20px] pt-[20px]">
         {/* Profile summary — mirrors the top of the rail's profile card */}
         <div className="flex items-center gap-[12px] pr-[56px]">
-          <span
-            className="flex size-[48px] shrink-0 items-center justify-center overflow-hidden rounded-full"
-            style={{ backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)' }}
-          >
+          {profile?.photo ? (
             <img
-              src={avatarLarge}
+              src={profile.photo}
               alt=""
               draggable="false"
-              className="h-[54px] w-[53px] max-w-none select-none"
+              className="size-[48px] shrink-0 rounded-full object-cover select-none"
             />
-          </span>
+          ) : (
+            <span
+              className="flex size-[48px] shrink-0 items-center justify-center overflow-hidden rounded-full"
+              style={{
+                backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)',
+              }}
+            >
+              <img
+                src={avatarLarge}
+                alt=""
+                draggable="false"
+                className="h-[54px] w-[53px] max-w-none select-none"
+              />
+            </span>
+          )}
           <div className="flex min-w-0 flex-col">
             <span className="font-sans text-[16px] font-semibold leading-6 text-black">
-              {SIDEBAR_PROFILE.name}
+              {profile ? profile.name : SIDEBAR_PROFILE.name}
             </span>
             <span className="font-sans text-[14px] leading-5 text-neutral-dark-hover">
-              {SIDEBAR_PROFILE.meta}
+              {profile ? profile.meta : SIDEBAR_PROFILE.meta}
             </span>
           </div>
         </div>
@@ -128,16 +150,35 @@ const DashboardMoreSheet = ({ isOpen, onClose, items, secondaryItems }) => {
             />
           ))}
           <div className="my-[6px] h-px w-full bg-brand-green-light-hover" />
-          <SheetRow
-            icon={icons.navNotification}
-            label="Notifications"
-            badge={TOP_NAV.notificationCount}
-            onSelect={handleSelect}
-          />
-          <SheetRow icon={icons.navHelp} label="Help" onSelect={handleSelect} />
+          {extraRows ? (
+            extraRows.map((row) => (
+              <SheetRow
+                key={row.id}
+                icon={row.icon}
+                label={row.label}
+                badge={row.badge}
+                active={row.active}
+                to={row.to}
+                onSelect={(label) => {
+                  handleSelect(label);
+                  row.onSelect?.();
+                }}
+              />
+            ))
+          ) : (
+            <>
+              <SheetRow
+                icon={icons.navNotification}
+                label="Notifications"
+                badge={TOP_NAV.notificationCount}
+                onSelect={handleSelect}
+              />
+              <SheetRow icon={icons.navHelp} label="Help" onSelect={handleSelect} />
+            </>
+          )}
         </nav>
 
-        <PublicProfileCard className="w-full" />
+        {footer === undefined ? <PublicProfileCard className="w-full" /> : footer}
       </div>
     </Modal>
   );

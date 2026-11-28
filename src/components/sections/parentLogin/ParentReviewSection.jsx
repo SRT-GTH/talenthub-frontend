@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
@@ -16,6 +16,9 @@ import {
   UserIcon,
 } from '../../shared/assets.jsx';
 import { OptOutModal, ParentRightsModal, DataProcessingModal } from './ConsentModals.jsx';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import { getApiErrorCode, getApiErrorMessage } from '../../../services/apiErrors.js';
+import { getSignupDraft, registerParent } from '../../../services/parentSignup.api.js';
 import { debug } from '../../../utils/debug.js';
 // Placeholder ward avatar — same as Link Ward step; swap for the real per-ward
 // photo when the parent onboarding store is wired.
@@ -161,12 +164,81 @@ const PasswordDots = () => (
   </span>
 );
 
+// The Figma sample, shown when the screen is opened without a sign-up in progress (design review).
+const SAMPLE = {
+  live: false,
+  fullName: 'Abena Mensah',
+  firstName: 'Abena',
+  middleName: '—',
+  lastName: 'Mensah',
+  dob: '12 March 2003',
+  gender: 'Female',
+  relationship: 'Mother',
+  ghanaCard: 'GHA-●●●●●●●●●-●',
+  phone: '+233 20 ••• ••• ••2',
+  whatsapp: 'Same as phone',
+  email: 'a.mensah@gmail.com',
+};
+
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+// "04-03-1980" -> "4 March 1980"
+const readableDob = (raw) => {
+  const [d, m, y] = String(raw || '').split('-');
+  const month = MONTHS[Number(m) - 1];
+  return month && y ? `${Number(d)} ${month} ${y}` : raw || '—';
+};
+// "0241234567" -> "+233 24 ••• ••• •67" (same masking as the sample)
+const maskedPhone = (raw) => {
+  const digits = String(raw || '')
+    .replace(/\D/g, '')
+    .replace(/^233/, '')
+    .replace(/^0/, '');
+  if (digits.length < 4) return raw || '—';
+  return `+233 ${digits.slice(0, 2)} ••• ••• •${digits.slice(-2)}`;
+};
+
+/** What the review shows: the parent's own answers from the sign-up draft, else the Figma sample. */
+const reviewValues = () => {
+  const d = getSignupDraft();
+  if (!d.firstName && !d.email) return SAMPLE;
+  return {
+    live: true,
+    fullName: [d.firstName, d.middleName, d.lastName].filter(Boolean).join(' ') || '—',
+    firstName: d.firstName || '—',
+    middleName: d.middleName || '—',
+    lastName: d.lastName || '—',
+    dob: readableDob(d.dateOfBirth),
+    gender: d.gender || '—',
+    relationship: d.relationship || '—',
+    // Files on the verification step are not uploaded or checked yet (no endpoint).
+    ghanaCard: 'Not checked yet',
+    phone: maskedPhone(d.phone),
+    whatsapp: d.whatsapp ? maskedPhone(d.whatsapp) : 'Same as phone',
+    email: d.email || '—',
+  };
+};
+
 // ── Main component ──────────────────────────────────────────────────────────
 
 const ParentReviewSection = () => {
   log('mount');
 
   const navigate = useNavigate();
+  const rv = useMemo(reviewValues, []);
+  log('review values:', rv.live ? 'sign-up draft' : 'Figma sample');
   const [consent, setConsent] = useState({ access: false, rights: false, data: false });
   // Which consent pop-up is open: null | 'optout' | 'rights' | 'data'.
   const [activeModal, setActiveModal] = useState(null);
@@ -195,20 +267,41 @@ const ParentReviewSection = () => {
     navigate(target);
   };
 
-  // Figma 'Active' CTA: spinner while submitting, then Done (presentational ~800 ms).
+  // Figma 'Active' CTA: spinner while the account is created.
   const [submitting, setSubmitting] = useState(false);
-  const submitTimer = useRef(null);
-  useEffect(() => () => clearTimeout(submitTimer.current), []);
+  const [submitError, setSubmitError] = useState('');
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!allAccepted) {
       log('continue blocked — not all consents accepted');
       return;
     }
     if (submitting) return;
-    log('all accepted — loading, then navigating to parent-done');
+    // Design review (no sign-up in progress): keep the drawn hand-off to Done.
+    if (!rv.live) {
+      log('no sign-up draft — Figma sample, going to parent-done');
+      navigate('/onboarding/parent-done');
+      return;
+    }
+    log('all accepted — creating the parent account');
     setSubmitting(true);
-    submitTimer.current = setTimeout(() => navigate('/onboarding/parent-done'), 800);
+    setSubmitError('');
+    try {
+      const result = await registerParent();
+      navigate('/onboarding/parent-done', {
+        state: { selfServe: true, loggedIn: false, ...result },
+      });
+    } catch (err) {
+      const code = getApiErrorCode(err);
+      log.error('register failed:', code);
+      setSubmitting(false);
+      // The password lives in memory only (lost on refresh): set it again.
+      if (code === 'PASSWORD_MISSING') return navigate('/onboarding/parent-security');
+      if (code === 'CONTACT_NOT_VERIFIED') return navigate('/onboarding/parent-contact');
+      setSubmitError(
+        getApiErrorMessage(err, 'We could not create your account. Please try again.')
+      );
+    }
   };
 
   return (
@@ -266,10 +359,10 @@ const ParentReviewSection = () => {
               <SectionHeader icon={<UserIcon />} label="Your Identity" />
               <ParentDefRows
                 rows={[
-                  { label: 'Full name', value: 'Abena Mensah' },
-                  { label: 'Date of birth', value: '12 March 2003' },
-                  { label: 'Gender', value: 'Female' },
-                  { label: 'Relationship to ward', value: 'Mother' },
+                  { label: 'Full name', value: rv.fullName },
+                  { label: 'Date of birth', value: rv.dob },
+                  { label: 'Gender', value: rv.gender },
+                  { label: 'Relationship to ward', value: rv.relationship },
                 ]}
               />
               <div className="flex flex-col gap-[8px] max-md:hidden">
@@ -277,20 +370,20 @@ const ParentReviewSection = () => {
                   <PreviewField
                     className="min-w-0 flex-1"
                     label="First name"
-                    value="Abena"
+                    value={rv.firstName}
                     height={49}
                   />
                   <PreviewField
                     className="min-w-0 flex-1"
                     label="Middle name"
-                    value="—"
+                    value={rv.middleName}
                     muted
                     height={49}
                   />
                   <PreviewField
                     className="min-w-0 flex-1"
                     label="Last name"
-                    value="Mensah"
+                    value={rv.lastName}
                     height={49}
                   />
                 </div>
@@ -298,19 +391,19 @@ const ParentReviewSection = () => {
                   <PreviewField
                     className="min-w-0 flex-1"
                     label="Date of birth"
-                    value="12 March 2003"
+                    value={rv.dob}
                     height={49}
                   />
                   <PreviewField
                     className="min-w-0 flex-1"
                     label="Gender"
-                    value="Female"
+                    value={rv.gender}
                     height={49}
                   />
                   <PreviewField
                     className="min-w-0 flex-1"
                     label="Relationship to ward"
-                    value="Mother"
+                    value={rv.relationship}
                     height={49}
                   />
                 </div>
@@ -328,13 +421,13 @@ const ParentReviewSection = () => {
                 rows={[
                   {
                     label: 'Ghana Card Number',
-                    value: 'GHA-●●●●●●●●●-●',
+                    value: rv.ghanaCard,
                     valueColor: '#575755',
-                    trailing: <VerifiedBadge />,
+                    trailing: rv.live ? undefined : <VerifiedBadge />,
                   },
                   {
                     label: 'Profile photo',
-                    value: '✓ Uploaded & confirmed',
+                    value: rv.live ? 'Not uploaded yet' : '✓ Uploaded & confirmed',
                     valueColor: '#b48617',
                   },
                 ]}
@@ -343,16 +436,16 @@ const ParentReviewSection = () => {
                 <PreviewField
                   className="w-full"
                   label="Ghana Card Number"
-                  value="GHA-●●●●●●●●●-●"
+                  value={rv.ghanaCard}
                   valueColor="#575755"
                   height={52}
                   leftIcon={<FieldIconBox icon={<IdCardIcon />} />}
-                  trailing={<VerifiedBadge />}
+                  trailing={rv.live ? undefined : <VerifiedBadge />}
                 />
                 <PreviewField
                   className="w-full"
                   label="Profile photo"
-                  value="✓ Uploaded & confirmed"
+                  value={rv.live ? 'Not uploaded yet' : '✓ Uploaded & confirmed'}
                   valueColor="#b48617"
                   height={52}
                   leftIcon={<FieldIconBox icon={<UserIcon />} />}
@@ -371,12 +464,12 @@ const ParentReviewSection = () => {
                 rows={[
                   {
                     label: 'Phone number',
-                    value: '+233 20 ••• ••• ••2',
+                    value: rv.phone,
                     valueColor: '#575755',
                     trailing: <OtpBadge />,
                   },
-                  { label: 'WhatsApp', value: 'Same as phone', valueColor: '#70706e' },
-                  { label: 'Email address', value: 'a.mensah@gmail.com', valueColor: '#70706e' },
+                  { label: 'WhatsApp', value: rv.whatsapp, valueColor: '#70706e' },
+                  { label: 'Email address', value: rv.email, valueColor: '#70706e' },
                   { label: 'Preferred contact', value: 'Phone & WhatsApp', valueColor: '#575755' },
                 ]}
               />
@@ -389,7 +482,7 @@ const ParentReviewSection = () => {
                     height={65}
                     value={
                       <span className="flex flex-col gap-[6px]">
-                        <span>+233 20 ••• ••• ••2</span>
+                        <span>{rv.phone}</span>
                         <OtpBadge />
                       </span>
                     }
@@ -397,7 +490,7 @@ const ParentReviewSection = () => {
                   <PreviewField
                     className="min-w-0 flex-1"
                     label="WhatsApp"
-                    value="Same as phone"
+                    value={rv.whatsapp}
                     muted
                     height={65}
                   />
@@ -406,7 +499,7 @@ const ParentReviewSection = () => {
                   <PreviewField
                     className="min-w-0 flex-1"
                     label="Email address"
-                    value={<span className="max-md:break-all">a.mensah@gmail.com</span>}
+                    value={<span className="max-md:break-all">{rv.email}</span>}
                     muted
                     height={48}
                   />
@@ -614,6 +707,7 @@ const ParentReviewSection = () => {
             </div>
           </div>
 
+          <ApiErrorNote message={submitError} />
           {/* ── CTA — Figma 2944:68294 — gated on all 3 consents ── */}
           <StickyActionBar bleed={16}>
             {allAccepted ? (

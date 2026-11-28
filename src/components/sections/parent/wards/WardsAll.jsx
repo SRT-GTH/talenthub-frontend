@@ -4,6 +4,7 @@ import ParentButton from '../ParentButton.jsx';
 import WardChip from './WardChip.jsx';
 import { STATUS_LEGEND, WARD_LIST } from './data/wardsData.js';
 import { PARENT_PAGE_TEXT } from '../../../../copy/portals/parentCopy.js';
+import { ParentSkeleton as Sk } from '../states/ParentHomeLoading.jsx';
 
 const log = debug('WardsAll');
 
@@ -11,8 +12,10 @@ const log = debug('WardsAll');
  * WardsAll — PW-01 "My wards · All" (Figma 10033:5115). Renders ONLY the main column (the page supplies <ParentFrame active="wards">).
  * Column 1329 wide, gap 24: title row (34/600 "My wards" + 16 #999 subtitle, "Link another ward" secondary 3D button right),
  * "Ward table" card (white, r24, px22 py8, rows py14 gap14: avatar 40 + name/line + chip + action link), "Statuses" legend (#ebf1ec r24 p22, three 360-wide notes).
- * Props: onLink (optional, defaults to log). Rows link to /parent/wards/:id (pending ward: "Resend" only logs).
- * ⚠️ ASSUMPTION: the "Opted out" legend chip is only a legend (no ward is opted out in the mock); "Link another ward" only logs.
+ * Props: onLink ("Link another ward": the page sends it to /parent/link-ward). Rows link to /parent/wards/:id; a pending ward's "Resend" opens
+ * Link a ward's "Request sent" step (/parent/link-ward?step=sent, as the home's "Remind Kwesi").
+ * ⚠️ ASSUMPTION: the "Opted out" legend chip is only a legend in the demo (no mock ward is opted out; live wards show it).
+ * Live loading / error rows (no Figma frame for this page): the PD-05 shimmer rows and a "Try again" row, as the home's PD-05 / PD-06.
  * Legend wraps to a column below 1024px; rows wrap their chip under the text on phones.
  */
 const WardRow = ({ ward, last }) => {
@@ -64,10 +67,39 @@ const WardRow = ({ ward, last }) => {
   );
 };
 
-// Live passes `wards` (parentLiveView wardView rows) and `empty` copy for a parent with no ward yet.
-const WardsAll = ({ onLink, hide = [], wards = WARD_LIST, empty }) => {
+// Live while GET /parent/me runs: three rows in the PD-05 shimmer (avatar 40, two bars, a chip), the row anatomy above.
+const SkeletonRows = () => (
+  <>
+    {[0, 1, 2].map((i) => (
+      <li
+        key={i}
+        aria-hidden="true"
+        className={`flex items-center gap-[14px] py-[14px] ${i < 2 ? 'border-b border-solid border-[#eeeee9]' : ''}`}
+      >
+        <Sk className="size-[40px] shrink-0 rounded-full" />
+        <span className="flex min-w-0 flex-1 flex-col gap-[8px]">
+          <Sk className="h-[14px] w-[min(220px,60%)] rounded-[8px]" />
+          <Sk className="h-[10px] w-[min(320px,80%)] rounded-[8px]" />
+        </span>
+        <Sk className="h-[26px] w-[64px] shrink-0 rounded-[99px]" />
+      </li>
+    ))}
+  </>
+);
+
+// Live passes `wards` (parentLiveView wardView rows), `status` ('loading' | 'error' | 'ready'), `error` + `onRetry`, and `empty`
+// copy for a parent with no ward yet (the home's "Link a ward" button sits above it).
+const WardsAll = ({
+  onLink,
+  hide = [],
+  wards = WARD_LIST,
+  empty,
+  status = 'ready',
+  error,
+  onRetry,
+}) => {
   const list = wards.filter((w) => !hide.includes(w.id));
-  log('render, wards:', list.length);
+  log('render', { wards: list.length, status });
   return (
     <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px] pt-[clamp(0px,0.7vw,12px)]">
       <div className="flex flex-wrap items-center justify-between gap-x-[24px] gap-y-[16px]">
@@ -92,7 +124,37 @@ const WardsAll = ({ onLink, hide = [], wards = WARD_LIST, empty }) => {
 
       <div className="flex flex-col gap-[20px]">
         <ul className="m-0 flex list-none flex-col gap-[16px] rounded-[24px] border border-solid border-[#e7e7e7] bg-white px-[22px] py-[8px] shadow-[0_5px_8.5px_rgba(28,42,33,0.03)]">
-          {list.length === 0 && empty ? (
+          {status === 'loading' ? (
+            <>
+              <li className="sr-only" role="status">
+                Loading your wards…
+              </li>
+              <SkeletonRows />
+            </>
+          ) : null}
+          {status === 'error' ? (
+            <li
+              role="alert"
+              className="flex flex-wrap items-center justify-between gap-[12px] py-[14px] font-sans text-[15px] leading-normal text-[#575755]"
+            >
+              <span>
+                We couldn’t load your wards.{' '}
+                {error ? <span className="text-[#c0392b]">{error}</span> : null}
+              </span>
+              {onRetry ? (
+                <ParentButton
+                  variant="secondary"
+                  onClick={() => {
+                    log('try again');
+                    onRetry();
+                  }}
+                >
+                  Try again
+                </ParentButton>
+              ) : null}
+            </li>
+          ) : null}
+          {status === 'ready' && list.length === 0 && empty ? (
             <li className="py-[14px] font-sans text-[15px] leading-normal text-[#575755]">
               {empty}
             </li>

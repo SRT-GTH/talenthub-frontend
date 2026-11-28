@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,6 +13,13 @@ import { COMPACT_PRIMARY_BUTTON } from '../../ui/form/mobileScale.js';
 import { UserIcon, LoadingSpinner, ArrowRightIcon } from '../../shared/assets.jsx';
 import ParentInlineNotice from './ParentInlineNotice.jsx';
 import { useMediaQuery } from '../../../hooks/useMediaQuery.js';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import { AuthErrorToast, LoginOtpStep } from '../talentAuth/LoginSteps.jsx';
+import TwoStepSignInStep from '../twoStep/TwoStepSignInStep.jsx';
+import { getApiErrorCode, getApiErrorMessage } from '../../../services/apiErrors.js';
+import { requestLoginOtp, resolveHomePath } from '../../../services/auth.api.js';
+import { toGhanaE164 } from '../../../services/onboardingMappers.js';
+import { resolveNext } from '../../../utils/authNext.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('ParentLoginSection');
@@ -36,8 +43,19 @@ const log = debug('ParentLoginSection');
 
 // ── zod schema ────────────────────────────────────────────────────────────
 
+const looksLikeEmail = (v) => String(v).includes('@');
 const schema = z.object({
-  emailOrPhone: z.string().min(1, 'Email or phone number is required'),
+  emailOrPhone: z
+    .string()
+    .trim()
+    .min(1, 'Email or phone number is required')
+    .refine(
+      (v) =>
+        looksLikeEmail(v)
+          ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+          : /^(\+?233|0)?\d{9}$/.test(v.replace(/[\s-]/g, '')),
+      'Enter a valid email address or Ghanaian mobile number'
+    ),
   password: z.string().min(1, 'Password is required'),
   keepMeLoggedIn: z.boolean().optional(),
 });
@@ -169,7 +187,14 @@ const ParentLoginSection = () => {
   log('mount');
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [toastVisible, setToastVisible] = useState(true);
+  // Same two-step log-in as /login (services/auth.api.js): password, then the emailed code
+  // (or the authenticator code when 2-step verification is on).
+  const [otpStep, setOtpStep] = useState(null);
+  const [mfaStep, setMfaStep] = useState(null);
+  const [authFailed, setAuthFailed] = useState(false);
+  const [apiError, setApiError] = useState('');
   const isTabletUp = useMediaQuery('(min-width: 1024px)');
 
   const {
@@ -179,15 +204,68 @@ const ParentLoginSection = () => {
   } = useForm({
     resolver: zodResolver(schema),
     mode: 'onChange',
-    defaultValues: { emailOrPhone: '', password: '', keepMeLoggedIn: false },
+    // ?email= comes from the sign-up done page ("Log in to your account").
+    defaultValues: {
+      emailOrPhone: searchParams.get('email') || '',
+      password: '',
+      keepMeLoggedIn: false,
+    },
   });
 
   const onSubmit = async (data) => {
-    log('submit', { emailOrPhone: data.emailOrPhone, keepMeLoggedIn: data.keepMeLoggedIn });
-    // TODO: wire up auth API
-    await new Promise((r) => setTimeout(r, 1500));
-    log('login complete');
+    const raw = data.emailOrPhone.trim();
+    const identity = looksLikeEmail(raw) ? { email: raw } : { phoneNumber: toGhanaE164(raw) };
+    // "Keep me logged in" is not sent: the auth API has no option for it (same as /login).
+    log('submit', {
+      method: identity.email ? 'email' : 'phone',
+      keepMeLoggedIn: data.keepMeLoggedIn,
+    });
+    setAuthFailed(false);
+    setApiError('');
+    try {
+      const res = await requestLoginOtp({ identity, password: data.password });
+      const d = res?.requiresMfa ? res : res?.data || res || {};
+      if (d.requiresMfa) {
+        log('2-step verification on: asking for the app code');
+        setMfaStep({ identity, challengeId: d.challengeId });
+      } else {
+        log('password ok: code emailed');
+        setOtpStep({ identity, maskedEmail: res?.maskedEmail || res?.data?.maskedEmail });
+      }
+    } catch (err) {
+      const code = getApiErrorCode(err);
+      log.error('login failed:', code);
+      if (code === 'INVALID_CREDENTIALS') setAuthFailed(true);
+      else setApiError(getApiErrorMessage(err));
+    }
   };
+
+  if (mfaStep || otpStep) {
+    return (
+      <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-16 lg:py-20 max-md:px-4 max-md:py-4">
+        {mfaStep ? (
+          <TwoStepSignInStep
+            identity={mfaStep.identity}
+            challengeId={mfaStep.challengeId}
+            onSignedIn={async (user, opts) => {
+              const home = resolveNext(searchParams.get('next'), await resolveHomePath(user));
+              const to = opts?.to ? `${opts.to}?next=${encodeURIComponent(home)}` : home;
+              log('logged in with 2-step; going to', to);
+              navigate(to, { replace: true });
+            }}
+            onRestart={() => setMfaStep(null)}
+          />
+        ) : (
+          <LoginOtpStep
+            identity={otpStep.identity}
+            maskedEmail={otpStep.maskedEmail}
+            accentClassName="text-[#c8951a]"
+            onBack={() => setOtpStep(null)}
+          />
+        )}
+      </div>
+    );
+  }
 
   const onError = (errs) => {
     log('validation failed:', Object.keys(errs));
@@ -209,6 +287,17 @@ const ParentLoginSection = () => {
               Log in to manage their account.
             </ParentInlineNotice>
           ))}
+
+        {/* Wrong email / phone or password: the /login danger toast, inline (the parent panel
+            lives in the layout, so there is no panel copy). */}
+        {authFailed && (
+          <AuthErrorToast
+            inline
+            hideOnDesktop={false}
+            title="Incorrect Email, Phone Number Or Password"
+            onClose={() => setAuthFailed(false)}
+          />
+        )}
 
         {/* Welcome back badge — Figma 2884:64938 */}
         <WelcomeBackBadge />
@@ -299,7 +388,8 @@ const ParentLoginSection = () => {
           />
 
           {/* ── CTA block — Figma 2884:64957 ── */}
-          <div className="flex flex-col gap-4 mt-2 max-md:mt-1">
+          <div className="flex flex-col items-center gap-4 mt-2 max-md:mt-1">
+            <ApiErrorNote message={apiError} />
             {/* Primary CTA button — full width, 56px target height */}
             {/* Disabled: #bfbfbf (Button primary disabled state) */}
             {/* Active: #387440 (Button primary default state) */}

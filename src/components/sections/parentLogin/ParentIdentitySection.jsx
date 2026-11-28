@@ -17,6 +17,7 @@ import {
   CalendarIcon,
 } from '../../shared/assets.jsx';
 import ParentIdentityCapturedModal from './ParentIdentityCapturedModal.jsx';
+import { getSignupDraft, saveSignupDraft } from '../../../services/parentSignup.api.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('ParentIdentitySection');
@@ -146,15 +147,19 @@ const ParentIdentitySection = () => {
     formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: {
-      firstName: '',
-      middleName: '',
-      lastName: '',
-      relationship: '',
-      gender: '',
-      nationality: '',
-      dateOfBirth: '',
-    },
+    // Coming back to this step keeps what was typed (draft in this tab).
+    defaultValues: (() => {
+      const d = getSignupDraft();
+      return {
+        firstName: d.firstName || '',
+        middleName: d.middleName || '',
+        lastName: d.lastName || '',
+        relationship: d.relationship || '',
+        gender: d.gender || '',
+        nationality: d.nationality || '',
+        dateOfBirth: d.dateOfBirth || '',
+      };
+    })(),
     mode: 'onTouched',
   });
 
@@ -167,9 +172,18 @@ const ParentIdentitySection = () => {
       nationality: data.nationality,
       dateOfBirth: data.dateOfBirth,
     });
-    // Future: POST /api/parent/identity
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    log('submit success — opening IdentityCapturedModal');
+    // Nothing is sent yet: /auth/register takes these details with the account on the review
+    // step (services/parentSignup.api.js). Kept in this tab until then.
+    saveSignupDraft({
+      firstName: data.firstName.trim(),
+      middleName: data.middleName?.trim() || '',
+      lastName: data.lastName.trim(),
+      relationship: data.relationship,
+      gender: data.gender,
+      nationality: data.nationality || '',
+      dateOfBirth: data.dateOfBirth,
+    });
+    log('identity saved to the draft — opening IdentityCapturedModal');
     setSubmittedData(data);
     setShowModal(true);
   };

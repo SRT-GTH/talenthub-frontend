@@ -57,3 +57,17 @@ Diff % = whole-frame pixel difference vs the Figma 0.5x export (SF Pro Rounded, 
 5. `LogoutDialog` / `CloseAccountDialog` ≈ `talentSettings/LogoutConfirm` / the delete dialog (same anatomy, parent copy) and `DialogCard` users in `flags` / `link`.
 
 - ⚠️ ASSUMPTION (2026-11-22): **Change password** opens the talent `ChangePasswordDialog`; demo only (no API call), submitting closes it and, when "log out other devices" is ticked, removes the other device rows.
+
+## Live wiring and inspection (2026-11-25, phase parent-more)
+
+Staging probe (unauthenticated: 401 = route exists, 404 = none): the generic account endpoints exist and act on whoever is signed in; nothing parent-only exists for roles, the ward PDF, "take a break" or closing only the parent role.
+
+- ✅ VERIFIED (code + browser with a fake session): signed in and not a frame URL (`useParentLiveMode`), `SettingsPage` runs the talent `useLiveSettings` hook and passes `settings.live` to every tab; while it loads / fails the tab shows the shared `talentSettings/LiveSettingsStatus` (moved out of `TalentSettingsPage`, now one component for both pages).
+- **Account**: GET `/settings/overview` fills the six fields; Save sends only changed fields to PUT `/settings/account` (helpers in `settings/settingsLive.js`); email and date of birth are read-only with a hint; "Saved" / error line (`LiveSaveStatus`). Demo Save now shows "Saved" (was log-only). 🔶 LIKELY works for a parent (same backend service) — needs a signed-in parent check.
+- **Notifications**: GET / PUT `/settings/notifications` with the parent row ids (`approvals, milestones, flags, activity, links, turning18, news`), quiet hours and weekly; "Turn everything off for 24 hours" sends `pause` (then "Resume now"). 🔶 LIKELY: whether the backend keeps parent row ids is not checked.
+- **Security**: sessions from the overview, Log out per device (DELETE `/settings/sessions/:id`), Log out of all other devices (POST `/settings/sessions/revoke-others`), Change password (POST `/settings/password`, the talent dialog in live mode), two-step = shared `TwoStepSettingsRow` (`/security/2-step`), Google row hidden (as on the talent page).
+- **Data**: Request download = GET `/settings/export` (JSON download; the drawn ZIP-by-email is not what the backend does). Download PDF and "Pause non-urgent notifications" have no endpoint (log / local only).
+- **Close parent account**: no endpoint closes only the parent role (`/settings/deactivate` turns the whole account off, My career too). ⚠️ ASSUMPTION: live, the confirm shows "Closing a parent account is not available online yet. Ask us from Help…" and nothing is closed; demo keeps PS-07b.
+- **Log out** (bug fixed): it used to show PS-06b without ending the session. Now POST `/users/logout` (waits at most 3 s), clears the local tokens, resets the parent store, then `?state=logged-out`; "See you soon, <first name>" when signed in.
+- **Accessibility / Language**: their own `state` is stored as `sstate` (`settingsState.sectionUpdate`), because any `?state=` turns `/parent/*` into a design frame and would drop live mode mid-edit. With live settings they save through `/settings/preferences`.
+- Figma prototype links (canvas JSON `transitionNodeID`, read 2026-11-25): nav items → their tabs, Log out → PS-06, Close parent account → PS-07, PS-06 → PS-06b, PS-07 → PS-07b. All match the app ✅ VERIFIED.

@@ -182,7 +182,9 @@ test('invited parent with a different email: account, then log in', async ({ pag
   expect(res.session ?? null).toBe(null);
   await expect(page.getByTestId('done-login-note')).toContainText(other);
   await page.getByRole('button', { name: /log in to your account/i }).click();
-  await page.waitForURL('**/login');
+  // The parent log-in, with the new email filled in (was the shared /login).
+  await page.waitForURL('**/onboarding/parent-login?email=*');
+  await expect(page.getByPlaceholder(/davidadzato45gmail/)).toHaveValue(other);
 });
 
 test('a bad link shows an error and no actions', async ({ page }) => {

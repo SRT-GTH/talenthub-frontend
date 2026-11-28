@@ -64,7 +64,7 @@ const SIZES = [
   { id: 'large', label: 'Large text', cls: 'text-[15px]' },
 ];
 
-const A11yPanel = ({ id, onClose }) => {
+export const A11yPanel = ({ id, onClose }) => {
   const [prefs, setPref] = useA11yPrefs();
 
   useEffect(() => {

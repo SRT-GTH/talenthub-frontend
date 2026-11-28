@@ -200,7 +200,8 @@ const ParentInviteVerificationSection = () => {
             type="button"
             onClick={() => {
               log('back clicked');
-              navigate(-1);
+              // The previous step by name: navigate(-1) left the app when the step was opened directly.
+              navigate('/onboarding/parent-invited-identity');
             }}
             aria-label="Back"
             className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold max-md:h-11 max-md:w-11 max-md:shrink-0 max-md:justify-center max-md:px-0"

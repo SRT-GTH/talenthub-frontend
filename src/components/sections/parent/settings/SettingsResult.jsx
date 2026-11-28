@@ -9,7 +9,7 @@ const log = debug('SettingsResult');
 /*
  * SettingsResult — the two full-page result screens of the Settings flow: PS-06b "You’re logged out" (Figma 10056:157278) and PS-07b "Parent account closed" (10056:157684). A 34/600 page title and
  * one white card (r24, #e7e7e7 hairline, soft shadow, p44, gap14, centred): a 96px spot, a 24/600 title, a 14/400 #575755 body (max 520 / 560) and the buttons.
- * Props: kind ('logged-out' | 'closed'), onLogIn, onCareer, onUndo.
+ * Props: kind ('logged-out' | 'closed'), onLogIn, onCareer, onUndo, name (the signed-in parent's first name for "See you soon, …"; the drawn Emma when absent).
  */
 const Card = ({ spot, title, body, preserve, children }) => (
   <section
@@ -27,7 +27,7 @@ const Card = ({ spot, title, body, preserve, children }) => (
   </section>
 );
 
-const SettingsResult = ({ kind, onLogIn, onCareer, onUndo }) => {
+const SettingsResult = ({ kind, onLogIn, onCareer, onUndo, name }) => {
   log('render', { kind });
   const closed = kind === 'closed';
   return (
@@ -43,7 +43,11 @@ const SettingsResult = ({ kind, onLogIn, onCareer, onUndo }) => {
           </ParentButton>
         </Card>
       ) : (
-        <Card spot={spotSent} title={LOGGED_OUT.title} body={LOGGED_OUT.body}>
+        <Card
+          spot={spotSent}
+          title={name ? `See you soon, ${name}` : LOGGED_OUT.title}
+          body={LOGGED_OUT.body}
+        >
           <ParentButton onClick={onLogIn}>{LOGGED_OUT.cta}</ParentButton>
         </Card>
       )}

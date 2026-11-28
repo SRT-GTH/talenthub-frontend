@@ -25,8 +25,8 @@ One page, `src/pages/parent/ParentHomePage.jsx`, state chosen by `?state=`. Rout
 
 ## Assumptions (⚠️ ASSUMPTION)
 
-- Buttons, links, search, profile menu and the sidebar collapse toggle only `log(...)`: Figma draws none of the screens they open. The Ask Buddy icon (Focused look) only logs: no parent Buddy panel is drawn.
-- Sidebar hidden under 1024 px; the "Parent view" chip hidden under 1280 px (it would sit on the search field).
+- 🪦 STALE (2026-11-25): search, language, accessibility, profile menu, messages and the collapse toggle all open something now: see [parent-wiring.md](parent-wiring.md) "Inspection pass 2026-11-25". Ask Buddy opens the parent Buddy panel (`?buddy=open`).
+- Sidebar under 1024 px: the collapsed rail at 768–1023 px and a bottom tab bar under 768 px (`chrome/ParentMobileNav`) ✅ VERIFIED 2026-11-25; the "Parent view" chip is hidden under 1536 px (`ParentTopBar`).
 - Abena / Elliot tabs only change the selected look. Hidden Figma cards (Streak and quests, More for you) are omitted.
 - PD-05 prints the profile as "Emma A." in Figma (typo); every screen here says "Emma M.".
 - Skeleton shimmer speed (1.6 s) is ours; Figma draws the gradient only. Some small icons (Review now, Evaluate my child, button user/arrow) were not exported by Figma and are drawn inline.
@@ -76,6 +76,8 @@ Sections B-E (same canvas):
 | `?state=auto`                                   | PE-05b `10052:4434` (published automatically after 7 days) |
 | `?state=turned18`                               | PE-06 `10034:150815`                                       |
 
+Live (2026-11-25, ✅ VERIFIED with a fake session): no evaluation endpoint exists on staging, so a signed-in parent sees `states/ParentNotYet` on `/parent/evaluate`, `/questions` and `/result` (or PE-07 with no ward); frame URLs keep the mock. Figma links: Start / Continue → PE-02, Discard → PE-02b, Next → PE-04, Under review chip → PE-05c; all match.
+
 Flow: Start evaluation / Continue -> questions; Next on the last mock question -> `/parent/evaluate/result`. Assumptions: the blocked-word list is invented (Figma shows only `*****`); only the drawn question per set is from Figma, the second is a mock so Next / Back can be used; the PE-05 "Under review" rows open the PE-05c modal (no trigger drawn); PE-05b rows are all "On profile" (Figma's last two layers are misnamed).
 
 ## Canvas 10 · Help and safety (node `10057:67418`) — built 2026-10-28
@@ -88,5 +90,7 @@ Four frames. PH-01, PH-03 and PH-03b were already built by the opt-out flow ([pa
 | `/parent/help/opting-out`                                    | PH-02 `10053:3343` Help article · Opting out and privacy (crumb "Help and guides › Your controls", Related card, Was this helpful?) |
 | `/parent/help?modal=report&who=abena&worry=contacted&note=…` | PH-03 `10053:3719` Report a safety concern                                                                                          |
 | `/parent/help?modal=report-sent&about=abena`                 | PH-03b `10056:156954` Report sent                                                                                                   |
+
+Live (2026-11-25): Send report posts to POST `/support/concerns` (`optout/ReportConcernLayer`, also on the ward page) and the sent dialog shows the returned case number; errors stay in the form; the "Who" chips are the parent's own wards on `/parent/help`. 🔶 LIKELY (route exists, 422 on an empty body; needs a signed-in parent check). Figma links: topic Opting out → PH-02, Report a concern → PH-03, PH-02 Report → PH-03 ✅ match.
 
 Files: `help/HelpArticle.jsx`, `help/data/articleData.js`, page `src/pages/parent/ParentHelpArticlePage.jsx` (route `help/:topicId`); the "Opting out and privacy" card on `/parent/help` is now a link. The other five topics have no designed article: since 2026-11-22 their cards open the screen where that job is done (⚠️ ASSUMPTION, see [parent-wiring.md](parent-wiring.md)); `/parent/help/<other>` still shows a "not designed yet" note. The Related links "Flagging your ward's profile" and "When your ward turns 18" open My wards; "Report a safety concern" opens PH-03. The Yes / Not really chips only toggle a selected look.

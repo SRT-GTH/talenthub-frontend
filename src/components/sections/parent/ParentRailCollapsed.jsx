@@ -2,34 +2,16 @@ import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { NAV_MAIN, NAV_SECONDARY, careerHome } from './data/parentCoreData.js';
 import useParentChrome from './live/useParentChrome.js';
-import homeIcon from '../../../assets/parent/frame-1.svg';
-import navWards from '../../../assets/parent/icon-1.svg';
-import navReview from '../../../assets/parent/icon-2.svg';
-import navEvaluate from '../../../assets/parent/icon-3.svg';
-import navWallets from '../../../assets/parent/stroke.svg';
-import navNotifications from '../../../assets/parent/icon-4.svg';
-import navSettings from '../../../assets/parent/icon-5.svg';
-import navHelp from '../../../assets/parent/icon-6.svg';
-import navCareer from '../../../assets/parent/icon-7.svg';
+import { PARENT_NAV_ICONS as ICONS } from './chrome/parentNavIcons.js';
 import ParentSidebarToggle from './ParentSidebarToggle.jsx';
 
 /*
  * ParentRailCollapsed — "Sidebar · parent · collapsed" (Figma PR-01c 10047:19112, 126 wide, white): the expand toggle (the « mirrored), the 74px round avatar (3px #e6e6e6 ring), the nav as 80 x 54 icon
  * tiles (24px icons; the active tile #ebf1ec; a 10px green dot where the expanded sidebar shows a count badge), a hairline, Settings · Help and guides · My career, and the "My career" switch chip at the
  * bottom (64 x 60). Labels are aria-labels; the tiles are the same links as the expanded sidebar.
- * Props: state ('none' | 'linked' | 'caughtUp' | 'oneWard', which badges become dots), active (nav id), onExpand, className.
+ * Props: state ('none' | 'linked' | 'caughtUp' | 'oneWard', which badges become dots), active (nav id), onExpand (no toggle without it: the md–lg tablet rail,
+ * where the full sidebar does not fit), toggleClassName (e.g. hide the toggle below lg), className.
  */
-const ICONS = {
-  home: homeIcon,
-  wards: navWards,
-  review: navReview,
-  evaluate: navEvaluate,
-  wallets: navWallets,
-  notifications: navNotifications,
-  settings: navSettings,
-  help: navHelp,
-  career: navCareer,
-};
 
 const Tile = ({ item, active, dot, tall = true }) => (
   <Link
@@ -52,7 +34,13 @@ const Tile = ({ item, active, dot, tall = true }) => (
   </Link>
 );
 
-const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, className }) => {
+const ParentRailCollapsed = ({
+  state = 'linked',
+  active = 'home',
+  onExpand,
+  toggleClassName,
+  className,
+}) => {
   const chrome = useParentChrome(state);
   const badges = chrome.sidebar.badges;
   const emma = chrome.parent.photo;
@@ -64,7 +52,13 @@ const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, clas
         className
       )}
     >
-      <ParentSidebarToggle expand className="top-[16px] left-[49px]" onClick={onExpand} />
+      {onExpand ? (
+        <ParentSidebarToggle
+          expand
+          className={classNames('top-[16px] left-[49px]', toggleClassName)}
+          onClick={onExpand}
+        />
+      ) : null}
 
       <span className="flex size-[74px] shrink-0 items-center justify-center rounded-full border-[3px] border-solid border-[#e6e6e6] bg-white">
         <img
@@ -80,7 +74,7 @@ const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, clas
           {NAV_MAIN.map((item) => (
             <Tile
               key={item.id}
-              item={item.id === 'career' ? { ...item, to: careerHome(chrome.live) } : item}
+              item={item}
               active={item.id === active}
               dot={Boolean(badges[item.id])}
             />
@@ -108,7 +102,7 @@ const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, clas
         className="mt-auto flex h-[60px] w-[64px] shrink-0 items-center justify-center rounded-[12px] border border-solid border-neutral bg-white no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
       >
         <span className="flex h-[36px] w-[40px] items-center justify-center rounded-[8px] bg-brand-green-light">
-          <img src={navCareer} alt="" className="size-[20px]" />
+          <img src={ICONS.career} alt="" className="size-[20px]" />
         </span>
       </Link>
     </aside>

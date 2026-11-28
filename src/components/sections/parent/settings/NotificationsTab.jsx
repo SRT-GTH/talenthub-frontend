@@ -3,6 +3,8 @@ import { debug } from '../../../../utils/debug.js';
 import { SettingsAChevronDownIcon, SettingsAClockIcon } from '../../../shared/assets.jsx';
 import { SettingsACheckbox } from '../../talentSettings/SettingsAUi.jsx';
 import { GroupCard, SettingRow, SettingsToggle } from '../../talentSettings/SettingsBUi.jsx';
+import LiveSaveStatus from '../../talentSettings/LiveSaveStatus.jsx';
+import { useSaveAction } from '../../talentSettings/useSaveAction.js';
 import Button from '../../../ui/Button.jsx';
 import { NOTIFICATIONS } from './data/settingsData.js';
 
@@ -42,17 +44,41 @@ const TimePill = ({ value, onChange, label }) => (
 /*
  * NotificationsTab — PS-03 "Settings · Notifications (parent)" (Figma 10046:2778): the seven-row update × channel matrix (In GTH / Email / SMS / WhatsApp), Quiet hours (a switch and two time
  * pickers), Weekly summary (a switch), then "Turn everything off for 24 hours" and Save changes. Local state; Save only logs.
- * ⚠️ ASSUMPTION: "Turn everything off for 24 hours" only logs (the paused state is not drawn in the parent canvas; the talent Settings draw one, ST-03b).
+ * Demo: "Turn everything off for 24 hours" and Save show a status line only (the paused state is not drawn in the parent canvas; the talent Settings draw one, ST-03b).
+ * Live (signed-in parent, settings.live.notifications): GET / PUT /settings/notifications, the endpoint the talent Settings use ({ rows: { id: [inApp, email,
+ * sms, whatsapp] }, quiet: { on, from, to }, weekly, pause }). The parent row ids (approvals, milestones, flags, activity, links, turning18, news) are sent as
+ * they are; rows the server has no value for start from the drawn defaults. 🔶 LIKELY: whether the backend keeps parent row ids needs a signed-in parent check.
  */
-const NotificationsTab = () => {
+const NotificationsTab = ({ settings }) => {
   const { matrix, quiet, weekly, pauseAll, save } = NOTIFICATIONS;
+  const ln = settings?.live?.notifications || null;
+  const live = ln ? settings.live : null;
   const [cells, setCells] = useState(() =>
-    Object.fromEntries(matrix.rows.map((r) => [r.id, [...r.on]]))
+    Object.fromEntries(
+      matrix.rows.map((r) => [
+        r.id,
+        Array.isArray(ln?.rows?.[r.id]) && ln.rows[r.id].length === 4
+          ? [...ln.rows[r.id]]
+          : [...r.on],
+      ])
+    )
   );
-  const [quietOn, setQuietOn] = useState(true);
-  const [from, setFrom] = useState(quiet.from);
-  const [to, setTo] = useState(quiet.to);
-  const [weeklyOn, setWeeklyOn] = useState(true);
+  const [quietOn, setQuietOn] = useState(ln?.quiet ? Boolean(ln.quiet.on) : true);
+  const [from, setFrom] = useState(ln?.quiet?.from || quiet.from);
+  const [to, setTo] = useState(ln?.quiet?.to || quiet.to);
+  const [weeklyOn, setWeeklyOn] = useState(typeof ln?.weekly === 'boolean' ? ln.weekly : true);
+  const { busy, status, setStatus, run } = useSaveAction();
+  const paused = Boolean(ln?.pausedUntil);
+
+  const send = (body, okText) => {
+    if (!live) {
+      log('demo save (nothing sent)', Object.keys(body));
+      setStatus({ tone: 'ok', text: okText });
+      return;
+    }
+    log('save notifications', Object.keys(body));
+    run(() => live.saveNotifications(body), okText);
+  };
 
   const toggleCell = (rowId, col, v) => {
     log('cell', { rowId, channel: matrix.channels[col], on: v });
@@ -134,13 +160,25 @@ const NotificationsTab = () => {
       <div className="flex items-center justify-between gap-[12px] max-sm:flex-wrap">
         <button
           type="button"
-          onClick={() => log('turn everything off for 24 hours (paused state not drawn)')}
+          disabled={busy}
+          onClick={() =>
+            paused
+              ? send({ pause: false }, 'Notifications are back on')
+              : send({ pause: true }, 'Paused for 24 hours')
+          }
           className="cursor-pointer text-[14px] leading-[17px] font-semibold text-[#595959] underline decoration-solid decoration-from-font focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
-          {pauseAll}
+          {paused ? 'Resume now' : pauseAll}
         </button>
-        <Button size="sm" onClick={() => log('save changes', cells)}>
-          {save}
+        <LiveSaveStatus status={status} className="mr-auto" />
+        <Button
+          size="sm"
+          disabled={busy}
+          onClick={() =>
+            send({ rows: cells, quiet: { on: quietOn, from, to }, weekly: weeklyOn }, 'Saved')
+          }
+        >
+          {busy ? 'Saving…' : save}
         </Button>
       </div>
     </div>

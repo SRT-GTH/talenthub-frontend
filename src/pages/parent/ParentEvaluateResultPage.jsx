@@ -1,6 +1,9 @@
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
 import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
+import { useParentLiveMode } from '../../components/sections/parent/live/parentLive.js';
+import ParentNotYet from '../../components/sections/parent/states/ParentNotYet.jsx';
+import { NOT_YET_PAGES } from '../../components/sections/parent/states/notYetCopy.js';
 import SubmittedScreen from '../../components/sections/parent/evaluate/results/SubmittedScreen.jsx';
 import OutcomeScreen from '../../components/sections/parent/evaluate/results/OutcomeScreen.jsx';
 import ModerationDialog from '../../components/sections/parent/evaluate/results/ModerationDialog.jsx';
@@ -23,6 +26,7 @@ const log = debug('ParentEvaluateResultPage');
  */
 const ParentEvaluateResultPage = () => {
   const [params, setParams] = useSearchParams();
+  const live = useParentLiveMode();
   const state = params.get('state') ?? 'submitted';
   log('state', state);
   const go = (s) => setParams({ state: s }, { replace: true });
@@ -36,6 +40,15 @@ const ParentEvaluateResultPage = () => {
     body = <Turned18Screen />;
   } else {
     body = <SubmittedScreen />;
+  }
+
+  // Live (signed-in parent, no frame `?state=`): no evaluation endpoint yet (see ParentEvaluatePage).
+  if (live) {
+    return (
+      <ParentFrame active="evaluate" sidebar="linked">
+        <ParentNotYet {...NOT_YET_PAGES.evaluate} />
+      </ParentFrame>
+    );
   }
 
   return (
